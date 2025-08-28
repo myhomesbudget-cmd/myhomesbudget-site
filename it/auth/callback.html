@@ -8,20 +8,22 @@
 <body>
   <h2>Attendere, stiamo completando l’accesso…</h2>
 
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  <script type="module" src="/it/supabase-client.js"></script>
+<script type="module">
+  import { supabase } from "/it/supabase-client.js";
+  const lang = location.pathname.split('/')[1] || 'it';
+  const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    // Completa la sessione dal link di Supabase (parametri nell'URL)
-    const { data: { session }, error } = await supabase.auth.getSession();
+  // Supabase compone la sessione dal link
+  const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (error) {
-      console.error(error);
-      document.body.innerHTML = "<h2>Errore durante il login.</h2>";
-    } else {
-      // Reindirizza dove preferisci (home o dashboard)
-      const lang = location.pathname.split('/')[1] || 'it';
-location.replace(`/${lang}/dashboard.html`);
-    }
-  </script>
+  if (error) {
+    console.error(error);
+    document.body.innerHTML = "<h2>Errore durante il login.</h2>";
+  } else {
+    goDash(); // 👉 dopo il magic link vai in dashboard
+  }
+</script>
+
 </body>
 </html>
