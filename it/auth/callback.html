@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <title>Completamento accesso…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h2>Attendere, stiamo completando l’accesso…</h2>
+
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    // Completa la sessione dal link di Supabase (parametri nell'URL)
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error) {
+      console.error(error);
+      document.body.innerHTML = "<h2>Errore durante il login.</h2>";
+    } else {
+      // Reindirizza dove preferisci (home o dashboard)
+      location.replace("/");
+    }
+  </script>
+</body>
+</html>
