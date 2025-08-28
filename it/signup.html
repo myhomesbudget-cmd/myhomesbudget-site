@@ -23,38 +23,38 @@
 
   <p><a href="/it/login.html">Hai già un account? Accedi</a></p>
 
-  <script type="module" src="/it/supabase-client.js"></script>
+  <!-- Import client Supabase -->
+<script type="module" src="/it/supabase-client.js"></script>
 <script type="module">
   import { supabase } from "/it/supabase-client.js";
-  const lang = location.pathname.split('/')[1] || 'it';
+
+  const lang = location.pathname.split('/')[1] || 'it';  
   const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-  // Registrazione email + password
+  // 🔹 Se già loggato → vai diretto in dashboard
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) goDash();
+
+  // 🔹 Registrazione email + password
   document.getElementById('signup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('su-email').value.trim();
     const password = document.getElementById('su-pass').value.trim();
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
     if (error) return alert('Errore registrazione: ' + error.message);
 
-    // Se "Confirm email" è OFF, l'utente è già attivo → vai in dashboard
-    // Se è ON, riceverà email di conferma e potrà usare il magic link
-    goDash();
+    goDash(); // 👉 dopo signup portalo diretto in dashboard
   });
 
-  // Magic link (se "Confirm email" è ON)
-  document.getElementById('magic-form').addEventListener('submit', async (e) => {
+  // 🔹 Registrazione via Magic Link (se vuoi mantenerla)
+  document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('ml-email').value.trim();
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) return alert('Errore invio Magic Link: ' + error.message);
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' } // o /it/auth/callback.html se usi quello
-    });
-
-    if (error) return alert('Errore invio link: ' + error.message);
-    alert('Controlla la tua email per completare l’accesso.');
+    alert("Controlla la tua email per il link di accesso.");
   });
 </script>
 
