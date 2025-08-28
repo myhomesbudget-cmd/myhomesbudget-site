@@ -24,37 +24,39 @@
   <p><a href="/it/login.html">Hai già un account? Accedi</a></p>
 
   <script type="module" src="/it/supabase-client.js"></script>
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+<script type="module">
+  import { supabase } from "/it/supabase-client.js";
+  const lang = location.pathname.split('/')[1] || 'it';
+  const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    // Registrazione email + password
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('su-email').value.trim();
-      const password = document.getElementById('su-pass').value.trim();
+  // Registrazione email + password
+  document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('su-email').value.trim();
+    const password = document.getElementById('su-pass').value.trim();
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) return alert('Errore registrazione: ' + error.message);
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return alert('Errore registrazione: ' + error.message);
 
-      // Se in Auth hai "Confirm email" DISATTIVATO -> l’utente è già attivo
-      // Se ATTIVATO -> Supabase invia email di conferma
-      alert('Registrazione effettuata! Controlla la tua email se è richiesta conferma.');
-      location.href = "/"; // o /it/login.html
+    // Se "Confirm email" è OFF, l'utente è già attivo → vai in dashboard
+    // Se è ON, riceverà email di conferma e potrà usare il magic link
+    goDash();
+  });
+
+  // Magic link (se "Confirm email" è ON)
+  document.getElementById('magic-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('ml-email').value.trim();
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' } // o /it/auth/callback.html se usi quello
     });
 
-    // Magic Link (richiede "Confirm email" ON e Redirect configurato)
-    document.getElementById('magic-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('ml-email').value.trim();
+    if (error) return alert('Errore invio link: ' + error.message);
+    alert('Controlla la tua email per completare l’accesso.');
+  });
+</script>
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {emailRedirectTo: 'https://www.myhomesbudget.com/it/auth/callback.html'
-});
-
-      if (error) return alert('Errore invio magic link: ' + error.message);
-      alert('Controlla la tua email: ti abbiamo inviato il link di accesso.');
-    });
-  </script>
 </body>
 </html>
