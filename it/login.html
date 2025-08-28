@@ -21,34 +21,35 @@
   <p><a href="/it/signup.html">Non hai un account? Registrati</a></p>
 
   <!-- Import client Supabase -->
-  <script type="module" src="/it/supabase-client.js"></script>
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+<script type="module" src="/it/supabase-client.js"></script>
+<script type="module">
+  import { supabase } from "/it/supabase-client.js";
 
-    // Login email + password
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('li-email').value.trim();
-      const password = document.getElementById('li-pass').value.trim();
+  const lang = location.pathname.split('/')[1] || 'it';  
+  const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert('Errore accesso: ' + error.message);
+  // 🔹 Se già loggato e arrivi sul login → vai diretto in dashboard
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) goDash();
 
-      // reindirizza alla dashboard della lingua corrente (it/en/es)
-const lang = location.pathname.split('/')[1] || 'it';
-location.href = `/${lang}/dashboard.html`;
-    });
+  // 🔹 Login email + password
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('li-email').value.trim();
+    const password = document.getElementById('li-pass').value.trim();
 
-    // Logout
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      alert('Disconnesso');
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return alert('Errore accesso: ' + error.message);
 
-    // Monitoraggio stato auth
-    supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth change:', _event, session);
-    });
-  </script>
+    goDash(); // 👉 redirect diretto in dashboard
+  });
+
+  // 🔹 Logout
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    alert('Disconnesso');
+  });
+</script>
+
 </body>
 </html>
