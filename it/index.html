@@ -9,30 +9,71 @@
 
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+
+    /* ===== SFONDO GLOBALE ===== */
     body{
       margin:0;padding:0;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;color:#fff;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    /* Overlay leggerissimo: 0.05 */
+    body::before{
+      content:"";position:fixed;inset:0;
+      background:rgba(0,0,0,.05);z-index:-1;
+    }
 
+    /* ===== LAYOUT & NAV ===== */
     .wrap{max-width:960px;margin:0 auto;padding:24px}
     .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
     .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .nav a:hover{background:rgba(255,255,255,.12)}
 
-    .hero{display:grid;gap:16px;margin:40px 0}
-    .hero h1{font-size:clamp(1.9rem,4vw,3rem);line-height:1.1;margin:0}
-    .hero p{max-width:720px;margin:8px 0 16px}
+    /* ===== HERO CENTRATA + ANIMAZIONE A CASCATA ===== */
+    .hero{
+      min-height:80vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;gap:16px;padding:0 20px;margin:0; /* tolgo il margin top */
+    }
+    .hero h1{
+      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
+      opacity:0;transform:translateY(30px);
+      animation:fadeInUp .8s ease forwards;
+    }
+    .hero p{
+      max-width:720px;margin:8px 0 16px;
+      font-size:clamp(1rem,2vw,1.25rem);
+      opacity:0;transform:translateY(30px);
+      animation:fadeInUp .8s ease forwards .4s; /* dopo il titolo */
+    }
+    .cta{
+      display:inline-block;background:#111;color:#fff;
+      padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      opacity:0;transform:translateY(30px);
+      animation:fadeInUp .8s ease forwards .8s; /* dopo il sottotitolo */
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
 
-    .cta{display:inline-block;background:#111;color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none}
-    .cta:hover{filter:brightness(1.1)}
+    @keyframes fadeInUp{
+      to{opacity:1;transform:translateY(0)}
+    }
 
-    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr}
+    /* Rispetta preferenza utente “riduci animazioni” */
+    @media (prefers-reduced-motion: reduce){
+      .hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}
+    }
+
+    /* ===== GRIGLIA & CARD ===== */
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:40px}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
 
-    .card{background:#fff;color:#111;padding:18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    .card{
+      background:#fff;color:#111;padding:18px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08)
+    }
     .card h3{margin:0 0 6px}
+
     .footer{margin:40px 0;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
   </style>
@@ -47,11 +88,12 @@
       </span>
     </nav>
 
+    <!-- HERO centrata con ingresso a cascata -->
     <section class="hero">
-  <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
-  <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
-  <a class="cta" href="/login">Inizia gratis</a>
-</section>
+      <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
+      <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
+      <a class="cta" href="/login">Inizia gratis</a>
+    </section>
 
     <section class="grid">
       <div class="card"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
