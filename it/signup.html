@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <title>Registrazione</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>Crea un account</h1>
+
+  <!-- Registrazione con email + password -->
+  <form id="signup-form">
+    <input type="email" id="su-email" placeholder="Email" required />
+    <input type="password" id="su-pass" placeholder="Password" required />
+    <button type="submit">Registrati</button>
+  </form>
+
+  <p>Oppure usa il Magic Link (se abilitato in Supabase):</p>
+  <form id="magic-form">
+    <input type="email" id="ml-email" placeholder="Email" required />
+    <button type="submit">Invia Magic Link</button>
+  </form>
+
+  <p><a href="/it/login.html">Hai già un account? Accedi</a></p>
+
+  <script type="module" src="/it/supabase-client.js"></script>
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    // Registrazione email + password
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('su-email').value.trim();
+      const password = document.getElementById('su-pass').value.trim();
+
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) return alert('Errore registrazione: ' + error.message);
+
+      // Se in Auth hai "Confirm email" DISATTIVATO -> l’utente è già attivo
+      // Se ATTIVATO -> Supabase invia email di conferma
+      alert('Registrazione effettuata! Controlla la tua email se è richiesta conferma.');
+      location.href = "/"; // o /it/login.html
+    });
+
+    // Magic Link (richiede "Confirm email" ON e Redirect configurato)
+    document.getElementById('magic-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('ml-email').value.trim();
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' }
+      });
+
+      if (error) return alert('Errore invio magic link: ' + error.message);
+      alert('Controlla la tua email: ti abbiamo inviato il link di accesso.');
+    });
+  </script>
+</body>
+</html>
