@@ -83,9 +83,53 @@
 }
 .card h3 {margin:0 0 6px}
 .card p {margin:0}
+/* ===== STEPS ===== */
+.steps h3{
+  margin:0 0 20px;
+  text-align:center;
+}
 
-    .card h3{margin:0 0 6px}
+.steps-grid{
+  display:grid;
+  gap:16px;
+  grid-template-columns:1fr 1fr 1fr;
+}
+@media(max-width:800px){
+  .steps-grid{grid-template-columns:1fr}
+}
 
+.step{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  background:#fafafa;
+  border-radius:12px;
+  padding:14px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+}
+
+.nbr{
+  flex:0 0 38px;
+  height:38px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#111;
+  color:#fff;
+  font-weight:800;
+  box-shadow:0 6px 16px rgba(0,0,0,.15);
+}
+
+.step h4{
+  margin:0 0 4px;
+  font-size:1.05rem;
+}
+.step p{
+  margin:0;
+  color:#444;
+  font-size:.95rem;
+}
     .footer{margin:40px 0;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
   </style>
@@ -113,14 +157,33 @@
       <div class="card"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
     </section>
 
-    <section class="card" style="margin-top:24px">
-      <h3>Come funziona</h3>
-      <ol>
-        <li>Accedi con la tua email</li>
-        <li>Aggiungi entrate/uscite in 3 tocchi</li>
-        <li>Vedi i grafici e prendi decisioni</li>
-      </ol>
-    </section>
+    <section class="card steps">
+  <h3>Come funziona</h3>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="nbr">1</div>
+      <div class="txt">
+        <h4>Accedi</h4>
+        <p>Entra con la tua email in pochi secondi.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="nbr">2</div>
+      <div class="txt">
+        <h4>Aggiungi movimenti</h4>
+        <p>Entrate e uscite in pochi click, senza complicazioni.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="nbr">3</div>
+      <div class="txt">
+        <h4>Controlla i grafici</h4>
+        <p>Osserva e Monitora le tue Spese.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     <div class="footer">
       © MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a>
