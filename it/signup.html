@@ -49,8 +49,8 @@
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' }
-      });
+        options: {emailRedirectTo: 'https://www.myhomesbudget.com/it/auth/callback.html'
+});
 
       if (error) return alert('Errore invio magic link: ' + error.message);
       alert('Controlla la tua email: ti abbiamo inviato il link di accesso.');
