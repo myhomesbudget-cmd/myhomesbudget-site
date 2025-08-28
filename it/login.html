@@ -2,54 +2,225 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <title>Accedi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accedi — MyHomesBudget</title>
+  <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
+
+  <!-- ✅ CSP estesa per Supabase + esm.sh (il resto resta identico alla landing) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://upcusjlumfeadgbhziwq.supabase.co;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+
+  <!-- Google Analytics 4 (come landing) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <!-- Canonical + hreflang -->
+  <link rel="canonical" href="https://www.myhomesbudget.com/it/login.html" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/login.html" hreflang="it" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/login.html" hreflang="en" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/login.html" hreflang="es" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/login.html" hreflang="x-default" />
+
+  <!-- Social preview (puoi lasciare la stessa immagine della landing) -->
+  <meta property="og:title" content="Accedi — MyHomesBudget" />
+  <meta property="og:description" content="Entra per consultare la tua dashboard e gestire le spese." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.myhomesbudget.com/it/login.html" />
+  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Accedi — MyHomesBudget" />
+  <meta name="twitter:description" content="Entra per consultare la tua dashboard e gestire le spese." />
+  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
+
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+
+  <!-- ✅ Stili IDENTICI alla landing -->
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+
+    /* SFONDO come landing */
+    body{
+      margin:0;padding:0;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;color:#fff;
+    }
+    body::before{
+      content:"";position:fixed;inset:0;
+      background:rgba(0,0,0,.05);z-index:-1;
+    }
+
+    /* LAYOUT & NAV come landing */
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
+    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .nav a:hover{background:rgba(255,255,255,.12)}
+
+    /* HERO centrata come landing */
+    .hero{
+      min-height:50vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;gap:16px;padding:0 20px;margin:0;
+    }
+    .hero h1{
+      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
+      opacity:0;transform:translateY(30px);
+      animation:fadeInUp .8s ease forwards;
+    }
+    .hero p{
+      max-width:720px;margin:8px 0 16px;
+      font-size:clamp(1rem,2vw,1.25rem);
+      opacity:0;transform:translateY(30px);
+      animation:fadeInUp .8s ease forwards .4s;
+    }
+    @keyframes fadeInUp{ to{opacity:1;transform:translateY(0)} }
+    @media (prefers-reduced-motion: reduce){
+      .hero h1,.hero p{animation:none;opacity:1;transform:none}
+    }
+
+    /* Card vetro come landing */
+    .card{
+      background:rgba(255,255,255,0.50);
+      backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;
+      padding:18px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      width:min(560px, 96vw);
+      text-align:left;
+    }
+
+    /* Form minimi (coerenti con card) */
+    .row{display:grid;gap:8px;margin-bottom:12px}
+    label{font-size:.95rem;color:#333}
+    input{
+      width:100%;
+      background:rgba(255,255,255,.85);
+      border:1px solid rgba(0,0,0,.08);
+      color:#111;
+      padding:12px 14px;border-radius:10px;
+    }
+    .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
+    .btn{
+      background:#111;color:#fff;
+      padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;border:none;cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+    .link{color:#111;text-decoration:none}
+    .link:hover{text-decoration:underline}
+
+    /* Divider */
+    .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
+  </style>
 </head>
 <body>
-  <h1>Accesso</h1>
+  <div class="wrap">
+    <!-- NAV lingua (identica landing) -->
+    <nav class="nav" aria-label="Selettore lingua">
+      <span style="font-size:22px;display:flex;gap:8px;">
+        <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
+        <a href="/en/login.html" title="English"  lang="en">🇬🇧</a>
+        <a href="/es/login.html" title="Español"  lang="es">🇪🇸</a>
+      </span>
+    </nav>
 
-  <!-- Form login con email + password -->
-  <form id="login-form">
-    <input type="email" id="li-email" placeholder="Email" required />
-    <input type="password" id="li-pass" placeholder="Password" required />
-    <button type="submit">Accedi</button>
-  </form>
+    <!-- HERO come landing, ma con card di login -->
+    <section class="hero">
+      <h1>Accedi al tuo bilancio</h1>
+      <p>Entra per consultare la tua dashboard e gestire le spese.</p>
 
-  <!-- Pulsante logout -->
-  <button id="logout-btn">Esci</button>
+      <div class="card" role="form">
+        <!-- LOGIN -->
+        <form id="login-form">
+          <div class="row">
+            <label for="li-email">Email</label>
+            <input type="email" id="li-email" placeholder="nome@dominio.it" required />
+          </div>
+          <div class="row">
+            <label for="li-pass">Password</label>
+            <input type="password" id="li-pass" placeholder="••••••••" required />
+          </div>
+          <div class="actions">
+            <span>Non hai un account? <a class="link" href="/it/signup.html">Registrati</a></span>
+            <button type="submit" class="btn"
+              onclick="gtag('event','cta_click',{lang:'it', placement:'login_submit'});">
+              Accedi
+            </button>
+          </div>
+        </form>
 
-  <p><a href="/it/signup.html">Non hai un account? Registrati</a></p>
+        <div class="divider" aria-hidden="true"></div>
 
-  <!-- Import client Supabase -->
-<script type="module" src="/it/supabase-client.js"></script>
-<script type="module">
-  import { supabase } from "/it/supabase-client.js";
+        <!-- MAGIC LINK (opzionale) -->
+        <form id="magic-form">
+          <div class="row">
+            <label for="ml-email">Oppure accedi con Magic Link</label>
+            <input type="email" id="ml-email" placeholder="Email per il link" />
+          </div>
+          <div class="actions">
+            <span>Riceverai un link di accesso via email</span>
+            <button type="submit" class="btn" style="background:#0b0b0b"
+              onclick="gtag('event','cta_click',{lang:'it', placement:'magic_link'});">
+              Invia Magic Link
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
 
-  const lang = location.pathname.split('/')[1] || 'it';  
-  const goDash = () => location.replace(`/${lang}/dashboard.html`);
+    <!-- Footer come landing -->
+    <div class="footer">
+      © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
+    </div>
+  </div>
 
-  // 🔹 Se già loggato e arrivi sul login → vai diretto in dashboard
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) goDash();
+  <!-- Supabase client (tuo file) -->
+  <script type="module" src="/it/supabase-client.js"></script>
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+    const lang = location.pathname.split('/')[1] || 'it';
+    const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-  // 🔹 Login email + password
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('li-email').value.trim();
-    const password = document.getElementById('li-pass').value.trim();
+    // Se già autenticato → vai diretto in dashboard
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) goDash();
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return alert('Errore accesso: ' + error.message);
+    // Login con email + password
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('li-email').value.trim();
+      const password = document.getElementById('li-pass').value.trim();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return alert('Errore accesso: ' + error.message);
+      goDash();
+    });
 
-    goDash(); // 👉 redirect diretto in dashboard
-  });
-
-  // 🔹 Logout
-  document.getElementById('logout-btn').addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    alert('Disconnesso');
-  });
-</script>
-
+    // Magic link (se abilitato)
+    document.getElementById('magic-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('ml-email').value.trim();
+      if (!email) return alert("Inserisci l'email.");
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options:{ emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' } // o /it/auth/callback.html se usi quello
+      });
+      if (error) return alert('Errore invio link: ' + error.message);
+      alert('Ti abbiamo inviato un link di accesso.');
+    });
+  </script>
 </body>
 </html>
