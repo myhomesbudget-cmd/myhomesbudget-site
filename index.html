@@ -1,34 +1,7 @@
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyHomesBudget</title>
-  <style>
-    body {
-      margin:0;
-      height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-family: -apple-system, system-ui, sans-serif;
-      background:#f7f7f8;
-    }
-    .box {
-      text-align:center;
-      background:#fff;
-      padding:30px 20px;
-      border-radius:16px;
-      box-shadow:0 4px 16px rgba(0,0,0,0.1);
-    }
-    h1 { margin:0 0 10px; font-size:1.6rem; }
-    p { margin:0; color:#555; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h1>Benvenuto su MyHomesBudget 🚀</h1>
-    <p>Il sito è online e pronto a crescere.</p>
-  </div>
-</body>
-</html>
+<!doctype html><meta charset="utf-8">
+<script>
+const lang=(navigator.language||'en').toLowerCase();
+if(lang.startsWith('it')) location.replace('/it/');
+else if(lang.startsWith('es')) location.replace('/es/');
+else location.replace('/en/');
+</script>
