@@ -1,29 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <title>Completamento accesso…</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <title>Redirect...</title>
 </head>
 <body>
-  <h2>Attendere, stiamo completando l’accesso…</h2>
+  <p>Attendi un attimo, ti stiamo reindirizzando alla tua dashboard...</p>
 
   <script type="module" src="/it/supabase-client.js"></script>
-<script type="module">
-  import { supabase } from "/it/supabase-client.js";
-  const lang = location.pathname.split('/')[1] || 'it';
-  const goDash = () => location.replace(`/${lang}/dashboard.html`);
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
 
-  // Supabase compone la sessione dal link
-  const { data: { session }, error } = await supabase.auth.getSession();
+    const lang = location.pathname.split('/')[1] || 'it';  
+    const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-  if (error) {
-    console.error(error);
-    document.body.innerHTML = "<h2>Errore durante il login.</h2>";
-  } else {
-    goDash(); // 👉 dopo il magic link vai in dashboard
-  }
-</script>
-
+    // 🔹 Recupera la sessione dopo il login (es. magic link)
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        goDash(); // se autenticato → vai in dashboard
+      } else {
+        // fallback: se non autenticato → torna al login
+        location.replace(`/${lang}/login.html`);
+      }
+    });
+  </script>
 </body>
 </html>
