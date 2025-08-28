@@ -124,22 +124,23 @@ input:focus {
 }
 
 /* Bottoni uniformati allo stile CTA della landing */
-button {
-  display:inline-block;
-  background: linear-gradient(135deg, #6c5ce7, #0984e3); /* viola → blu */
-  color:#fff;
-  padding:12px 18px;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-  box-shadow:0 6px 18px rgba(0,0,0,.15);
-  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #6c5ce7, #00cec9); /* viola → turchese */
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
-button:hover {
-  filter:brightness(1.1);
-  transform:translateY(-1px);
-  box-shadow:0 10px 24px rgba(0,0,0,.25);
+
+.btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
 }
     .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
     .btn{
