@@ -105,17 +105,41 @@
     /* Form minimi (coerenti con card) */
     .row{display:grid;gap:8px;margin-bottom:12px}
     label{font-size:.95rem;color:#333}
-    input{
-      input {
-  display:block;
-  width:100%;
-  box-sizing:border-box;   /* 🔑 impedisce di uscire dal contenitore */
-  background:rgba(255,255,255,.85);
-  border:1px solid rgba(0,0,0,.08);
-  color:#111;
-  padding:12px 14px;
-  border-radius:10px;
-  font-size:1rem;
+    input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px; /* arrotondati come card */
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.85);
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  transition: border .2s ease, box-shadow .2s ease;
+}
+input:focus {
+  outline: none;
+  border: 1px solid rgba(0,0,0,0.4);
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+}
+
+/* Bottoni uniformati allo stile CTA della landing */
+button {
+  display:inline-block;
+  background:#111;
+  color:#fff;
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.15);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+button:hover {
+  filter:brightness(1.1);
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(0,0,0,.25);
 }
     .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
     .btn{
