@@ -19,7 +19,8 @@
       document.body.innerHTML = "<h2>Errore durante il login.</h2>";
     } else {
       // Reindirizza dove preferisci (home o dashboard)
-      location.replace("/");
+      const lang = location.pathname.split('/')[1] || 'it';
+location.replace(`/${lang}/dashboard.html`);
     }
   </script>
 </body>
