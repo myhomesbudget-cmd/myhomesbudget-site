@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://myhomesbudget-site.vercel.app/sitemap.xml
+Sitemap: https://www.myhomesbudget.com/sitemap.xml
