@@ -32,7 +32,7 @@
     .hero{
       min-height:50vh;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:16px;padding:0 20px;margin:0; /* tolgo il margin top */
+      text-align:center;gap:16px;padding:0 20px;margin:0;
     }
     .hero h1{
       font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
@@ -43,94 +43,71 @@
       max-width:720px;margin:8px 0 16px;
       font-size:clamp(1rem,2vw,1.25rem);
       opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards .4s; /* dopo il titolo */
+      animation:fadeInUp .8s ease forwards .4s;
     }
     .cta{
       display:inline-block;background:#111;color:#fff;
       padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;
       box-shadow:0 10px 24px rgba(0,0,0,.15);
       opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards .8s; /* dopo il sottotitolo */
+      animation:fadeInUp .8s ease forwards .8s;
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
 
-    @keyframes fadeInUp{
-      to{opacity:1;transform:translateY(0)}
-    }
-
-    /* Rispetta preferenza utente “riduci animazioni” */
+    @keyframes fadeInUp{ to{opacity:1;transform:translateY(0)} }
     @media (prefers-reduced-motion: reduce){
       .hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}
     }
 
     /* ===== GRIGLIA & CARD ===== */
-    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
+    .grid{
+      display:grid;gap:12px;
+      grid-template-columns:1fr 1fr 1fr;
+      margin-top:20px;
+    }
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
 
-    .card {
-  background:#fff;
-  color:#111;
-  padding:18px;
-  border-radius:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+    .card{
+      /* bianco leggermente trasparente + lieve blur per effetto vetro */
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:saturate(1.1) blur(2px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;
+      padding:18px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+      text-align:center;
+    }
+    .card h3{margin:0 0 6px}
+    .card p{margin:0}
 
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-.card h3 {margin:0 0 6px}
-    
-.card p {margin:0}
-/* ===== STEPS ===== */
-.steps h3{
-  margin:0 0 20px;
-  text-align:center;
-}
+    /* ===== STEPS ===== */
+    .steps{ margin-top:24px; } /* spazio tra le card sopra e "Come funziona" */
+    .steps h3{ margin:0 0 20px; text-align:center; }
+    .steps-grid{
+      display:grid; gap:16px; grid-template-columns:1fr 1fr 1fr;
+    }
+    @media(max-width:800px){ .steps-grid{grid-template-columns:1fr} }
 
-.steps-grid{
-  display:grid;
-  gap:16px;
-  grid-template-columns:1fr 1fr 1fr;
-}
-@media(max-width:800px){
-  .steps-grid{grid-template-columns:1fr}
-}
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      background:rgba(255,255,255,0.7);
+      border-radius:12px; padding:14px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+    }
 
-.step{
-  display:flex;
-  gap:12px;
-  align-items:flex-start;
-  background:#fafafa;
-  border-radius:12px;
-  padding:14px;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
-}
+    .nbr{
+      flex:0 0 38px; height:38px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:#444;            /* meno marcato del nero pieno */
+      color:#fff; font-weight:700;
+      box-shadow:0 4px 10px rgba(0,0,0,.10);
+    }
 
-.nbr{
-  flex:0 0 38px;
-  height:38px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#111;
-  color:#fff;
-  font-weight:800;
-  box-shadow:0 6px 16px rgba(0,0,0,.15);
-}
+    .step h4{margin:0 0 4px;font-size:1.05rem}
+    .step p{margin:0;color:#444;font-size:.95rem}
 
-.step h4{
-  margin:0 0 4px;
-  font-size:1.05rem;
-}
-.step p{
-  margin:0;
-  color:#444;
-  font-size:.95rem;
-}
     .footer{margin:40px 0;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
   </style>
@@ -145,46 +122,56 @@
       </span>
     </nav>
 
-    <!-- HERO centrata con ingresso a cascata -->
+    <!-- HERO -->
     <section class="hero">
       <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
       <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
       <a class="cta" href="/login">Inizia gratis</a>
     </section>
 
+    <!-- BENEFIT -->
     <section class="grid">
-      <div class="card"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
-      <div class="card"><h3>Sempre con te</h3><p>iPhone, Android e PC. Presto installabile come PWA.</p></div>
-      <div class="card"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
+      <div class="card">
+        <h3>Zero complicazioni</h3>
+        <p>Niente fogli di calcolo. Tutto chiaro e rapido.</p>
+      </div>
+      <div class="card">
+        <h3>Sempre con te</h3>
+        <p>iPhone, Android e PC. Presto installabile come PWA.</p>
+      </div>
+      <div class="card">
+        <h3>Privacy UE</h3>
+        <p>Dati in Europa e sotto il tuo controllo.</p>
+      </div>
     </section>
 
+    <!-- COME FUNZIONA -->
     <section class="card steps">
-  <h3>Come funziona</h3>
-  <div class="steps-grid">
-    <div class="step">
-      <div class="nbr">1</div>
-      <div class="txt">
-        <h4>Accedi</h4>
-        <p>Entra con la tua email in pochi secondi.</p>
+      <h3>Come funziona</h3>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="nbr">1</div>
+          <div class="txt">
+            <h4>Accedi</h4>
+            <p>Entra con la tua email in pochi secondi.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="nbr">2</div>
+          <div class="txt">
+            <h4>Aggiungi movimenti</h4>
+            <p>Entrate e uscite in pochi click, senza complicazioni.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="nbr">3</div>
+          <div class="txt">
+            <h4>Controlla i grafici</h4>
+            <p>Osserva e monitora le tue spese.</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="nbr">2</div>
-      <div class="txt">
-        <h4>Aggiungi movimenti</h4>
-        <p>Entrate e uscite in pochi click, senza complicazioni.</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="nbr">3</div>
-      <div class="txt">
-        <h4>Controlla i grafici</h4>
-        <p>Osserva e Monitora le tue Spese.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
+    </section>
 
     <div class="footer">
       © MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a>
