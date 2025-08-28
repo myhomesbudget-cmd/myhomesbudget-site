@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Accedi — MyHomesBudget</title>
+  <title>Accedi a MyHomesBudget</title>
   <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
 
-  <!-- ✅ CSP estesa per Supabase + esm.sh (il resto resta identico alla landing) -->
+  <!-- CSP: base come landing + permessi per Supabase ed esm.sh -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -27,48 +27,32 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- Canonical + hreflang -->
+  <!-- SEO / hreflang -->
   <link rel="canonical" href="https://www.myhomesbudget.com/it/login.html" />
   <link rel="alternate" href="https://www.myhomesbudget.com/it/login.html" hreflang="it" />
   <link rel="alternate" href="https://www.myhomesbudget.com/en/login.html" hreflang="en" />
   <link rel="alternate" href="https://www.myhomesbudget.com/es/login.html" hreflang="es" />
   <link rel="alternate" href="https://www.myhomesbudget.com/login.html" hreflang="x-default" />
 
-  <!-- Social preview (puoi lasciare la stessa immagine della landing) -->
-  <meta property="og:title" content="Accedi — MyHomesBudget" />
-  <meta property="og:description" content="Entra per consultare la tua dashboard e gestire le spese." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.myhomesbudget.com/it/login.html" />
-  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Accedi — MyHomesBudget" />
-  <meta name="twitter:description" content="Entra per consultare la tua dashboard e gestire le spese." />
-  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
-
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
-  <!-- ✅ Stili IDENTICI alla landing -->
+  <!-- Stili identici alla landing + fix form e bottoni -->
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
-    /* SFONDO come landing */
+    /* SFONDO landing */
     body{
       margin:0;padding:0;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;color:#fff;
     }
-    body::before{
-      content:"";position:fixed;inset:0;
-      background:rgba(0,0,0,.05);z-index:-1;
-    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
 
-    /* LAYOUT & NAV come landing */
     .wrap{max-width:960px;margin:0 auto;padding:24px}
     .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
     .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .nav a:hover{background:rgba(255,255,255,.12)}
 
-    /* HERO centrata come landing */
     .hero{
       min-height:50vh;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -76,86 +60,66 @@
     }
     .hero h1{
       font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
-      opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards;
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
     }
     .hero p{
-      max-width:720px;margin:8px 0 16px;
-      font-size:clamp(1rem,2vw,1.25rem);
-      opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards .4s;
+      max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
     }
-    @keyframes fadeInUp{ to{opacity:1;transform:translateY(0)} }
-    @media (prefers-reduced-motion: reduce){
-      .hero h1,.hero p{animation:none;opacity:1;transform:none}
-    }
+    @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.hero h1,.hero p{animation:none;opacity:1;transform:none}}
 
-    /* Card vetro come landing */
+    /* Card “vetro” come landing */
     .card{
       background:rgba(255,255,255,0.50);
       backdrop-filter:saturate(1.1) blur(5px);
       -webkit-backdrop-filter:saturate(1.1) blur(2px);
       color:#111;
-      padding:18px;border-radius:16px;
+      padding:24px;border-radius:16px;
       box-shadow:0 10px 30px rgba(0,0,0,.08);
-      width:min(560px, 96vw);
+      width:min(640px, 96vw);
       text-align:left;
     }
+    .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
 
-    /* Form minimi (coerenti con card) */
+    /* Form: arrotondati & dentro la card */
     .row{display:grid;gap:8px;margin-bottom:12px}
     label{font-size:.95rem;color:#333}
-    input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px; /* arrotondati come card */
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.75);
-  font-size: 1rem;
-  box-sizing: border-box;
-  margin-bottom: 12px;
-  transition: border .2s ease, box-shadow .2s ease;
-}
-input:focus {
-  outline: none;
-  border: 1px solid rgba(0,0,0,0.4);
-  box-shadow: 0 0 6px rgba(0,0,0,0.1);
-}
 
-/* Bottoni uniformati allo stile CTA della landing */
-.btn-gradient {
-  background: linear-gradient(135deg, #6c5ce7, #00cec9);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 20px;
-  font-weight: 600;
-  transition: all .2s ease;
-}
-
-.btn-gradient:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-}
-    .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
-    .btn{
-      background:#111;color:#fff;
-      padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;border:none;cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,.15);
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    input[type="email"], input[type="password"]{
+      width:100%; box-sizing:border-box;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background:rgba(255,255,255,.90);
+      color:#111; font-size:1rem;
+      transition: border .2s ease, box-shadow .2s ease;
     }
-    .btn:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+    input:focus{outline:none;border:1px solid rgba(0,0,0,.35);box-shadow:0 0 6px rgba(0,0,0,.1)}
+
+    .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
     .link{color:#111;text-decoration:none}
     .link:hover{text-decoration:underline}
 
-    /* Divider */
-    .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
+    /* Bottoni a gradiente – classe dedicata per evitare override */
+    .btn-gradient{
+      cursor:pointer;
+      border:none;border-radius:12px;
+      padding:12px 20px;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      color:#fff;font-weight:600;font-size:1rem;
+      box-shadow:0 6px 18px rgba(0,0,0,.15);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+
+    /* In caso esista già .btn con background nero, la annullo qui */
+    .btn{background:transparent;border:none}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- NAV lingua (identica landing) -->
+    <!-- NAV lingue -->
     <nav class="nav" aria-label="Selettore lingua">
       <span style="font-size:22px;display:flex;gap:8px;">
         <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
@@ -164,13 +128,13 @@ input:focus {
       </span>
     </nav>
 
-    <!-- HERO come landing, ma con card di login -->
+    <!-- HERO + form card -->
     <section class="hero">
       <h1>Accedi a myhomesbudget</h1>
       <p>Entra per consultare la tua dashboard e gestire le tue spese</p>
 
       <div class="card" role="form">
-        <!-- LOGIN -->
+        <!-- Login email/password -->
         <form id="login-form">
           <div class="row">
             <label for="li-email">Email</label>
@@ -182,16 +146,13 @@ input:focus {
           </div>
           <div class="actions">
             <span>Non hai un account? <a class="link" href="/it/signup.html">Registrati</a></span>
-            <button type="submit" class="btn btn-gradient">Accedi</button>
-              onclick="gtag('event','cta_click',{lang:'it', placement:'login_submit'});">
-              Accedi
-            </button>
+            <button type="submit" class="btn-gradient">Accedi</button>
           </div>
         </form>
 
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- MAGIC LINK (opzionale) -->
+        <!-- Magic link -->
         <form id="magic-form">
           <div class="row">
             <label for="ml-email">Oppure accedi con Magic Link</label>
@@ -199,33 +160,30 @@ input:focus {
           </div>
           <div class="actions">
             <span>Riceverai un link di accesso via email</span>
-            <button type="submit" class="btn btn-gradient">Invia Magic Link</button>
-              onclick="gtag('event','cta_click',{lang:'it', placement:'magic_link'});">
-              Invia Magic Link
-            </button>
+            <button type="submit" class="btn-gradient">Invia Magic Link</button>
           </div>
         </form>
       </div>
-    </section>
 
-    <!-- Footer come landing -->
-    <div class="footer">
-      © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
-    </div>
+      <div class="footer" style="margin-top:16px;color:#e6e6e6;font-size:.9rem">
+        © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
+      </div>
+    </section>
   </div>
 
-  <!-- Supabase client (tuo file) -->
+  <!-- Supabase client -->
   <script type="module" src="/it/supabase-client.js"></script>
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
+
     const lang = location.pathname.split('/')[1] || 'it';
     const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    // Se già autenticato → vai diretto in dashboard
+    // Se già autenticato → vai in dashboard
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) goDash();
 
-    // Login con email + password
+    // Login email + password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -235,14 +193,14 @@ input:focus {
       goDash();
     });
 
-    // Magic link (se abilitato)
+    // Magic Link (se abilitato su Supabase)
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
       if (!email) return alert("Inserisci l'email.");
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options:{ emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' } // o /it/auth/callback.html se usi quello
+        options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' }
       });
       if (error) return alert('Errore invio link: ' + error.message);
       alert('Ti abbiamo inviato un link di accesso.');
