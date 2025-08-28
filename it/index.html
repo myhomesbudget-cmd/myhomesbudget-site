@@ -3,6 +3,27 @@
 <title>MyHomesBudget – Bilancio familiare semplice</title>
 <meta name="description" content="Gestisci entrate, spese e risparmi in modo semplice. Gratis per i primi 3 mesi.">
 <style>
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyHomesBudget</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url("./bg.webp") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Helvetica Neue', sans-serif;
+      color: #fff;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: -1;
+    }
 :root{font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
 body{margin:0;background:#f7f7f8;color:#111}
 .wrap{max-width:960px;margin:0 auto;padding:24px}
