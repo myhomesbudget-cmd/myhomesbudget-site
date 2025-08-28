@@ -86,7 +86,7 @@
     </table>
   </div>
 
-  <!-- Client Supabase (tuo file) -->
+  <!-- Client Supabase -->
   <script type="module" src="/it/supabase-client.js"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -94,27 +94,39 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // Protezione pagina: se non loggato → login
+    /* ========= Protezione accesso ========= */
+    const lang = location.pathname.split('/')[1] || 'it';
+    const goLogin = () => location.replace(`/${lang}/login.html`);
+
+    // 1) Controllo immediato della sessione
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) {
-      location.replace("/it/login.html");
+      goLogin();
+      throw new Error('No session'); // interrompe il resto
     }
     const user = session.user;
-    document.getElementById('user-email').textContent = user.email;
+    const emailEl = document.getElementById('user-email');
+    if (emailEl) emailEl.textContent = user.email;
 
-    // Logout
-    document.getElementById('logout').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      location.replace("/it/login.html");
+    // 2) Se lo stato cambia (logout/expire) → torna al login
+    supabase.auth.onAuthStateChange((_event, s) => {
+      if (!s?.user) goLogin();
     });
 
-    // Helpers
+    /* ========= Logout ========= */
+    document.getElementById('logout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      goLogin();
+    });
+
+    /* ========= Utils ========= */
     const fmt = (n) => (n ?? 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const parseDate = (s) => s ? new Date(s) : new Date();
 
-    // Stato grafici
+    /* ========= Stato grafici ========= */
     let pieChart, lineChart;
 
+    /* ========= Carica spese ========= */
     async function loadExpenses() {
       const { data, error } = await supabase
         .from('expenses')
@@ -192,7 +204,7 @@
       });
     }
 
-    // Inserimento nuova spesa
+    /* ========= Inserimento nuova spesa ========= */
     document.getElementById('add-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const desc = document.getElementById('desc').value.trim();
@@ -209,13 +221,12 @@
         amount,
         category,
         created_at,
-        user_id: user.id     // fondamentale per le RLS owner-based
+        user_id: user.id // RLS: fondamentale
       });
 
       if (error) {
         msg.textContent = 'Errore: ' + error.message;
       } else {
-        // pulizia form + refresh dati
         e.target.reset();
         msg.textContent = 'Salvata!';
         loadExpenses();
@@ -223,7 +234,7 @@
       }
     });
 
-    // Carica iniziale
+    // Caricamento iniziale
     loadExpenses();
   </script>
 </body>
