@@ -68,10 +68,22 @@
     .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
 
-    .card{
-      background:#fff;color:#111;padding:18px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08)
-    }
+    .card {
+  background:#fff;
+  color:#111;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+.card h3 {margin:0 0 6px}
+.card p {margin:0}
+
     .card h3{margin:0 0 6px}
 
     .footer{margin:40px 0;color:#e6e6e6;font-size:.9rem}
@@ -97,7 +109,7 @@
 
     <section class="grid">
       <div class="card"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
-      <div class="card"><h3>Sempre con te</h3><p>iPhone, Android e PC. Anche installabile come PWA.</p></div>
+      <div class="card"><h3>Sempre con te</h3><p>iPhone, Android e PC. Presto installabile come PWA.</p></div>
       <div class="card"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
     </section>
 
