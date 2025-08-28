@@ -34,8 +34,9 @@
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return alert('Errore accesso: ' + error.message);
 
-      // OK → vai in homepage o dashboard
-      location.href = "/";
+      // reindirizza alla dashboard della lingua corrente (it/en/es)
+const lang = location.pathname.split('/')[1] || 'it';
+location.href = `/${lang}/dashboard.html`;
     });
 
     // Logout
