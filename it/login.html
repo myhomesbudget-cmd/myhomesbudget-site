@@ -17,9 +17,12 @@
                             https://esm.sh
                             https://accounts.google.com;
                  connect-src 'self'
-                             https://www.google-analytics.com
-                             https://region1.google-analytics.com
-                             https://upcusjlumfeadgbhziwq.supabase.co;
+            https://www.google-analytics.com
+            https://region1.google-analytics.com
+            https://upcusjlumfeadgbhziwq.supabase.co
+            https://accounts.google.com
+            https://oauth2.googleapis.com
+            https://www.googleapis.com;
                  font-src 'self' https: data:;
                  frame-src https://accounts.google.com;
                  frame-ancestors 'none';
@@ -165,12 +168,17 @@
 
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- Bottone Google (renderizzato da GIS) -->
-        <div class="row">
-          <label>Oppure continua con Google</label>
-          <div id="gsi-btn" style="display:flex;justify-content:flex-end;"></div>
-        </div>
-      </div>
+<div class="row">
+  <label>Oppure continua con Google</label>
+  <div id="gsi-btn" style="display:flex;justify-content:flex-end;"></div>
+
+  <!-- Fallback (nascosto finché GIS funziona) -->
+  <button id="google-fallback"
+          class="btn-gradient"
+          style="display:none;margin-top:8px">
+    Continua con Google
+  </button>
+</div>
 
       <div class="footer" style="margin-top:16px;color:#e6e6e6;font-size:.9rem">
         © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
@@ -180,16 +188,68 @@
 
   <!-- Supabase client + tutta la logica in UN SOLO modulo -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  import { supabase } from "/it/supabase-client.js";
 
-    const lang = location.pathname.split('/')[1] || 'it';
-    const goDash = () => location.replace(`/${lang}/dashboard.html`);
+  const lang = location.pathname.split('/')[1] || 'it';
+  const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    // Se già autenticato → vai in dashboard
-    {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) goDash();
+  // ... (qui rimangono login/password e magic link ESATTAMENTE come li hai)
+
+  /* --------- Google Identity Services + Supabase (robusto) --------- */
+
+  const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
+  const gsiContainer = document.getElementById("gsi-btn");
+  const fallbackBtn  = document.getElementById("google-fallback");
+
+  // 1) Prova ad inizializzare GIS appena disponibile (poll fino a 5s)
+  let tries = 0;
+  const maxTries = 100; // 100 * 50ms = 5s
+
+  function tryInitGSI() {
+    if (window.google?.accounts?.id) {
+      google.accounts.id.initialize({
+        client_id: GSI_CLIENT_ID,
+        callback: handleGoogleCredential
+      });
+      google.accounts.id.renderButton(
+        gsiContainer,
+        { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
+      );
+      // GIS ok → assicuro che il fallback resti nascosto
+      fallbackBtn.style.display = "none";
+    } else if (tries++ < maxTries) {
+      setTimeout(tryInitGSI, 50);
+    } else {
+      // GIS non disponibile → mostra fallback
+      fallbackBtn.style.display = "inline-flex";
     }
+  }
+  document.addEventListener("DOMContentLoaded", tryInitGSI);
+
+  // 2) Callback GIS → scambio token con Supabase
+  async function handleGoogleCredential(resp) {
+    try {
+      const idToken = resp.credential;
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: idToken
+      });
+      if (error) return alert("Accesso con Google non riuscito: " + error.message);
+      goDash();
+    } catch (err) {
+      alert("Errore inatteso: " + (err?.message || err));
+    }
+  }
+
+  // 3) Fallback (mostra supabase.co, ma ti sblocca la UI se GIS non parte)
+  fallbackBtn.addEventListener("click", async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `https://www.myhomesbudget.com/${lang}/dashboard.html` }
+    });
+    if (error) alert('Errore Google login: ' + error.message);
+  });
+</script>
 
     // Login email + password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
