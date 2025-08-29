@@ -102,15 +102,16 @@
     .link:hover{text-decoration:underline}
 
     /* Bottoni a gradiente – classe dedicata per evitare override */
-    .btn-gradient {
-  background: linear-gradient(135deg, #6c5ce7, #00cec9);
-  background-size: 200% 100%;
-  background-position: 0 0;
-  transition: background-position .5s ease, transform .15s ease, box-shadow .15s ease;
-}
-.btn-gradient:hover {
-  background-position: 100% 0;
-}
+    .btn-gradient{
+      cursor:pointer;
+      border:none;border-radius:12px;
+      padding:12px 20px;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      color:#fff;font-weight:600;font-size:1rem;
+      box-shadow:0 6px 18px rgba(0,0,0,.15);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
 
     /* In caso esista già .btn con background nero, la annullo qui */
     .btn{background:transparent;border:none}
