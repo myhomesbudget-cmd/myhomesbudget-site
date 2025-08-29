@@ -4,19 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Accedi a MyHomesBudget</title>
-  <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
+  <meta name="description" content="Accedi per gestire entrate, spese e risparmi con la tua dashboard personale." />
 
-  <!-- CSP: base come landing + permessi per Supabase ed esm.sh -->
+  <!-- ✅ CSP allineata alla landing e compatibile con Supabase + GA + esm.sh -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://upcusjlumfeadgbhziwq.supabase.co;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
+        content="
+          default-src 'self';
+          img-src 'self' https: data:;
+          style-src 'self' 'unsafe-inline';
+          script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+          connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://upcusjlumfeadgbhziwq.supabase.co;
+          font-src 'self' https: data:;
+          frame-ancestors 'none';
+          base-uri 'self';
+          form-action 'self'">
 
   <!-- Google Analytics 4 (come landing) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
@@ -27,7 +28,7 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- SEO / hreflang -->
+  <!-- Canonical/hreflang (coerenti con la tua struttura) -->
   <link rel="canonical" href="https://www.myhomesbudget.com/it/login.html" />
   <link rel="alternate" href="https://www.myhomesbudget.com/it/login.html" hreflang="it" />
   <link rel="alternate" href="https://www.myhomesbudget.com/en/login.html" hreflang="en" />
@@ -36,174 +37,201 @@
 
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
-  <!-- Stili identici alla landing + fix form e bottoni -->
+  <!-- ====== STILI (coerenti con la landing) ====== -->
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
-    /* SFONDO landing */
     body{
-      margin:0;padding:0;
+      margin:0;padding:0;color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;color:#fff;
+      background-size:cover;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    body::before{
+      content:"";position:fixed;inset:0;
+      background:rgba(0,0,0,.05);z-index:-1;
+    }
 
     .wrap{max-width:960px;margin:0 auto;padding:24px}
     .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
     .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .nav a:hover{background:rgba(255,255,255,.12)}
 
-    .hero{
-      min-height:50vh;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:16px;padding:0 20px;margin:0;
+    .title{
+      text-align:center;margin:6px 0 8px 0;
+      font-size:clamp(32px,5vw,52px);
+      font-weight:800;letter-spacing:.3px;
     }
-    .hero h1{
-      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
+    .subtitle{
+      text-align:center;margin:6px 0 22px 0;
+      font-size:clamp(16px,2vw,20px);
+      opacity:.95;
     }
-    .hero p{
-      max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
-    }
-    @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
-    @media (prefers-reduced-motion:reduce){.hero h1,.hero p{animation:none;opacity:1;transform:none}}
 
-    /* Card “vetro” come landing */
     .card{
-      background:rgba(255,255,255,0.50);
+      max-width:860px;margin:0 auto;
+      background:rgba(255,255,255,0.62);
       backdrop-filter:saturate(1.1) blur(5px);
       -webkit-backdrop-filter:saturate(1.1) blur(2px);
       color:#111;
-      padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      width:min(640px, 96vw);
-      text-align:left;
+      padding:22px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
     }
-    .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
 
-    /* Form: arrotondati & dentro la card */
-    .row{display:grid;gap:8px;margin-bottom:12px}
-    label{font-size:.95rem;color:#333}
-
-    input[type="email"], input[type="password"]{
-      width:100%; box-sizing:border-box;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.08);
-      background:rgba(255,255,255,.90);
-      color:#111; font-size:1rem;
-      transition: border .2s ease, box-shadow .2s ease;
+    label{display:block;font-weight:600;margin:10px 4px 8px}
+    input[type="email"],input[type="password"],input[type="text"]{
+      width:100%;padding:14px 16px;border:1px solid rgba(0,0,0,.12);
+      border-radius:12px;background:#fff;outline:none;box-sizing:border-box;
+      transition:border-color .15s ease, box-shadow .15s ease;
     }
-    input:focus{outline:none;border:1px solid rgba(0,0,0,.35);box-shadow:0 0 6px rgba(0,0,0,.1)}
-
-    .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
-    .link{color:#111;text-decoration:none}
-    .link:hover{text-decoration:underline}
-
-    /* Bottoni a gradiente – classe dedicata per evitare override */
-    .btn-gradient{
-      cursor:pointer;
-      border:none;border-radius:12px;
-      padding:12px 20px;
-      background:linear-gradient(135deg,#6c5ce7,#00cec9);
-      color:#fff;font-weight:600;font-size:1rem;
-      box-shadow:0 6px 18px rgba(0,0,0,.15);
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    input:focus{
+      border-color:#7aa7ff;
+      box-shadow:0 0 0 4px rgba(122,167,255,.15);
     }
-    .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
 
-    /* In caso esista già .btn con background nero, la annullo qui */
-    .btn{background:transparent;border:none}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .muted{color:#666}
+    .divider{margin:16px 0;text-align:center;color:#666;font-size:.9rem}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:8px;cursor:pointer;border:none;border-radius:12px;
+      color:#fff;font-weight:700;padding:12px 16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease, background-position .3s ease;
+      user-select:none;
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 12px 28px rgba(0,0,0,.20);
+      filter:brightness(1.05);
+      background-position:100% 0;
+    }
+
+    /* Accedi & Magic Link: gradiente coerente */
+    .btn-primary{
+      background:linear-gradient(135deg,#111 0%, #3A3A3A 35%, #111 100%);
+      background-size:180% 180%;
+    }
+
+    /* Bottone Google: gradiente multicolore */
+    .btn-google{
+      background:linear-gradient(135deg,#4285F4,#34A853,#FBBC05,#EA4335);
+      background-size:300% 300%;
+    }
+
+    .footer{
+      text-align:center;margin:18px 0 0;
+      color:#e6e6e6;font-size:.9rem;
+    }
+    .footer a{color:#fff}
+
+    @media(max-width:800px){
+      .card{padding:18px}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- NAV lingue -->
+    <!-- Lingue (come landing) -->
     <nav class="nav" aria-label="Selettore lingua">
       <span style="font-size:22px;display:flex;gap:8px;">
         <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-        <a href="/en/login.html" title="English"  lang="en">🇬🇧</a>
-        <a href="/es/login.html" title="Español"  lang="es">🇪🇸</a>
+        <a href="/en/" title="English"  lang="en">🇬🇧</a>
+        <a href="/es/" title="Español"  lang="es">🇪🇸</a>
       </span>
     </nav>
 
-    <!-- HERO + form card -->
-    <section class="hero">
-      <h1>Accedi a myhomesbudget</h1>
-      <p>Entra per consultare la tua dashboard e gestire le tue spese</p>
+    <h1 class="title">Accedi a myhomesbudget</h1>
+    <p class="subtitle">Entra per consultare la tua dashboard e gestire le tue spese</p>
 
-      <div class="card" role="form">
-        <!-- Login email/password -->
-        <form id="login-form">
-          <div class="row">
-            <label for="li-email">Email</label>
-            <input type="email" id="li-email" placeholder="nome@dominio.it" required />
-          </div>
-          <div class="row">
-            <label for="li-pass">Password</label>
-            <input type="password" id="li-pass" placeholder="••••••••" required />
-          </div>
-          <div class="actions">
-            <span>Non hai un account? <a class="link" href="/it/signup.html">Registrati</a></span>
-            <button type="submit" class="btn-gradient">Accedi</button>
-          </div>
-        </form>
+    <section class="card">
+      <!-- Email + Password -->
+      <form id="login-form" autocomplete="on">
+        <label for="li-email">Email</label>
+        <input id="li-email" type="email" inputmode="email" placeholder="nome@dominio.it" required />
 
-        <div class="divider" aria-hidden="true"></div>
+        <label for="li-pass">Password</label>
+        <div class="row">
+          <input id="li-pass" type="password" placeholder="••••••••" required />
+          <button type="submit" class="btn btn-primary" id="login-btn" style="min-width:140px;">Accedi</button>
+        </div>
+      </form>
 
-        <!-- Magic link -->
-        <form id="magic-form">
-          <div class="row">
-            <label for="ml-email">Oppure accedi con Magic Link</label>
-            <input type="email" id="ml-email" placeholder="Email per il link" />
-          </div>
-          <div class="actions">
-            <span>Riceverai un link di accesso via email</span>
-            <button type="submit" class="btn-gradient">Invia Magic Link</button>
-          </div>
-        </form>
-      </div>
+      <hr style="border:none;border-top:1px solid rgba(0,0,0,.08);margin:16px 0" />
 
-      <div class="footer" style="margin-top:16px;color:#e6e6e6;font-size:.9rem">
-        © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
-      </div>
+      <!-- Registro + Magic Link -->
+      <div class="muted" style="margin:0 0 12px">Non hai un account? <a href="/it/signup.html">Registrati</a></div>
+
+      <div class="divider">Oppure accedi con Magic Link</div>
+
+      <form id="magic-form" class="row" autocomplete="on">
+        <input id="ml-email" type="email" inputmode="email" placeholder="Email per il link" required />
+        <button type="submit" class="btn btn-primary" id="magic-btn" style="min-width:180px;">Invia Magic Link</button>
+      </form>
+
+      <div class="divider">Oppure continua con</div>
+
+      <!-- 🔵 Google OAuth -->
+      <button id="google-login" type="button" class="btn btn-google" style="width:100%;">Continua con Google</button>
     </section>
+
+    <div class="footer">
+      © MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a>
+    </div>
   </div>
 
-  <!-- Supabase client -->
-  <script type="module" src="/it/supabase-client.js"></script>
+  <!-- ====== SCRIPT ====== -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+    import { supabase } from './supabase-client.js';
 
-    const lang = location.pathname.split('/')[1] || 'it';
-    const goDash = () => location.replace(`/${lang}/dashboard.html`);
+    const redirectUrl = `${window.location.origin}/it/dashboard.html`;
 
-    // Se già autenticato → vai in dashboard
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) goDash();
-
-    // Login email + password
+    // Email + Password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('li-email').value.trim();
-      const password = document.getElementById('li-pass').value.trim();
+      const email = (document.getElementById('li-email').value || '').trim();
+      const password = (document.getElementById('li-pass').value || '').trim();
+
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert('Errore accesso: ' + error.message);
-      goDash();
+      if (error) {
+        alert('Errore accesso: ' + error.message);
+        return;
+      }
+      location.href = redirectUrl;
     });
 
-    // Magic Link (se abilitato su Supabase)
+    // Magic Link
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('ml-email').value.trim();
-      if (!email) return alert("Inserisci l'email.");
+      const email = (document.getElementById('ml-email').value || '').trim();
+
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' }
+        options: { emailRedirectTo: redirectUrl }
       });
-      if (error) return alert('Errore invio link: ' + error.message);
-      alert('Ti abbiamo inviato un link di accesso.');
+      if (error) {
+        alert('Errore invio Magic Link: ' + error.message);
+        return;
+      }
+      alert('Ti abbiamo inviato un link di accesso via email.');
+    });
+
+    // Google OAuth
+    document.getElementById('google-login').addEventListener('click', async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl
+        }
+      });
+      if (error) alert('Errore Google login: ' + error.message);
+    });
+
+    // Se l'utente è già loggato → vai in dashboard
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) location.href = redirectUrl;
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) location.href = redirectUrl;
     });
   </script>
 </body>
