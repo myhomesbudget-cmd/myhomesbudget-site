@@ -6,7 +6,7 @@
   <title>Accedi a MyHomesBudget</title>
   <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
 
-  <!-- CSP: base come landing + permessi per Supabase, esm.sh e Google Identity Services -->
+  <!-- CSP base + permessi per Supabase, Google Analytics e Google Identity Services -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -17,12 +17,9 @@
                             https://esm.sh
                             https://accounts.google.com;
                  connect-src 'self'
-            https://www.google-analytics.com
-            https://region1.google-analytics.com
-            https://upcusjlumfeadgbhziwq.supabase.co
-            https://accounts.google.com
-            https://oauth2.googleapis.com
-            https://www.googleapis.com;
+                             https://www.google-analytics.com
+                             https://region1.google-analytics.com
+                             https://upcusjlumfeadgbhziwq.supabase.co;
                  font-src 'self' https: data:;
                  frame-src https://accounts.google.com;
                  frame-ancestors 'none';
@@ -47,9 +44,7 @@
 
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
-  <!-- Google Identity Services (caricato UNA volta, in HEAD) -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+  <!-- STILI (match con la landing) -->
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
@@ -98,7 +93,8 @@
 
     input[type="email"], input[type="password"]{
       width:100%; box-sizing:border-box;
-      padding:12px 14px;border-radius:12px;
+      padding:12px 14px;
+      border-radius:12px;
       border:1px solid rgba(0,0,0,.08);
       background:rgba(255,255,255,.90);
       color:#111; font-size:1rem;
@@ -112,13 +108,19 @@
 
     .btn-gradient{
       cursor:pointer;border:none;border-radius:12px;
-      padding:12px 20px;background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      padding:12px 20px;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);
       color:#fff;font-weight:600;font-size:1rem;
       box-shadow:0 6px 18px rgba(0,0,0,.15);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
     .btn{background:transparent;border:none}
+
+    /* Google button centrato */
+    .row-google{display:grid;gap:8px;margin-top:6px}
+    #gsi-btn{display:flex;justify-content:center}
+    #gsi-btn > div{margin:8px auto !important}
   </style>
 </head>
 <body>
@@ -166,18 +168,18 @@
           </div>
         </form>
 
-                <div class="divider" aria-hidden="true"></div>
+        <div class="divider" aria-hidden="true"></div>
 
-        <!-- Oppure continua con Google -->
+        <!-- Google Sign-In -->
         <div class="row row-google">
           <label>Oppure continua con Google</label>
-          <div id="gsi-btn"></div> <!-- Qui Google renderizzerà il pulsante -->
-          <!-- Fallback (se GIS non carica entro 5s) -->
-          <button id="google-fallback" class="btn-gradient" style="width:100%; display:none">
+          <div id="gsi-btn"></div>
+          <!-- Fallback se GIS non carica entro 5s -->
+          <button id="google-fallback" class="btn-gradient" style="width:100%;display:none">
             Continua con Google
           </button>
         </div>
-      </div> <!-- fine .card -->
+      </div>
 
       <div class="footer" style="margin-top:16px;color:#e6e6e6;font-size:.9rem">
         © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
@@ -185,7 +187,7 @@
     </section>
   </div>
 
-  <!-- Supabase client + tutta la logica -->
+  <!-- App logic (Supabase + autenticazioni) -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
@@ -196,7 +198,7 @@
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) goDash();
 
-    // --------- Login con email/password ---------
+    // Email / Password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -206,7 +208,7 @@
       goDash();
     });
 
-    // --------- Magic Link ---------
+    // Magic Link
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -216,10 +218,10 @@
         options: { emailRedirectTo: 'https://www.myhomesbudget.com/auth/callback' }
       });
       if (error) return alert('Errore invio link: ' + error.message);
-      alert('Ti abbiamo inviato un link di accesso.');
+                      alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    /* --------- Google Identity Services + Supabase --------- */
+    /* ===== Google Identity Services + Supabase ===== */
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
     const gsiContainer = document.getElementById("gsi-btn");
     const fallbackBtn  = document.getElementById("google-fallback");
@@ -241,6 +243,7 @@
       } else if (tries++ < maxTries) {
         setTimeout(initGSI, 50);
       } else {
+        // se GIS non arriva → fallback al flusso OAuth classico
         fallbackBtn.style.display = "inline-flex";
       }
     }
@@ -260,7 +263,7 @@
       }
     }
 
-    // Fallback manuale → flusso OAuth Supabase classico
+    // Fallback manuale → OAuth classico Supabase
     fallbackBtn.addEventListener("click", async () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -270,7 +273,7 @@
     });
   </script>
 
-  <!-- Carico la libreria GIS dopo il container #gsi-btn -->
+  <!-- Google Identity Services (dopo il container #gsi-btn) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>
