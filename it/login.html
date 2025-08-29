@@ -6,7 +6,7 @@
   <title>Accedi a MyHomesBudget</title>
   <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
 
-  <!-- CSP aggiornata -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -27,7 +27,7 @@
                  base-uri 'self';
                  form-action 'self'">
 
-  <!-- GA4 (come landing) -->
+  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -176,7 +176,9 @@
           <label>Oppure continua con Google</label>
           <div id="gsi-btn"></div>
           <!-- bottone gradiente (sempre visibile e funzionante) -->
-          <button id="google-oauth" class="btn-gradient" style="width:100%">Continua con Google</button>
+          <button id="google-oauth" type="button" class="btn-gradient" style="width:100%">
+            Continua con Google
+          </button>
         </div>
       </div>
 
@@ -186,7 +188,7 @@
     </section>
   </div>
 
-  <!-- Google Identity Services (se carica, renderà il bottone blu) -->
+  <!-- Google Identity Services (opzionale, per pulsante blu) -->
   <script
     src="https://accounts.google.com/gsi/client"
     async defer
@@ -195,21 +197,19 @@
 
   <!-- TUTTA la logica in UN SOLO modulo -->
   <script type="module">
-  import { supabase } from "/it/supabase-client.js";
+    import { supabase } from "/it/supabase-client.js";
 
-  // ⬇️ QUI subito sotto aggiungi queste costanti
-  const ORIGIN = window.location.origin;                 
-  const lang    = location.pathname.split('/')[1] || 'it';
-  const REDIRECT_TO = `${ORIGIN}/${lang}/dashboard.html`;
+    /* === costanti di navigazione === */
+    const ORIGIN      = window.location.origin;
+    const lang        = location.pathname.split('/')[1] || 'it';
+    const REDIRECT_TO = `${ORIGIN}/${lang}/dashboard.html`;
+    const goDash      = () => location.replace(`/${lang}/dashboard.html`);
 
-  const goDash = () => location.replace(`/${lang}/dashboard.html`);
+    /* Se già autenticato → vai in dashboard */
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) goDash();
 
-  // Se già autenticato → vai in dashboard
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) goDash();
-    }
-
-    // ===== Email / Password
+    /* === Email / Password === */
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -219,32 +219,32 @@
       goDash();
     });
 
-    // ===== Magic Link
+    /* === Magic Link === */
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
       if (!email) return alert("Inserisci l'email.");
       const { error } = await supabase.auth.signInWithOtp({
-  email,
-  options: { emailRedirectTo: `${ORIGIN}/it/auth/callback` }
-});
+        email,
+        options: { emailRedirectTo: `${ORIGIN}/it/auth/callback` }
+      });
       if (error) return alert('Errore invio link: ' + error.message);
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    // Login con Google (AGGIORNATO con redirect dinamico)
-document.getElementById('google-oauth').addEventListener('click', async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: REDIRECT_TO,
-      queryParams: { prompt: 'select_account' } // opzionale
-    }
-  });
-  if (error) alert('Errore Google login: ' + error.message);
-});
+    /* === Google OAuth (bottone gradiente) === */
+    document.getElementById('google-oauth').addEventListener('click', async () => {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: REDIRECT_TO,
+          queryParams: { prompt: 'select_account' }
+        }
+      });
+      if (error) alert('Errore Google login: ' + error.message);
+    });
 
-    // ===== Google Identity Services (bottone blu) — opzionale
+    /* === GIS opzionale (pulsante blu) === */
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
     const gsiContainer  = document.getElementById("gsi-btn");
 
