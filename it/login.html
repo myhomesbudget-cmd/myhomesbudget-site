@@ -243,6 +243,46 @@
       });
       if (error) alert('Errore Google login: ' + error.message);
     });
-  </script>
+
+    <!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script type="module">
+  import { supabase } from "/it/supabase-client.js";
+
+  window.onload = () => {
+    google.accounts.id.initialize({
+      client_id: "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com",
+      callback: handleGoogleCredential
+    });
+
+    // Render del pulsante (usa un div con id="gsi-btn")
+    google.accounts.id.renderButton(
+      document.getElementById("gsi-btn"),
+      { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
+    );
+  };
+
+  async function handleGoogleCredential(response) {
+    try {
+      const idToken = response.credential;
+
+      // Passo il token a Supabase
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: idToken
+      });
+
+      if (error) {
+        alert("Accesso con Google non riuscito: " + error.message);
+        return;
+      }
+
+      const lang = location.pathname.split('/')[1] || 'it';
+      location.replace(`/${lang}/dashboard.html`);
+    } catch (err) {
+      alert("Errore inatteso: " + (err?.message || err));
+    }
+  }
+</script>
 </body>
 </html>
