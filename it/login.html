@@ -6,27 +6,27 @@
   <title>Accedi a MyHomesBudget</title>
   <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
 
-  <!-- CSP: base come landing + permessi per Supabase ed esm.sh -->
+  <!-- CSP: base come landing + permessi per Supabase, esm.sh e Google Identity Services -->
   <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               img-src 'self' https: data:;
-               style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline'
-                          https://www.googletagmanager.com
-                          https://www.google-analytics.com
-                          https://esm.sh
-                          https://accounts.google.com;
-               connect-src 'self'
-                           https://www.google-analytics.com
-                           https://region1.google-analytics.com
-                           https://upcusjlumfeadgbhziwq.supabase.co;
-               font-src 'self' https: data:;
-               frame-src https://accounts.google.com;
-               frame-ancestors 'none';
-               base-uri 'self';
-               form-action 'self'">
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline'
+                            https://www.googletagmanager.com
+                            https://www.google-analytics.com
+                            https://esm.sh
+                            https://accounts.google.com;
+                 connect-src 'self'
+                             https://www.google-analytics.com
+                             https://region1.google-analytics.com
+                             https://upcusjlumfeadgbhziwq.supabase.co;
+                 font-src 'self' https: data:;
+                 frame-src https://accounts.google.com;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
 
-  <!-- Google Analytics 4 (come landing) -->
+  <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -44,11 +44,12 @@
 
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
-  <!-- Stili identici alla landing + fix form e bottoni -->
+  <!-- Google Identity Services (caricato UNA volta, in HEAD) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
-    /* SFONDO landing */
     body{
       margin:0;padding:0;
       background:url("/bg.webp") no-repeat center center fixed;
@@ -77,7 +78,6 @@
     @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
     @media (prefers-reduced-motion:reduce){.hero h1,.hero p{animation:none;opacity:1;transform:none}}
 
-    /* Card “vetro” come landing */
     .card{
       background:rgba(255,255,255,0.50);
       backdrop-filter:saturate(1.1) blur(5px);
@@ -90,14 +90,12 @@
     }
     .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
 
-    /* Form: arrotondati & dentro la card */
     .row{display:grid;gap:8px;margin-bottom:12px}
     label{font-size:.95rem;color:#333}
 
     input[type="email"], input[type="password"]{
       width:100%; box-sizing:border-box;
-      padding:12px 14px;
-      border-radius:12px;
+      padding:12px 14px;border-radius:12px;
       border:1px solid rgba(0,0,0,.08);
       background:rgba(255,255,255,.90);
       color:#111; font-size:1rem;
@@ -109,25 +107,19 @@
     .link{color:#111;text-decoration:none}
     .link:hover{text-decoration:underline}
 
-    /* Bottoni a gradiente – classe dedicata per evitare override */
     .btn-gradient{
-      cursor:pointer;
-      border:none;border-radius:12px;
-      padding:12px 20px;
-      background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      cursor:pointer;border:none;border-radius:12px;
+      padding:12px 20px;background:linear-gradient(135deg,#6c5ce7,#00cec9);
       color:#fff;font-weight:600;font-size:1rem;
       box-shadow:0 6px 18px rgba(0,0,0,.15);
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
-
-    /* In caso esista già .btn con background nero, la annullo qui */
     .btn{background:transparent;border:none}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- NAV lingue -->
     <nav class="nav" aria-label="Selettore lingua">
       <span style="font-size:22px;display:flex;gap:8px;">
         <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
@@ -136,13 +128,12 @@
       </span>
     </nav>
 
-    <!-- HERO + form card -->
     <section class="hero">
       <h1>Accedi a myhomesbudget</h1>
       <p>Entra per consultare la tua dashboard e gestire le tue spese</p>
 
       <div class="card" role="form">
-        <!-- Login email/password -->
+        <!-- Email / Password -->
         <form id="login-form">
           <div class="row">
             <label for="li-email">Email</label>
@@ -160,7 +151,7 @@
 
         <div class="divider" aria-hidden="true"></div>
 
-        <!-- Magic link -->
+        <!-- Magic Link -->
         <form id="magic-form">
           <div class="row">
             <label for="ml-email">Oppure accedi con Magic Link</label>
@@ -173,22 +164,11 @@
         </form>
 
         <div class="divider" aria-hidden="true"></div>
-        
-<!-- Divider opzionale -->
-<div class="divider" aria-hidden="true"></div>
 
-<!-- Bottone Google (renderizzato da GIS) -->
-<div class="row">
-  <label>Oppure continua con Google</label>
-  <div id="gsi-btn" style="display:flex;justify-content:flex-end;"></div>
-</div>
-
-        
-        <!-- Login con Google (AGGIUNTA) -->
-        <div class="actions" style="justify-content:center">
-          <button type="button" id="google-login" class="btn-gradient" style="width:100%">
-            Continua con Google
-          </button>
+        <!-- Bottone Google (renderizzato da GIS) -->
+        <div class="row">
+          <label>Oppure continua con Google</label>
+          <div id="gsi-btn" style="display:flex;justify-content:flex-end;"></div>
         </div>
       </div>
 
@@ -198,8 +178,7 @@
     </section>
   </div>
 
-  <!-- Supabase client -->
-  <script type="module" src="/it/supabase-client.js"></script>
+  <!-- Supabase client + tutta la logica in UN SOLO modulo -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
@@ -207,8 +186,10 @@
     const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
     // Se già autenticato → vai in dashboard
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) goDash();
+    {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) goDash();
+    }
 
     // Login email + password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -220,7 +201,7 @@
       goDash();
     });
 
-    // Magic Link (se abilitato su Supabase)
+    // Magic Link
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -233,56 +214,39 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    // Login con Google (AGGIUNTA)
-    document.getElementById('google-login').addEventListener('click', async () => {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: 'https://www.myhomesbudget.com/it/dashboard.html'
-        }
-      });
-      if (error) alert('Errore Google login: ' + error.message);
-    });
+    /* --------- Google Identity Services + Supabase --------- */
 
-    <!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script type="module">
-  import { supabase } from "/it/supabase-client.js";
-
-  window.onload = () => {
-    google.accounts.id.initialize({
-      client_id: "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com",
-      callback: handleGoogleCredential
-    });
-
-    // Render del pulsante (usa un div con id="gsi-btn")
-    google.accounts.id.renderButton(
-      document.getElementById("gsi-btn"),
-      { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
-    );
-  };
-
-  async function handleGoogleCredential(response) {
-    try {
-      const idToken = response.credential;
-
-      // Passo il token a Supabase
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: "google",
-        token: idToken
-      });
-
-      if (error) {
-        alert("Accesso con Google non riuscito: " + error.message);
-        return;
+    // Inizializza GIS appena la libreria è pronta
+    function initGSI() {
+      if (window.google?.accounts?.id) {
+        google.accounts.id.initialize({
+          client_id: "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com",
+          callback: handleGoogleCredential
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("gsi-btn"),
+          { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
+        );
+      } else {
+        // riprova tra un attimo: lo script è async
+        setTimeout(initGSI, 50);
       }
-
-      const lang = location.pathname.split('/')[1] || 'it';
-      location.replace(`/${lang}/dashboard.html`);
-    } catch (err) {
-      alert("Errore inatteso: " + (err?.message || err));
     }
-  }
-</script>
+    document.addEventListener('DOMContentLoaded', initGSI);
+
+    async function handleGoogleCredential(response) {
+      try {
+        const idToken = response.credential;
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: "google",
+          token: idToken
+        });
+        if (error) return alert("Accesso con Google non riuscito: " + error.message);
+        goDash();
+      } catch (err) {
+        alert("Errore inatteso: " + (err?.message || err));
+      }
+    }
+  </script>
 </body>
 </html>
