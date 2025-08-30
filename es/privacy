@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Privacidad • MyHomesBudget</title>
+  <meta name="description" content="Aviso de privacidad de MyHomesBudget: qué datos recogemos y por qué.">
+  <link rel="canonical" href="https://www.myhomesbudget.com/es/privacy.html"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/privacy.html" hreflang="it"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/privacy.html" hreflang="en"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/privacy.html" hreflang="es"/>
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    .nav{display:flex;gap:12px;justify-content:flex-end}
+    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .nav a:hover{background:rgba(255,255,255,.12)}
+    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    h1{margin:4px 0 12px}
+    h2{margin:22px 0 8px;font-size:1.1rem}
+    a{color:#0b5fff}
+    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Idiomas">
+      <a href="/it/privacy.html" lang="it">🇮🇹</a>
+      <a href="/en/privacy.html" lang="en">🇬🇧</a>
+      <a href="/es/" lang="es">🇪🇸</a>
+    </nav>
+
+    <div class="card">
+      <h1>Aviso de Privacidad</h1>
+      <p><strong>Última actualización:</strong> 30 agosto 2025</p>
+
+      <p>Este aviso explica cómo <strong>MyHomesBudget</strong> trata los datos personales de los usuarios de la app en <strong>myhomesbudget.com</strong>.</p>
+
+      <h2>1. Responsable</h2>
+      <p>MyHomesBudget — Contacto: <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
+
+      <h2>2. Datos que tratamos</h2>
+      <ul>
+        <li><strong>Email</strong> (necesario para crear la cuenta y autenticar, incluido Magic Link o Google).</li>
+        <li><strong>Nombre</strong> (opcional pero recomendado para personalizar la experiencia).</li>
+        <li>Registros técnicos mínimos y eventos de seguridad.</li>
+      </ul>
+
+      <h2>3. Finalidades y bases legales</h2>
+      <ul>
+        <li><strong>Autenticación</strong> y gestión de cuentas (contrato).</li>
+        <li><strong>Soporte</strong> y comunicaciones técnicas (interés legítimo/contrato).</li>
+        <li><strong>Analítica agregada</strong> y seguridad (interés legítimo, minimización de datos).</li>
+      </ul>
+
+      <h2>4. Proveedores y transferencias</h2>
+      <ul>
+        <li><strong>Supabase</strong> (UE) para autenticación y base de datos.</li>
+        <li><strong>Vercel</strong> para alojamiento.</li>
+        <li><strong>Google</strong> (Identity Services/Analytics) para inicio de sesión y estadísticas agregadas.</li>
+      </ul>
+      <p>Puede haber transferencias internacionales bajo Cláusulas Contractuales Tipo.</p>
+
+      <h2>5. Conservación</h2>
+      <p>Conservamos los datos mientras se usa el servicio y los eliminamos/anonimizamos dentro de 30 días tras la eliminación de la cuenta, salvo obligación legal.</p>
+
+      <h2>6. Derechos</h2>
+      <p>Acceso, rectificación, supresión, limitación, portabilidad y oposición en
+        <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. También puedes reclamar ante tu Autoridad de Control.</p>
+
+      <h2>7. Cookies</h2>
+      <p>Usamos cookies técnicas necesarias y analítica agregada. Gestiona las preferencias desde el navegador.</p>
+
+      <h2>8. Seguridad</h2>
+      <p>Aplicamos medidas adecuadas (cifrado en tránsito/en reposo, control de accesos, copias de seguridad).</p>
+
+      <h2>9. Cambios</h2>
+      <p>Podemos actualizar este aviso e informaremos de cambios relevantes.</p>
+
+      <p style="margin-top:18px"><a href="/es/">← Volver al inicio</a> · <a href="/es/terms.html">Términos del servicio</a></p>
+    </div>
+
+    <div class="footer">
+      © MyHomesBudget — <a href="/es/privacy.html" style="color:#fff">Privacidad</a> · <a href="/es/terms.html" style="color:#fff">Términos</a>
+    </div>
+  </div>
+</body>
+</html>
