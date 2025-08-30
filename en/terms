@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Terms of Service • MyHomesBudget</title>
+  <meta name="description" content="MyHomesBudget Terms of Service.">
+  <link rel="canonical" href="https://www.myhomesbudget.com/en/terms.html"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/terms.html" hreflang="it"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/terms.html" hreflang="en"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/terms.html" hreflang="es"/>
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    .nav{display:flex;gap:12px;justify-content:flex-end}
+    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .nav a:hover{background:rgba(255,255,255,.12)}
+    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    h1{margin:4px 0 12px}
+    h2{margin:22px 0 8px;font-size:1.1rem}
+    a{color:#0b5fff}
+    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Languages">
+      <a href="/it/terms.html" lang="it">🇮🇹</a>
+      <a href="/en/" lang="en">🇬🇧</a>
+      <a href="/es/terms.html" lang="es">🇪🇸</a>
+    </nav>
+
+    <div class="card">
+      <h1>Terms of Service</h1>
+      <p><strong>Last update:</strong> 30 August 2025</p>
+
+      <h2>1. Service</h2>
+      <p>MyHomesBudget is a web app to track household income and expenses. Features may evolve over time.</p>
+
+      <h2>2. Account</h2>
+      <p>You need an account to use the service and are responsible for credentials and activities performed through it.</p>
+
+      <h2>3. Acceptable use</h2>
+      <p>No unlawful activities, intrusion attempts, scraping or IP violations.</p>
+
+      <h2>4. Privacy</h2>
+      <p>Personal data processing is described in our <a href="/en/privacy.html">Privacy Notice</a>.</p>
+
+      <h2>5. IP</h2>
+      <p>MyHomesBudget trademarks, code and content are protected. Users retain rights over their uploaded data.</p>
+
+      <h2>6. Availability & changes</h2>
+      <p>The service is provided “as is”. We may modify or discontinue features with reasonable notice when possible.</p>
+
+      <h2>7. Liability</h2>
+      <p>To the extent permitted by law, we are not liable for indirect damages, data or revenue loss.</p>
+
+      <h2>8. Termination</h2>
+      <p>You may request account deletion anytime. We may suspend or terminate for violations.</p>
+
+      <h2>9. Governing law</h2>
+      <p>These terms are governed by Italian law. Venue: Italy, without prejudice to consumer protection rules.</p>
+
+      <h2>10. Contact</h2>
+      <p><a href="mailto:support@myhomesbudget.com">support@myhomesbudget.com</a></p>
+
+      <p style="margin-top:18px"><a href="/en/">← Back to home</a> · <a href="/en/privacy.html">Privacy</a></p>
+    </div>
+
+    <div class="footer">
+      © MyHomesBudget — <a href="/en/privacy.html" style="color:#fff">Privacy</a> · <a href="/en/terms.html" style="color:#fff">Terms</a>
+    </div>
+  </div>
+</body>
+</html>
