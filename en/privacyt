@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Privacy • MyHomesBudget</title>
+  <meta name="description" content="MyHomesBudget Privacy Notice: what we collect and why.">
+  <link rel="canonical" href="https://www.myhomesbudget.com/en/privacy.html"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/privacy.html" hreflang="it"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/privacy.html" hreflang="en"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/privacy.html" hreflang="es"/>
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    .nav{display:flex;gap:12px;justify-content:flex-end}
+    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .nav a:hover{background:rgba(255,255,255,.12)}
+    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08)}
+    h1{margin:4px 0 12px}
+    h2{margin:22px 0 8px;font-size:1.1rem}
+    a{color:#0b5fff}
+    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav" aria-label="Languages">
+      <a href="/it/privacy.html" lang="it">🇮🇹</a>
+      <a href="/en/" lang="en">🇬🇧</a>
+      <a href="/es/privacy.html" lang="es">🇪🇸</a>
+    </nav>
+
+    <div class="card">
+      <h1>Privacy Notice</h1>
+      <p><strong>Last update:</strong> 30 August 2025</p>
+
+      <p>This notice explains how <strong>MyHomesBudget</strong> processes personal data for users of the web app at <strong>myhomesbudget.com</strong>.</p>
+
+      <h2>1. Controller</h2>
+      <p>MyHomesBudget — Contact: <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
+
+      <h2>2. Data we process</h2>
+      <ul>
+        <li><strong>Email</strong> (needed to create the account and authenticate, including Magic Link or Google).</li>
+        <li><strong>First name</strong> (optional but recommended to personalize the experience).</li>
+        <li>Minimal technical logs and security events.</li>
+      </ul>
+
+      <h2>3. Purposes & legal bases</h2>
+      <ul>
+        <li><strong>Authentication & account</strong> management (contract).</li>
+        <li><strong>Support</strong> and technical communications (legitimate interest/contract).</li>
+        <li><strong>Aggregated analytics</strong> and security (legitimate interest, data minimization).</li>
+      </ul>
+
+      <h2>4. Vendors & transfers</h2>
+      <p>We rely on trusted vendors:</p>
+      <ul>
+        <li><strong>Supabase</strong> (EU) for auth/database.</li>
+        <li><strong>Vercel</strong> for hosting.</li>
+        <li><strong>Google</strong> (Identity Services/Analytics) for login and aggregated stats.</li>
+      </ul>
+      <p>International transfers may occur under Standard Contractual Clauses.</p>
+
+      <h2>5. Retention</h2>
+      <p>We keep account data while the service is in use and delete/anonymize within 30 days of account removal unless required otherwise by law.</p>
+
+      <h2>6. Your rights</h2>
+      <p>Access, rectification, erasure, restriction, portability and objection at
+        <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. You may lodge a complaint with your Supervisory Authority.</p>
+
+      <h2>7. Cookies</h2>
+      <p>We use strictly necessary cookies and aggregated analytics. Manage preferences via your browser.</p>
+
+      <h2>8. Security</h2>
+      <p>We implement appropriate measures (encryption in transit/at rest, access controls, backups).</p>
+
+      <h2>9. Changes</h2>
+      <p>We may update this notice and will inform you of material changes.</p>
+
+      <p style="margin-top:18px"><a href="/en/">← Back to home</a> · <a href="/en/terms.html">Terms of Service</a></p>
+    </div>
+
+    <div class="footer">
+      © MyHomesBudget — <a href="/en/privacy.html" style="color:#fff">Privacy</a> · <a href="/en/terms.html" style="color:#fff">Terms</a>
+    </div>
+  </div>
+</body>
+</html>
