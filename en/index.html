@@ -3,115 +3,119 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyHomesBudget — Simple household budgeting</title>
-<meta name="description" content="Manage income, expenses and savings easily. Free for 1 month.">
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               img-src 'self' https: data:;
-               style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-               connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
-               font-src 'self' https: data:;
-               frame-ancestors 'none';
-               base-uri 'self';
-               form-action 'self'">
-  <!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
-</script>
+  <title>MyHomesBudget — Manage Your Budget Easily</title>
+  <meta name="description" content="Manage your household budget easily and intuitively. Add your expenses and income in a few clicks.">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
 
-<!-- Canonical + hreflang -->
-<link rel="canonical" href="https://www.myhomesbudget.com/en/" />
-<link rel="alternate" href="https://www.myhomesbudget.com/it/" hreflang="it" />
-<link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en" />
-<link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es" />
-<link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
+  <link rel="canonical" href="https://www.myhomesbudget.com/en/" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/" hreflang="it" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
 
-<!-- Social preview -->
-<meta property="og:title" content="MyHomesBudget — Manage your household budget easily and intuitively" />
-<meta property="og:description" content="Add your expenses and income in a few clicks and keep everything under control. Free for 1 month." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://www.myhomesbudget.com/en/" />
-<meta property="og:image" content="https://www.myhomesbudget.com/social-en.png" />
-<meta property="og:image:type" content="image/png" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
+  <meta property="og:title" content="MyHomesBudget — Manage your household budget easily and intuitively" />
+  <meta property="og:description" content="Add your expenses and income in a few clicks and keep everything under control." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.myhomesbudget.com/en/" />
+  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="MyHomesBudget — Manage your household budget easily and intuitively" />
-<meta name="twitter:description" content="Add your expenses and income in a few clicks and keep everything under control. Free for 1 month." />
-<meta name="twitter:image" content="https://www.myhomesbudget.com/social-en.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MyHomesBudget — Manage your household budget easily and intuitively" />
+  <meta name="twitter:description" content="Add your expenses and income in a few clicks and keep everything under control." />
+  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
 
-<link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
     body{margin:0;padding:0;background:url("/bg.webp") no-repeat center center fixed;background-size:cover;color:#fff;}
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1;}
-
     .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
-    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(255,255,255,.12)}
-
+    .nav{display:flex;justify-content:space-between;align-items:center;}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .logo-image{height:40px;}
+    .logo-text{font-weight:600;color:#fff;font-size:1.2rem;}
+    .lang-selector{font-size:22px;display:flex;gap:8px;}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
     .hero{min-height:40vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:0 20px;margin:0;}
-    .hero h1{font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;}
-    .hero p{max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;}
+    .hero h1{font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;text-shadow:0 1px 3px rgba(0,0,0,0.4);}
+    .hero p{max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;text-shadow:0 1px 3px rgba(0,0,0,0.4);}
     .cta{display:inline-block;background:#111;color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 10px 24px rgba(0,0,0,.15);opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .8s;transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;}
     .cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
     @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
     @media (prefers-reduced-motion: reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
-
-    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px;}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
-
     .card{background:rgba(255,255,255,0.50);backdrop-filter:saturate(1.1) blur(5px);-webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
     .card h3{margin:0 0 6px}
     .card p{margin:0}
-
     .steps{margin-top:24px;}
     .steps h3{margin:0 0 20px;text-align:center;}
     .steps-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr;}
     @media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
-
     .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);}
-    .nbr{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,0.7);color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.08);}
+    .nbr{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(108, 92, 231, 0.7);color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.08);}
     .step h4{margin:0 0 4px;font-size:1.05rem}
     .step p{margin:0;color:#444;font-size:.95rem}
-
-    .footer{margin:40px 0;color:#e6e6e6;font-size:.9rem}
+    .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <nav class="nav" aria-label="Language selector">
-      <span style="font-size:22px;display:flex;gap:8px;">
+    <nav class="nav" aria-label="Main navigation">
+      <a href="/" title="myHomesBudget" class="logo-link">
+        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image">
+        <span class="logo-text">MyHomesBudget</span>
+      </a>
+      <span class="lang-selector">
         <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-        <a href="/en/" title="English"  lang="en">🇬🇧</a>
-        <a href="/es/" title="Español"  lang="es">🇪🇸</a>
+        <a href="/en/" title="English" lang="en">🇬🇧</a>
+        <a href="/es/" title="Español" lang="es">🇪🇸</a>
       </span>
     </nav>
 
     <section class="hero">
       <h1>Manage your household budget easily and intuitively</h1>
       <p>Add your expenses and income in a few clicks and keep everything under control.</p>
-      <!-- /en/index.html -->
-<a class="cta" href="login.html"
-   onclick="gtag('event','cta_click',{lang:'en',placement:'hero'});">
-  Start free
-</a>
+      <a class="cta" href="/login.html" onclick="gtag('event','cta_click',{lang:'en', placement:'hero'});">
+        Start free
+      </a>
     </section>
 
     <section class="grid">
-      <div class="card"><h3>No hassle</h3><p>No spreadsheets. Everything clear and fast.</p></div>
-      <div class="card"><h3>Always with you</h3><p>iPhone, Android and PC. Installable as a PWA soon.</p></div>
-      <div class="card"><h3>EU privacy</h3><p>Data in Europe and under your control.</p></div>
+      <div class="card">
+        <h3>No hassle</h3>
+        <p>No spreadsheets. Everything clear and fast.</p>
+      </div>
+      <div class="card">
+        <h3>Always with you</h3>
+        <p>iPhone, Android and PC. Installable as a PWA soon.</p>
+      </div>
+      <div class="card">
+        <h3>EU privacy</h3>
+        <p>Data in Europe and under your control.</p>
+      </div>
     </section>
 
     <section class="card steps">
@@ -141,11 +145,11 @@
       </div>
     </section>
 
-    <div class="footer">
+    <footer class="footer">
       © MyHomesBudget — 
-<a href="https://www.myhomesbudget.com/en/privacy.html">Privacy</a> · 
-<a href="https://www.myhomesbudget.com/en/terms.html">Termini</a>
-    </div>
+      <a href="/en/privacy.html">Privacy</a> · 
+      <a href="/en/terms.html">Terms</a>
+    </footer>
   </div>
 </body>
 </html>
