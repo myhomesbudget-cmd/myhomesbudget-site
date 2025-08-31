@@ -19,6 +19,18 @@
     .actions { display:flex; gap:8px; align-items:center; }
     .btn { cursor:pointer; border:1px solid #ddd; border-radius:8px; padding:8px 12px; background:#fafafa; }
     .btn:hover { background:#f1f1f1; }
+
+    /* ===== TRIAL BANNER ===== */
+    .trial-banner {
+      display:none; margin:12px 0 16px; padding:12px 14px; border-radius:12px;
+      background:#ffffff; border:1px solid rgba(0,0,0,.10); box-shadow:0 6px 18px rgba(0,0,0,.06); color:#111;
+    }
+    .trial-banner strong { font-weight:700; }
+    .trial-cta {
+      text-decoration:none; background:#111; color:#fff; padding:8px 12px; border-radius:10px;
+      display:inline-block; margin-left:10px;
+    }
+    .trial-cta:hover { filter:brightness(1.08); }
   </style>
 </head>
 <body>
@@ -32,6 +44,12 @@
       <button id="logout" class="btn">Esci</button>
     </div>
   </header>
+
+  <!-- ===== TRIAL BANNER (si mostra solo durante i 30 giorni) ===== -->
+  <div id="trial-banner" class="trial-banner">
+    <span id="trial-text"><!-- filled by JS --></span>
+    <a id="trial-cta" class="trial-cta" href="#">Scegli un piano</a>
+  </div>
 
   <div class="cards" style="margin-bottom:16px;">
     <div class="card">
@@ -112,6 +130,52 @@
     supabase.auth.onAuthStateChange((_event, s) => {
       if (!s?.user) goLogin();
     });
+
+    /* ========= TRIAL BANNER ========= */
+    (function showTrialBanner() {
+      const i18n = {
+        it: {
+          text: d => `Ti restano <strong>${d}</strong> giorni di prova.`,
+          cta : 'Scegli un piano',
+          url : '/it/#pricing'
+        },
+        en: {
+          text: d => `You have <strong>${d}</strong> trial days left.`,
+          cta : 'Choose a plan',
+          url : '/en/#pricing'
+        },
+        es: {
+          text: d => `Te quedan <strong>${d}</strong> días de prueba.`,
+          cta : 'Elige un plan',
+          url : '/es/#pricing'
+        }
+      }[lang] || {
+        text: d => `Ti restano <strong>${d}</strong> giorni di prova.`,
+        cta : 'Scegli un piano',
+        url : '/it/#pricing'
+      };
+
+      const meta = user.user_metadata || {};
+      const plan = meta.plan || 'trial';
+      const startedISO = meta.trial_started_at;
+      if (plan !== 'trial' || !startedISO) return;
+
+      const start = new Date(startedISO);
+      const MS = 24 * 60 * 60 * 1000;
+      const passed = Math.floor((Date.now() - start.getTime()) / MS);
+      const left = Math.max(0, 30 - passed);
+
+      if (left <= 0) return; // prova scaduta → non mostrare (puoi cambiare logica in futuro)
+
+      const banner = document.getElementById('trial-banner');
+      const txt = document.getElementById('trial-text');
+      const cta = document.getElementById('trial-cta');
+
+      txt.innerHTML = i18n.text(left);
+      cta.textContent = i18n.cta;
+      cta.href = i18n.url;
+      banner.style.display = 'block';
+    })();
 
     /* ========= Logout ========= */
     document.getElementById('logout').addEventListener('click', async () => {
