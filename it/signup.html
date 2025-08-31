@@ -2,61 +2,194 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <title>Registrazione</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrati — MyHomesBudget</title>
+  <meta name="description" content="Crea il tuo account e prova gratis per 30 giorni. Nessuna carta di credito richiesta.">
+
+  <!-- CSP -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://upcusjlumfeadgbhziwq.supabase.co;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    body{margin:0;padding:0;background:url("/bg.webp") no-repeat center center fixed;background-size:cover;color:#fff}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    .wrap{max-width:760px;margin:0 auto;padding:24px}
+    .card{
+      background:rgba(255,255,255,.55);
+      backdrop-filter:saturate(1.1) blur(6px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      color:#111;border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)
+    }
+    h1{margin:0 0 8px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+    p.lead{text-align:center;margin:0 0 18px;color:#f4f4f4}
+    form{display:grid;gap:14px}
+    label{font-weight:600}
+    input[type="text"],input[type="email"],input[type="password"]{
+      width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:#111;font-size:1rem
+    }
+    .plan{
+      display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:4px
+    }
+    .plan label{
+      display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(0,0,0,.08);
+      border-radius:12px;padding:12px;background:#fff;cursor:pointer
+    }
+    .muted{color:#555;font-size:.95rem;margin-top:-4px}
+    .actions{display:flex;justify-content:flex-end}
+    .btn{
+      border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700;cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.15)
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .topbar a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .topbar a:hover{background:rgba(255,255,255,.12)}
+    .footer{margin:24px 0;text-align:center;color:#e6e6e6}
+    .footer a{color:#fff}
+  </style>
 </head>
 <body>
-  <h1>Crea un account</h1>
+  <div class="wrap">
+    <div class="topbar">
+      <a href="/it/" title="Torna alla home">← Home</a>
+      <a href="login.html">Hai già un account? Accedi</a>
+    </div>
 
-  <!-- Registrazione con email + password -->
-  <form id="signup-form">
-    <input type="email" id="su-email" placeholder="Email" required />
-    <input type="password" id="su-pass" placeholder="Password" required />
-    <button type="submit">Registrati</button>
-  </form>
+    <h1>Inizia la prova gratuita</h1>
+    <p class="lead">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</p>
 
-  <p>Oppure usa il Magic Link (se abilitato in Supabase):</p>
-  <form id="magic-form">
-    <input type="email" id="ml-email" placeholder="Email" required />
-    <button type="submit">Invia Magic Link</button>
-  </form>
+    <div class="card">
+      <!-- FORM SIGNUP -->
+      <form id="signup-form" autocomplete="on">
+        <div>
+          <label for="su-name">Nome</label>
+          <input id="su-name" type="text" name="name" placeholder="Es. Marco" required />
+          <div class="muted">Lo useremo per darti un benvenuto personalizzato.</div>
+        </div>
 
-  <p><a href="/it/login.html">Hai già un account? Accedi</a></p>
+        <div>
+          <label for="su-email">Email</label>
+          <input id="su-email" type="email" name="email" placeholder="nome@dominio.it" required />
+        </div>
 
-  <!-- Import client Supabase -->
-<script type="module" src="/it/supabase-client.js"></script>
-<script type="module">
-  import { supabase } from "/it/supabase-client.js";
+        <div>
+          <label for="su-pass">Password</label>
+          <input id="su-pass" type="password" name="password" placeholder="••••••••" minlength="8" required />
+        </div>
 
-  const lang = location.pathname.split('/')[1] || 'it';  
-  const goDash = () => location.replace(`/${lang}/dashboard.html`);
+        <!-- Selettore piano -->
+        <fieldset>
+          <legend style="font-weight:700;margin-bottom:6px">Scegli il tuo piano</legend>
+          <div class="plan">
+            <label>
+              <input type="radio" name="plan" value="monthly" />
+              <div>
+                <div style="font-weight:700">Mensile — 2,99€ / mese</div>
+                <div class="muted">Accesso completo e aggiornamenti continui.</div>
+              </div>
+            </label>
 
-  // 🔹 Se già loggato → vai diretto in dashboard
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) goDash();
+            <label>
+              <input type="radio" name="plan" value="lifetime" />
+              <div>
+                <div style="font-weight:700">Una tantum — 19,99€ / per sempre</div>
+                <div class="muted">Paghi una sola volta. Uso illimitato.</div>
+              </div>
+            </label>
+          </div>
+          <div class="muted">Puoi cambiare piano in seguito; la prova gratuita dura 30 giorni.</div>
+        </fieldset>
 
-  // 🔹 Registrazione email + password
-  document.getElementById('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('su-email').value.trim();
-    const password = document.getElementById('su-pass').value.trim();
+        <div class="actions">
+          <button class="btn" type="submit">Crea account</button>
+        </div>
+      </form>
+    </div>
 
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) return alert('Errore registrazione: ' + error.message);
+    <div class="footer">
+      © MyHomesBudget — <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> ·
+      <a href="https://www.myhomesbudget.com/it/terms.html">Termini</a>
+    </div>
+  </div>
 
-    goDash(); // 👉 dopo signup portalo diretto in dashboard
-  });
+  <!-- Supabase client -->
+  <script type="module" src="/it/supabase-client.js"></script>
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
 
-  // 🔹 Registrazione via Magic Link (se vuoi mantenerla)
-  document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('ml-email').value.trim();
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) return alert('Errore invio Magic Link: ' + error.message);
+    const lang = 'it';
+    const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    alert("Controlla la tua email per il link di accesso.");
-  });
-</script>
+    // 1) Se già autenticato → dashboard
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) goDash();
 
+    // 2) Legge ?plan= dalla querystring, default 'monthly'
+    const params = new URLSearchParams(location.search);
+    const planFromQuery = params.get('plan');
+    const validPlans = new Set(['monthly', 'lifetime']);
+    const selectedPlan = validPlans.has(planFromQuery) ? planFromQuery : 'monthly';
+    const planInputs = document.querySelectorAll('input[name="plan"]');
+    [...planInputs].find(i => i.value === selectedPlan).checked = true;
+
+    // 3) Gestione submit
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('su-name').value.trim();
+      const email = document.getElementById('su-email').value.trim();
+      const password = document.getElementById('su-pass').value.trim();
+      const plan = [...planInputs].find(i => i.checked)?.value || 'monthly';
+
+      if (!name || !email || !password) {
+        alert('Compila tutti i campi.');
+        return;
+      }
+
+      try {
+        // Tracciamento GA
+        gtag('event', 'signup_submit', { plan, lang: 'it' });
+
+        // Registrazione utente
+        const { data, error } = await supabase.auth.signUp({
+          email, password,
+          options: {
+            data: { name, plan, trial_started_at: new Date().toISOString() },
+            emailRedirectTo: 'https://www.myhomesbudget.com/it/auth/callback'
+          }
+        });
+
+        if (error) {
+          alert('Errore registrazione: ' + error.message);
+          return;
+        }
+
+        alert('Perfetto! Ti abbiamo inviato un link di conferma. Controlla la tua email.');
+        // opzionale: redirect alla pagina login
+        location.replace(`/${lang}/login.html`);
+      } catch (err) {
+        alert('Errore inatteso: ' + (err?.message || err));
+      }
+    });
+  </script>
 </body>
 </html>
