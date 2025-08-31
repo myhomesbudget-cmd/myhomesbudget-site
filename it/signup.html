@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Registrati — MyHomesBudget</title>
-  <meta name="description" content="Crea il tuo account e prova gratis per 30 giorni. Nessuna carta di credito richiesta.">
+  <meta name="description" content="Prova gratis per 30 giorni. Nessuna carta richiesta. Deciderai il piano in seguito.">
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
@@ -34,32 +34,20 @@
     body{margin:0;padding:0;background:url("/bg.webp") no-repeat center center fixed;background-size:cover;color:#fff}
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
     .wrap{max-width:760px;margin:0 auto;padding:24px}
-    .card{
-      background:rgba(255,255,255,.55);
-      backdrop-filter:saturate(1.1) blur(6px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:#111;border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)
-    }
+    .card{background:rgba(255,255,255,.55);backdrop-filter:saturate(1.1) blur(6px);-webkit-backdrop-filter:saturate(1.1) blur(3px);color:#111;border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
     h1{margin:0 0 8px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
     p.lead{text-align:center;margin:0 0 18px;color:#f4f4f4}
     form{display:grid;gap:14px}
     label{font-weight:600}
-    input[type="text"],input[type="email"],input[type="password"]{
-      width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:#111;font-size:1rem
-    }
-    .plan{
-      display:grid;gap:12px;grid-template-columns:1fr 1fr;margin-top:4px
-    }
-    .plan label{
-      display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(0,0,0,.08);
-      border-radius:12px;padding:12px;background:#fff;cursor:pointer
-    }
+    input[type="text"],input[type="email"],input[type="password"]{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:#111;font-size:1rem}
+    fieldset{border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px}
+    legend{font-weight:700;padding:0 6px}
+    .plan{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media (max-width:700px){.plan{grid-template-columns:1fr}}
+    .plan label{display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;background:#fff;cursor:pointer}
     .muted{color:#555;font-size:.95rem;margin-top:-4px}
     .actions{display:flex;justify-content:flex-end}
-    .btn{
-      border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700;cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,.15)
-    }
+    .btn{border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.15)}
     .btn:hover{filter:brightness(1.08)}
     .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
     .topbar a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
@@ -79,7 +67,6 @@
     <p class="lead">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</p>
 
     <div class="card">
-      <!-- FORM SIGNUP -->
       <form id="signup-form" autocomplete="on">
         <div>
           <label for="su-name">Nome</label>
@@ -97,9 +84,18 @@
           <input id="su-pass" type="password" name="password" placeholder="••••••••" minlength="8" required />
         </div>
 
-        <!-- Selettore piano -->
+        <!-- Selettore piano con "Decidi più tardi" -->
         <fieldset>
-          <legend style="font-weight:700;margin-bottom:6px">Scegli il tuo piano</legend>
+          <legend>Scegli il tuo piano (opzionale)</legend>
+
+          <label style="display:flex;gap:10px;align-items:flex-start;border:1px dashed rgba(0,0,0,.15);border-radius:12px;padding:12px;background:#fff;margin-bottom:12px;">
+            <input type="radio" name="plan" value="trial" checked />
+            <div>
+              <div style="font-weight:700">Decidi più tardi (consigliato)</div>
+              <div class="muted">Oggi non paghi nulla. Prova tutte le funzioni per 30 giorni, senza carta.</div>
+            </div>
+          </label>
+
           <div class="plan">
             <label>
               <input type="radio" name="plan" value="monthly" />
@@ -117,11 +113,10 @@
               </div>
             </label>
           </div>
-          <div class="muted">Puoi cambiare piano in seguito; la prova gratuita dura 30 giorni.</div>
         </fieldset>
 
         <div class="actions">
-          <button class="btn" type="submit">Crea account</button>
+          <button class="btn" type="submit">Crea account e inizia la prova</button>
         </div>
       </form>
     </div>
@@ -140,25 +135,25 @@
     const lang = 'it';
     const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    // 1) Se già autenticato → dashboard
+    // Se già autenticato → dashboard
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) goDash();
 
-    // 2) Legge ?plan= dalla querystring, default 'monthly'
+    // Pre-selezione piano da querystring (?plan=monthly|lifetime)
     const params = new URLSearchParams(location.search);
-    const planFromQuery = params.get('plan');
-    const validPlans = new Set(['monthly', 'lifetime']);
-    const selectedPlan = validPlans.has(planFromQuery) ? planFromQuery : 'monthly';
-    const planInputs = document.querySelectorAll('input[name="plan"]');
-    [...planInputs].find(i => i.value === selectedPlan).checked = true;
+    const forcedPlan = params.get('plan');
+    const valid = new Set(['monthly', 'lifetime']);
+    if (valid.has(forcedPlan)) {
+      const el = [...document.querySelectorAll('input[name="plan"]')].find(i => i.value === forcedPlan);
+      if (el) el.checked = true;
+    }
 
-    // 3) Gestione submit
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('su-name').value.trim();
       const email = document.getElementById('su-email').value.trim();
       const password = document.getElementById('su-pass').value.trim();
-      const plan = [...planInputs].find(i => i.checked)?.value || 'monthly';
+      const plan = [...document.querySelectorAll('input[name="plan"]')].find(i => i.checked)?.value || 'trial';
 
       if (!name || !email || !password) {
         alert('Compila tutti i campi.');
@@ -166,10 +161,10 @@
       }
 
       try {
-        // Tracciamento GA
+        // GA
         gtag('event', 'signup_submit', { plan, lang: 'it' });
 
-        // Registrazione utente
+        // Registrazione
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
@@ -184,7 +179,6 @@
         }
 
         alert('Perfetto! Ti abbiamo inviato un link di conferma. Controlla la tua email.');
-        // opzionale: redirect alla pagina login
         location.replace(`/${lang}/login.html`);
       } catch (err) {
         alert('Errore inatteso: ' + (err?.message || err));
