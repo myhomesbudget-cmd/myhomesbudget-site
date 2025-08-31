@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyHomesBudget — Bilancio familiare semplice</title>
   <meta name="description" content="Gestisci entrate, spese e risparmi in modo semplice. Gratis per 1 Mese.">
+
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -15,6 +17,12 @@
                  frame-ancestors 'none';
                  base-uri 'self';
                  form-action 'self'">
+
+  <!-- Performance hints -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+
+  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -23,12 +31,14 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
+  <!-- Canonical + hreflang -->
   <link rel="canonical" href="https://www.myhomesbudget.com/it/" />
   <link rel="alternate" href="https://www.myhomesbudget.com/it/" hreflang="it" />
   <link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en" />
   <link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es" />
   <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
 
+  <!-- Social -->
   <meta property="og:title" content="MyHomesBudget — Gestisci il tuo bilancio domestico in modo semplice e intuitivo" />
   <meta property="og:description" content="Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo. Gratis per 1 mese." />
   <meta property="og:type" content="website" />
@@ -48,126 +58,68 @@
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
-    /* ===== SFONDO GLOBALE ===== */
+    /* SFONDO */
     body{
       margin:0;padding:0;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;color:#fff;
     }
-    /* Overlay leggerissimo: 0.05 */
-    body::before{
-      content:"";position:fixed;inset:0;
-      background:rgba(0,0,0,.05);z-index:-1;
-    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
 
-    /* ===== LAYOUT & NAV ===== */
+    /* LAYOUT & NAV */
     .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .logo-link {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      text-decoration:none;
-    }
-    .logo-image { height:40px; }
-    .logo-text {
-      font-weight:600;
-      color:#fff;
-      font-size:1.2rem;
-    }
-    .lang-selector {
-      font-size:22px;
-      display:flex;
-      gap:8px;
-    }
+    .nav{display:flex;justify-content:space-between;align-items:center}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:40px;width:40px} /* evita CLS */
+    .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
 
-    /* ===== HERO CENTRATA + ANIMAZIONE A CASCATA ===== */
+    /* HERO */
     .hero{
-      min-height:40vh;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:40vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
       text-align:center;gap:16px;padding:0 20px;margin:0;
     }
     .hero h1{
       font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
-      opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* MODIFICA APPORTATA */
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
     }
     .hero p{
-      max-width:720px;margin:8px 0 16px;
-      font-size:clamp(1rem,2vw,1.25rem);
-      opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards .4s;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* MODIFICA APPORTATA */
+      max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
     }
     .cta{
-      display:inline-block;background:#111;color:#fff;
-      padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;
+      display:inline-block;background:#111;color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;
       box-shadow:0 10px 24px rgba(0,0,0,.15);
-      opacity:0;transform:translateY(30px);
-      animation:fadeInUp .8s ease forwards .8s;
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .8s;
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+    @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
 
-    @keyframes fadeInUp{ to{opacity:1;transform:translateY(0)} }
-    @media (prefers-reduced-motion: reduce){
-      .hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}
-    }
-
-    /* ===== GRIGLIA & CARD ===== */
-    .grid{
-      display:grid;gap:12px;
-      grid-template-columns:1fr 1fr 1fr;
-      margin-top:20px;
-    }
+    /* CARD & GRIGLIA */
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
-
     .card{
-      /* bianco leggermente trasparente + lieve blur per effetto vetro */
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      padding:18px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      display:flex;flex-direction:column;justify-content:center;align-items:center;
-      text-align:center;
+      background:rgba(255,255,255,.50);
+      backdrop-filter:saturate(1.1) blur(5px);-webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;padding:18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
     }
-    .card h3{margin:0 0 6px}
-    .card p{margin:0}
+    .card h3{margin:0 0 6px}.card p{margin:0}
 
-    /* ===== STEPS ===== */
-    .steps{ margin-top:24px; } /* spazio tra le card sopra e "Come funziona" */
-    .steps h3{ margin:0 0 20px; text-align:center; }
-    .steps-grid{
-      display:grid; gap:16px; grid-template-columns:1fr 1fr 1fr;
-    }
-    @media(max-width:800px){ .steps-grid{grid-template-columns:1fr} }
-
-    .step{
-      display:flex; gap:12px; align-items:flex-start;
-      background:rgba(255,255,255,0.7);
-      border-radius:12px; padding:14px;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
-    }
-
-    .nbr {
-      flex:0 0 38px; height:38px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(108, 92, 231, 0.7); /* violetto 70% */
-      color:#fff; font-weight:700;
-      box-shadow:0 4px 10px rgba(0,0,0,.08);
-    }
-
-    .step h4{margin:0 0 4px;font-size:1.05rem}
-    .step p{margin:0;color:#444;font-size:.95rem}
+    /* STEPS */
+    .steps{margin-top:24px}
+    .steps h3{margin:0 0 20px;text-align:center}
+    .steps-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
+    .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .nbr{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,.7);color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+    .step h4{margin:0 0 4px;font-size:1.05rem}.step p{margin:0;color:#444;font-size:.95rem}
 
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
@@ -176,72 +128,53 @@
 <body>
   <div class="wrap">
     <nav class="nav" aria-label="Navigazione principale">
-      <a href="/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image">
+      <!-- resta nella lingua corrente -->
+      <a href="/it/" title="MyHomesBudget" class="logo-link" aria-label="Vai alla home (Italiano)">
+        <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" width="40" height="40">
         <span class="logo-text">MyHomesBudget</span>
       </a>
 
-      <span class="lang-selector">
-        <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-        <a href="/en/" title="English" lang="en">🇬🇧</a>
-        <a href="/es/" title="Español" lang="es">🇪🇸</a>
+      <span class="lang-selector" aria-label="Selettore lingua">
+        <a href="/it/" title="Italiano" lang="it" aria-label="Italiano">🇮🇹</a>
+        <a href="/en/" title="English"  lang="en" aria-label="English">🇬🇧</a>
+        <a href="/es/" title="Español"  lang="es" aria-label="Español">🇪🇸</a>
       </span>
     </nav>
 
     <section class="hero">
       <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
       <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
-      <a class="cta" href="login.html"
-         onclick="gtag('event','cta_click',{lang:'it', placement:'hero'});">
-        Inizia gratis
-      </a>
+      <a class="cta" href="/it/login.html"
+         onclick="gtag('event','cta_click',{lang:'it',placement:'hero'});">Inizia gratis</a>
     </section>
 
-    <section class="grid">
-      <div class="card">
-        <h3>Zero complicazioni</h3>
-        <p>Niente fogli di calcolo. Tutto chiaro e rapido.</p>
-      </div>
-      <div class="card">
-        <h3>Sempre con te</h3>
-        <p>iPhone, Android e PC. Presto installabile come PWA.</p>
-      </div>
-      <div class="card">
-        <h3>Privacy UE</h3>
-        <p>Dati in Europa e sotto il tuo controllo.</p>
-      </div>
+    <section class="grid" aria-label="Benefici principali">
+      <div class="card"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
+      <div class="card"><h3>Sempre con te</h3><p>iPhone, Android e PC. Presto installabile come PWA.</p></div>
+      <div class="card"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
     </section>
 
-    <section class="card steps">
+    <section class="card steps" aria-label="Come funziona">
       <h3>Come funziona</h3>
       <div class="steps-grid">
         <div class="step">
           <div class="nbr">1</div>
-          <div class="txt">
-            <h4>Accedi</h4>
-            <p>Entra con la tua email in pochi secondi.</p>
-          </div>
+          <div class="txt"><h4>Accedi</h4><p>Entra con la tua email in pochi secondi.</p></div>
         </div>
         <div class="step">
           <div class="nbr">2</div>
-          <div class="txt">
-            <h4>Aggiungi movimenti</h4>
-            <p>Entrate e uscite in pochi click, senza complicazioni.</p>
-          </div>
+          <div class="txt"><h4>Aggiungi movimenti</h4><p>Entrate e uscite in pochi click, senza complicazioni.</p></div>
         </div>
         <div class="step">
           <div class="nbr">3</div>
-          <div class="txt">
-            <h4>Controlla i grafici</h4>
-            <p>Osserva e monitora le tue spese.</p>
-          </div>
+          <div class="txt"><h4>Controlla i grafici</h4><p>Osserva e monitora le tue spese.</p></div>
         </div>
       </div>
     </section>
 
     <footer class="footer">
-      © MyHomesBudget — 
-      <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> · 
+      © MyHomesBudget —
+      <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> ·
       <a href="https://www.myhomesbudget.com/it/terms.html">Termini</a>
     </footer>
   </div>
