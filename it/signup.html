@@ -6,7 +6,7 @@
   <title>Inizia la prova gratuita – MyHomesBudget</title>
   <meta name="description" content="Prova MyHomesBudget gratis per 30 giorni. Nessuna carta di credito richiesta.">
 
-  <!-- CSP: consenti Supabase, GA e risorse locali -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="
           default-src 'self';
@@ -25,7 +25,7 @@
           form-action 'self'
         ">
 
-  <!-- (Opzionale) GA4 come nel resto del sito -->
+  <!-- GA4 (opzionale) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -46,10 +46,11 @@
     body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,.06); z-index:-1; }
 
     .wrap{ max-width:980px; margin:0 auto; padding:24px; }
-    header{
-      display:flex; justify-content:space-between; align-items:center; gap:12px; color:#fff;
-    }
+    header{ display:flex; justify-content:space-between; align-items:center; gap:12px; color:#fff; }
     a, a:visited{ color:inherit; }
+
+    h1{ color:#fff; margin:12px 0 8px; font-size:clamp(1.6rem, 3.5vw, 2.2rem); text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+    .kicker{ color:#eaeaea; margin:0 0 12px; text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
     .card{
       background:rgba(255,255,255,.55);
@@ -58,9 +59,6 @@
       border-radius:16px; padding:18px 18px 8px; box-shadow:0 10px 30px rgba(0,0,0,.08);
       margin-top:12px;
     }
-
-    h1{ color:#fff; margin:12px 0 8px; font-size:clamp(1.6rem, 3.5vw, 2.2rem); text-shadow: 0 1px 3px rgba(0,0,0,.4); }
-    .kicker{ color:#eaeaea; margin:0 0 12px; text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
     form{ display:grid; gap:10px; }
     label{ font-weight:600; font-size:.95rem; }
@@ -72,22 +70,20 @@
     }
     input:focus{ outline:none; border:1px solid rgba(0,0,0,.35); box-shadow:0 0 6px rgba(0,0,0,.08); }
 
-    .plan-box{
-      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;
+    /* Box piani */
+    .plans-wrapper{ display:grid; gap:12px; }
+    .plan-tile{
+      display:flex; gap:12px; align-items:flex-start;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:12px; padding:12px;
     }
-    @media (max-width:800px){ .plan-box{ grid-template-columns:1fr; } }
+    .plan-tile strong{ display:block; margin-bottom:4px; }
+    .plan-muted{ color:#555; font-size:.95rem; }
 
-    .plan{
-      background:rgba(255,255,255,.8);
-      border:1px solid rgba(0,0,0,.08);
-      border-radius:12px; padding:14px; display:flex; gap:10px; align-items:flex-start;
-    }
-    .plan strong{ display:block; margin-bottom:4px; }
-
-    .hint{ color:#444; font-size:.95rem; }
-    .muted{ color:#666; font-size:.92rem; }
-    .footer{ margin:18px 0 24px; text-align:center; color:#e6e6e6; }
-    .footer a{ color:#fff; }
+    /* Layout 2 colonne per mensile/lifetime */
+    .plan-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:800px){ .plan-grid{ grid-template-columns:1fr; } }
 
     .actions{ display:flex; justify-content:flex-end; }
     .btn{
@@ -95,7 +91,9 @@
       background:#111; color:#fff; font-weight:700; box-shadow:0 10px 24px rgba(0,0,0,.15);
     }
     .btn[disabled]{ opacity:.6; cursor:not-allowed; }
-    .msg{ margin-top:6px; min-height:20px; }
+    .msg{ margin-top:6px; min-height:20px; color:#666; }
+    .footer{ margin:18px 0 24px; text-align:center; color:#e6e6e6; }
+    .footer a{ color:#fff; }
   </style>
 </head>
 <body>
@@ -108,7 +106,7 @@
           <strong>MyHomesBudget</strong>
         </a>
       </div>
-      <div class="muted">
+      <div style="color:#fff">
         Hai già un account?
         <a href="/it/login.html" style="text-decoration:underline;">Accedi</a>
       </div>
@@ -122,7 +120,7 @@
         <div>
           <label for="su-name">Nome</label>
           <input id="su-name" type="text" placeholder="Es. Marco" required />
-          <div class="muted">Lo useremo per darti un benvenuto personalizzato.</div>
+          <div class="plan-muted">Lo useremo per darti un benvenuto personalizzato.</div>
         </div>
 
         <div>
@@ -135,37 +133,44 @@
           <input id="su-pass" type="password" placeholder="••••••••" minlength="8" required />
         </div>
 
-        <fieldset style="border:none; margin:0; padding:0;">
-          <legend class="hint" style="margin-bottom:6px; font-weight:700;">Scegli il tuo piano</legend>
+        <!-- ====== BOX PIANI (3 opzioni) ====== -->
+        <fieldset style="border:none; padding:0; margin:6px 0 0;">
+          <legend style="font-weight:700; margin-bottom:6px;">Scegli il tuo piano (puoi cambiarlo dopo)</legend>
 
-          <div class="plan-box">
-            <label class="plan">
-              <input id="plan-monthly" type="radio" name="plan" style="margin-top:3px;" />
+          <!-- Trial / Decidi più tardi -->
+          <label class="plan-tile" for="plan-trial" style="border-style:dashed;">
+            <input id="plan-trial" type="radio" name="plan" value="trial" style="margin-top:3px;" checked />
+            <div>
+              <strong>Decidi più tardi (consigliato)</strong>
+              <div class="plan-muted">Oggi non paghi nulla. Prova tutte le funzioni per 30 giorni, senza carta.</div>
+            </div>
+          </label>
+
+          <!-- Mensile / Lifetime affiancati -->
+          <div class="plan-grid">
+            <label class="plan-tile" for="plan-monthly">
+              <input id="plan-monthly" type="radio" name="plan" value="monthly" style="margin-top:3px;" />
               <div>
                 <strong>Mensile — 2,99€ / mese</strong>
-                <div class="muted">Accesso completo e aggiornamenti continui.</div>
+                <div class="plan-muted">Accesso completo e aggiornamenti continui.</div>
               </div>
             </label>
 
-            <label class="plan">
-              <input id="plan-lifetime" type="radio" name="plan" style="margin-top:3px;" />
+            <label class="plan-tile" for="plan-lifetime">
+              <input id="plan-lifetime" type="radio" name="plan" value="lifetime" style="margin-top:3px;" />
               <div>
                 <strong>Una tantum — 19,99€ / per sempre</strong>
-                <div class="muted">Paghi una volta sola. Uso illimitato.</div>
+                <div class="plan-muted">Paghi una volta sola. Uso illimitato.</div>
               </div>
             </label>
-          </div>
-
-          <div class="muted" style="margin-top:6px;">
-            Puoi cambiare piano in seguito; la prova gratuita dura 30 giorni.
           </div>
         </fieldset>
 
         <div class="actions">
-          <button type="submit" class="btn">Crea account</button>
+          <button type="submit" class="btn">Crea account e inizia la prova</button>
         </div>
 
-        <div id="form-msg" class="msg muted"></div>
+        <div id="form-msg" class="msg"></div>
       </form>
     </section>
 
@@ -176,26 +181,32 @@
     </div>
   </div>
 
-  <!-- Client Supabase condiviso nel sito -->
+  <!-- Supabase client -->
   <script type="module" src="/it/supabase-client.js"></script>
 
-  <!-- Logica signup (trial + redirect) -->
+  <!-- Logica signup -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
     const lang  = location.pathname.split('/')[1] || 'it';
     const goDash = () => location.replace(\`/\${lang}/dashboard.html\`);
 
-    // Se c'è già sessione → vai in dashboard
+    // Se sessione già attiva → dashboard
     {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) goDash();
     }
 
-    // Se lo stato cambia (es. conferma email) → vai in dashboard
+    // Se lo stato cambia (es. conferma email) → dashboard
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) goDash();
     });
+
+    // Pre-selezione da query (?plan=monthly|lifetime)
+    const qs = new URLSearchParams(location.search);
+    const p  = qs.get('plan');
+    if (p === 'monthly') document.getElementById('plan-monthly').checked = true;
+    if (p === 'lifetime') document.getElementById('plan-lifetime').checked = true;
 
     const $   = (s) => document.querySelector(s);
     const form = $('#signup-form');
@@ -206,12 +217,11 @@
       msg.textContent = '';
 
       const name  = $('#su-name')?.value.trim();
-      const email = $('#su-email')?.value.trim().toLowerCase();
+      const email = ($('#su-email')?.value || '').trim().toLowerCase();
       const pass  = $('#su-pass')?.value;
 
-      const prefersMonthly  = $('#plan-monthly')?.checked;
-      const prefersLifetime = $('#plan-lifetime')?.checked;
-      const plan_pref = prefersMonthly ? 'monthly' : prefersLifetime ? 'lifetime' : null;
+      // scelta piano
+      const chosen = document.querySelector('input[name="plan"]:checked')?.value || 'trial';
 
       if (!name || !email || !pass) {
         msg.textContent = 'Compila nome, email e password.';
@@ -222,12 +232,12 @@
       btn?.setAttribute('disabled','disabled');
 
       try {
-        // Metadata iniziali: l’account nasce sempre in TRIAL
+        // L'account parte sempre in trial; salviamo la preferenza scelta
         const metadata = {
           name,
           plan: 'trial',
           trial_started_at: new Date().toISOString(),
-          plan_preference: plan_pref
+          plan_preference: chosen   // 'trial' | 'monthly' | 'lifetime'
         };
 
         const { data, error } = await supabase.auth.signUp({
@@ -245,14 +255,14 @@
         }
 
         if (data?.session?.user) {
-          // Conferma email disattivata: sessione già aperta → redirect
+          // Conferma email disattivata → sessione aperta
           goDash();
           return;
         }
 
-        // Conferma email attiva: spiega cosa fare
-        msg.innerHTML = "Abbiamo inviato un'email di conferma a <b>" + email +
-          "</b>. Aprila per attivare l'account. Dopo la conferma verrai reindirizzato automaticamente.";
+        // Conferma email attiva → messaggio chiaro
+        msg.innerHTML = "Ti abbiamo inviato un'email di conferma a <b>" + email +
+          "</b>. Aprila per attivare l'account. Dopo la conferma verrai reindirizzato automaticamente alla dashboard.";
       } catch (err) {
         msg.textContent = 'Errore inatteso: ' + (err?.message || err);
       } finally {
