@@ -3,26 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registrati — MyHomesBudget</title>
-  <meta name="description" content="Prova gratis per 30 giorni. Nessuna carta richiesta. Deciderai il piano in seguito.">
+  <title>Inizia la prova gratuita – MyHomesBudget</title>
+  <meta name="description" content="Prova MyHomesBudget gratis per 30 giorni. Nessuna carta di credito richiesta.">
 
-  <!-- CSP -->
+  <!-- CSP: consenti Supabase, GA e risorse locali -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://upcusjlumfeadgbhziwq.supabase.co;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
+        content="
+          default-src 'self';
+          img-src 'self' https: data:;
+          style-src 'self' 'unsafe-inline';
+          script-src 'self' 'unsafe-inline'
+                     https://www.googletagmanager.com
+                     https://www.google-analytics.com;
+          connect-src 'self'
+                      https://www.google-analytics.com
+                      https://region1.google-analytics.com
+                      https://upcusjlumfeadgbhziwq.supabase.co;
+          font-src 'self' https: data:;
+          frame-ancestors 'none';
+          base-uri 'self';
+          form-action 'self'
+        ">
 
-  <!-- GA4 -->
+  <!-- (Opzionale) GA4 come nel resto del sito -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -30,158 +37,226 @@
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;padding:0;background:url("/bg.webp") no-repeat center center fixed;background-size:cover;color:#fff}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
-    .wrap{max-width:760px;margin:0 auto;padding:24px}
-    .card{background:rgba(255,255,255,.55);backdrop-filter:saturate(1.1) blur(6px);-webkit-backdrop-filter:saturate(1.1) blur(3px);color:#111;border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:0 0 8px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    p.lead{text-align:center;margin:0 0 18px;color:#f4f4f4}
-    form{display:grid;gap:14px}
-    label{font-weight:600}
-    input[type="text"],input[type="email"],input[type="password"]{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;color:#111;font-size:1rem}
-    fieldset{border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px}
-    legend{font-weight:700;padding:0 6px}
-    .plan{display:grid;gap:12px;grid-template-columns:1fr 1fr}
-    @media (max-width:700px){.plan{grid-template-columns:1fr}}
-    .plan label{display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;background:#fff;cursor:pointer}
-    .muted{color:#555;font-size:.95rem;margin-top:-4px}
-    .actions{display:flex;justify-content:flex-end}
-    .btn{border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.15)}
-    .btn:hover{filter:brightness(1.08)}
-    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .topbar a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .topbar a:hover{background:rgba(255,255,255,.12)}
-    .footer{margin:24px 0;text-align:center;color:#e6e6e6}
-    .footer a{color:#fff}
+    :root { font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; }
+    body{
+      margin:0; padding:0; color:#111;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;
+    }
+    body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,.06); z-index:-1; }
+
+    .wrap{ max-width:980px; margin:0 auto; padding:24px; }
+    header{
+      display:flex; justify-content:space-between; align-items:center; gap:12px; color:#fff;
+    }
+    a, a:visited{ color:inherit; }
+
+    .card{
+      background:rgba(255,255,255,.55);
+      backdrop-filter:saturate(1.1) blur(6px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      border-radius:16px; padding:18px 18px 8px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+      margin-top:12px;
+    }
+
+    h1{ color:#fff; margin:12px 0 8px; font-size:clamp(1.6rem, 3.5vw, 2.2rem); text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+    .kicker{ color:#eaeaea; margin:0 0 12px; text-shadow: 0 1px 3px rgba(0,0,0,.35); }
+
+    form{ display:grid; gap:10px; }
+    label{ font-weight:600; font-size:.95rem; }
+    input[type="text"], input[type="email"], input[type="password"]{
+      width:100%; box-sizing:border-box; padding:12px 14px;
+      border-radius:12px; border:1px solid rgba(0,0,0,.10);
+      background:rgba(255,255,255,.95);
+      font-size:1rem;
+    }
+    input:focus{ outline:none; border:1px solid rgba(0,0,0,.35); box-shadow:0 0 6px rgba(0,0,0,.08); }
+
+    .plan-box{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;
+    }
+    @media (max-width:800px){ .plan-box{ grid-template-columns:1fr; } }
+
+    .plan{
+      background:rgba(255,255,255,.8);
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:12px; padding:14px; display:flex; gap:10px; align-items:flex-start;
+    }
+    .plan strong{ display:block; margin-bottom:4px; }
+
+    .hint{ color:#444; font-size:.95rem; }
+    .muted{ color:#666; font-size:.92rem; }
+    .footer{ margin:18px 0 24px; text-align:center; color:#e6e6e6; }
+    .footer a{ color:#fff; }
+
+    .actions{ display:flex; justify-content:flex-end; }
+    .btn{
+      cursor:pointer; border:none; border-radius:12px; padding:12px 16px;
+      background:#111; color:#fff; font-weight:700; box-shadow:0 10px 24px rgba(0,0,0,.15);
+    }
+    .btn[disabled]{ opacity:.6; cursor:not-allowed; }
+    .msg{ margin-top:6px; min-height:20px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="topbar">
-      <a href="/it/" title="Torna alla home">← Home</a>
-      <a href="login.html">Hai già un account? Accedi</a>
-    </div>
+
+    <header>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="/" title="Home" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+          <img src="/homes.png" alt="MyHomesBudget" style="height:28px; border-radius:6px;">
+          <strong>MyHomesBudget</strong>
+        </a>
+      </div>
+      <div class="muted">
+        Hai già un account?
+        <a href="/it/login.html" style="text-decoration:underline;">Accedi</a>
+      </div>
+    </header>
 
     <h1>Inizia la prova gratuita</h1>
-    <p class="lead">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</p>
+    <p class="kicker">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</p>
 
-    <div class="card">
-      <form id="signup-form" autocomplete="on">
+    <section class="card">
+      <form id="signup-form" novalidate>
         <div>
           <label for="su-name">Nome</label>
-          <input id="su-name" type="text" name="name" placeholder="Es. Marco" required />
+          <input id="su-name" type="text" placeholder="Es. Marco" required />
           <div class="muted">Lo useremo per darti un benvenuto personalizzato.</div>
         </div>
 
         <div>
           <label for="su-email">Email</label>
-          <input id="su-email" type="email" name="email" placeholder="nome@dominio.it" required />
+          <input id="su-email" type="email" placeholder="nome@dominio.it" required />
         </div>
 
         <div>
           <label for="su-pass">Password</label>
-          <input id="su-pass" type="password" name="password" placeholder="••••••••" minlength="8" required />
+          <input id="su-pass" type="password" placeholder="••••••••" minlength="8" required />
         </div>
 
-        <!-- Selettore piano con "Decidi più tardi" -->
-        <fieldset>
-          <legend>Scegli il tuo piano (opzionale)</legend>
+        <fieldset style="border:none; margin:0; padding:0;">
+          <legend class="hint" style="margin-bottom:6px; font-weight:700;">Scegli il tuo piano</legend>
 
-          <label style="display:flex;gap:10px;align-items:flex-start;border:1px dashed rgba(0,0,0,.15);border-radius:12px;padding:12px;background:#fff;margin-bottom:12px;">
-            <input type="radio" name="plan" value="trial" checked />
-            <div>
-              <div style="font-weight:700">Decidi più tardi (consigliato)</div>
-              <div class="muted">Oggi non paghi nulla. Prova tutte le funzioni per 30 giorni, senza carta.</div>
-            </div>
-          </label>
-
-          <div class="plan">
-            <label>
-              <input type="radio" name="plan" value="monthly" />
+          <div class="plan-box">
+            <label class="plan">
+              <input id="plan-monthly" type="radio" name="plan" style="margin-top:3px;" />
               <div>
-                <div style="font-weight:700">Mensile — 2,99€ / mese</div>
+                <strong>Mensile — 2,99€ / mese</strong>
                 <div class="muted">Accesso completo e aggiornamenti continui.</div>
               </div>
             </label>
 
-            <label>
-              <input type="radio" name="plan" value="lifetime" />
+            <label class="plan">
+              <input id="plan-lifetime" type="radio" name="plan" style="margin-top:3px;" />
               <div>
-                <div style="font-weight:700">Una tantum — 19,99€ / per sempre</div>
-                <div class="muted">Paghi una sola volta. Uso illimitato.</div>
+                <strong>Una tantum — 19,99€ / per sempre</strong>
+                <div class="muted">Paghi una volta sola. Uso illimitato.</div>
               </div>
             </label>
+          </div>
+
+          <div class="muted" style="margin-top:6px;">
+            Puoi cambiare piano in seguito; la prova gratuita dura 30 giorni.
           </div>
         </fieldset>
 
         <div class="actions">
-          <button class="btn" type="submit">Crea account e inizia la prova</button>
+          <button type="submit" class="btn">Crea account</button>
         </div>
+
+        <div id="form-msg" class="msg muted"></div>
       </form>
-    </div>
+    </section>
 
     <div class="footer">
-      © MyHomesBudget — <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> ·
+      © MyHomesBudget —
+      <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> ·
       <a href="https://www.myhomesbudget.com/it/terms.html">Termini</a>
     </div>
   </div>
 
-  <!-- Supabase client -->
+  <!-- Client Supabase condiviso nel sito -->
   <script type="module" src="/it/supabase-client.js"></script>
+
+  <!-- Logica signup (trial + redirect) -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    const lang = 'it';
-    const goDash = () => location.replace(`/${lang}/dashboard.html`);
+    const lang  = location.pathname.split('/')[1] || 'it';
+    const goDash = () => location.replace(\`/\${lang}/dashboard.html\`);
 
-    // Se già autenticato → dashboard
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) goDash();
-
-    // Pre-selezione piano da querystring (?plan=monthly|lifetime)
-    const params = new URLSearchParams(location.search);
-    const forcedPlan = params.get('plan');
-    const valid = new Set(['monthly', 'lifetime']);
-    if (valid.has(forcedPlan)) {
-      const el = [...document.querySelectorAll('input[name="plan"]')].find(i => i.value === forcedPlan);
-      if (el) el.checked = true;
+    // Se c'è già sessione → vai in dashboard
+    {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) goDash();
     }
 
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('su-name').value.trim();
-      const email = document.getElementById('su-email').value.trim();
-      const password = document.getElementById('su-pass').value.trim();
-      const plan = [...document.querySelectorAll('input[name="plan"]')].find(i => i.checked)?.value || 'trial';
+    // Se lo stato cambia (es. conferma email) → vai in dashboard
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) goDash();
+    });
 
-      if (!name || !email || !password) {
-        alert('Compila tutti i campi.');
+    const $   = (s) => document.querySelector(s);
+    const form = $('#signup-form');
+    const msg  = $('#form-msg');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = '';
+
+      const name  = $('#su-name')?.value.trim();
+      const email = $('#su-email')?.value.trim().toLowerCase();
+      const pass  = $('#su-pass')?.value;
+
+      const prefersMonthly  = $('#plan-monthly')?.checked;
+      const prefersLifetime = $('#plan-lifetime')?.checked;
+      const plan_pref = prefersMonthly ? 'monthly' : prefersLifetime ? 'lifetime' : null;
+
+      if (!name || !email || !pass) {
+        msg.textContent = 'Compila nome, email e password.';
         return;
       }
 
-      try {
-        // GA
-        gtag('event', 'signup_submit', { plan, lang: 'it' });
+      const btn = form.querySelector('[type="submit"]');
+      btn?.setAttribute('disabled','disabled');
 
-        // Registrazione
+      try {
+        // Metadata iniziali: l’account nasce sempre in TRIAL
+        const metadata = {
+          name,
+          plan: 'trial',
+          trial_started_at: new Date().toISOString(),
+          plan_preference: plan_pref
+        };
+
         const { data, error } = await supabase.auth.signUp({
-          email, password,
+          email,
+          password: pass,
           options: {
-            data: { name, plan, trial_started_at: new Date().toISOString() },
-            emailRedirectTo: 'https://www.myhomesbudget.com/it/auth/callback'
+            data: metadata,
+            emailRedirectTo: \`https://www.myhomesbudget.com/\${lang}/dashboard.html\`
           }
         });
 
         if (error) {
-          alert('Errore registrazione: ' + error.message);
+          msg.textContent = 'Errore: ' + error.message;
           return;
         }
 
-        alert('Perfetto! Ti abbiamo inviato un link di conferma. Controlla la tua email.');
-        location.replace(`/${lang}/login.html`);
+        if (data?.session?.user) {
+          // Conferma email disattivata: sessione già aperta → redirect
+          goDash();
+          return;
+        }
+
+        // Conferma email attiva: spiega cosa fare
+        msg.innerHTML = "Abbiamo inviato un'email di conferma a <b>" + email +
+          "</b>. Aprila per attivare l'account. Dopo la conferma verrai reindirizzato automaticamente.";
       } catch (err) {
-        alert('Errore inatteso: ' + (err?.message || err));
+        msg.textContent = 'Errore inatteso: ' + (err?.message || err);
+      } finally {
+        btn?.removeAttribute('disabled');
       }
     });
   </script>
