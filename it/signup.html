@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inizia la prova gratuita — MyHomesBudget</title>
-  <meta name="description" content="Crea il tuo account MyHomesBudget. 30 giorni gratis, nessuna carta richiesta." />
+  <meta name="description" content="Crea il tuo account MyHomesBudget. 30 giorni gratis, nessuna carta richiesta.">
 
-  <!-- CSP aggiornata: include Supabase e (se serve) jsdelivr -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="
           default-src 'self';
@@ -20,7 +20,7 @@
           form-action 'self'
         ">
 
-  <!-- GA4 opzionale (puoi rimuovere) -->
+  <!-- (opzionale) GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -33,95 +33,118 @@
 
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+
+    /* ==== sfondo come landing ==== */
     body{
-      margin:0;padding:0; color:#111;
+      margin:0;padding:0;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;
+      color:#fff;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.04);z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
 
-    .wrap{max-width:920px;margin:0 auto;padding:24px}
-    a{color:#111;text-decoration:none}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .muted{color:#666}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    a{color:#fff;text-decoration:none}
 
+    /* top */
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .brand{display:flex;gap:8px;align-items:center}
+    .brand img{height:32px}
+    .brand span{font-weight:600;font-size:1.1rem}
+
+    /* hero title/sub come landing */
+    h1{
+      margin:4px 0 4px;
+      font-size:clamp(1.8rem,4vw,2.2rem);
+      line-height:1.2;
+      text-shadow:0 1px 3px rgba(0,0,0,.45);
+    }
+    .sub{
+      margin:0 0 14px;
+      font-size:clamp(.95rem,2vw,1.05rem);
+      text-shadow:0 1px 3px rgba(0,0,0,.45);
+      opacity:.95;
+    }
+
+    /* card glass: testi scuri solo dentro la card */
     .card{
-      background:rgba(255,255,255,.88);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      backdrop-filter:saturate(1.1) blur(3px);
+      background:rgba(255,255,255,.58);
+      -webkit-backdrop-filter:saturate(1.1) blur(5px);
+      backdrop-filter:saturate(1.1) blur(5px);
       border-radius:16px; padding:20px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
+      color:#111;
     }
 
-    h1{margin:4px 0 8px}
-    .sub{color:#444}
-
-    form{display:grid;gap:12px}
     label{font-weight:600}
-    input[type="text"], input[type="email"], input[type="password"]{
+    input[type="text"],input[type="email"],input[type="password"]{
       width:100%; box-sizing:border-box;
       padding:12px 14px; border-radius:12px;
       border:1px solid #ddd; background:#fff; font-size:1rem;
+      margin-top:6px;
     }
-    .row{display:grid; gap:12px}
+
+    .row{display:grid;gap:12px}
     @media(min-width:720px){ .row{ grid-template-columns:1fr 1fr } }
 
     .plan{
       display:grid; gap:12px;
       grid-template-columns:1fr 1fr;
+      margin-top:6px;
     }
     @media(max-width:720px){ .plan{ grid-template-columns:1fr } }
 
-    .plan .box{
-      border:1px solid #e6e6e6; border-radius:14px; padding:14px;
-      background:#fff;
+    .box{
+      border:1px solid #e7e7e7; border-radius:14px; padding:14px; background:#fff;
+      display:flex; gap:10px; align-items:flex-start;
     }
-    .box h4{margin:0 0 4px}
+    .box h4{margin:0 0 2px}
     .box p{margin:0; color:#444; font-size:.95rem}
-    .inline{display:flex; gap:8px; align-items:center}
 
     .pwd-help{
       font-size:.9rem; color:#444; background:#fafafa;
       border:1px solid #eee; border-radius:12px; padding:10px 12px;
+      margin-top:8px;
     }
     .ok{color:#0a7a2e;font-weight:600}
     .ko{color:#a40000;font-weight:600}
 
-    .actions{display:flex;gap:10px;align-items:center;justify-content:flex-end}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
     .btn{
       cursor:pointer; background:#111; color:#fff; border:none;
       padding:12px 18px; border-radius:12px; font-weight:700;
-      box-shadow:0 6px 18px rgba(0,0,0,.15);
+      box-shadow:0 6px 18px rgba(0,0,0,.18);
     }
-    .btn:disabled{opacity:.6; cursor:not-allowed}
-    .msg{margin-top:8px; font-size:.95rem}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    .msg{margin-top:10px;font-size:.95rem}
     .msg.err{color:#a40000}
     .msg.ok{color:#0a7a2e}
 
-    footer{margin:22px 0; text-align:center; color:#e6e6e6}
+    footer{margin:22px 0;text-align:center;color:#e6e6e6}
     footer a{color:#fff}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <a href="/it/" class="inline">
-        <img alt="logo" src="/homes.png" style="height:32px">
-        <strong>MyHomesBudget</strong>
+      <a href="/it/" class="brand">
+        <img src="/homes.png" alt="MyHomesBudget">
+        <span>MyHomesBudget</span>
       </a>
-      <div class="muted">Hai già un account? <a href="/it/login.html"><strong>Accedi</strong></a></div>
+      <div><span style="opacity:.85">Hai già un account?</span> <a href="/it/login.html"><strong>Accedi</strong></a></div>
     </header>
 
     <h1>Inizia la prova gratuita</h1>
     <div class="sub">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</div>
 
-    <section class="card" style="margin-top:12px">
+    <section class="card">
       <form id="signup-form" novalidate>
         <div class="row">
           <div>
             <label for="name">Nome</label>
             <input id="name" type="text" placeholder="Es. Marco" autocomplete="given-name" />
-            <div class="muted" style="margin-top:4px">Lo useremo per un benvenuto personalizzato.</div>
+            <div style="color:#666;margin-top:4px">Lo useremo per un benvenuto personalizzato.</div>
           </div>
           <div>
             <label for="email">Email</label>
@@ -142,7 +165,7 @@
         <div>
           <label>Scegli il tuo piano</label>
           <div class="plan">
-            <label class="box inline">
+            <label class="box">
               <input type="radio" name="plan" value="trial" checked />
               <div>
                 <h4>Prova Gratuita — 30 giorni</h4>
@@ -150,7 +173,7 @@
               </div>
             </label>
 
-            <label class="box inline">
+            <label class="box">
               <input type="radio" name="plan" value="monthly" />
               <div>
                 <h4>Mensile — 2,99€ / mese</h4>
@@ -158,7 +181,7 @@
               </div>
             </label>
 
-            <label class="box inline">
+            <label class="box">
               <input type="radio" name="plan" value="lifetime" />
               <div>
                 <h4>Una tantum — 19,99€ per sempre</h4>
@@ -166,7 +189,8 @@
               </div>
             </label>
           </div>
-          <div class="muted" style="margin-top:8px">
+
+          <div style="color:#555;margin-top:8px">
             Puoi cambiare piano in seguito. La prova gratuita dura 30 giorni.
           </div>
         </div>
@@ -184,38 +208,34 @@
     </footer>
   </div>
 
-  <!-- Supabase client (usa il tuo file già esistente) -->
+  <!-- Supabase client -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    const form = document.getElementById('signup-form');
-    const msg  = document.getElementById('msg');
-    const btn  = document.getElementById('submit-btn');
+    const form   = document.getElementById('signup-form');
+    const msg    = document.getElementById('msg');
+    const btn    = document.getElementById('submit-btn');
     const nameEl = document.getElementById('name');
-    const emailEl = document.getElementById('email');
-    const passEl  = document.getElementById('password');
+    const emailEl= document.getElementById('email');
+    const passEl = document.getElementById('password');
 
-    // helper regole password
     const lenEl = document.getElementById('rule-len');
     const letterEl = document.getElementById('rule-letter');
     const numEl = document.getElementById('rule-num');
 
     const ORIGIN = window.location.origin;
     const lang = location.pathname.split('/')[1] || 'it';
-    const REDIRECT = `${ORIGIN}/${lang}/dashboard.html`; // al click sul link email
+    const REDIRECT = `${ORIGIN}/${lang}/dashboard.html`;
 
-    function checkPassword(pwd) {
+    function checkPassword(pwd){
       const okLen    = pwd.length >= 8;
       const okLetter = /[A-Za-z]/.test(pwd);
       const okNum    = /\d/.test(pwd);
-
       lenEl.className    = okLen    ? 'ok' : 'ko';
       letterEl.className = okLetter ? 'ok' : 'ko';
       numEl.className    = okNum    ? 'ok' : 'ko';
-
       return okLen && okLetter && okNum;
     }
-
     passEl.addEventListener('input', () => checkPassword(passEl.value));
 
     form.addEventListener('submit', async (e) => {
@@ -226,63 +246,45 @@
       const full_name = (nameEl.value || '').trim();
       const email     = (emailEl.value || '').trim();
       const password  = passEl.value;
+      const selected  = form.querySelector('input[name="plan"]:checked');
+      const plan      = selected ? selected.value : 'trial';
 
-      const selected = form.querySelector('input[name="plan"]:checked');
-      const plan = selected ? selected.value : 'trial';
-
-      // validazioni lato client
-      if (!email) {
+      if(!email){
         msg.textContent = 'Inserisci una email valida.';
-        msg.classList.add('err');
-        emailEl.focus();
-        return;
+        msg.classList.add('err'); emailEl.focus(); return;
       }
-      if (!checkPassword(password)) {
+      if(!checkPassword(password)){
         msg.textContent = 'La password non rispetta i requisiti minimi.';
-        msg.classList.add('err');
-        passEl.focus();
-        return;
+        msg.classList.add('err'); passEl.focus(); return;
       }
 
       btn.disabled = true;
       msg.textContent = 'Creazione account…';
-      try {
-        // calcolo trial_end
-        const now = new Date();
-        const trialEndsAt = new Date(now.getTime() + 30*24*60*60*1000).toISOString();
+      try{
+        const trialEndsAt = new Date(Date.now()+30*24*60*60*1000).toISOString();
 
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
+        const { error } = await supabase.auth.signUp({
+          email, password,
+          options:{
+            data:{
               full_name,
-              plan_initial: plan,          // quello scelto ora
-              billing_status: 'trialing',  // base: in trial
+              plan_initial: plan,
+              billing_status: 'trialing',
               trial_ends_at: trialEndsAt
             },
             emailRedirectTo: REDIRECT
           }
         });
 
-        if (error) {
-          console.error('Errore signup:', error);
-          msg.textContent = error.message;
-          msg.classList.add('err');
-          return;
+        if(error){
+          msg.textContent = error.message; msg.classList.add('err'); return;
         }
-
-        // se l'email di conferma è attiva, Supabase non restituisce sessione
         msg.classList.add('ok');
-        msg.innerHTML = `
-          Fatto! Ti abbiamo inviato un link di conferma a <b>${email}</b>.<br/>
-          Apri l’email e clicca sul link per iniziare a usare MyHomesBudget.
-        `;
-      } catch (err) {
-        console.error(err);
+        msg.innerHTML = `Fatto! Ti abbiamo inviato un link di conferma a <b>${email}</b>. Aprilo per iniziare.`;
+      }catch(err){
         msg.textContent = 'Errore inatteso: ' + (err?.message || err);
         msg.classList.add('err');
-      } finally {
+      }finally{
         btn.disabled = false;
       }
     });
