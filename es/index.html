@@ -4,8 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MyHomesBudget — Presupuesto familiar sencillo</title>
-  <meta name="description" content="Gestiona ingresos, gastos y ahorros de forma sencilla. Gratis durante 1 mes.">
+  <meta name="description" content="Gestiona ingresos, gastos y ahorros de forma sencilla. Prueba gratis 30 días.">
 
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -17,13 +18,11 @@
                  base-uri 'self';
                  form-action 'self'">
 
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
-
+  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -36,96 +35,323 @@
   <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
 
   <!-- Social -->
-  <meta property="og:title" content="MyHomesBudget — Gestiona tu presupuesto del hogar fácilmente" />
-  <meta property="og:description" content="Añade gastos e ingresos en pocos clics y mantén todo bajo control. Gratis durante 1 mes." />
+  <meta property="og:title" content="MyHomesBudget — Presupuesto doméstico simple e intuitivo" />
+  <meta property="og:description" content="Añade gastos e ingresos en pocos clics y mantén todo bajo control. Prueba gratis 30 días." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.myhomesbudget.com/es/" />
   <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="MyHomesBudget — Gestiona tu presupuesto del hogar fácilmente" />
-  <meta name="twitter:description" content="Añade gastos e ingresos en pocos clics y mantén todo bajo control. Gratis durante 1 mes." />
+  <meta name="twitter:title" content="MyHomesBudget — Presupuesto doméstico simple e intuitivo" />
+  <meta name="twitter:description" content="Añade gastos e ingresos en pocos clics y mantén todo bajo control. Prueba gratis 30 días." />
   <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
 
+  <!-- Performance -->
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+  <link rel="preconnect" href="https://region1.google-analytics.com" crossorigin>
+  <link rel="icon" href="/favicon.ico">
+  <meta name="theme-color" content="#0f0f10">
+  <meta name="color-scheme" content="light dark">
 
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;padding:0;background:url("/bg.webp") no-repeat center center fixed;background-size:cover;color:#fff}
+    *{box-sizing:border-box}
+    a:focus-visible, button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+
+    /* Fondo */
+    body{
+      margin:0;padding:0;color:#fff;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;
+    }
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+
+    /* Layout + Nav */
     .wrap{max-width:960px;margin:0 auto;padding:24px}
     .nav{display:flex;justify-content:space-between;align-items:center}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:40px;width:40px}
+    .logo-image{height:40px}
     .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
+    .right-bar{display:flex;gap:12px;align-items:center}
+    .login-link,.nav .nav-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .login-link:hover,.nav .nav-link:hover{background:rgba(255,255,255,.12)}
     .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
-    .hero{min-height:40vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:0 20px;margin:0}
-    .hero h1{font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    .hero p{max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    .cta{display:inline-block;background:#111;color:#fff;padding:12px 16px;border-radius:12px;font-weight:700;text-decoration:none;box-shadow:0 10px 24px rgba(0,0,0,.15);opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .8s;transition:transform .15s ease, box-shadow .15s ease, filter .15s ease}
-    .cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+
+    /* Hero */
+    .hero{
+      min-height:42vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;gap:12px;padding:0 20px;margin:0;
+    }
+    .hero h1{
+      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
+    }
+    .hero p{
+      max-width:720px;margin:8px 0 4px;font-size:clamp(1rem,2vw,1.25rem);
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
+    }
+    .cta{
+      display:inline-block;background:#111;color:#fff;
+      padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .8s;
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+    .cta-ghost{background:transparent; border:1px solid rgba(255,255,255,.6); margin-left:8px;}
+    .cta-ghost:hover{filter:none; transform:translateY(-1px); background:rgba(0,0,0,.15)}
+    .microcopy{font-size:.95rem;color:#eaeaea;opacity:.95}
     @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
     @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
+    @media(max-width:560px){ .cta-ghost{display:block; margin:8px auto 0} }
+
+    /* Tarjetas / Grid */
     .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
-    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);-webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
-    .card h3{margin:0 0 6px}.card p{margin:0}
-    .steps{margin-top:24px}.steps h3{margin:0 0 20px;text-align:center}
+    .card{
+      background:rgba(255,255,255,0.50);
+      backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;padding:18px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+    }
+    .card h3{margin:0 0 6px}
+    .card p{margin:0}
+
+    /* Pasos */
+    .steps{margin-top:24px}
+    .steps h3{margin:0 0 20px;text-align:center}
     .steps-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
     @media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
-    .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
     .nbr{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,.7);color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.08)}
-    .step h4{margin:0 0 4px;font-size:1.05rem}.step p{margin:0;color:#444;font-size:.95rem}
+    .step h4{margin:0 0 4px;font-size:1.05rem}
+    .step p{margin:0;color:#444;font-size:.95rem}
+
+    /* Precios (panel + tarjetas) */
+    .pricing{margin-top:28px}
+    .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+    @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
+    .price-card{
+      background:rgba(255,255,255,.55);
+      backdrop-filter:saturate(1.1) blur(6px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center;
+    }
+    .pricing-panel{align-items:stretch;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .pricing-panel h3{margin:0 0 12px;text-align:center;color:#111}
+
+    /* Título + precio en línea */
+    .price-card .plan-title{
+      margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem;
+    }
+    .price-card .plan-title .plan-name{font-weight:700}
+    .price-card .plan-title .sep{opacity:.45}
+    .price-card .plan-title .price-inline{font-weight:800;font-size:1.25rem;line-height:1}
+    .price-card .plan-title .price-inline small{font-weight:600;font-size:.9rem;color:#333}
+    .features{margin:6px 0 10px;color:#333;font-size:.95rem;line-height:1.45}
+    .btn-secondary{
+      display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;
+      transition:transform .15s ease, filter .15s ease;
+    }
+    .btn-secondary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+    /* Footer */
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
+
+    /* Reveal suave (de abajo hacia arriba) */
+    .reveal{--d:0s;opacity:0;transform:translateY(16px) scale(.995);transform-origin:50% 100%;filter:saturate(.98);
+      transition:opacity .85s ease,transform .85s cubic-bezier(.22,1,.36,1),filter .85s ease;will-change:opacity,transform}
+    .reveal.in{opacity:1;transform:none;filter:none}
+    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none;filter:none}}
+
+    /* Compactación escritorio */
+    @media (min-width:900px){
+      .wrap{padding:16px}
+      .logo-image{height:32px}
+      .hero{min-height:30vh;gap:8px}
+      .hero h1{font-size:clamp(1.8rem,3.8vw,2.4rem);margin:0}
+      .hero p{margin:2px 0 0}
+      .cta{padding:10px 16px}
+      .microcopy{font-size:.9rem}
+      .grid{margin-top:8px;gap:8px}
+      .card{padding:14px}
+      .steps{margin-top:12px}
+      .steps h3{margin:0 0 8px}
+      .steps-grid{gap:10px}
+      .step{padding:10px}
+      .nbr{flex:0 0 32px;height:32px}
+      .pricing{margin-top:12px}
+      .pricing-grid{gap:10px}
+      .price-card{padding:12px 14px}
+      .price-card{min-height:140px}
+      .footer{margin:12px 0 8px}
+    }
+
+    /* iOS: fondo fijo fallback */
+    @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- NAV -->
     <nav class="nav" aria-label="Navegación principal">
-      <a href="/es/" title="MyHomesBudget" class="logo-link" aria-label="Ir al inicio (Español)">
-        <img src="/homes.png" alt="Logo de MyHomesBudget" class="logo-image" width="40" height="40">
+      <a href="/es/" title="myHomesBudget" class="logo-link">
+        <img src="/homes.png" alt="Logo myhomesbudget" class="logo-image" loading="lazy">
         <span class="logo-text">MyHomesBudget</span>
       </a>
-      <span class="lang-selector" aria-label="Selector de idioma">
-        <a href="/it/" title="Italiano" lang="it" aria-label="Italiano">🇮🇹</a>
-        <a href="/en/" title="English"  lang="en" aria-label="English">🇬🇧</a>
-        <a href="/es/" title="Español"  lang="es" aria-label="Español">🇪🇸</a>
-      </span>
+
+      <div class="right-bar">
+        <a class="login-link" href="/es/login.html" aria-label="Acceder">Acceder</a>
+
+        <!-- NUEVO: enlace Precios -->
+        <a class="nav-link pricing-link"
+           href="/es/pricing.html"
+           onclick="gtag('event','cta_click',{placement:'nav_pricing',lang:'es'});">
+          Precios
+        </a>
+
+        <span class="lang-selector" aria-label="Selector de idioma">
+          <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
+          <a href="/en/" title="English" lang="en">🇬🇧</a>
+          <a href="/es/" title="Español" lang="es">🇪🇸</a>
+        </span>
+      </div>
     </nav>
 
+    <!-- HERO -->
     <section class="hero">
       <h1>Gestiona tu presupuesto del hogar de forma simple e intuitiva</h1>
       <p>Añade tus gastos e ingresos en pocos clics y mantén todo bajo control.</p>
-      <a class="cta" href="/es/login.html"
-         onclick="gtag('event','cta_click',{lang:'es',placement:'hero'});">Empieza gratis</a>
+
+      <div>
+        <a class="cta" href="/es/signup.html"
+           onclick="gtag('event','cta_click',{lang:'es',placement:'hero_trial'});">
+          Empieza gratis (30 días)
+        </a>
+        <a class="cta cta-ghost" href="/es/pricing.html"
+           onclick="gtag('event','cta_click',{placement:'hero_secondary',lang:'es'});">
+          Ver planes
+        </a>
+      </div>
+
+      <div class="microcopy" aria-hidden="true">No se requiere tarjeta. Cancela cuando quieras.</div>
     </section>
 
-    <section class="grid" aria-label="Beneficios clave">
-      <div class="card"><h3>Sin complicaciones</h3><p>Nada de hojas de cálculo. Todo claro y rápido.</p></div>
-      <div class="card"><h3>Siempre contigo</h3><p>iPhone, Android y PC. PWA muy pronto.</p></div>
-      <div class="card"><h3>Privacidad UE</h3><p>Datos en Europa y bajo tu control.</p></div>
+    <!-- BENEFICIOS -->
+    <section class="grid" aria-label="Beneficios principales">
+      <div class="card reveal"><h3>Sin complicaciones</h3><p>Sin hojas de cálculo. Todo claro y rápido.</p></div>
+      <div class="card reveal"><h3>Siempre contigo</h3><p>iPhone, Android y ordenador. Pronto instalable como PWA.</p></div>
+      <div class="card reveal"><h3>Privacidad UE</h3><p>Datos en Europa y bajo tu control.</p></div>
     </section>
 
+    <!-- CÓMO FUNCIONA -->
     <section class="card steps" aria-label="Cómo funciona">
-      <h3>Cómo funciona</h3>
+      <h3 class="reveal">Cómo funciona</h3>
       <div class="steps-grid">
-        <div class="step"><div class="nbr">1</div><div class="txt"><h4>Accede</h4><p>Entra con tu email en segundos.</p></div></div>
-        <div class="step"><div class="nbr">2</div><div class="txt"><h4>Añade movimientos</h4><p>Ingresos y gastos en pocos clics.</p></div></div>
-        <div class="step"><div class="nbr">3</div><div class="txt"><h4>Controla los gráficos</h4><p>Observa y monitoriza tus gastos.</p></div></div>
+        <div class="step reveal">
+          <div class="nbr" aria-hidden="true">1</div>
+          <div class="txt">
+            <h4>Accede</h4>
+            <p>Entra con tu email en segundos.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="nbr" aria-hidden="true">2</div>
+          <div class="txt">
+            <h4>Añade movimientos</h4>
+            <p>Ingresos y gastos en pocos clics, sin complicaciones.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="nbr" aria-hidden="true">3</div>
+          <div class="txt">
+            <h4>Revisa los gráficos</h4>
+            <p>Observa y monitoriza tus gastos.</p>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- PLANES Y PRECIOS -->
+    <section class="card pricing pricing-panel" aria-label="Planes y precios">
+      <h3 class="reveal">Elige tu plan</h3>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <h4 class="plan-title">
+            <span class="plan-name">Mensual</span>
+            <span class="sep">—</span>
+            <span class="price-inline">2,99€ <small>/ mes</small></span>
+          </h4>
+          <div class="features">Acceso completo, actualizaciones continuas y prioridad en nuevas funciones.</div>
+          <a class="btn-secondary"
+             href="/es/signup.html?plan=monthly"
+             onclick="gtag('event','select_pricing',{plan:'monthly',placement:'pricing_grid'});">
+            Elegir mensual
+          </a>
+        </div>
+
+        <div class="price-card reveal">
+          <h4 class="plan-title">
+            <span class="plan-name">Pago único</span>
+            <span class="sep">—</span>
+            <span class="price-inline">19,99€ <small>/ para siempre</small></span>
+          </h4>
+          <div class="features">Pagas una sola vez. Uso ilimitado y acceso a funciones principales.</div>
+          <a class="btn-secondary"
+             href="/es/signup.html?plan=lifetime"
+             onclick="gtag('event','select_pricing',{plan:'lifetime',placement:'pricing_grid'});">
+            Compra única
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
     <footer class="footer">
       © MyHomesBudget —
-      <a href="https://www.myhomesbudget.com/es/privacy.html">Privacidad</a> ·
-      <a href="https://www.myhomesbudget.com/es/terms.html">Términos</a>
+      <a href="/es/pricing.html" onclick="gtag('event','cta_click',{placement:'footer_pricing',lang:'es'});">
+        Planes y Precios
+      </a> ·
+      <a href="https://www.myhomesbudget.com/es/privacy.html" rel="noopener">Privacidad</a> ·
+      <a href="https://www.myhomesbudget.com/es/terms.html" rel="noopener">Términos</a>
     </footer>
   </div>
+
+  <!-- Reveal + GA base -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      gtag('event','view_landing',{ lang:'es' });
+
+      const targets = document.querySelectorAll('.reveal');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        targets.forEach(el => el.classList.add('in')); return;
+      }
+      const sorted = [...targets].map(el => ({el, r: el.getBoundingClientRect()}))
+        .sort((a,b)=> (a.r.top - b.r.top) || (a.r.left - b.r.left)).map(x=>x.el);
+      sorted.forEach((el,i)=> el.style.setProperty('--d',(0.12*i)+'s'));
+      const io = new IntersectionObserver((entries,obs)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            const el=e.target;
+            el.style.transitionDelay=getComputedStyle(el).getPropertyValue('--d')||'0s';
+            el.classList.add('in'); obs.unobserve(el);
+          }
+        });
+      },{threshold:0.1, rootMargin:'0px 0px -10% 0px'});
+      targets.forEach(el=>io.observe(el));
+    });
+  </script>
 </body>
 </html>
