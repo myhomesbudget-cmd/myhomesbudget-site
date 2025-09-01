@@ -1,257 +1,228 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inizia la prova gratuita — MyHomesBudget</title>
-  <meta name="description" content="Iscriviti: 30 giorni gratis, nessuna carta richiesta. Cancella quando vuoi.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyHomesBudget - Crea un Account</title>
 
-  <!-- CSP allineata al resto del sito -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Social preview -->
-  <meta property="og:title" content="Inizia la prova gratuita — MyHomesBudget" />
-  <meta property="og:description" content="30 giorni gratis. Nessuna carta di credito richiesta. Cancella quando vuoi." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.myhomesbudget.com/it/signup.html" />
-  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+        :root {
+            --primary-color: #6c5ce7;
+            --background-color: #f4f5f7;
+            --form-background: #ffffff;
+            --text-color: #333;
+            --label-color: #555;
+            --border-color: #ddd;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
 
-  <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    /* Background */
-    body{
-      margin:0;padding:0;color:#fff;
-      background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;
-    }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+        .signup-container {
+            background-color: var(--form-background);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
 
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
 
-    /* Nav */
-    .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff}
-    .logo img{height:28px}
-    .top-link{color:#fff;text-decoration:none}
-    .top-link:hover{text-decoration:underline}
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-    /* Card */
-    .card{
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      margin-top:8px;
-    }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--label-color);
+            font-size: 14px;
+        }
 
-    h1{margin:8px 0 6px;font-size:clamp(1.6rem,4vw,2.2rem);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    .sub{color:#eaeaea;margin-bottom:16px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
 
-    /* form */
-    form{display:grid;gap:12px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:800px){.row{grid-template-columns:1fr}}
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
 
-    label{font-weight:600;color:#333}
-    input[type="text"],input[type="email"],input[type="password"]{
-      width:100%;box-sizing:border-box;
-      padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.08);
-      background:rgba(255,255,255,.92);font-size:1rem;color:#111;
-    }
-    .hint{color:#555;font-size:.9rem;margin-top:-6px}
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
 
-    .plan{
-      display:flex;gap:12px;align-items:flex-start;
-      background:rgba(255,255,255,.75);
-      border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,.06);
-    }
-    .plan input{margin-top:4px}
-    .plan h4{margin:0 0 4px}
-    .plan p{margin:0;color:#444}
+        button:hover {
+            background-color: #5a4bcd;
+        }
 
-    .actions{display:flex;justify-content:flex-end;margin-top:8px}
-    .btn{
-      cursor:pointer;border:none;border-radius:12px;
-      padding:12px 18px;background:#111;color:#fff;font-weight:700;
-      box-shadow:0 10px 24px rgba(0,0,0,.15);
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .btn:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+        button:disabled {
+            background-color: #b5aee9;
+            cursor: not-allowed;
+        }
+        
+        button:active {
+            transform: scale(0.99);
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
 
-    .msg{margin-top:8px;font-size:.95rem}
-    .msg.ok{color:#0a7b42}
-    .msg.err{color:#b00020}
+        #success-message {
+            background-color: #eafaf1;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        
+        #error-message {
+            background-color: #fbeae8;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
 
-    footer{margin:24px 0;text-align:center;color:#e6e6e6}
-    footer a{color:#fff}
-  </style>
+        /* Nasconde i messaggi di default */
+        [style*="display: none"] {
+            display: none !important;
+        }
+
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav class="nav" aria-label="Navigazione">
-      <a class="logo" href="/it/"><img src="/homes.png" alt="Logo"> <strong>MyHomesBudget</strong></a>
-      <a class="top-link" href="/it/login.html">Hai già un account? <strong>Accedi</strong></a>
-    </nav>
 
-    <h1>Inizia la prova gratuita</h1>
-    <div class="sub">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</div>
-
-    <section class="card">
-      <form id="signup-form" novalidate>
-        <div class="row">
-          <div>
-            <label for="name">Nome</label>
-            <input id="name" type="text" placeholder="Es. Marco" autocomplete="name" required />
-            <div class="hint">Lo useremo per darti un benvenuto personalizzato.</div>
-          </div>
-          <div>
-            <label for="email">Email</label>
-            <input id="email" type="email" placeholder="nome@dominio.it" autocomplete="email" required />
-          </div>
+    <div class="signup-container">
+      <h2>Crea il tuo Account</h2>
+      
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="name">Nome</label>
+          <input type="text" id="name" placeholder="Il tuo nome" required>
         </div>
-
-        <div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="latuaemail@esempio.com" required>
+        </div>
+        <div class="form-group">
           <label for="password">Password</label>
-          <input id="password" type="password" placeholder="Min. 8 caratteri, almeno una lettera e un numero" minlength="8" required />
+          <input type="password" id="password" placeholder="Minimo 6 caratteri" required minlength="6">
         </div>
-
-        <div>
-          <label>Scegli il tuo piano</label>
-
-          <label class="plan">
-            <input type="radio" name="plan" value="trial" checked />
-            <div>
-              <h4>Prova Gratuita — 30 giorni</h4>
-              <p>Nessuna carta richiesta. Potrai scegliere un piano dopo la prova.</p>
-            </div>
-          </label>
-
-          <label class="plan">
-            <input type="radio" name="plan" value="monthly" />
-            <div>
-              <h4>Mensile — 2,99€ / mese</h4>
-              <p>Accesso completo. Disdici quando vuoi.</p>
-            </div>
-          </label>
-
-          <label class="plan">
-            <input type="radio" name="plan" value="lifetime" />
-            <div>
-              <h4>Una tantum — 19,99€ per sempre</h4>
-              <p>Paghi una sola volta. Aggiornamenti inclusi.</p>
-            </div>
-          </label>
-
-          <div class="hint">Puoi cambiare piano in seguito. La prova gratuita dura 30 giorni.</div>
-        </div>
-
-        <div class="actions">
-          <button id="submit-btn" class="btn" type="submit">Crea account</button>
-        </div>
-        <div id="form-msg" class="msg" role="status" aria-live="polite"></div>
+        
+        <button type="submit" id="signup-button">Crea Account</button>
       </form>
-    </section>
+    
+      <div id="success-message" class="message" style="display: none;">
+        Registrazione quasi completata! Ti abbiamo inviato un'email per confermare il tuo account.
+      </div>
+      
+      <div id="error-message" class="message" style="display: none;"></div>
+    </div>
 
-    <footer>
-      © MyHomesBudget — <a href="https://www.myhomesbudget.com/it/privacy.html">Privacy</a> ·
-      <a href="https://www.myhomesbudget.com/it/terms.html">Termini</a>
-    </footer>
-  </div>
 
-  <!-- Supabase client locale -->
-  <script type="module" src="/it/supabase-client.js"></script>
+    <script>
+      // =================================================================================
+      // === PASSO FONDAMENTALE: INSERISCI QUI LE TUE CREDENZIALI SUPABASE ===
+      // =================================================================================
+      const SUPABASE_URL = 'IL_TUO_URL_DI_SUPABASE'; // Lo trovi in Project Settings -> API
+      const SUPABASE_ANON_KEY = 'LA_TUA_CHIAVE_ANON'; // Lo trovi in Project Settings -> API
+      // =================================================================================
+      
+      // Inizializzazione del client di Supabase
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  <!-- Logica iscrizione -->
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+      // Seleziona gli elementi della pagina con cui interagire
+      const signupForm = document.getElementById('signup-form');
+      const signupButton = document.getElementById('signup-button');
+      const successMessage = document.getElementById('success-message');
+      const errorMessage = document.getElementById('error-message');
 
-    const ORIGIN = window.location.origin;
-    const lang = location.pathname.split('/')[1] || 'it';
-    const DASHBOARD_URL = `/${lang}/dashboard.html`;
-    const REDIRECT_AFTER_EMAIL = `${ORIGIN}/${lang}/auth/callback`; // tieni questa rotta come pagina neutra di ritorno
+      // Aggiunge la logica da eseguire quando l'utente invia il modulo
+      signupForm.addEventListener('submit', async (event) => {
+        // Previene il comportamento di default del browser (ricaricare la pagina)
+        event.preventDefault();
 
-    const form = document.getElementById('signup-form');
-    const nameEl = document.getElementById('name');
-    const emailEl = document.getElementById('email');
-    const passEl  = document.getElementById('password');
-    const btn     = document.getElementById('submit-btn');
-    const msg     = document.getElementById('form-msg');
+        // Nasconde i messaggi di tentativi precedenti e disabilita il pulsante
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        signupButton.disabled = true;
+        signupButton.textContent = 'Creazione in corso...';
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      msg.textContent = "";
-      msg.className = "msg";
+        // Prende i valori inseriti dall'utente
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-      // validazione base lato client
-      if (!nameEl.value.trim()) { nameEl.focus(); return showErr("Inserisci il nome."); }
-      if (!emailEl.value.trim()) { emailEl.focus(); return showErr("Inserisci un'email valida."); }
-      if ((passEl.value || "").length < 8) { passEl.focus(); return showErr("La password deve avere almeno 8 caratteri."); }
-
-      btn.disabled = true;
-
-      const planChoice = (form.querySelector('input[name="plan"]:checked') || {}).value || "trial";
-
-      try {
+        // Esegue la chiamata a Supabase per la registrazione
         const { data, error } = await supabase.auth.signUp({
-          email: emailEl.value.trim(),
-          password: passEl.value,
+          email: email,
+          password: password,
           options: {
             data: {
-              full_name: nameEl.value.trim(),
-              plan_choice: planChoice,
-              trial_started_at: new Date().toISOString()
-            },
-            emailRedirectTo: REDIRECT_AFTER_EMAIL
+              full_name: name // Salva il nome dell'utente
+            }
           }
         });
 
+        // Gestisce la risposta di Supabase
         if (error) {
-          // Errori comuni
-          if (error.message?.toLowerCase().includes("password")) {
-            showErr("La password non rispetta i requisiti minimi.");
-          } else if (error.message?.toLowerCase().includes("email")) {
-            showErr("Indirizzo email non valido o già registrato.");
-          } else {
-            showErr("Errore durante la registrazione: " + error.message);
-          }
-          btn.disabled = false;
-          return;
+          // Se c'è un errore, lo mostra
+          errorMessage.textContent = `Errore: ${error.message}`;
+          errorMessage.style.display = 'block';
+        } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+            // Caso specifico: utente già registrato ma non confermato
+            errorMessage.textContent = 'Questa email è già registrata ma non confermata. Controlla la tua casella di posta per il link di conferma.';
+            errorMessage.style.display = 'block';
+        } else if (data.user) {
+          // Se la registrazione ha successo, nasconde il form e mostra il messaggio di successo
+          signupForm.style.display = 'none';
+          successMessage.style.display = 'block';
         }
-
-        // Se la conferma email è OBBLIGATORIA, Supabase NON restituisce sessione
-        if (!data.session) {
-          showOk("Ti abbiamo inviato un'email di conferma. Apri il link per attivare l'account. Controlla anche nello spam.");
-          form.reset();
-          btn.disabled = false;
-          return;
-        }
-
-        // Se la conferma NON è obbligatoria, sei già autenticato
-        location.replace(DASHBOARD_URL);
-
-      } catch (err) {
-        showErr("Errore inatteso: " + (err?.message || err));
-        btn.disabled = false;
-      }
-    });
-
-    function showErr(t){ msg.textContent = t; msg.className = "msg err"; }
-    function showOk(t){ msg.textContent = t; msg.className = "msg ok"; }
-  </script>
+        
+        // Alla fine, riabilita il pulsante in caso di errore per permettere un nuovo tentativo
+        signupButton.disabled = false;
+        signupButton.textContent = 'Crea Account';
+      });
+    </script>
 </body>
 </html>
