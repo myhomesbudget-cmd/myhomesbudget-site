@@ -194,6 +194,16 @@
   .price{ font-size:1.5rem; margin:4px 0 0; }
   .features{ margin:6px 0 8px; }
 
+  /* Centra i contenuti nei pannelli prezzo (desktop) */
+@media (min-width: 900px) {
+  .pricing .price-card {
+    text-align: center;            /* centra h4, .price, .features */
+  }
+  .pricing .price-card .btn-secondary {
+    align-self: center;            /* centra il bottone nel flex column */
+  }
+}
+
   /* Footer compatto */
   .footer{ margin:12px 0 8px; }
 }
