@@ -157,73 +157,59 @@
 
   <!-- ✅ modulo: usa il client Supabase del tuo progetto -->
   <script type="module">
-    import { supabase } from "https://www.myhomesbudget.com/it/supabase-client.js";
+  // importa il client Supabase dal tuo dominio
+  import { supabase } from "https://www.myhomesbudget.com/it/supabase-client.js";
 
-    const ORIGIN = window.location.origin;
-    const lang   = location.pathname.split('/')[1] || 'it';
-    const REDIRECT_TO = `${ORIGIN}/${lang}/auth/callback.html`; // pagina neutra post-conferma (preparala)
+  const ORIGIN = window.location.origin;
+  const lang = location.pathname.split('/')[1] || 'it';
+  const REDIRECT_TO = ${ORIGIN}/${lang}/auth/callback.html;
 
-    const el = (id) => document.getElementById(id);
-    const msg = el('form-msg');
+  const el = (id) => document.getElementById(id);
+  const msg = el('form-msg');
 
-    // helper messaggi
-    function show(type, text){
-      msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
-      msg.textContent = text;
+  // helper messaggi
+  function show(type, text) {
+    msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
+    msg.textContent = text;
+  }
+
+  // validazione minima password lato client
+  function validPass(p) {
+    if (!p || p.length < 8) return false;
+    const hasLetter = /[A-Za-z]/.test(p);
+    const hasDigit = /[0-9]/.test(p);
+    return hasLetter && hasDigit;
+  }
+
+  // gestione submit
+  el('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = el('name').value.trim();
+    const email = el('email').value.trim();
+    const password = el('password').value;
+
+    if (!validPass(password)) {
+      show('error', 'La password deve contenere almeno 8 caratteri, una lettera e un numero.');
+      return;
     }
 
-    // regole minime password client-side
-    function validPass(p){
-      if(!p || p.length < 8) return false;
-      const hasLetter = /[A-Za-z]/.test(p);
-      const hasDigit  = /[0-9]/.test(p);
-      return hasLetter && hasDigit;
-    }
-
-    el('signup-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      show('', '');
-
-      const email = el('email').value.trim();
-      const password = el('pass').value;
-      const fullName = el('name').value.trim();
-      const plan = (document.querySelector('input[name="plan"]:checked')?.value) || 'trial';
-
-      if (!validPass(password)) {
-        show('error', 'La password deve avere almeno 8 caratteri, includere una lettera e un numero.');
-        return;
-      }
-
-      try {
-        // signup
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: REDIRECT_TO,
-            data: { full_name: fullName, plan }
-          }
-        });
-
-        if (error) {
-          show('error', error.message || 'Registrazione non riuscita.');
-          return;
-        }
-
-        // Se la conferma email è attiva (default) -> sessione null -> inviata mail
-        if (!data.session) {
-          show('ok', 'Ti abbiamo inviato un’email di conferma. Controlla la posta e clicca sul link per attivare l’account.');
-          e.target.reset();
-          return;
-        }
-
-        // Se la conferma è disattivata -> sessione presente -> vai in dashboard
-        location.replace(`/${lang}/dashboard.html`);
-
-      } catch (err) {
-        show('error', err?.message || String(err));
+    // crea utente su Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: REDIRECT_TO
       }
     });
-  </script>
+
+    if (error) {
+      show('error', error.message);
+    } else {
+      show('ok', 'Ti abbiamo inviato una mail di conferma. Controlla la tua casella di posta.');
+      e.target.reset();
+    }
+  });
+</script>
 </body>
 </html>
