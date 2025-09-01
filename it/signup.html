@@ -6,210 +6,173 @@
   <title>Inizia la prova gratuita — MyHomesBudget</title>
   <meta name="description" content="30 giorni gratis. Nessuna carta richiesta. Cancella quando vuoi.">
 
-  <!-- ✅ CSP AGGIORNATA: abilita le chiamate al tuo progetto Supabase -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               img-src 'self' https: data:;
-               style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh https://cdn.jsdelivr.net;
-               connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co;
-               font-src 'self' https: data:;
-               frame-ancestors 'none';
-               base-uri 'self';
-               form-action 'self'">
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://esm.sh;
+                 connect-src 'self' https://*.supabase.co;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
 
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-
-    body{
-      margin:0;padding:0;color:#fff;
+    :root { font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; }
+    body {
+      margin:0; padding:0; color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
-
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    a{color:#fff}
-
-    .card{
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    body::before {
+      content:""; position:fixed; inset:0;
+      background:rgba(0,0,0,.25); z-index:-1;
     }
 
-    h1{margin:.2rem 0 0 0;font-size:clamp(1.6rem,3.2vw,2.2rem)}
-    .sub{margin:6px 0 18px;opacity:.9}
+    .wrap { max-width:480px; margin:0 auto; padding:32px; }
 
-    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
-    @media(max-width:900px){.grid{grid-template-columns:1fr}}
-
-    label{font-weight:600;margin-bottom:6px;display:block}
-    input[type="text"], input[type="email"], input[type="password"] {
-      width:100%; box-sizing:border-box;
-      padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.1);
-      background:#fff;
-      font-size:1rem;color:#111;
+    h1 { text-align:center; margin-bottom:8px; }
+    .subtitle {
+      text-align:center; margin-bottom:20px;
+      font-size:.95rem; color:#eee;
     }
 
-    .hint{color:#444;font-size:.92rem;margin-top:6px}
-    .muted{color:#444;font-size:.95rem}
+    form {
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(8px);
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 6px 24px rgba(0,0,0,.2);
+    }
+    label { display:block; margin:12px 0 6px; font-weight:600; }
+    input {
+      width:100%; padding:12px; border-radius:8px;
+      border:1px solid #ccc; margin-bottom:8px;
+      font-size:1rem;
+    }
+    .plans {
+      display:grid; gap:12px; margin:16px 0;
+    }
+    .plan {
+      background:rgba(255,255,255,0.2);
+      padding:12px; border-radius:8px;
+      display:flex; align-items:flex-start; gap:10px;
+    }
+    .plan input { margin-top:4px; }
+    .plan strong { display:block; }
 
-    .plans{margin-top:18px;border-top:1px solid rgba(0,0,0,.1);padding-top:12px}
-    .plan{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.7);border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,.06)}
-    .plan h4{margin:0 0 4px 0}
-    .plan p{margin:0;color:#444}
+    .btn {
+      width:100%; margin-top:12px; cursor:pointer;
+      background:#111; color:#fff; font-weight:600;
+      padding:12px; border:none; border-radius:8px;
+      transition: background .2s;
+    }
+    .btn:hover { background:#333; }
 
-    .actions{display:flex;justify-content:flex-end;margin-top:18px}
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700}
-    .btn:hover{filter:brightness(1.08)}
+    .msg {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    .msg.ok {
+      color:#155724;
+      background:#d4edda;
+      border:1px solid #c3e6cb;
+    }
+    .msg.err {
+      color:#721c24;
+      background:#f8d7da;
+      border:1px solid #f5c6cb;
+    }
 
-    .msg{margin-top:12px;font-size:.95rem}
-    .msg.ok{color:#0a7a29}
-    .msg.err{color:#b00020}
-
-    .topline{display:flex;align-items:center;gap:10px}
-    .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff}
-    .brand img{height:28px}
-    .spacer{flex:1}
+    .footer { margin-top:24px; text-align:center; font-size:.85rem; color:#eee; }
+    .footer a { color:#fff; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- top bar -->
-    <div class="topline" style="margin-bottom:12px">
-      <a href="/it/" class="brand" title="MyHomesBudget">
-        <img src="/homes.png" alt="Logo">
-        <strong>MyHomesBudget</strong>
-      </a>
-      <div class="spacer"></div>
-      <div class="muted" style="color:#fff">Hai già un account? <a href="/it/login.html" style="text-decoration:underline;color:#fff">Accedi</a></div>
-    </div>
-
     <h1>Inizia la prova gratuita</h1>
-    <div class="sub">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</div>
+    <p class="subtitle">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</p>
 
-    <div class="card">
-      <form id="signup-form">
-        <div class="grid">
-          <div>
-            <label for="name">Nome</label>
-            <input id="name" type="text" placeholder="Es. Marco" autocomplete="name" />
-            <div class="hint">Lo useremo per darti un benvenuto personalizzato.</div>
-          </div>
-          <div>
-            <label for="email">Email</label>
-            <input id="email" type="email" placeholder="nome@dominio.it" autocomplete="email" required />
-          </div>
-        </div>
+    <form id="signup-form">
+      <label for="name">Nome</label>
+      <input id="name" type="text" placeholder="Es. Marco" required />
 
-        <div style="margin-top:14px">
-          <label for="pass">Password</label>
-          <input id="pass" type="password" placeholder="Min. 8 caratteri, almeno una lettera e un numero" minlength="8" required />
-          <div class="hint">Minimo 8 caratteri, almeno una lettera e un numero.</div>
-        </div>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="nome@dominio.it" required />
 
-        <div class="plans">
-          <label>Scegli il tuo piano</label>
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Min. 8 caratteri, almeno una lettera e un numero" required />
 
-          <div class="plan" style="margin-bottom:10px">
-            <input type="radio" name="plan" id="plan-trial" value="trial" checked>
-            <div>
-              <h4>Prova Gratuita — 30 giorni</h4>
-              <p>Nessuna carta richiesta. Potrai scegliere un piano dopo la prova.</p>
-            </div>
-          </div>
+      <fieldset class="plans">
+        <legend>Scegli il tuo piano</legend>
+        <label class="plan">
+          <input type="radio" name="plan" value="trial" checked />
+          <div><strong>Prova Gratuita — 30 giorni</strong>
+          Nessuna carta richiesta. Potrai scegliere un piano dopo la prova.</div>
+        </label>
+        <label class="plan">
+          <input type="radio" name="plan" value="monthly" />
+          <div><strong>Mensile — 2,99€ / mese</strong>
+          Accesso completo. Disdici quando vuoi.</div>
+        </label>
+        <label class="plan">
+          <input type="radio" name="plan" value="lifetime" />
+          <div><strong>Una tantum — 19,99€ per sempre</strong>
+          Paghi una sola volta. Aggiornamenti inclusi.</div>
+        </label>
+      </fieldset>
 
-          <div class="plan" style="margin-bottom:10px">
-            <input type="radio" name="plan" id="plan-monthly" value="monthly">
-            <div>
-              <h4>Mensile — 2,99€ / mese</h4>
-              <p>Accesso completo. Disdici quando vuoi.</p>
-            </div>
-          </div>
+      <button type="submit" class="btn">Crea account</button>
+      <div id="form-msg" class="msg"></div>
+    </form>
 
-          <div class="plan">
-            <input type="radio" name="plan" id="plan-lifetime" value="lifetime">
-            <div>
-              <h4>Una tantum — 19,99€ per sempre</h4>
-              <p>Paghi una sola volta. Aggiornamenti inclusi.</p>
-            </div>
-          </div>
-
-          <div class="hint" style="margin-top:10px">Puoi cambiare piano in seguito. La prova gratuita dura 30 giorni.</div>
-        </div>
-
-        <div class="actions">
-          <button type="submit" class="btn">Crea account</button>
-        </div>
-        <div id="form-msg" class="msg"></div>
-      </form>
-    </div>
-
-    <div class="muted" style="margin-top:16px;color:#e6e6e6">
+    <div class="footer">
       © MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a>
     </div>
   </div>
 
-  <!-- ✅ modulo: usa il client Supabase del tuo progetto -->
+  <!-- JS con Supabase -->
   <script type="module">
-  // importa il client Supabase dal tuo dominio
-  import { supabase } from "https://www.myhomesbudget.com/it/supabase-client.js";
+    import { supabase } from '/it/supabase-client.js';
 
-  const ORIGIN = window.location.origin;
-  const lang = location.pathname.split('/')[1] || 'it';
-  const REDIRECT_TO = ${ORIGIN}/${lang}/auth/callback.html;
+    const form = document.getElementById('signup-form');
+    const msg = document.getElementById('form-msg');
 
-  const el = (id) => document.getElementById(id);
-  const msg = el('form-msg');
-
-  // helper messaggi
-  function show(type, text) {
-    msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
-    msg.textContent = text;
-  }
-
-  // validazione minima password lato client
-  function validPass(p) {
-    if (!p || p.length < 8) return false;
-    const hasLetter = /[A-Za-z]/.test(p);
-    const hasDigit = /[0-9]/.test(p);
-    return hasLetter && hasDigit;
-  }
-
-  // gestione submit
-  el('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = el('name').value.trim();
-    const email = el('email').value.trim();
-    const password = el('password').value;
-
-    if (!validPass(password)) {
-      show('error', 'La password deve contenere almeno 8 caratteri, una lettera e un numero.');
-      return;
+    function show(type, text) {
+      msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
+      msg.textContent = text;
     }
 
-    // crea utente su Supabase
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name },
-        emailRedirectTo: REDIRECT_TO
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const plan = form.plan.value;
+
+      show('ok', 'Creazione account in corso...');
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, plan }
+        }
+      });
+
+      if (error) {
+        show('error', error.message);
+      } else {
+        show('ok', 'Ti abbiamo inviato una mail di conferma. Controlla la tua casella di posta.');
+        form.reset();
       }
     });
-
-    if (error) {
-      show('error', error.message);
-    } else {
-      show('ok', 'Ti abbiamo inviato una mail di conferma. Controlla la tua casella di posta.');
-      e.target.reset();
-    }
-  });
-</script>
+  </script>
 </body>
 </html>
