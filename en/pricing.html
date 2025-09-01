@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Plans & Pricing — MyHomesBudget</title>
+  <meta name="description" content="Choose the MyHomesBudget plan that fits you best. Clear features, transparent price. Start your free trial.">
+
+  <!-- CSP -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <!-- Canonical + hreflang -->
+  <link rel="canonical" href="https://www.myhomesbudget.com/en/pricing.html" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/pricing.html" hreflang="it" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/pricing.html" hreflang="en" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/pricing.html" hreflang="es" />
+  <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
+
+  <!-- Social -->
+  <meta property="og:title" content="Plans & Pricing — MyHomesBudget" />
+  <meta property="og:description" content="Choose the plan that fits you best. Transparent price, simple budgeting. Start your free trial." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.myhomesbudget.com/en/pricing.html" />
+  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Plans & Pricing — MyHomesBudget" />
+  <meta name="twitter:description" content="Choose the plan that fits you best. Transparent price, simple budgeting. Start your free trial." />
+  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
+
+  <!-- Performance -->
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+  <link rel="preconnect" href="https://region1.google-analytics.com" crossorigin>
+  <link rel="icon" href="/favicon.ico">
+  <meta name="theme-color" content="#0f0f10">
+  <meta name="color-scheme" content="light dark">
+
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    *{box-sizing:border-box}
+    a:focus-visible, button:focus-visible, [tabindex="0"]:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+
+    body{
+      margin:0;padding:0;color:#fff;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    h1,h2,h3,h4{text-shadow:0 1px 3px rgba(0,0,0,.4)}
+    
+    /* NAV */
+    .nav{display:flex;justify-content:space-between;align-items:center}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:40px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
+    .right-bar{display:flex;gap:16px;align-items:center}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
+    .login-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .login-link:hover{background:rgba(255,255,255,.12)}
+    .nav .nav-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .nav .nav-link:hover{background:rgba(255,255,255,.12)}
+
+    /* HERO */
+    .hero{text-align:center;padding:2vh 20px 4vh;}
+    .hero h1{font-size:clamp(2rem,5vw,2.8rem);line-height:1.2;margin:0;}
+    .hero p{max-width:720px;margin:8px auto 0;font-size:clamp(1rem,2vw,1.2rem);color:#eaeaea;}
+
+    /* PANELS */
+    .content-grid{display:grid;gap:24px;}
+    .panel{
+      background:rgba(255,255,255,0.55);
+      backdrop-filter:saturate(1.1) blur(6px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      color:#111;border-radius:16px;padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    .panel-title{margin:0 0 20px;text-align:center;color:#111;}
+
+    /* PRICING */
+    .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+    @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
+    .price-card{
+      background:rgba(255,255,255,.3);
+      border:1px solid rgba(255,255,255,0.4);
+      padding:18px;border-radius:12px;
+      display:flex;flex-direction:column;gap:10px;text-align:center;
+    }
+    .price-card .plan-title{
+      margin:0; display:flex; gap:.5rem; flex-wrap:wrap; align-items:baseline; justify-content:center;
+      font-size:1.12rem;
+    }
+    .price-card .plan-title .plan-name{font-weight:700}
+    .price-card .plan-title .sep{opacity:.45}
+    .price-card .plan-title .price-inline{font-weight:800; font-size:1.25rem; line-height:1;}
+    .price-card .plan-title .price-inline small{font-weight:600; font-size:.9rem; color:#333;}
+    .price-card .features{margin:6px 0 10px; color:#333; font-size:.95rem; line-height:1.45;}
+    .btn-secondary{
+      display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);
+      align-self:center; transition: transform .15s ease, filter .15s ease;
+    }
+    .btn-secondary:hover{filter:brightness(1.08); transform: translateY(-1px);}
+
+    /* BENEFITS */
+    .benefits-list{
+      list-style:none; padding:0; margin:0; display:grid; gap:16px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    .benefit-item{display:flex; align-items:flex-start; gap:12px;}
+    .benefit-icon{flex-shrink:0; font-size:1.4rem; margin-top:2px;}
+    .benefit-item h4{margin:0 0 4px;font-size:1.05rem;}
+    .benefit-item p{margin:0;color:#444;font-size:.95rem;}
+
+    /* FAQ */
+    .faq-item{border-bottom:1px solid rgba(0,0,0,0.1);}
+    .faq-item:last-child{border-bottom:none;}
+    .faq-question{
+      display:flex; justify-content:space-between; align-items:center;
+      width:100%; padding:16px 0; background:none; border:none;
+      font-size:1.05rem; font-family:inherit; color:#111; font-weight:600;
+      cursor:pointer; text-align:left;
+    }
+    .faq-question:hover .faq-icon{transform:scale(1.15);}
+    .faq-icon{transition:transform .3s cubic-bezier(.22,1,.36,1); flex-shrink:0; margin-left:16px;}
+    .faq-item.is-open .faq-icon{transform:rotate(45deg);}
+    .faq-answer{
+      color:#333; font-size:.95rem; line-height:1.5;
+      max-height:0; overflow:hidden;
+      transition:max-height .4s ease, padding .4s ease, opacity .3s ease;
+      opacity:0;
+    }
+    .faq-item.is-open .faq-answer{max-height:300px; padding-bottom:18px; opacity:1;}
+
+    /* TESTIMONIALS */
+    .testimonials-grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));}
+    .testimonial-card{background:rgba(0,0,0,.1); padding:16px; border-radius:12px; font-style:italic; color:#e0e0e0;}
+    .testimonial-card footer{margin-top:10px; font-style:normal; font-weight:600; color:#fff;}
+
+    /* FINAL CTA */
+    .final-cta{text-align:center; padding:20px; background:rgba(0,0,0,.2); border-radius:16px;}
+    .final-cta h2{margin:0 0 8px; font-size:1.8rem;}
+    .final-cta p{margin:0 0 20px; color:#e0e0e0;}
+    .cta{
+      display:inline-block;background:#111;color:#fff;
+      padding:14px 22px;border-radius:12px;font-weight:700;text-decoration:none;
+      box-shadow:0 10px 24px rgba(0,0,0,.15);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+
+    /* FOOTER */
+    .footer{margin:40px 0 20px;text-align:center;color:#e6e6e6;font-size:.9rem}
+    .footer a{color:#fff}
+
+    /* REVEAL */
+    .reveal{
+      --d: 0s; opacity:0; transform:translateY(16px) scale(.995);
+      transform-origin:50% 100%; filter:saturate(.98);
+      transition:opacity .85s ease, transform .85s cubic-bezier(.22,1,.36,1), filter .85s ease;
+      will-change:opacity, transform;
+    }
+    .reveal.in{opacity:1; transform:none; filter:none;}
+    @media (prefers-reduced-motion: reduce){ .reveal, .reveal.in{transition:none; opacity:1; transform:none; filter:none;} }
+
+    /* DESKTOP */
+    @media (min-width: 900px) {
+      .wrap{ padding:16px; }
+      .logo-image{ height:32px; }
+      .hero{ padding:1vh 20px 3vh; }
+      .content-grid{gap:16px;}
+      .panel{padding:20px;}
+      .panel-title{margin-bottom:16px;}
+      .footer{ margin:24px 0 8px; }
+    }
+    @supports (-webkit-touch-callout: none) { body { background-attachment: scroll; } }
+  </style>
+
+  <!-- JSON-LD FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Do I need a credit card for the free trial?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No credit card required to start the 30-day trial. You can subscribe only if you’re happy with the service." }
+    }, {
+      "@type": "Question",
+      "name": "Are my data safe?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Absolutely. Security and privacy are top priorities. Your data are encrypted and hosted in European servers, fully GDPR compliant." }
+    }, {
+      "@type": "Question",
+      "name": "Can I use MyHomesBudget on multiple devices?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your account syncs across phone, tablet, and desktop. A PWA install option is coming soon." }
+    }, {
+      "@type": "Question",
+      "name": "What happens if I cancel my subscription?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You’ll keep access to all features until the end of the current billing period. The One-time plan grants lifetime access." }
+    }, {
+      "@type": "Question",
+      "name": "Does the One-time plan include all future updates?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The One-time plan includes unlimited access to current core features and maintenance/security updates. Major premium features may require an upgrade or be subscription-only." }
+    }, {
+      "@type": "Question",
+      "name": "Do you offer refunds?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Given the nature of the service and the 30-day free trial, refunds are generally not offered. If you have any issue, contact support and we’ll help." }
+    }]
+  }
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <!-- NAV -->
+    <nav class="nav" aria-label="Main navigation">
+      <a href="/en/" title="myHomesBudget" class="logo-link">
+        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image" loading="lazy">
+        <span class="logo-text">MyHomesBudget</span>
+      </a>
+      <div class="right-bar">
+        <a class="login-link" href="/en/login.html" aria-label="Sign in">Sign in</a>
+        <a class="nav-link" href="/en/pricing.html">Pricing</a>
+        <span class="lang-selector" aria-label="Language selector">
+          <a href="/it/pricing.html" title="Italiano" lang="it">🇮🇹</a>
+          <a href="/en/pricing.html" title="English" lang="en">🇬🇧</a>
+          <a href="/es/pricing.html" title="Español" lang="es">🇪🇸</a>
+        </span>
+      </div>
+    </nav>
+
+    <main class="content-grid">
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="page-title">
+        <h1 id="page-title">Simple, transparent pricing.</h1>
+        <p>Pick the perfect plan and start managing your money without stress.</p>
+      </section>
+
+      <!-- PRICING -->
+      <section class="panel" aria-labelledby="pricing-title">
+        <h2 id="pricing-title" class="panel-title reveal">Choose your plan</h2>
+        <div class="pricing-grid">
+          <div class="price-card reveal">
+            <h3 class="plan-title">
+              <span class="plan-name">Monthly Plan</span>
+              <span class="sep">—</span>
+              <span class="price-inline">€2.99 <small>/ month</small></span>
+            </h3>
+            <div class="features">Full access, continuous updates, priority on new features.</div>
+            <a class="btn-secondary" href="/en/signup.html?plan=monthly" data-plan="monthly" aria-label="Choose Monthly Plan €2.99 per month">Choose monthly</a>
+          </div>
+          <div class="price-card reveal">
+            <h3 class="plan-title">
+              <span class="plan-name">One-time</span>
+              <span class="sep">—</span>
+              <span class="price-inline">€19.99 <small>/ forever</small></span>
+            </h3>
+            <div class="features">Pay once. Unlimited use and access to core features.</div>
+            <a class="btn-secondary" href="/en/signup.html?plan=lifetime" data-plan="lifetime" aria-label="Buy One-time plan €19.99, lifetime access">One-time purchase</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- BENEFITS -->
+      <section class="panel" aria-labelledby="benefits-title">
+        <h2 id="benefits-title" class="panel-title reveal">Everything you need</h2>
+        <ul class="benefits-list">
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">📊</span><div><h4>Intuitive dashboard</h4><p>See income, expenses, and monthly balance at a glance.</p></div></li>
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🔄</span><div><h4>Multi-device sync</h4><p>Access from phone, tablet, and desktop — always up to date.</p></div></li>
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🏷️</span><div><h4>Custom categories</h4><p>Create your own categories for deeper insights.</p></div></li>
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🔒</span><div><h4>Privacy & security</h4><p>Encrypted data on EU servers. GDPR compliant.</p></div></li>
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">📈</span><div><h4>Advanced reports</h4><p>Understand your spending with simple charts and exports.</p></div></li>
+          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">💡</span><div><h4>Helpful support</h4><p>Questions? Our team is here to help.</p></div></li>
+        </ul>
+      </section>
+
+      <!-- FAQ -->
+      <section class="panel" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="panel-title reveal">Frequently Asked Questions</h2>
+        <div class="faq-list">
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_1" id="faq_q_1">
+              <span>Do I need a credit card for the free trial?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_1" id="faq_1"><p>No credit card required to start the 30-day trial.</p></div>
+          </div>
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_2" id="faq_q_2">
+              <span>Are my data safe?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_2" id="faq_2"><p>Yes. Encrypted storage on EU servers, GDPR compliant.</p></div>
+          </div>
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_3" id="faq_q_3">
+              <span>Can I use it on multiple devices?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_3" id="faq_3"><p>Phone, tablet, and desktop — always in sync.</p></div>
+          </div>
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_4" id="faq_q_4">
+              <span>What if I cancel?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_4" id="faq_4"><p>You keep access until the end of the paid period.</p></div>
+          </div>
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_5" id="faq_q_5">
+              <span>Does One-time include future updates?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_5" id="faq_5"><p>Includes core features + maintenance/security updates.</p></div>
+          </div>
+          <div class="faq-item reveal">
+            <button class="faq-question" aria-expanded="false" aria-controls="faq_6" id="faq_q_6">
+              <span>Do you offer refunds?</span><span class="faq-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-answer" role="region" aria-labelledby="faq_q_6" id="faq_6"><p>Generally no — you have a 30-day free trial to evaluate.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TESTIMONIALS -->
+      <section aria-labelledby="testimonials-title">
+        <h2 id="testimonials-title" class="panel-title reveal" style="color:#fff;">What users say</h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card reveal"><blockquote>"Finally a simple app that does what it says. It helped me understand where my money goes."</blockquote><footer>— Mark R.</footer></div>
+          <div class="testimonial-card reveal"><blockquote>"I use it every day on my phone. Adding an expense takes 5 seconds. Love it!"</blockquote><footer>— Julia V.</footer></div>
+          <div class="testimonial-card reveal"><blockquote>"Tried spreadsheets and complex apps. MyHomesBudget is what I needed."</blockquote><footer>— Alex M.</footer></div>
+        </div>
+      </section>
+      
+      <!-- FINAL CTA -->
+      <section class="final-cta reveal" aria-label="Final call to action">
+        <h2>Ready to start?</h2>
+        <p>30-day free trial. No card required.</p>
+        <a class="cta" href="/en/signup.html">Start free – 30 days</a>
+      </section>
+    </main>
+    
+    <!-- FOOTER -->
+    <footer class="footer">
+      © MyHomesBudget —
+      <a href="/en/pricing.html">Plans & Pricing</a> ·
+      <a href="https://www.myhomesbudget.com/en/privacy.html" rel="noopener">Privacy</a> ·
+      <a href="https://www.myhomesbudget.com/en/terms.html" rel="noopener">Terms</a>
+    </footer>
+  </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // GA4
+  gtag('event','view_pricing');
+
+  // FAQ accordion + GA
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const btn = item.querySelector('.faq-question');
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      item.classList.toggle('is-open', !open);
+      if (!open) gtag('event','faq_expand',{ question_id: btn.id });
+    });
+  });
+
+  // Pricing CTA GA
+  document.querySelectorAll('a[data-plan]').forEach(link => {
+    link.addEventListener('click', () => {
+      gtag('event','select_pricing',{ plan: link.dataset.plan, placement:'pricing_grid' });
+    });
+  });
+
+  // Final CTA GA
+  const finalCta = document.querySelector('.final-cta .cta');
+  if (finalCta) {
+    finalCta.addEventListener('click', () => {
+      gtag('event','cta_click',{ placement:'pricing_final', lang:'en' });
+      gtag('event','signup_start',{ source:'pricing_final' });
+    });
+  }
+
+  // Reveal (top→bottom)
+  const targets = document.querySelectorAll('.reveal');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    targets.forEach(el => el.classList.add('in')); return;
+  }
+  const sorted = [...targets].map(el => ({el, rect: el.getBoundingClientRect()}))
+    .sort((a,b)=> (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left))
+    .map(x=>x.el);
+  sorted.forEach((el,i)=> el.style.setProperty('--d',(0.12*i)+'s'));
+  const io = new IntersectionObserver((entries,obs)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const el=entry.target;
+        el.style.transitionDelay=getComputedStyle(el).getPropertyValue('--d')||'0s';
+        el.classList.add('in'); obs.unobserve(el);
+      }
+    });
+  },{ threshold:0.1, rootMargin:'0px 0px -10% 0px' });
+  targets.forEach(el=> io.observe(el));
+});
+</script>
+</body>
+</html>
