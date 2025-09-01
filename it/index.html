@@ -153,32 +153,50 @@
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
 
-    /* ======= COMPATTAZIONE DESKTOP ======= */
-    @media (min-width: 900px) {
-      .wrap{ padding:20px; }
-      .logo-image{ height:36px; }
+/* ======= COMPATTAZIONE DESKTOP (fold-fit) ======= */
+@media (min-width: 900px) {
+  .wrap{ padding:16px; }
+  .logo-image{ height:32px; }
 
-      .hero{ min-height:34vh; gap:10px; }
-      .hero h1{ font-size:clamp(1.9rem,4.2vw,2.6rem); }
-      .hero p{ margin:4px 0 2px; }
-      .cta{ padding:10px 16px; }
+  /* HERO più compatto */
+  .hero{ min-height:30vh; gap:8px; }
+  .hero h1{ font-size:clamp(1.8rem,3.8vw,2.4rem); margin:0; }
+  .hero p{ margin:2px 0 0; }
+  .cta{ padding:10px 16px; }
+  .microcopy{ font-size:.9rem; }
 
-      .grid{ margin-top:12px; gap:10px; }
-      .card{ padding:16px; }
+  /* “Benefici” compatti */
+  .grid{ margin-top:8px; gap:8px; }
+  .card{ padding:14px; }
 
-      .steps{ margin-top:16px; }
-      .steps h3{ margin:0 0 12px; }
-      .steps-grid{ gap:12px; }
-      .step{ padding:12px; }
+  /* “Come funziona” compatto */
+  .steps{ margin-top:12px; }
+  .steps h3{ margin:0 0 8px; }
+  .steps-grid{ gap:10px; }
+  .step{ padding:10px; }
+  .nbr{ flex:0 0 32px; height:32px; }
 
-      .pricing{ margin-top:20px; }
-      .pricing h3{ margin:0 0 12px; }
-      .pricing-grid{ gap:12px; }
-      .price-card{ padding:16px; }
-      .price{ font-size:1.6rem; }
+  /* Sezione Prezzi più stretta */
+  .pricing{ margin-top:12px; }
+  .pricing h3{ margin:0 0 8px; }
+  .pricing-grid{ gap:10px; }
 
-      .footer{ margin:24px 0; }
-    }
+  /* BOX PREZZI: altezza ridotta + contenuto centrato verticalmente */
+  .price-card{
+    padding:12px 14px;
+    min-height:150px;                /* ↓ era ~più alto */
+    display:flex;
+    flex-direction:column;
+    justify-content:center;          /* <-- centra verticalmente */
+    gap:8px;
+  }
+  .price-card h4{ margin:0; font-size:1.05rem; }
+  .price{ font-size:1.5rem; margin:4px 0 0; }
+  .features{ margin:6px 0 8px; }
+
+  /* Footer compatto */
+  .footer{ margin:12px 0 8px; }
+}
   </style>
 </head>
 <body>
