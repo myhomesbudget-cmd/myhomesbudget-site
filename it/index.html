@@ -76,7 +76,7 @@
 
     /* Hero */
     .hero{
-      min-height:42vh;
+      min-height:42vh; /* ↓ ridotto in desktop via media-query */
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       text-align:center;gap:16px;padding:0 20px;margin:0;
     }
@@ -152,6 +152,33 @@
     /* Footer */
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
+
+    /* ======= COMPATTAZIONE DESKTOP ======= */
+    @media (min-width: 900px) {
+      .wrap{ padding:20px; }
+      .logo-image{ height:36px; }
+
+      .hero{ min-height:34vh; gap:10px; }
+      .hero h1{ font-size:clamp(1.9rem,4.2vw,2.6rem); }
+      .hero p{ margin:4px 0 2px; }
+      .cta{ padding:10px 16px; }
+
+      .grid{ margin-top:12px; gap:10px; }
+      .card{ padding:16px; }
+
+      .steps{ margin-top:16px; }
+      .steps h3{ margin:0 0 12px; }
+      .steps-grid{ gap:12px; }
+      .step{ padding:12px; }
+
+      .pricing{ margin-top:20px; }
+      .pricing h3{ margin:0 0 12px; }
+      .pricing-grid{ gap:12px; }
+      .price-card{ padding:16px; }
+      .price{ font-size:1.6rem; }
+
+      .footer{ margin:24px 0; }
+    }
   </style>
 </head>
 <body>
