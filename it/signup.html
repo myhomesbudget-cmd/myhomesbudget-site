@@ -1,228 +1,231 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyHomesBudget - Crea un Account</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inizia la prova gratuita — MyHomesBudget</title>
+  <meta name="description" content="30 giorni gratis. Nessuna carta richiesta. Cancella quando vuoi.">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ✅ CSP AGGIORNATA: abilita le chiamate al tuo progetto Supabase -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self'
+                              https://*.supabase.co
+                              https://*.supabase.in;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
-        :root {
-            --primary-color: #6c5ce7;
-            --background-color: #f4f5f7;
-            --form-background: #ffffff;
-            --text-color: #333;
-            --label-color: #555;
-            --border-color: #ddd;
-            --error-color: #e74c3c;
-            --success-color: #2ecc71;
-        }
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+    body{
+      margin:0;padding:0;color:#fff;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
 
-        .signup-container {
-            background-color: var(--form-background);
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    a{color:#fff}
 
-        h2 {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
+    .card{
+      background:rgba(255,255,255,0.50);
+      backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;
+      padding:24px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+    h1{margin:.2rem 0 0 0;font-size:clamp(1.6rem,3.2vw,2.2rem)}
+    .sub{margin:6px 0 18px;opacity:.9}
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--label-color);
-            font-size: 14px;
-        }
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
+    label{font-weight:600;margin-bottom:6px;display:block}
+    input[type="text"], input[type="email"], input[type="password"] {
+      width:100%; box-sizing:border-box;
+      padding:12px 14px;border-radius:12px;border:1px solid rgba(0,0,0,.1);
+      background:#fff;
+      font-size:1rem;color:#111;
+    }
 
-        input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-        }
+    .hint{color:#444;font-size:.92rem;margin-top:6px}
+    .muted{color:#444;font-size:.95rem}
 
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-        }
+    .plans{margin-top:18px;border-top:1px solid rgba(0,0,0,.1);padding-top:12px}
+    .plan{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.7);border-radius:12px;padding:14px;border:1px solid rgba(0,0,0,.06)}
+    .plan h4{margin:0 0 4px 0}
+    .plan p{margin:0;color:#444}
 
-        button:hover {
-            background-color: #5a4bcd;
-        }
+    .actions{display:flex;justify-content:flex-end;margin-top:18px}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 18px;background:#111;color:#fff;font-weight:700}
+    .btn:hover{filter:brightness(1.08)}
 
-        button:disabled {
-            background-color: #b5aee9;
-            cursor: not-allowed;
-        }
-        
-        button:active {
-            transform: scale(0.99);
-        }
-        
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 14px;
-        }
+    .msg{margin-top:12px;font-size:.95rem}
+    .msg.ok{color:#0a7a29}
+    .msg.err{color:#b00020}
 
-        #success-message {
-            background-color: #eafaf1;
-            color: var(--success-color);
-            border: 1px solid var(--success-color);
-        }
-        
-        #error-message {
-            background-color: #fbeae8;
-            color: var(--error-color);
-            border: 1px solid var(--error-color);
-        }
-
-        /* Nasconde i messaggi di default */
-        [style*="display: none"] {
-            display: none !important;
-        }
-
-    </style>
+    .topline{display:flex;align-items:center;gap:10px}
+    .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff}
+    .brand img{height:28px}
+    .spacer{flex:1}
+  </style>
 </head>
 <body>
-
-    <div class="signup-container">
-      <h2>Crea il tuo Account</h2>
-      
-      <form id="signup-form">
-        <div class="form-group">
-          <label for="name">Nome</label>
-          <input type="text" id="name" placeholder="Il tuo nome" required>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="latuaemail@esempio.com" required>
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Minimo 6 caratteri" required minlength="6">
-        </div>
-        
-        <button type="submit" id="signup-button">Crea Account</button>
-      </form>
-    
-      <div id="success-message" class="message" style="display: none;">
-        Registrazione quasi completata! Ti abbiamo inviato un'email per confermare il tuo account.
-      </div>
-      
-      <div id="error-message" class="message" style="display: none;"></div>
+  <div class="wrap">
+    <!-- top bar -->
+    <div class="topline" style="margin-bottom:12px">
+      <a href="/it/" class="brand" title="MyHomesBudget">
+        <img src="/homes.png" alt="Logo">
+        <strong>MyHomesBudget</strong>
+      </a>
+      <div class="spacer"></div>
+      <div class="muted" style="color:#fff">Hai già un account? <a href="/it/login.html" style="text-decoration:underline;color:#fff">Accedi</a></div>
     </div>
 
+    <h1>Inizia la prova gratuita</h1>
+    <div class="sub">30 giorni gratis · Nessuna carta richiesta · Cancella quando vuoi</div>
 
-    <script>
-      // =================================================================================
-      // === PASSO FONDAMENTALE: INSERISCI QUI LE TUE CREDENZIALI SUPABASE ===
-      // =================================================================================
-      const SUPABASE_URL = 'IL_TUO_URL_DI_SUPABASE'; // Lo trovi in Project Settings -> API
-      const SUPABASE_ANON_KEY = 'LA_TUA_CHIAVE_ANON'; // Lo trovi in Project Settings -> API
-      // =================================================================================
-      
-      // Inizializzazione del client di Supabase
-      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <div class="card">
+      <form id="signup-form">
+        <div class="grid">
+          <div>
+            <label for="name">Nome</label>
+            <input id="name" type="text" placeholder="Es. Marco" autocomplete="name" />
+            <div class="hint">Lo useremo per darti un benvenuto personalizzato.</div>
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="nome@dominio.it" autocomplete="email" required />
+          </div>
+        </div>
 
-      // Seleziona gli elementi della pagina con cui interagire
-      const signupForm = document.getElementById('signup-form');
-      const signupButton = document.getElementById('signup-button');
-      const successMessage = document.getElementById('success-message');
-      const errorMessage = document.getElementById('error-message');
+        <div style="margin-top:14px">
+          <label for="pass">Password</label>
+          <input id="pass" type="password" placeholder="Min. 8 caratteri, almeno una lettera e un numero" minlength="8" required />
+          <div class="hint">Minimo 8 caratteri, almeno una lettera e un numero.</div>
+        </div>
 
-      // Aggiunge la logica da eseguire quando l'utente invia il modulo
-      signupForm.addEventListener('submit', async (event) => {
-        // Previene il comportamento di default del browser (ricaricare la pagina)
-        event.preventDefault();
+        <div class="plans">
+          <label>Scegli il tuo piano</label>
 
-        // Nasconde i messaggi di tentativi precedenti e disabilita il pulsante
-        successMessage.style.display = 'none';
-        errorMessage.style.display = 'none';
-        signupButton.disabled = true;
-        signupButton.textContent = 'Creazione in corso...';
+          <div class="plan" style="margin-bottom:10px">
+            <input type="radio" name="plan" id="plan-trial" value="trial" checked>
+            <div>
+              <h4>Prova Gratuita — 30 giorni</h4>
+              <p>Nessuna carta richiesta. Potrai scegliere un piano dopo la prova.</p>
+            </div>
+          </div>
 
-        // Prende i valori inseriti dall'utente
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+          <div class="plan" style="margin-bottom:10px">
+            <input type="radio" name="plan" id="plan-monthly" value="monthly">
+            <div>
+              <h4>Mensile — 2,99€ / mese</h4>
+              <p>Accesso completo. Disdici quando vuoi.</p>
+            </div>
+          </div>
 
-        // Esegue la chiamata a Supabase per la registrazione
+          <div class="plan">
+            <input type="radio" name="plan" id="plan-lifetime" value="lifetime">
+            <div>
+              <h4>Una tantum — 19,99€ per sempre</h4>
+              <p>Paghi una sola volta. Aggiornamenti inclusi.</p>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px">Puoi cambiare piano in seguito. La prova gratuita dura 30 giorni.</div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">Crea account</button>
+        </div>
+        <div id="form-msg" class="msg"></div>
+      </form>
+    </div>
+
+    <div class="muted" style="margin-top:16px;color:#e6e6e6">
+      © MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a>
+    </div>
+  </div>
+
+  <!-- ✅ modulo: usa il client Supabase del tuo progetto -->
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    const ORIGIN = window.location.origin;
+    const lang   = location.pathname.split('/')[1] || 'it';
+    const REDIRECT_TO = `${ORIGIN}/${lang}/auth/callback.html`; // pagina neutra post-conferma (preparala)
+
+    const el = (id) => document.getElementById(id);
+    const msg = el('form-msg');
+
+    // helper messaggi
+    function show(type, text){
+      msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
+      msg.textContent = text;
+    }
+
+    // regole minime password client-side
+    function validPass(p){
+      if(!p || p.length < 8) return false;
+      const hasLetter = /[A-Za-z]/.test(p);
+      const hasDigit  = /[0-9]/.test(p);
+      return hasLetter && hasDigit;
+    }
+
+    el('signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      show('', '');
+
+      const email = el('email').value.trim();
+      const password = el('pass').value;
+      const fullName = el('name').value.trim();
+      const plan = (document.querySelector('input[name="plan"]:checked')?.value) || 'trial';
+
+      if (!validPass(password)) {
+        show('error', 'La password deve avere almeno 8 caratteri, includere una lettera e un numero.');
+        return;
+      }
+
+      try {
+        // signup
         const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password,
+          email,
+          password,
           options: {
-            data: {
-              full_name: name // Salva il nome dell'utente
-            }
+            emailRedirectTo: REDIRECT_TO,
+            data: { full_name: fullName, plan }
           }
         });
 
-        // Gestisce la risposta di Supabase
         if (error) {
-          // Se c'è un errore, lo mostra
-          errorMessage.textContent = `Errore: ${error.message}`;
-          errorMessage.style.display = 'block';
-        } else if (data.user && data.user.identities && data.user.identities.length === 0) {
-            // Caso specifico: utente già registrato ma non confermato
-            errorMessage.textContent = 'Questa email è già registrata ma non confermata. Controlla la tua casella di posta per il link di conferma.';
-            errorMessage.style.display = 'block';
-        } else if (data.user) {
-          // Se la registrazione ha successo, nasconde il form e mostra il messaggio di successo
-          signupForm.style.display = 'none';
-          successMessage.style.display = 'block';
+          show('error', error.message || 'Registrazione non riuscita.');
+          return;
         }
-        
-        // Alla fine, riabilita il pulsante in caso di errore per permettere un nuovo tentativo
-        signupButton.disabled = false;
-        signupButton.textContent = 'Crea Account';
-      });
-    </script>
+
+        // Se la conferma email è attiva (default) -> sessione null -> inviata mail
+        if (!data.session) {
+          show('ok', 'Ti abbiamo inviato un’email di conferma. Controlla la posta e clicca sul link per attivare l’account.');
+          e.target.reset();
+          return;
+        }
+
+        // Se la conferma è disattivata -> sessione presente -> vai in dashboard
+        location.replace(`/${lang}/dashboard.html`);
+
+      } catch (err) {
+        show('error', err?.message || String(err));
+      }
+    });
+  </script>
 </body>
 </html>
