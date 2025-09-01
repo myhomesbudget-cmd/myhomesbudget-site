@@ -22,7 +22,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -52,12 +52,14 @@
 
   <style>
     :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    *{box-sizing:border-box}
+    a:focus-visible, button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
 
     /* Sfondo */
     body{
-      margin:0;padding:0;
+      margin:0;padding:0;color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;color:#fff;
+      background-size:cover;
     }
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
 
@@ -76,7 +78,7 @@
 
     /* Hero */
     .hero{
-      min-height:42vh; /* ↓ ridotto in desktop via media-query */
+      min-height:42vh;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       text-align:center;gap:16px;padding:0 20px;margin:0;
     }
@@ -99,7 +101,6 @@
     }
     .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
     .microcopy{font-size:.95rem;color:#eaeaea;opacity:.95}
-
     @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
     @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
 
@@ -129,14 +130,16 @@
 
     /* Pricing */
     .pricing{margin-top:28px}
-    .pricing h3{margin:0 0 16px;text-align:center}
     .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
     @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
     .price-card{
       background:rgba(255,255,255,.55);
       backdrop-filter:saturate(1.1) blur(6px);
       -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08)
+      color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+      /* centratura verticale + layout */
+      display:flex;flex-direction:column;justify-content:center;gap:10px;
+      text-align:center;
     }
     .price-card h4{margin:0 0 4px;font-size:1.15rem}
     .price{font-weight:800;font-size:1.8rem;margin:6px 0 2px}
@@ -145,7 +148,8 @@
     .btn-secondary{
       display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
       color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
-      box-shadow:0 8px 22px rgba(0,0,0,.15)
+      box-shadow:0 8px 22px rgba(0,0,0,.15);
+      align-self:center; /* centra il bottone nella flex column */
     }
     .btn-secondary:hover{filter:brightness(1.08)}
 
@@ -153,60 +157,55 @@
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
 
-/* ======= COMPATTAZIONE DESKTOP (fold-fit) ======= */
-@media (min-width: 900px) {
-  .wrap{ padding:16px; }
-  .logo-image{ height:32px; }
+    /* ======= PANNELLO PREZZI stile "Come funziona" ======= */
+    .pricing-panel{ /* usa lo stile card tramite la classe .card sul <section> */
+      align-items:stretch;
+      padding:14px;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
+    }
+    .pricing-panel h3{ margin:0 0 12px; text-align:center; color:#111; }
 
-  /* HERO più compatto */
-  .hero{ min-height:30vh; gap:8px; }
-  .hero h1{ font-size:clamp(1.8rem,3.8vw,2.4rem); margin:0; }
-  .hero p{ margin:2px 0 0; }
-  .cta{ padding:10px 16px; }
-  .microcopy{ font-size:.9rem; }
+    /* ======= Reveal on scroll (leggero, con stagger) ======= */
+    .reveal{
+      --d: 0s;
+      opacity:0;
+      transform:translateY(22px) scale(.985);
+      filter:saturate(.96);
+      transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1), filter .6s ease;
+      will-change:opacity,transform;
+    }
+    .reveal.in{ opacity:1; transform:none; filter:none; }
+    @media (prefers-reduced-motion:reduce){
+      .reveal, .reveal.in{ transition:none; opacity:1; transform:none; filter:none; }
+    }
 
-  /* “Benefici” compatti */
-  .grid{ margin-top:8px; gap:8px; }
-  .card{ padding:14px; }
+    /* ======= COMPATTAZIONE DESKTOP (fold-fit) ======= */
+    @media (min-width: 900px) {
+      .wrap{ padding:16px; }
+      .logo-image{ height:32px; }
 
-  /* “Come funziona” compatto */
-  .steps{ margin-top:12px; }
-  .steps h3{ margin:0 0 8px; }
-  .steps-grid{ gap:10px; }
-  .step{ padding:10px; }
-  .nbr{ flex:0 0 32px; height:32px; }
+      .hero{ min-height:30vh; gap:8px; }
+      .hero h1{ font-size:clamp(1.8rem,3.8vw,2.4rem); margin:0; }
+      .hero p{ margin:2px 0 0; }
+      .cta{ padding:10px 16px; }
+      .microcopy{ font-size:.9rem; }
 
-  /* Sezione Prezzi più stretta */
-  .pricing{ margin-top:12px; }
-  .pricing h3{ margin:0 0 8px; }
-  .pricing-grid{ gap:10px; }
+      .grid{ margin-top:8px; gap:8px; }
+      .card{ padding:14px; }
 
-  /* BOX PREZZI: altezza ridotta + contenuto centrato verticalmente */
-  .price-card{
-    padding:12px 14px;
-    min-height:150px;                /* ↓ era ~più alto */
-    display:flex;
-    flex-direction:column;
-    justify-content:center;          /* <-- centra verticalmente */
-    gap:8px;
-  }
-  .price-card h4{ margin:0; font-size:1.05rem; }
-  .price{ font-size:1.5rem; margin:4px 0 0; }
-  .features{ margin:6px 0 8px; }
+      .steps{ margin-top:12px; }
+      .steps h3{ margin:0 0 8px; }
+      .steps-grid{ gap:10px; }
+      .step{ padding:10px; }
+      .nbr{ flex:0 0 32px; height:32px; }
 
-  /* Centra i contenuti nei pannelli prezzo (desktop) */
-@media (min-width: 900px) {
-  .pricing .price-card {
-    text-align: center;            /* centra h4, .price, .features */
-  }
-  .pricing .price-card .btn-secondary {
-    align-self: center;            /* centra il bottone nel flex column */
-  }
-}
+      .pricing{ margin-top:12px; }
+      .pricing-grid{ gap:10px; }
+      .price-card{ padding:12px 14px; min-height:150px; }
+      .price{ font-size:1.5rem; margin:4px 0 0; }
 
-  /* Footer compatto */
-  .footer{ margin:12px 0 8px; }
-}
+      .footer{ margin:12px 0 8px; }
+    }
   </style>
 </head>
 <body>
@@ -214,7 +213,7 @@
     <!-- NAV -->
     <nav class="nav" aria-label="Navigazione principale">
       <a href="/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image">
+        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image" loading="lazy">
         <span class="logo-text">MyHomesBudget</span>
       </a>
 
@@ -242,18 +241,9 @@
 
     <!-- BENEFIT -->
     <section class="grid" aria-label="Benefici principali">
-      <div class="card">
-        <h3>Zero complicazioni</h3>
-        <p>Niente fogli di calcolo. Tutto chiaro e rapido.</p>
-      </div>
-      <div class="card">
-        <h3>Sempre con te</h3>
-        <p>iPhone, Android e PC. Presto installabile come PWA.</p>
-      </div>
-      <div class="card">
-        <h3>Privacy UE</h3>
-        <p>Dati in Europa e sotto il tuo controllo.</p>
-      </div>
+      <div class="card"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
+      <div class="card"><h3>Sempre con te</h3><p>iPhone, Android e PC. Presto installabile come PWA.</p></div>
+      <div class="card"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
     </section>
 
     <!-- COME FUNZIONA -->
@@ -284,8 +274,8 @@
       </div>
     </section>
 
-    <!-- PIANI E PREZZI -->
-    <section class="pricing" aria-label="Piani e prezzi">
+    <!-- PIANI E PREZZI (pannello stile "Come funziona") -->
+    <section class="card pricing pricing-panel" aria-label="Piani e prezzi">
       <h3>Scegli il tuo piano</h3>
       <div class="pricing-grid">
         <!-- Mensile -->
@@ -320,10 +310,48 @@
 
     <!-- Footer -->
     <footer class="footer">
-      © MyHomesBudget — 
-      <a href="https://www.myhomesbudget.com/it/privacy.html" rel="noopener">Privacy</a> · 
+      © MyHomesBudget —
+      <a href="https://www.myhomesbudget.com/it/privacy.html" rel="noopener">Privacy</a> ·
       <a href="https://www.myhomesbudget.com/it/terms.html" rel="noopener">Termini</a>
     </footer>
   </div>
+
+  <!-- Reveal on scroll (stagger + rispetto R-M) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const groups = [
+        document.querySelectorAll('.grid .card'),
+        document.querySelectorAll('.steps h3'),
+        document.querySelectorAll('.steps-grid .step'),
+        document.querySelectorAll('.pricing h3'),
+        document.querySelectorAll('.pricing-grid .price-card')
+      ];
+
+      groups.forEach(nodes => {
+        nodes.forEach((el, i) => {
+          el.classList.add('reveal');
+          el.style.setProperty('--d', (0.08 * i + 0.05) + 's');
+        });
+      });
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+        return;
+      }
+
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            el.style.transitionDelay = getComputedStyle(el).getPropertyValue('--d') || '0s';
+            el.classList.add('in');
+            obs.unobserve(el);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -5% 0px' });
+
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    });
+  </script>
 </body>
 </html>
