@@ -6,6 +6,7 @@
   <title>Fine Periodo di Prova — MyHomesBudget</title>
   <meta name="description" content="Il tuo periodo di prova è terminato. Scegli un piano per continuare a usare MyHomesBudget senza limiti.">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
@@ -18,10 +19,9 @@
                  frame-ancestors 'none';
                  base-uri 'self';
                  form-action 'self'">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G_DUMMY"></script><!-- ⬅️ metti il tuo ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G_DUMMY"></script><!-- ⬅️ sostituisci -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
@@ -32,58 +32,79 @@
   <!-- Performance -->
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
   <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
-  <!-- Se usi redirect esterni -->
-  <link rel="preconnect" href="https://checkout.stripe.com" crossorigin>
-  <link rel="preconnect" href="https://www.paypal.com" crossorigin>
-
   <link rel="icon" href="/favicon.ico">
-  <meta name="theme-color" content="#0f0f10">
-  <meta name="color-scheme" content="light dark">
 
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    :root{
+      --fg:#111;
+      --fg-weak:#333;
+      --glass: rgba(255,255,255,.58);
+      --glass-strong: rgba(255,255,255,.68);
+      --card-border: rgba(0,0,0,.06);
+      --shadow: 0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --radius-md:12px;
+      --grad: linear-gradient(135deg,#6c5ce7,#00cec9);
+    }
     *{box-sizing:border-box}
-    a:focus-visible, button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+    a:focus-visible, button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
 
+    /* Background coerente con la home */
     body{
-      margin:0;padding:0;color:#fff;
+      margin:0; padding:0; color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;
-      display:flex;flex-direction:column;min-height:100vh;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
     }
-    /* Velatura più scura per concentrare l'attenzione */
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:-1}
+    body::before{content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1}
 
-    .paywall-wrapper {
-      flex-grow: 1;
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-    }
+    /* Pannello principale (glass) */
     .paywall-panel{
-      width: 100%; max-width: 720px;
-      background:rgba(255,255,255,0.7);
-      backdrop-filter:saturate(1.2) blur(8px);
-      -webkit-backdrop-filter:saturate(1.2) blur(5px);
-      color:#111;border-radius:16px;
-      padding:clamp(1.2rem, 5vw, 2rem);
-      box-shadow:0 10px 40px rgba(0,0,0,.15);
-      text-align:center;
+      width:min(920px, calc(100% - 40px));
+      background:var(--glass);
+      backdrop-filter:saturate(1.1) blur(8px);
+      -webkit-backdrop-filter:saturate(1.1) blur(5px);
+      color:var(--fg);
+      border-radius:var(--radius-lg);
+      padding:clamp(18px, 4vw, 26px);
+      box-shadow:var(--shadow);
     }
-    h1,h2,h3{margin:0 0 8px;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    .copy{font-size:clamp(1rem, 2.5vw, 1.1rem); max-width:560px; margin:0 auto 24px; color:#333}
 
-    /* Pricing */
-    .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr; margin-bottom: 24px;}
-    @media(max-width:600px){.pricing-grid{grid-template-columns:1fr}}
+    .header{
+      text-align:center; margin-bottom:16px;
+    }
+    .header h1{
+      margin:0; font-size:clamp(1.8rem, 4.6vw, 2.2rem);
+      text-shadow:0 1px 3px rgba(0,0,0,.35);
+    }
+    .header p{
+      margin:6px 0 0; color:#eaeaea; font-size:clamp(1rem,2.4vw,1.08rem);
+      text-shadow:0 1px 3px rgba(0,0,0,.25);
+    }
+
+    /* Riquadro con i piani (stile card della home) */
+    .plans{
+      background:var(--glass-strong);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius-lg);
+      padding:14px;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);
+      display:grid; grid-template-columns:1fr 1fr; gap:14px;
+      margin: 14px 0 18px;
+    }
+    @media(max-width:680px){ .plans{ grid-template-columns:1fr; } }
+
     .price-card{
-      background:rgba(255,255,255,.45);
-      border:1px solid rgba(255,255,255,0.6);
-      padding:18px;border-radius:12px;
-      display:flex;flex-direction:column;gap:14px;text-align:center;
+      background:rgba(255,255,255,.52);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius-md);
+      padding:16px;
+      text-align:center;
+      box-shadow:var(--shadow);
+      display:flex; flex-direction:column; gap:12px; justify-content:center;
     }
     .plan-title{
       margin:0; display:flex; gap:.5rem; flex-wrap:wrap; align-items:baseline; justify-content:center;
-      font-size:1.1rem;
+      font-size:1.08rem;
     }
     .plan-name{font-weight:700}
     .sep{opacity:.45}
@@ -91,140 +112,138 @@
     .price-inline small{font-weight:600; font-size:.9rem; color:#333}
 
     .cta-group{display:flex; flex-direction:column; gap:8px}
-    .btn-payment{
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      text-decoration:none; font-weight:700; border-radius:10px; padding:10px 14px;
-      box-shadow:0 6px 18px rgba(0,0,0,.1);
-      transition: transform .15s ease, filter .15s ease;
-      border: none; cursor: pointer; font-size:.95rem;
+    .btn{
+      display:flex; align-items:center; justify-content:center; gap:.5rem;
+      padding:11px 14px; border-radius:12px; font-weight:700; text-decoration:none;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);
+      transition:transform .15s ease, filter .15s ease;
+      color:#fff; background:var(--grad);
     }
-    .btn-payment:hover{filter:brightness(1.08); transform: translateY(-1px)}
-    .btn-stripe{background:#635bff; color:#fff}
-    .btn-paypal{background:#ffc439; color:#003087}
+    .btn:hover{filter:brightness(1.07); transform:translateY(-1px)}
+    .btn:is(:active){transform:translateY(0)}
 
-    /* FAQ rapida */
-    .faq-condensed{text-align:left; margin-bottom: 24px}
-    .faq-condensed h3{text-align:center; margin:0 0 12px; color:#111}
-    .faq-item{font-size:.95rem; padding:8px 0; border-bottom:1px solid rgba(0,0,0,.08)}
-    .faq-item:last-child{border-bottom:none}
-    .faq-item strong{color:#111}
-    .faq-item p{margin:4px 0 0; color:#444}
+    /* Riga sicurezza / FAQ / login */
+    .secure{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      color:#eef; font-size:.94rem; text-shadow:0 1px 2px rgba(0,0,0,.25);
+      margin: 6px 0 2px;
+    }
+    .secure svg{flex:0 0 16px; opacity:.9}
 
-    /* Login hint */
-    .login-prompt{margin-top:16px; padding:12px; background:rgba(0,0,0,.05); border-radius:8px; font-size:.9rem}
-    .login-prompt a{color:#6c5ce7; font-weight:600; text-decoration:none}
-    .login-prompt a:hover{text-decoration:underline}
+    .faq{
+      margin-top:14px; padding-top:12px;
+      border-top:1px solid rgba(0,0,0,.08);
+      color:#222;
+    }
+    .faq h3{ text-align:center; margin:0 0 10px; }
+    .faq-item{ padding:8px 0; border-bottom:1px solid rgba(0,0,0,.06); }
+    .faq-item:last-child{ border-bottom:none; }
+    .faq-item strong{ color:#111; }
+    .faq-item p{ margin:4px 0 0; color:#444; }
 
-    /* Reveal (top→bottom) */
+    .login{
+      margin-top:14px;
+      background:rgba(255,255,255,.45);
+      border:1px solid var(--card-border);
+      border-radius:12px; padding:12px;
+      text-align:center; color:#222;
+    }
+    .login a{ color:#111; font-weight:700; text-decoration:none; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .login a:hover{ text-decoration:underline; }
+
+    /* Reveal */
     .reveal{opacity:0; transform:translateY(16px); transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1)}
     .reveal.in{opacity:1; transform:none}
-    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none; opacity:1; transform:none}}
-
-    /* Utilità a11y */
-    .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    @media (prefers-reduced-motion:reduce){ .reveal,.reveal.in{transition:none; opacity:1; transform:none} }
   </style>
 </head>
 <body>
 
-  <div class="paywall-wrapper">
-    <!-- Page paywall (non modale) -->
-    <main class="paywall-panel" role="document" aria-labelledby="paywall-title" aria-describedby="paywall-desc">
-      <h1 id="paywall-title" class="reveal">Il tuo periodo di prova è terminato</h1>
-      <p id="paywall-desc" class="copy reveal">Continua a usare MyHomesBudget senza limiti scegliendo un piano.</p>
+  <main class="paywall-panel">
+    <header class="header reveal">
+      <h1>Il tuo periodo di prova è terminato</h1>
+      <p>Continua a usare MyHomesBudget senza limiti scegliendo un piano.</p>
+    </header>
 
-      <!-- Piani -->
-      <div class="pricing-grid">
-        <section class="price-card reveal" aria-label="Piano Mensile 2,99 euro al mese">
-          <h2 class="plan-title">
-            <span class="plan-name">Piano Mensile</span>
-            <span class="sep">—</span>
-            <span class="price-inline">2,99€ <small>/ mese</small></span>
-          </h2>
-          <div class="cta-group">
-            <a class="btn-payment btn-stripe"
-               href="/checkout/stripe?plan=monthly&utm_source=paywall&utm_medium=web"
-               data-plan="monthly" data-method="stripe">Paga con Stripe</a>
-            <a class="btn-payment btn-paypal"
-               href="/checkout/paypal?plan=monthly&utm_source=paywall&utm_medium=web"
-               data-plan="monthly" data-method="paypal">Paga con PayPal</a>
-          </div>
-        </section>
-
-        <section class="price-card reveal" aria-label="Piano Una Tantum 19,99 euro per sempre">
-          <h2 class="plan-title">
-            <span class="plan-name">Una Tantum</span>
-            <span class="sep">—</span>
-            <span class="price-inline">19,99€ <small>/ per sempre</small></span>
-          </h2>
-          <div class="cta-group">
-            <a class="btn-payment btn-stripe"
-               href="/checkout/stripe?plan=lifetime&utm_source=paywall&utm_medium=web"
-               data-plan="lifetime" data-method="stripe">Paga con Stripe</a>
-            <a class="btn-payment btn-paypal"
-               href="/checkout/paypal?plan=lifetime&utm_source=paywall&utm_medium=web"
-               data-plan="lifetime" data-method="paypal">Paga con PayPal</a>
-          </div>
-        </section>
-      </div>
-
-      <!-- FAQ -->
-      <section class="faq-condensed reveal" aria-labelledby="faq-title">
-        <h3 id="faq-title">Domande rapide</h3>
-        <div class="faq-item">
-          <strong>Cosa succede ai dati che ho inserito?</strong>
-          <p>I tuoi dati restano al sicuro e si sbloccano subito dopo l’attivazione. Non cancelliamo nulla.</p>
+    <!-- Piani (coerenti con la sezione "Scegli il tuo piano") -->
+    <section class="plans reveal" aria-label="Piani disponibili">
+      <article class="price-card" aria-label="Piano Mensile 2,99 euro al mese">
+        <h2 class="plan-title">
+          <span class="plan-name">Piano Mensile</span>
+          <span class="sep">—</span>
+          <span class="price-inline">2,99€ <small>/ mese</small></span>
+        </h2>
+        <div class="cta-group">
+          <a class="btn" href="/checkout/stripe?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="stripe">Paga con Stripe</a>
+          <a class="btn" href="/checkout/paypal?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="paypal">Paga con PayPal</a>
         </div>
-        <div class="faq-item">
-          <strong>Quali metodi di pagamento accettate?</strong>
-          <p>Carta tramite Stripe e pagamenti con conto PayPal. Tutte le transazioni sono sicure.</p>
-        </div>
-        <div class="faq-item">
-          <strong>Posso cancellare il piano mensile quando voglio?</strong>
-          <p>Sì, in qualsiasi momento. Continui ad avere accesso fino a fine periodo già pagato.</p>
-        </div>
-      </section>
+      </article>
 
-      <!-- Login / Hai già un abbonamento? -->
-      <p class="login-prompt reveal">
-        Hai già un abbonamento attivo? <a href="/it/login.html">Accedi qui</a>
-      </p>
-    </main>
-  </div>
+      <article class="price-card" aria-label="Una Tantum 19,99 euro per sempre">
+        <h2 class="plan-title">
+          <span class="plan-name">Una Tantum</span>
+          <span class="sep">—</span>
+          <span class="price-inline">19,99€ <small>/ per sempre</small></span>
+        </h2>
+        <div class="cta-group">
+          <a class="btn" href="/checkout/stripe?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="stripe">Paga con Stripe</a>
+          <a class="btn" href="/checkout/paypal?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="paypal">Paga con PayPal</a>
+        </div>
+      </article>
+    </section>
 
-  <noscript>
-    <div style="max-width:720px;margin:16px auto;padding:12px;border-radius:8px;background:#fff;color:#111;text-align:center">
-      Attiva JavaScript per completare il pagamento in modo corretto.
+    <div class="secure reveal" aria-hidden="true">
+      <!-- icona lock -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
+      Pagamenti sicuri con Stripe e PayPal
     </div>
-  </noscript>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Page view
-  gtag('event', 'paywall_viewed');
+    <section class="faq reveal" aria-labelledby="faq-title">
+      <h3 id="faq-title">Domande rapide</h3>
+      <div class="faq-item">
+        <strong>Cosa succede ai dati che ho inserito?</strong>
+        <p>I tuoi dati restano al sicuro e si sbloccano subito dopo l’attivazione. Non cancelliamo nulla.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Quali metodi di pagamento accettate?</strong>
+        <p>Carta tramite Stripe e pagamenti con conto PayPal. Tutte le transazioni sono sicure.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Posso cancellare il piano mensile quando voglio?</strong>
+        <p>Sì, in qualsiasi momento. Continui ad avere accesso fino a fine periodo già pagato.</p>
+      </div>
+    </section>
 
-  // Checkout start (con metodo)
-  document.querySelectorAll('a[data-plan][data-method]').forEach(link => {
-    link.addEventListener('click', () => {
-      gtag('event', 'checkout_started', {
-        plan: link.dataset.plan,
-        payment_method: link.dataset.method,
-        source: 'paywall'
+    <p class="login reveal">Hai già un abbonamento attivo? <a href="/it/login.html">Accedi qui</a></p>
+  </main>
+
+  <script>
+    // GA4
+    gtag('event','paywall_viewed');
+
+    // Tracciamento clic con metodo
+    document.querySelectorAll('a[data-plan][data-method]').forEach(a=>{
+      a.addEventListener('click', ()=>{
+        gtag('event','checkout_started',{
+          plan: a.dataset.plan,
+          payment_method: a.dataset.method,
+          source: 'paywall'
+        });
       });
     });
-  });
 
-  // Reveal sequenziale top→bottom (rispetta reduced motion)
-  const targets = document.querySelectorAll('.reveal');
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    targets.forEach(el => el.classList.add('in')); return;
-  }
-  const ordered = [...targets].map(el => ({ el, r: el.getBoundingClientRect() }))
-    .sort((a,b)=> (a.r.top - b.r.top) || (a.r.left - b.r.left))
-    .map(x=>x.el);
-  ordered.forEach((el, i) => el.style.transitionDelay = (i * 0.10) + 's');
-  requestAnimationFrame(() => ordered.forEach(el => el.classList.add('in')));
-});
-</script>
-
+    // Reveal top→bottom
+    (function(){
+      const els = document.querySelectorAll('.reveal');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+        els.forEach(e=>e.classList.add('in')); return;
+      }
+      const ordered = [...els].map(el=>({el, r: el.getBoundingClientRect()}))
+        .sort((a,b)=> (a.r.top - b.r.top) || (a.r.left - b.r.left))
+        .map(x=>x.el);
+      ordered.forEach((el,i)=> el.style.transitionDelay = (i*0.10)+'s');
+      requestAnimationFrame(()=> ordered.forEach(el=> el.classList.add('in')));
+    })();
+  </script>
 </body>
 </html>
