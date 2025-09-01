@@ -76,18 +76,18 @@
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:40px}
     .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
-    .right-bar{display:flex;gap:16px;align-items:center}
+    .right-bar{display:flex;gap:12px;align-items:center}
+    .login-link,.nav .nav-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .login-link:hover,.nav .nav-link:hover{background:rgba(255,255,255,.12)}
     .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
-    .login-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .login-link:hover{background:rgba(255,255,255,.12)}
 
     /* Hero */
     .hero{
       min-height:42vh;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:16px;padding:0 20px;margin:0;
+      text-align:center;gap:12px;padding:0 20px;margin:0;
     }
     .hero h1{
       font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
@@ -107,9 +107,14 @@
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
     }
     .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
+    .cta-ghost{
+      background:transparent; border:1px solid rgba(255,255,255,.6); margin-left:8px;
+    }
+    .cta-ghost:hover{filter:none; transform:translateY(-1px); background:rgba(0,0,0,.15)}
     .microcopy{font-size:.95rem;color:#eaeaea;opacity:.95}
     @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
     @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
+    @media(max-width:560px){ .cta-ghost{display:block; margin:8px auto 0} }
 
     /* Card / Grid */
     .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
@@ -135,7 +140,7 @@
     .step h4{margin:0 0 4px;font-size:1.05rem}
     .step p{margin:0;color:#444;font-size:.95rem}
 
-    /* Pricing (grid + card interno) */
+    /* Pricing (panel + cards) */
     .pricing{margin-top:28px}
     .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
     @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
@@ -144,109 +149,63 @@
       backdrop-filter:saturate(1.1) blur(6px);
       -webkit-backdrop-filter:saturate(1.1) blur(3px);
       color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
-      display:flex;flex-direction:column;justify-content:center;gap:10px;
-      text-align:center;
+      display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center;
     }
+    .pricing-panel{align-items:stretch;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .pricing-panel h3{margin:0 0 12px;text-align:center;color:#111}
 
-    /* Titolo + prezzo sulla stessa riga */
+    /* Titolo + prezzo in-line */
     .price-card .plan-title{
-      margin: 0;
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: center;
-      text-align: center;
-      font-size: 1.12rem;
+      margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem;
     }
-    .price-card .plan-title .plan-name{ font-weight: 700; }
-    .price-card .plan-title .sep{ opacity: .45; }
-    .price-card .plan-title .price-inline{
-      font-weight: 800;
-      font-size: 1.25rem;
-      line-height: 1;
-    }
-    .price-card .plan-title .price-inline small{
-      font-weight: 600; font-size: .9rem; color: #333;
-    }
-
-    /* Spaziature card prezzo con nuovo header */
-    .price-card{ gap: 8px; }
-    .features{ margin: 6px 0 10px; color:#333; font-size:.95rem; line-height:1.45; }
-
+    .price-card .plan-title .plan-name{font-weight:700}
+    .price-card .plan-title .sep{opacity:.45}
+    .price-card .plan-title .price-inline{font-weight:800;font-size:1.25rem;line-height:1}
+    .price-card .plan-title .price-inline small{font-weight:600;font-size:.9rem;color:#333}
+    .features{margin:6px 0 10px;color:#333;font-size:.95rem;line-height:1.45}
     .btn-secondary{
       display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
       color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
-      box-shadow:0 8px 22px rgba(0,0,0,.15);
-      align-self:center;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;
+      transition:transform .15s ease, filter .15s ease;
     }
-    .btn-secondary:hover{filter:brightness(1.08)}
+    .btn-secondary:hover{filter:brightness(1.08);transform:translateY(-1px)}
 
     /* Footer */
     .footer{margin:40px 0;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
 
-    /* ======= PANNELLO PREZZI stile "Come funziona" ======= */
-    .pricing-panel{
-      align-items:stretch;
-      padding:14px;
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
-    }
-    .pricing-panel h3{ margin:0 0 12px; text-align:center; color:#111; }
+    /* Reveal soft (dal basso) */
+    .reveal{--d:0s;opacity:0;transform:translateY(16px) scale(.995);transform-origin:50% 100%;filter:saturate(.98);
+      transition:opacity .85s ease,transform .85s cubic-bezier(.22,1,.36,1),filter .85s ease;will-change:opacity,transform}
+    .reveal.in{opacity:1;transform:none;filter:none}
+    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none;filter:none}}
 
-    /* ======= Reveal on scroll (soft, dal basso con stagger) ======= */
-    .reveal{
-      --d: 0s;
-      opacity: 0;
-      transform: translateY(16px) scale(.995);
-      transform-origin: 50% 100%;
-      filter: saturate(.98);
-      transition:
-        opacity .85s ease,
-        transform .85s cubic-bezier(.22,1,.36,1),
-        filter .85s ease;
-      will-change: opacity, transform;
-    }
-    .reveal.in{ opacity:1; transform:none; filter:none; }
-    @media (prefers-reduced-motion: reduce){
-      .reveal, .reveal.in{ transition:none; opacity:1; transform:none; filter:none; }
-    }
-
-    /* ======= COMPATTAZIONE DESKTOP (fold-fit) ======= */
-    @media (min-width: 900px) {
-      .wrap{ padding:16px; }
-      .logo-image{ height:32px; }
-
-      .hero{ min-height:30vh; gap:8px; }
-      .hero h1{ font-size:clamp(1.8rem,3.8vw,2.4rem); margin:0; }
-      .hero p{ margin:2px 0 0; }
-      .cta{ padding:10px 16px; }
-      .microcopy{ font-size:.9rem; }
-
-      .grid{ margin-top:8px; gap:8px; }
-      .card{ padding:14px; }
-
-      .steps{ margin-top:12px; }
-      .steps h3{ margin:0 0 8px; }
-      .steps-grid{ gap:10px; }
-      .step{ padding:10px; }
-      .nbr{ flex:0 0 32px; height:32px; }
-
-      .pricing{ margin-top:12px; }
-      .pricing-grid{ gap:10px; }
-      .price-card{ padding:12px 14px; } /* no min-height qui: resta il 140px sotto */
-      .footer{ margin:12px 0 8px; }
-    }
-
-    /* Desktop: min-height compatta per card prezzo */
+    /* Compattazione desktop */
     @media (min-width:900px){
-      .price-card{ min-height: 140px; }
+      .wrap{padding:16px}
+      .logo-image{height:32px}
+      .hero{min-height:30vh;gap:8px}
+      .hero h1{font-size:clamp(1.8rem,3.8vw,2.4rem);margin:0}
+      .hero p{margin:2px 0 0}
+      .cta{padding:10px 16px}
+      .microcopy{font-size:.9rem}
+      .grid{margin-top:8px;gap:8px}
+      .card{padding:14px}
+      .steps{margin-top:12px}
+      .steps h3{margin:0 0 8px}
+      .steps-grid{gap:10px}
+      .step{padding:10px}
+      .nbr{flex:0 0 32px;height:32px}
+      .pricing{margin-top:12px}
+      .pricing-grid{gap:10px}
+      .price-card{padding:12px 14px}
+      .price-card{min-height:140px}
+      .footer{margin:12px 0 8px}
     }
 
-    /* iOS Safari: evita jank con background fixed */
-    @supports (-webkit-touch-callout: none) {
-      body { background-attachment: scroll; }
-    }
+    /* iOS: evita jank con background fixed */
+    @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
   </style>
 </head>
 <body>
@@ -260,6 +219,14 @@
 
       <div class="right-bar">
         <a class="login-link" href="login.html" aria-label="Accedi">Accedi</a>
+
+        <!-- NUOVO: link Prezzi -->
+        <a class="nav-link pricing-link"
+           href="/it/pricing.html"
+           onclick="gtag('event','cta_click',{placement:'nav_pricing',lang:'it'});">
+          Prezzi
+        </a>
+
         <span class="lang-selector" aria-label="Selettore lingue">
           <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
           <a href="/en/" title="English" lang="en">🇬🇧</a>
@@ -273,10 +240,19 @@
       <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
       <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
 
-      <a class="cta" href="signup.html"
-         onclick="gtag('event','cta_click',{lang:'it',placement:'hero_trial'});">
-        Prova gratis per 30 giorni
-      </a>
+      <div>
+        <a class="cta" href="signup.html"
+           onclick="gtag('event','cta_click',{lang:'it',placement:'hero_trial'});">
+          Prova gratis per 30 giorni
+        </a>
+
+        <!-- NUOVO: CTA secondaria verso Pricing -->
+        <a class="cta cta-ghost" href="/it/pricing.html"
+           onclick="gtag('event','cta_click',{placement:'hero_secondary',lang:'it'});">
+          Scopri i piani
+        </a>
+      </div>
+
       <div class="microcopy" aria-hidden="true">Nessuna carta di credito richiesta. Cancella quando vuoi.</div>
     </section>
 
@@ -319,36 +295,30 @@
     <section class="card pricing pricing-panel" aria-label="Piani e prezzi">
       <h3 class="reveal">Scegli il tuo piano</h3>
       <div class="pricing-grid">
-        <!-- Mensile -->
         <div class="price-card reveal">
           <h4 class="plan-title">
             <span class="plan-name">Piano Mensile</span>
             <span class="sep">—</span>
             <span class="price-inline">2,99€ <small>/ mese</small></span>
           </h4>
-          <div class="features">
-            Accesso completo, aggiornamenti continui e priorità alle nuove funzionalità.
-          </div>
+          <div class="features">Accesso completo, aggiornamenti continui e priorità alle nuove funzionalità.</div>
           <a class="btn-secondary"
              href="signup.html?plan=monthly"
-             onclick="gtag('event','select_pricing',{plan:'monthly'});">
+             onclick="gtag('event','select_pricing',{plan:'monthly',placement:'pricing_grid'});">
             Scegli mensile
           </a>
         </div>
 
-        <!-- Lifetime -->
         <div class="price-card reveal">
           <h4 class="plan-title">
             <span class="plan-name">Una Tantum</span>
             <span class="sep">—</span>
             <span class="price-inline">19,99€ <small>/ per sempre</small></span>
           </h4>
-          <div class="features">
-            Paghi una sola volta. Uso illimitato e accesso alle funzionalità principali.
-          </div>
+          <div class="features">Paghi una sola volta. Uso illimitato e accesso alle funzionalità principali.</div>
           <a class="btn-secondary"
              href="signup.html?plan=lifetime"
-             onclick="gtag('event','select_pricing',{plan:'lifetime'});">
+             onclick="gtag('event','select_pricing',{plan:'lifetime',placement:'pricing_grid'});">
             Acquisto una tantum
           </a>
         </div>
@@ -358,54 +328,40 @@
     <!-- Footer -->
     <footer class="footer">
       © MyHomesBudget —
+      <!-- NUOVO: link diretto a Pricing -->
+      <a href="/it/pricing.html" onclick="gtag('event','cta_click',{placement:'footer_pricing',lang:'it'});">
+        Piani & Prezzi
+      </a> ·
       <a href="https://www.myhomesbudget.com/it/privacy.html" rel="noopener">Privacy</a> ·
       <a href="https://www.myhomesbudget.com/it/terms.html" rel="noopener">Termini</a>
     </footer>
   </div>
 
-  <!-- Reveal on scroll: sequenza verticale morbida -->
+  <!-- Reveal + GA base -->
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const targets = [
-    ...document.querySelectorAll('.grid .card'),
-    ...document.querySelectorAll('.steps h3'),
-    ...document.querySelectorAll('.steps-grid .step'),
-    ...document.querySelectorAll('.pricing h3'),
-    ...document.querySelectorAll('.pricing-grid .price-card')
-  ];
+    document.addEventListener('DOMContentLoaded', () => {
+      // GA: page view della landing (facoltativo ma utile)
+      gtag('event','view_landing',{ lang:'it' });
 
-  // top -> bottom
-  const seq = targets
-    .map(el => ({ el, rect: el.getBoundingClientRect() }))
-    .sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left))
-    .map(x => x.el);
-
-  seq.forEach((el, i) => {
-    el.classList.add('reveal');
-    el.style.setProperty('--d', (0.12 * i + 0.06) + 's');
-  });
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
-    return;
-  }
-
-  const io = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        el.style.transitionDelay = getComputedStyle(el).getPropertyValue('--d') || '0s';
-        el.classList.add('in');
-        obs.unobserve(el);
+      // REVEAL (sequenza top→bottom)
+      const targets = document.querySelectorAll('.reveal');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        targets.forEach(el => el.classList.add('in')); return;
       }
+      const sorted = [...targets].map(el => ({el, r: el.getBoundingClientRect()}))
+        .sort((a,b)=> (a.r.top - b.r.top) || (a.r.left - b.r.left)).map(x=>x.el);
+      sorted.forEach((el,i)=> el.style.setProperty('--d',(0.12*i)+'s'));
+      const io = new IntersectionObserver((entries,obs)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            const el=e.target;
+            el.style.transitionDelay=getComputedStyle(el).getPropertyValue('--d')||'0s';
+            el.classList.add('in'); obs.unobserve(el);
+          }
+        });
+      },{threshold:0.1, rootMargin:'0px 0px -10% 0px'});
+      targets.forEach(el=>io.observe(el));
     });
-  }, {
-    threshold: 0.12,
-    rootMargin: '0px 0px -12% 0px'   // fa entrare i pannelli più tardi
-  });
-
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-});
-</script>
+  </script>
 </body>
 </html>
