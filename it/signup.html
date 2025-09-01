@@ -25,13 +25,14 @@
 
     /* ===== background ===== */
     body{
-      margin:0;padding:0;color:#fff;
+      margin:0; color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;
     }
     body::before{
-      content:"";position:fixed;inset:0;z-index:-1;
-      background:rgba(0,0,0,.05); /* stesso overlay della home */
+      content:""; position:fixed; inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.33));
+      z-index:-1;
     }
 
     /* ===== layout ===== */
@@ -70,15 +71,13 @@
       box-shadow:0 18px 50px rgba(0,0,0,.25);
     }
 
-    .grid {
-  display: grid;
-  gap: 12px;
-}
-@media(min-width: 820px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+    .grid{
+      display:grid; gap:12px;
+      grid-template-columns:1fr;
+    }
+    @media(min-width:820px){
+      .grid{ grid-template-columns:1fr 1fr; }
+    }
 
     label{ display:block; margin:10px 0 6px; font-weight:700; }
     .full{ grid-column:1 / -1; }
@@ -154,26 +153,25 @@
 
     <form id="signup-form" class="card" autocomplete="on" novalidate>
       <div class="grid">
-  <div>
-    <label for="name">Nome</label>
-    <input id="name" type="text" placeholder="Es. Marco" required>
-    <div class="helper">Lo useremo per darti un benvenuto personalizzato.</div>
-  </div>
+        <div class="col">
+          <label for="name">Nome</label>
+          <input id="name" type="text" placeholder="Es. Marco" required>
+          <div class="helper">Lo useremo per darti un benvenuto personalizzato.</div>
+        </div>
 
-  <div>
-    <label for="email">Email</label>
-    <input id="email" type="email" placeholder="nome@dominio.it" required>
-    <div class="helper">&nbsp;</div> 
-  </div>
+        <div class="col">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="nome@dominio.it" required>
+        </div>
 
-  <div class="full">
-    <label for="password">Password</label>
-    <input id="password" type="password"
-           placeholder="Min. 8 caratteri, almeno una lettera e un numero"
-           minlength="8" required>
-    <div class="helper">Minimo 8 caratteri, almeno una lettera e un numero.</div>
-  </div>
-</div>
+        <div class="full">
+          <label for="password">Password</label>
+          <input id="password" type="password"
+                 placeholder="Min. 8 caratteri, almeno una lettera e un numero"
+                 minlength="8" required>
+          <div class="helper">Minimo 8 caratteri, almeno una lettera e un numero.</div>
+        </div>
+      </div>
 
       <hr class="sep">
 
@@ -260,6 +258,9 @@
         form.reset();
       }
     });
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
