@@ -365,48 +365,47 @@
 
   <!-- Reveal on scroll: sequenza verticale morbida -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Se non hai già marcato manualmente alcuni .reveal in HTML (come sopra), puoi selezionarli qui.
-      const targets = [
-        ...document.querySelectorAll('.grid .card'),
-        ...document.querySelectorAll('.steps h3'),
-        ...document.querySelectorAll('.steps-grid .step'),
-        ...document.querySelectorAll('.pricing h3'),
-        ...document.querySelectorAll('.pricing-grid .price-card')
-      ];
+document.addEventListener('DOMContentLoaded', () => {
+  const targets = [
+    ...document.querySelectorAll('.grid .card'),
+    ...document.querySelectorAll('.steps h3'),
+    ...document.querySelectorAll('.steps-grid .step'),
+    ...document.querySelectorAll('.pricing h3'),
+    ...document.querySelectorAll('.pricing-grid .price-card')
+  ];
 
-      // Ordine per posizione verticale: bottom -> top (poi left -> right)
-      const seq = targets
-        .map(el => ({ el, rect: el.getBoundingClientRect() }))
-        .sort((a, b) => (b.rect.top - a.rect.top) || (a.rect.left - b.rect.left))
-        .map(x => x.el);
+  // top -> bottom
+  const seq = targets
+    .map(el => ({ el, rect: el.getBoundingClientRect() }))
+    .sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left))
+    .map(x => x.el);
 
-      // Applica reveal con stagger disteso
-      seq.forEach((el, i) => {
-        el.classList.add('reveal');
-        el.style.setProperty('--d', (0.12 * i + 0.06) + 's'); // 120ms tra elementi
-      });
+  seq.forEach((el, i) => {
+    el.classList.add('reveal');
+    el.style.setProperty('--d', (0.12 * i + 0.06) + 's');
+  });
 
-      // Rispetta reduced motion
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
-        return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    return;
+  }
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        el.style.transitionDelay = getComputedStyle(el).getPropertyValue('--d') || '0s';
+        el.classList.add('in');
+        obs.unobserve(el);
       }
-
-      // IntersectionObserver
-      const io = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const el = entry.target;
-            el.style.transitionDelay = getComputedStyle(el).getPropertyValue('--d') || '0s';
-            el.classList.add('in');
-            obs.unobserve(el);
-          }
-        });
-      }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
-
-      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     });
-  </script>
+  }, {
+    threshold: 0.12,
+    rootMargin: '0px 0px -12% 0px'   // fa entrare i pannelli più tardi
+  });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+});
+</script>
 </body>
 </html>
