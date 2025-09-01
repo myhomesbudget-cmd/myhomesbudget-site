@@ -197,22 +197,21 @@
     .pricing-panel h3{ margin:0 0 12px; text-align:center; color:#111; }
 
     /* ======= Reveal on scroll (versione soft e lenta) ======= */
+/* Reveal soft: dal basso verso l'alto */
 .reveal{
-  --d: 0s;                       /* delay impostato via JS */
+  --d: 0s;
   opacity: 0;
-  transform: translateY(12px) scale(.995);   /* meno movimento */
+  transform: translateY(16px) scale(.995);   /* movimento verticale UP */
+  transform-origin: 50% 100%;               /* percezione di salita */
   filter: saturate(.98);
   transition:
     opacity .85s ease,
-    transform .85s cubic-bezier(.22,1,.36,1),  /* ease-out morbida */
+    transform .85s cubic-bezier(.22,1,.36,1),
     filter .85s ease;
   will-change: opacity, transform;
 }
-.reveal.in{
-  opacity: 1;
-  transform: none;
-  filter: none;
-}
+.reveal.in{ opacity:1; transform:none; filter:none; }
+
 @media (prefers-reduced-motion: reduce){
   .reveal, .reveal.in{ transition:none; opacity:1; transform:none; filter:none; }
 }
@@ -360,11 +359,10 @@
     </footer>
   </div>
 
-  <!-- Reveal on scroll (stagger + rispetto R-M) -->
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Ordine sequenziale desiderato dall’alto verso il basso
-  const seq = [
+  // Prendi tutti i target nell'ordine globale della pagina
+  const targets = [
     ...document.querySelectorAll('.grid .card'),
     ...document.querySelectorAll('.steps h3'),
     ...document.querySelectorAll('.steps-grid .step'),
@@ -372,17 +370,25 @@ document.addEventListener('DOMContentLoaded', () => {
     ...document.querySelectorAll('.pricing-grid .price-card')
   ];
 
-  // Marca tutti come reveal con uno stagger più disteso (120ms)
+  // Ordina per posizione verticale: bottom -> top (poi left -> right in pari livello)
+  const seq = targets
+    .map(el => ({ el, rect: el.getBoundingClientRect() }))
+    .sort((a, b) => (b.rect.top - a.rect.top) || (a.rect.left - b.rect.left))
+    .map(x => x.el);
+
+  // Applica reveal con uno stagger verticale morbido
   seq.forEach((el, i) => {
     el.classList.add('reveal');
-    el.style.setProperty('--d', (0.12 * i + 0.06) + 's');
+    el.style.setProperty('--d', (0.12 * i + 0.06) + 's'); // 120ms tra elementi
   });
 
+  // Rispetta reduced motion
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
     return;
   }
 
+  // IntersectionObserver
   const io = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
