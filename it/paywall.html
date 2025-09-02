@@ -63,11 +63,14 @@
     }
     body::before{content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1}
 
-    /* ===== Top-left logo (come nelle altre pagine) ===== */
+    /* ===== Topbar: contenitore centrato con la stessa larghezza del pannello ===== */
     .topbar{
-      position:fixed; top:16px; left:20px; z-index:20;
+      position:fixed; top:16px; left:50%; transform:translateX(-50%);
+      width:min(920px, calc(100% - 40px));  /* ⬅️ match con pannello */
+      z-index:20; pointer-events:none;      /* evito click fuori dal logo */
+      display:flex; justify-content:flex-start;
     }
-    .logo-link{display:flex; align-items:center; gap:8px; text-decoration:none}
+    .logo-link{display:flex; align-items:center; gap:8px; text-decoration:none; pointer-events:auto;}
     .logo-image{height:32px}
     .logo-text{font-weight:600; color:#fff; font-size:1.05rem; text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .logo-link:hover .logo-text{filter:brightness(1.06)}
@@ -90,7 +93,6 @@
       font-size:clamp(1.8rem, 4.6vw, 2.2rem);
       text-shadow:0 1px 3px rgba(0,0,0,.35);
     }
-    /* Sottotitolo più evidente (nero, semibold) + linea decorativa brand */
     .header p{
       margin:8px 0 0; color:#111; font-weight:600;
       font-size:clamp(1rem,2.4vw,1.08rem);
@@ -189,7 +191,7 @@
 </head>
 <body>
 
-  <!-- Logo in alto a sinistra -->
+  <!-- Logo in alto, allineato al bordo sinistro del pannello -->
   <nav class="topbar" aria-label="Logo">
     <a href="/it/" class="logo-link" title="myHomesBudget">
       <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
