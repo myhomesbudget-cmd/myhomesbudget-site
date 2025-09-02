@@ -66,13 +66,21 @@
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
     /* Topbar allineata al pannello */
-    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);
-      width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;justify-content:flex-start}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:auto}
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.lang-selector{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:32px}
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
+    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
 
-    /* Pannello login (coerente col paywall) */
+    /* Pannello login */
     .panel{
       width:min(920px,calc(100% - 40px));
       background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);
@@ -103,7 +111,7 @@
 
     .divider{height:2px;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.8;margin:16px auto;width:140px}
 
-    /* Google ufficiale (GIS) */
+    /* Google GIS */
     .row-google{display:grid;gap:8px;margin-top:6px}
     #gsi-btn{display:flex;justify-content:center;min-height:46px}
     #gsi-btn > div{margin:8px auto !important}
@@ -122,10 +130,15 @@
   </style>
 </head>
 <body>
-  <nav class="topbar" aria-label="Logo">
+  <nav class="topbar" aria-label="Barra superiore">
     <a href="/it/" class="logo-link" title="MyHomesBudget">
       <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy"><span class="logo-text">MyHomesBudget</span>
     </a>
+    <span class="lang-selector" aria-label="Selettore lingue">
+      <a href="/it/login.html" lang="it" aria-current="page">🇮🇹</a>
+      <a href="/en/login.html" lang="en">🇬🇧</a>
+      <a href="/es/login.html" lang="es">🇪🇸</a>
+    </span>
   </nav>
 
   <main class="panel">
@@ -175,12 +188,8 @@
     <p class="foot reveal">© MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a></p>
   </main>
 
-  <!-- Google Identity Services (pulsante blu ufficiale) -->
-  <script
-    src="https://accounts.google.com/gsi/client"
-    async defer
-    onload="window.dispatchEvent(new Event('gsi-loaded'))">
-  </script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer onload="window.dispatchEvent(new Event('gsi-loaded'))"></script>
 
   <!-- Logica (Supabase + GIS) -->
   <script type="module">
@@ -191,14 +200,11 @@
     const lang   = 'it';
     const goDash = () => location.replace(`/${lang}/dashboard.html`);
 
-    /* GA */
     gtag('event','login_viewed',{lang});
 
-    /* se già autenticato → dashboard */
     const { data:{ session } } = await supabase.auth.getSession();
     if (session?.user){ goDash(); }
 
-    /* Email/Password */
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -209,7 +215,6 @@
       goDash();
     });
 
-    /* Magic Link */
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -223,7 +228,6 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    /* GIS: bottone ufficiale con ID token → Supabase */
     const gsiContainer  = document.getElementById("gsi-btn");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
 
@@ -258,7 +262,6 @@
       }
     }
 
-    /* Reveal sequenziale top→bottom */
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
