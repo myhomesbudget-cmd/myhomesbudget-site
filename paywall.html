@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redirecting…</title>
+</head>
+<body>
+<script>
+(function(){
+  try{
+    var pref = localStorage.getItem('mhb_lang');
+    var lang = (pref || navigator.language || 'it').toLowerCase();
+    var to = '/it/paywall.html';
+    if (lang.startsWith('en')) to = '/en/paywall.html';
+    else if (lang.startsWith('es')) to = '/es/paywall.html';
+    location.replace(to);
+  }catch(e){
+    location.replace('/it/paywall.html');
+  }
+})();
+</script>
+</body>
+</html>
