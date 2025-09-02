@@ -1,305 +1,259 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
-  <title>MyHomesBudget — Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
-    .cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px; }
-    .card { border:1px solid #eee; border-radius:12px; padding:16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); background:#fff; }
-    .muted { color:#666; font-size:14px }
-    form input, form select, form button { padding:10px 12px; border-radius:8px; border:1px solid #ddd; }
-    form { display:grid; grid-template-columns: 1fr 120px 160px 160px auto; gap:8px; align-items:center; }
-    table { width:100%; border-collapse:collapse; }
-    th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
-    .right { text-align:right; }
-    .total { font-weight:700; }
-    .actions { display:flex; gap:8px; align-items:center; }
-    .btn { cursor:pointer; border:1px solid #ddd; border-radius:8px; padding:8px 12px; background:#fafafa; }
-    .btn:hover { background:#f1f1f1; }
+  <title>Dashboard — MyHomesBudget</title>
+  <meta name="description" content="La tua situazione a colpo d’occhio: obiettivo, metodo e categorie iniziali.">
+  <meta name="robots" content="noindex, nofollow">
 
-    /* ===== TRIAL BANNER ===== */
-    .trial-banner {
-      display:none; margin:12px 0 16px; padding:12px 14px; border-radius:12px;
-      background:#ffffff; border:1px solid rgba(0,0,0,.10); box-shadow:0 6px 18px rgba(0,0,0,.06); color:#111;
+  <!-- Guard: consenti accesso solo dopo onboarding -->
+  <script>
+    (function(){
+      function langPrefix(){
+        var m = location.pathname.match(/^\/(it|ita|en|es)(\/|$)/i);
+        return m ? ("/" + m[1].toLowerCase() + "/") : "/";
+      }
+      var prefix = langPrefix();
+      try {
+        if (localStorage.getItem('onboarding_completed') !== '1') {
+          location.replace(prefix + 'onboarding.html');
+        }
+      } catch(e){
+        location.replace(prefix + 'onboarding.html');
+      }
+    })();
+  </script>
+
+  <!-- CSP -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <!-- Perf -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+  <link rel="icon" href="/favicon.ico">
+  <meta name="theme-color" content="#0f0f10">
+  <meta name="color-scheme" content="light dark">
+
+  <style>
+    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    *{box-sizing:border-box}
+    a:focus-visible,button:focus-visible,[role="button"]:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    body{
+      margin:0;padding:0;color:#fff;
+      background:url("/bg.webp") no-repeat center center fixed;
+      background-size:cover;min-height:100vh;display:flex;flex-direction:column;
     }
-    .trial-banner strong { font-weight:700; }
-    .trial-cta {
-      text-decoration:none; background:#111; color:#fff; padding:8px 12px; border-radius:10px;
-      display:inline-block; margin-left:10px;
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:-1}
+
+    header.appbar{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 20px; backdrop-filter:saturate(1.2) blur(8px);
+      -webkit-backdrop-filter:saturate(1.2) blur(8px);
+      background:rgba(255,255,255,.08); border-bottom:1px solid rgba(255,255,255,.12);
     }
-    .trial-cta:hover { filter:brightness(1.08); }
+    header .brand{font-weight:800;letter-spacing:.2px}
+    header nav a{color:#fff;text-decoration:none;margin-left:14px;opacity:.9}
+    header nav a:hover{opacity:1}
+
+    main.wrapper{flex:1;display:flex;justify-content:center;align-items:flex-start;padding:24px}
+    .panel{
+      width:100%;max-width:1000px;color:#111;background:rgba(255,255,255,.85);
+      border-radius:18px;box-shadow:0 10px 40px rgba(0,0,0,.15);
+      backdrop-filter:saturate(1.2) blur(8px); -webkit-backdrop-filter:saturate(1.2) blur(6px);
+      overflow:hidden;
+    }
+    .panel .header{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.55)}
+    .panel .header h1{margin:0;font-size:clamp(1.4rem,3vw,1.8rem)}
+    .panel .body{padding:20px 24px}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .card{
+      background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.05);
+      padding:16px;display:flex;flex-direction:column;gap:8px;min-height:120px
+    }
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .muted{color:#555;font-size:.95rem}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:rgba(0,0,0,.06);border-radius:999px;padding:6px 10px;font-size:.9rem}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;cursor:pointer;font-weight:700;border-radius:10px;padding:10px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .btn-primary{background:#6c5ce7;color:#fff}
+    .btn-secondary{background:rgba(0,0,0,.06);color:#111}
+    .btn:hover{opacity:.95}
+    footer.note{padding:12px 24px;color:#ddd;font-size:.9rem;text-align:center}
+
+    @media (max-width:920px){
+      .grid{grid-template-columns:repeat(6,1fr)}
+    }
+    @media (max-width:640px){
+      .grid{grid-template-columns:repeat(1,1fr)}
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{animation:none !important; transition:none !important}
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1 style="margin:0;">Dashboard</h1>
-      <div class="muted">Le tue spese personali su Supabase</div>
-    </div>
-    <div class="actions">
-      <span id="user-email" class="muted"></span>
-      <button id="logout" class="btn">Esci</button>
-    </div>
+
+  <!-- App bar -->
+  <header class="appbar" role="banner">
+    <div class="brand">🏠 <strong>MyHomesBudget</strong></div>
+    <nav aria-label="Principale">
+      <a href="/ita/dashboard.html">Dashboard</a>
+      <a href="/ita/paywall.html">Piani</a>
+      <a href="/ita/index.html">Home</a>
+    </nav>
   </header>
 
-  <!-- ===== TRIAL BANNER (si mostra solo durante i 30 giorni) ===== -->
-  <div id="trial-banner" class="trial-banner">
-    <span id="trial-text"><!-- filled by JS --></span>
-    <a id="trial-cta" class="trial-cta" href="#">Scegli un piano</a>
-  </div>
+  <!-- Panel -->
+  <main class="wrapper">
+    <section class="panel" aria-labelledby="dash-title">
+      <div class="header">
+        <h1 id="dash-title">La tua dashboard</h1>
+        <p id="dash-sub" class="muted"></p>
+      </div>
 
-  <div class="cards" style="margin-bottom:16px;">
-    <div class="card">
-      <h3 style="margin-top:0;">Aggiungi spesa</h3>
-      <form id="add-form">
-        <input id="desc" type="text" placeholder="Descrizione" required />
-        <input id="amount" type="number" step="0.01" min="0" placeholder="Importo €" required />
-        <select id="category">
-          <option value="">Categoria</option>
-          <option>Cibo</option>
-          <option>Casa</option>
-          <option>Trasporti</option>
-          <option>Salute</option>
-          <option>Svago</option>
-          <option>Altro</option>
-        </select>
-        <input id="date" type="date" />
-        <button type="submit" class="btn">Salva</button>
-      </form>
-      <div id="form-msg" class="muted" style="margin-top:8px;"></div>
-    </div>
+      <div class="body">
+        <div class="grid" role="region" aria-label="Riepilogo">
+          <div class="card" style="grid-column: span 4;">
+            <h3>Obiettivo</h3>
+            <div id="goal" class="muted">—</div>
+          </div>
 
-    <div class="card">
-      <h3 style="margin-top:0;">Spese per categoria</h3>
-      <canvas id="pie"></canvas>
-    </div>
+          <div class="card" style="grid-column: span 4;">
+            <h3>Metodo / Reddito</h3>
+            <div id="methodOrIncome" class="muted">—</div>
+          </div>
 
-    <div class="card">
-      <h3 style="margin-top:0;">Andamento mensile</h3>
-      <canvas id="line"></canvas>
-    </div>
-  </div>
+          <div class="card" style="grid-column: span 4;">
+            <h3>Categorie iniziali</h3>
+            <div id="cats" class="chips"></div>
+          </div>
 
-  <div class="card">
-    <h3 style="margin-top:0;">Elenco spese</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrizione</th>
-          <th>Categoria</th>
-          <th class="right">Importo (€)</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" class="right total">Totale</td>
-          <td class="right total" id="total">0,00</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+          <div class="card" style="grid-column: span 8;">
+            <h3>Azioni rapide</h3>
+            <div class="actions">
+              <a class="btn btn-primary" href="/ita/onboarding.html" id="edit-setup" role="button">Rivedi configurazione</a>
+              <button class="btn btn-secondary" id="add-income" type="button">+ Entrata</button>
+              <button class="btn btn-secondary" id="add-expense" type="button">+ Spesa</button>
+            </div>
+            <p class="muted" id="ctx-hint"></p>
+          </div>
 
-  <!-- Client Supabase -->
-  <script type="module" src="/it/supabase-client.js"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+          <div class="card" style="grid-column: span 4;">
+            <h3>Stato</h3>
+            <div class="muted" id="status" aria-live="polite">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  <footer class="note">
+    <span id="dev-links" class="sr-only" aria-hidden="true"></span>
+  </footer>
 
-    /* ========= Protezione accesso ========= */
-    const lang = location.pathname.split('/')[1] || 'it';
-    const goLogin = () => location.replace(`/${lang}/login.html`);
-
-    // 1) Controllo immediato della sessione
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      goLogin();
-      throw new Error('No session'); // interrompe il resto
+  <script>
+    // Helpers lingua & path
+    function langPrefix(){
+      var m = location.pathname.match(/^\/(it|ita|en|es)(\/|$)/i);
+      return m ? ("/" + m[1].toLowerCase() + "/") : "/";
     }
-    const user = session.user;
-    const emailEl = document.getElementById('user-email');
-    if (emailEl) emailEl.textContent = user.email;
+    const prefix = langPrefix();
 
-    // 2) Se lo stato cambia (logout/expire) → torna al login
-    supabase.auth.onAuthStateChange((_event, s) => {
-      if (!s?.user) goLogin();
-    });
+    // GA4: evento vista dashboard
+    gtag('event','dashboard_view');
 
-    /* ========= TRIAL BANNER ========= */
-    (function showTrialBanner() {
-      const i18n = {
-        it: {
-          text: d => `Ti restano <strong>${d}</strong> giorni di prova.`,
-          cta : 'Scegli un piano',
-          url : '/it/#pricing'
-        },
-        en: {
-          text: d => `You have <strong>${d}</strong> trial days left.`,
-          cta : 'Choose a plan',
-          url : '/en/#pricing'
-        },
-        es: {
-          text: d => `Te quedan <strong>${d}</strong> días de prueba.`,
-          cta : 'Elige un plan',
-          url : '/es/#pricing'
-        }
-      }[lang] || {
-        text: d => `Ti restano <strong>${d}</strong> giorni di prova.`,
-        cta : 'Scegli un piano',
-        url : '/it/#pricing'
-      };
+    // Leggi stato onboarding
+    const state = {
+      goal: null,
+      saving_method: null,
+      income: null,
+      categories: []
+    };
+    try {
+      state.goal = localStorage.getItem('onboarding_goal');
+      state.saving_method = localStorage.getItem('onboarding_saving_method');
+      const inc = localStorage.getItem('onboarding_income');
+      if (inc && !isNaN(parseFloat(inc))) state.income = parseFloat(inc);
+      const cats = localStorage.getItem('onboarding_categories');
+      if (cats) state.categories = JSON.parse(cats);
+    } catch(e){}
 
-      const meta = user.user_metadata || {};
-      const plan = meta.plan || 'trial';
-      const startedISO = meta.trial_started_at;
-      if (plan !== 'trial' || !startedISO) return;
+    // Render UI
+    (function render(){
+      const goalEl = document.getElementById('goal');
+      const methodOrIncomeEl = document.getElementById('methodOrIncome');
+      const catsEl = document.getElementById('cats');
+      const sub = document.getElementById('dash-sub');
+      const status = document.getElementById('status');
+      const ctxHint = document.getElementById('ctx-hint');
 
-      const start = new Date(startedISO);
-      const MS = 24 * 60 * 60 * 1000;
-      const passed = Math.floor((Date.now() - start.getTime()) / MS);
-      const left = Math.max(0, 30 - passed);
+      sub.textContent = 'Riepilogo della tua configurazione iniziale.';
 
-      if (left <= 0) return; // prova scaduta → non mostrare (puoi cambiare logica in futuro)
+      goalEl.textContent = state.goal || 'Non impostato';
+      if (state.income != null && isFinite(state.income)) {
+        try {
+          methodOrIncomeEl.textContent = 'Reddito: € ' + new Intl.NumberFormat('it-IT',{minimumFractionDigits:2, maximumFractionDigits:2}).format(state.income);
+        } catch(_) { methodOrIncomeEl.textContent = 'Reddito: € ' + state.income; }
+      } else if (state.saving_method) {
+        methodOrIncomeEl.textContent = 'Metodo: ' + state.saving_method;
+      } else {
+        methodOrIncomeEl.textContent = '—';
+      }
 
-      const banner = document.getElementById('trial-banner');
-      const txt = document.getElementById('trial-text');
-      const cta = document.getElementById('trial-cta');
-
-      txt.innerHTML = i18n.text(left);
-      cta.textContent = i18n.cta;
-      cta.href = i18n.url;
-      banner.style.display = 'block';
+      catsEl.innerHTML = '';
+      if (Array.isArray(state.categories) && state.categories.length) {
+        state.categories.forEach(c => {
+          const s = document.createElement('span');
+          s.className = 'chip';
+          s.textContent = c;
+          catsEl.appendChild(s);
+        });
+        status.textContent = 'Configurazione completata. Puoi iniziare a registrare movimenti.';
+        ctxHint.textContent = 'Consiglio: imposta prima le entrate fisse e poi le spese ricorrenti.';
+      } else {
+        const empty = document.createElement('span');
+        empty.className = 'muted';
+        empty.textContent = 'Nessuna categoria selezionata.';
+        catsEl.appendChild(empty);
+        status.textContent = 'Configurazione incompleta: seleziona almeno una categoria.';
+        ctxHint.textContent = 'Clicca “Rivedi configurazione” per completare le categorie.';
+      }
     })();
 
-    /* ========= Logout ========= */
-    document.getElementById('logout').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      goLogin();
+    // Azioni rapide (solo eventi + placeholder)
+    document.getElementById('add-income').addEventListener('click', function(){
+      gtag('event','dashboard_quick_action_click',{action:'add_income'});
+      alert('Placeholder: qui aprirai il modale/flow per aggiungere un’entrata.');
     });
-
-    /* ========= Utils ========= */
-    const fmt = (n) => (n ?? 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const parseDate = (s) => s ? new Date(s) : new Date();
-
-    /* ========= Stato grafici ========= */
-    let pieChart, lineChart;
-
-    /* ========= Carica spese ========= */
-    async function loadExpenses() {
-      const { data, error } = await supabase
-        .from('expenses')
-        .select('id, description, amount, category, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      renderTable(data);
-      renderCharts(data);
-    }
-
-    function renderTable(items) {
-      const tbody = document.getElementById('rows');
-      tbody.innerHTML = '';
-      let total = 0;
-
-      items.forEach(r => {
-        const tr = document.createElement('tr');
-        const d = new Date(r.created_at);
-        total += Number(r.amount) || 0;
-
-        tr.innerHTML = `
-          <td>${d.toLocaleDateString('it-IT')}</td>
-          <td>${r.description ?? ''}</td>
-          <td>${r.category ?? ''}</td>
-          <td class="right">${fmt(Number(r.amount))}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('total').textContent = fmt(total);
-    }
-
-    function renderCharts(items) {
-      // Aggrega per categoria
-      const byCat = {};
-      items.forEach(r => {
-        const c = r.category || 'Altro';
-        byCat[c] = (byCat[c] || 0) + Number(r.amount || 0);
-      });
-      const catLabels = Object.keys(byCat);
-      const catData = Object.values(byCat);
-
-      // Aggrega per mese (YYYY-MM)
-      const byMonth = {};
-      items.forEach(r => {
-        const d = new Date(r.created_at);
-        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-        byMonth[key] = (byMonth[key] || 0) + Number(r.amount || 0);
-      });
-      const monthLabels = Object.keys(byMonth).sort();
-      const monthData = monthLabels.map(k => byMonth[k]);
-
-      // Pie
-      const pieCtx = document.getElementById('pie');
-      if (pieChart) pieChart.destroy();
-      pieChart = new Chart(pieCtx, {
-        type: 'pie',
-        data: { labels: catLabels, datasets: [{ data: catData }] },
-        options: { plugins: { legend: { position: 'bottom' } } }
-      });
-
-      // Line
-      const lineCtx = document.getElementById('line');
-      if (lineChart) lineChart.destroy();
-      lineChart = new Chart(lineCtx, {
-        type: 'line',
-        data: { labels: monthLabels, datasets: [{ label: '€ / mese', data: monthData, tension: .3 }] },
-        options: { scales: { y: { ticks: { callback: v => fmt(v) }}}}
-      });
-    }
-
-    /* ========= Inserimento nuova spesa ========= */
-    document.getElementById('add-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const desc = document.getElementById('desc').value.trim();
-      const amount = Number(document.getElementById('amount').value);
-      const category = document.getElementById('category').value || 'Altro';
-      const dateVal = document.getElementById('date').value;
-      const created_at = parseDate(dateVal).toISOString();
-
-      const msg = document.getElementById('form-msg');
-      msg.textContent = 'Salvataggio...';
-
-      const { error } = await supabase.from('expenses').insert({
-        description: desc,
-        amount,
-        category,
-        created_at,
-        user_id: user.id // RLS: fondamentale
-      });
-
-      if (error) {
-        msg.textContent = 'Errore: ' + error.message;
-      } else {
-        e.target.reset();
-        msg.textContent = 'Salvata!';
-        loadExpenses();
-        setTimeout(() => msg.textContent = '', 1500);
-      }
+    document.getElementById('add-expense').addEventListener('click', function(){
+      gtag('event','dashboard_quick_action_click',{action:'add_expense'});
+      alert('Placeholder: qui aprirai il modale/flow per aggiungere una spesa.');
     });
-
-    // Caricamento iniziale
-    loadExpenses();
+    document.getElementById('edit-setup').addEventListener('click', function(){
+      gtag('event','dashboard_quick_action_click',{action:'edit_setup'});
+    });
   </script>
 </body>
 </html>
