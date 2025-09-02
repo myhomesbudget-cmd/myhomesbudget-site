@@ -129,23 +129,34 @@
       box-shadow:0 8px 22px rgba(0,0,0,.14);
       transition:transform .15s ease, filter .15s ease;
       color:#fff; background:var(--grad);
-      text-shadow:0 1px 0 rgba(0,0,0,.18);   /* micro-contrasto sui CTA */
+      text-shadow:0 1px 0 rgba(0,0,0,.18);
     }
     .btn:hover{filter:brightness(1.07); transform:translateY(-1px)}
     .btn:is(:active){transform:translateY(0)}
 
-    /* ===== Extra ===== */
+    /* ===== Secure badge + separatore colorato ===== */
     .secure{
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      color:#eef; font-size:.94rem; text-shadow:0 1px 2px rgba(0,0,0,.25);
-      margin: 6px 0 2px;
+      /* badge pill centrato con bordo a gradiente */
+      width:fit-content; margin:8px auto 0; padding:6px 12px;
+      display:flex; align-items:center; gap:8px;
+      color:#111; font-weight:600;
+      border-radius:999px;
+      background:
+        linear-gradient(var(--glass-strong), var(--glass-strong)) padding-box,
+        linear-gradient(90deg,#6c5ce7,#00cec9) border-box;
+      border:1px solid transparent;
+      box-shadow:var(--shadow);
     }
-    .secure svg{flex:0 0 16px; opacity:.9}
+    .secure svg{flex:0 0 16px; color:#6c5ce7; opacity:.95}
 
+    /* separatore a gradiente full width sotto il badge */
     .faq{
-      margin-top:14px; padding-top:12px;
-      border-top:1px solid rgba(0,0,0,.08);
-      color:#222;
+      margin-top:16px; padding-top:0; position:relative; color:#222;
+      border-top:none; /* rimuove la vecchia linea grigia */
+    }
+    .faq::before{
+      content:""; display:block; height:2px; margin:14px 0 16px;
+      border-radius:999px; background:linear-gradient(90deg,#6c5ce7,#00cec9); opacity:.85;
     }
     .faq h3{ text-align:center; margin:0 0 10px; }
     .faq-item{ padding:8px 0; border-bottom:1px solid rgba(0,0,0,.06); }
@@ -204,11 +215,13 @@
       </article>
     </section>
 
+    <!-- Badge sicurezza evidenziato -->
     <div class="secure reveal" aria-hidden="true">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
       Pagamenti sicuri con Stripe e PayPal
     </div>
 
+    <!-- FAQ con separatore colorato -->
     <section class="faq reveal" aria-labelledby="faq-title">
       <h3 id="faq-title">Domande rapide</h3>
       <div class="faq-item">
