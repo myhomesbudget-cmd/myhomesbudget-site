@@ -3,26 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Accedi a MyHomesBudget</title>
-  <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice." />
+  <title>Accedi — MyHomesBudget</title>
+  <meta name="description" content="Accedi a MyHomesBudget per gestire entrate, spese e risparmi.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline'
-                            https://www.googletagmanager.com
-                            https://www.google-analytics.com
-                            https://esm.sh
-                            https://accounts.google.com
-                            https://apis.google.com;
-                 connect-src 'self'
-                             https://www.google-analytics.com
-                             https://region1.google-analytics.com
-                             https://upcusjlumfeadgbhziwq.supabase.co;
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
                  font-src 'self' https: data:;
-                 frame-src https://accounts.google.com;
                  frame-ancestors 'none';
                  base-uri 'self';
                  form-action 'self'">
@@ -31,254 +24,116 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- hreflang -->
-  <link rel="canonical" href="https://www.myhomesbudget.com/it/login.html" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/it/login.html" hreflang="it" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/en/login.html" hreflang="en" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/es/login.html" hreflang="es" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/login.html" hreflang="x-default" />
-
-  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
-
+  <link rel="icon" href="/favicon.ico">
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.58); --card-border:rgba(0,0,0,.06);
+      --shadow:0 10px 30px rgba(0,0,0,.10); --radius-lg:16px; --radius-md:12px;
+      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+    }
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9;outline-offset:2px;border-radius:8px}
 
     body{
-      margin:0;padding:0;
-      background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;color:#fff;
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;gap:12px;justify-content:flex-end;align-items:center}
-    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(255,255,255,.12)}
+    /* Topbar allineata al pannello */
+    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;justify-content:flex-start}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:auto}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 
-    .hero{
-      min-height:50vh;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:16px;padding:0 20px;margin:0;
+    /* Pannello login */
+    .panel{
+      width:min(920px,calc(100% - 40px));
+      background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
     }
-    .hero h1{
-      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
-    }
-    .hero p{
-      max-width:720px;margin:8px 0 16px;font-size:clamp(1rem,2vw,1.25rem);
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
-    }
-    @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
-    @media (prefers-reduced-motion:reduce){.hero h1,.hero p{animation:none;opacity:1;transform:none}}
+    .header{text-align:center;margin-bottom:16px}
+    .header h1{margin:0;color:#111;font-size:clamp(1.6rem,4vw,2rem)}
+    .header p{margin:8px 0 0;color:#222}
 
-    .card{
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      width:min(640px, 96vw);
-      text-align:left;
-    }
-    .divider{height:1px;background:rgba(0,0,0,.08);margin:16px 0}
-
-    .row{display:grid;gap:8px;margin-bottom:12px}
-    label{font-size:.95rem;color:#333}
-
+    form{max-width:420px;margin:0 auto;display:grid;gap:12px}
+    .field{display:grid;gap:6px}
+    label{color:#111;font-weight:600}
     input[type="email"], input[type="password"]{
-      width:100%; box-sizing:border-box;
-      padding:12px 14px;
-      border-radius:12px;
-      border:1px solid rgba(0,0,0,.08);
-      background:rgba(255,255,255,.90);
-      color:#111; font-size:1rem;
-      transition: border .2s ease, box-shadow .2s ease;
+      border:1px solid var(--card-border); border-radius:10px; padding:12px;
+      background:rgba(255,255,255,.9); font-size:1rem; color:#111;
     }
-    input:focus{outline:none;border:1px solid rgba(0,0,0,.35);box-shadow:0 0 6px rgba(0,0,0,.1)}
-
-    .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
-    .link{color:#111;text-decoration:none}
-    .link:hover{text-decoration:underline}
-
-    .btn-gradient{
-      cursor:pointer;
-      border:none;border-radius:12px;
-      padding:12px 20px;
-      background:linear-gradient(135deg,#6c5ce7,#00cec9);
-      color:#fff;font-weight:600;font-size:1rem;
-      box-shadow:0 6px 18px rgba(0,0,0,.15);
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    .row{display:flex;justify-content:space-between;align-items:center;font-size:.95rem;color:#333}
+    .row a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .row a:hover{text-decoration:underline}
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:.5rem;
+      padding:12px 14px;border-radius:12px;font-weight:700;text-decoration:none;border:none;cursor:pointer;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease,filter .15s ease;
+      color:#fff;background:var(--grad);text-shadow:0 1px 0 rgba(0,0,0,.18);
     }
-    .btn-gradient:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
-    .btn{background:transparent;border:none}
+    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
 
-    /* Google button area */
-    .row-google{display:grid;gap:8px;margin-top:6px}
-    #gsi-btn{display:flex;justify-content:center;min-height:46px;}
-    #gsi-btn > div{margin:8px auto !important}
+    .alt{margin-top:12px;text-align:center;color:#333}
+    .alt a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .alt a:hover{text-decoration:underline}
+
+    .reveal{opacity:0;transform:translateY(16px);transition:opacity .8s ease,transform .8s cubic-bezier(.22,1,.36,1)}
+    .reveal.in{opacity:1;transform:none}
+    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none}}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav class="nav" aria-label="Selettore lingua">
-      <span style="font-size:22px;display:flex;gap:8px;">
-        <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-        <a href="/en/login.html" title="English"  lang="en">🇬🇧</a>
-        <a href="/es/login.html" title="Español"  lang="es">🇪🇸</a>
-      </span>
-    </nav>
+  <nav class="topbar" aria-label="Logo">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy"><span class="logo-text">MyHomesBudget</span>
+    </a>
+  </nav>
 
-    <section class="hero">
-      <h1>Accedi a myhomesbudget</h1>
-      <p>Entra per consultare la tua dashboard e gestire le tue spese</p>
+  <main class="panel">
+    <header class="header reveal">
+      <h1>Accedi</h1>
+      <p>Bentornato! Inserisci le tue credenziali per continuare.</p>
+    </header>
 
-      <div class="card" role="form">
-        <!-- Email / Password -->
-        <form id="login-form">
-          <div class="row">
-            <label for="li-email">Email</label>
-            <input type="email" id="li-email" placeholder="nome@dominio.it" required />
-          </div>
-          <div class="row">
-            <label for="li-pass">Password</label>
-            <input type="password" id="li-pass" placeholder="••••••••" required />
-          </div>
-          <div class="actions">
-            <span>Non hai un account? <a class="link" href="/it/signup.html">Registrati</a></span>
-            <button type="submit" class="btn-gradient">Accedi</button>
-          </div>
-        </form>
-
-        <div class="divider" aria-hidden="true"></div>
-
-        <!-- Magic Link -->
-        <form id="magic-form">
-          <div class="row">
-            <label for="ml-email">Oppure accedi con Magic Link</label>
-            <input type="email" id="ml-email" placeholder="Email per il link" />
-          </div>
-          <div class="actions">
-            <span>Riceverai un link di accesso via email</span>
-            <button type="submit" class="btn-gradient">Invia Magic Link</button>
-          </div>
-        </form>
-
-        <div class="divider" aria-hidden="true"></div>
-
-        <!-- Google -->
-        <div class="row row-google">
-          <label>Oppure continua con Google</label>
-          <div id="gsi-btn"></div>
-          <!-- bottone gradiente (sempre visibile e funzionante) -->
-          <button id="google-oauth" type="button" class="btn-gradient" style="width:100%">
-            Continua con Google
-          </button>
-        </div>
+    <form class="reveal" action="/auth/login" method="POST" onsubmit="gtag('event','login_submit',{source:'login_page',lang:'it'})">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required inputmode="email" />
       </div>
-
-      <div class="footer" style="margin-top:16px;color:#e6e6e6;font-size:.9rem">
-        © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required />
       </div>
-    </section>
-  </div>
+      <div class="row">
+        <label><input type="checkbox" name="remember" value="1"> Ricordami</label>
+        <a href="reset.html">Password dimenticata?</a>
+      </div>
+      <button class="btn" type="submit">Entra</button>
+    </form>
 
-  <!-- Google Identity Services (opzionale, per pulsante blu) -->
-  <script
-    src="https://accounts.google.com/gsi/client"
-    async defer
-    onload="window.dispatchEvent(new Event('gsi-loaded'))">
-  </script>
+    <p class="alt reveal">Nuovo su MyHomesBudget? <a href="signup.html">Crea un account</a></p>
+  </main>
 
-  <!-- TUTTA la logica in UN SOLO modulo -->
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  <script>
+    try { localStorage.setItem('mhb_lang','it'); } catch(e){}
+    gtag('event','login_viewed');
 
-    /* === costanti di navigazione === */
-    const ORIGIN      = window.location.origin;
-    const lang        = location.pathname.split('/')[1] || 'it';
-    const REDIRECT_TO = `${ORIGIN}/${lang}/dashboard.html`;
-    const goDash      = () => location.replace(`/${lang}/dashboard.html`);
-
-    /* Se già autenticato → vai in dashboard */
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) goDash();
-
-    /* === Email / Password === */
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('li-email').value.trim();
-      const password = document.getElementById('li-pass').value.trim();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return alert('Errore accesso: ' + error.message);
-      goDash();
-    });
-
-    /* === Magic Link === */
-    document.getElementById('magic-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('ml-email').value.trim();
-      if (!email) return alert("Inserisci l'email.");
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: `${ORIGIN}/it/auth/callback` }
-      });
-      if (error) return alert('Errore invio link: ' + error.message);
-      alert('Ti abbiamo inviato un link di accesso.');
-    });
-
-    /* === Google OAuth (bottone gradiente) === */
-    document.getElementById('google-oauth').addEventListener('click', async () => {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: REDIRECT_TO,
-          queryParams: { prompt: 'select_account' }
-        }
-      });
-      if (error) alert('Errore Google login: ' + error.message);
-    });
-
-    /* === GIS opzionale (pulsante blu) === */
-    const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
-    const gsiContainer  = document.getElementById("gsi-btn");
-
-    window.addEventListener('gsi-loaded', () => {
-      try {
-        if (!window.google?.accounts?.id) return;
-
-        google.accounts.id.initialize({
-          client_id: GSI_CLIENT_ID,
-          callback: handleGoogleCredential
-        });
-
-        google.accounts.id.renderButton(
-          gsiContainer,
-          { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
-        );
-      } catch (e) {
-        console.warn('GIS init error:', e);
-      }
-    });
-
-    async function handleGoogleCredential(response) {
-      try {
-        const idToken = response.credential;
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: "google",
-          token: idToken
-        });
-        if (error) return alert("Accesso con Google non riuscito: " + error.message);
-        goDash();
-      } catch (err) {
-        alert("Errore inatteso: " + (err?.message || err));
-      }
-    }
+    (function(){
+      const els=document.querySelectorAll('.reveal');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
+      const ordered=[...els].map(el=>({el,r:el.getBoundingClientRect()}))
+        .sort((a,b)=>(a.r.top-b.r.top)||(a.r.left-b.r.left)).map(x=>x.el);
+      ordered.forEach((el,i)=> el.style.transitionDelay=(i*0.10)+'s');
+      requestAnimationFrame(()=> ordered.forEach(el=> el.classList.add('in')));
+    })();
   </script>
 </body>
 </html>
