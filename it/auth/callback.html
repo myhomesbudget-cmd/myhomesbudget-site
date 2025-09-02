@@ -1,28 +1,33 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <title>Redirect...</title>
-</head>
-<body>
-  <p>Attendi un attimo, ti stiamo reindirizzando alla tua dashboard...</p>
+<!doctype html><meta charset="utf-8">
+<title>Reindirizzamento…</title>
+<meta name="robots" content="noindex">
+<style>body{font-family:system-ui;margin:40px;text-align:center}</style>
+<script type="module">
+  import { supabase } from "/it/supabase-client.js";
 
-  <script type="module" src="/it/supabase-client.js"></script>
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  const lang = (localStorage.getItem('mhb_lang') || 'it');
+  const go = (p) => location.replace(`/${lang}/${p}.html`);
 
-    const lang = location.pathname.split('/')[1] || 'it';  
-    const goDash = () => location.replace(`/${lang}/dashboard.html`);
+  try {
+    const { data:{ session } } = await supabase.auth.getSession();
+    if (!session) return go('login');
 
-    // 🔹 Recupera la sessione dopo il login (es. magic link)
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        goDash(); // se autenticato → vai in dashboard
-      } else {
-        // fallback: se non autenticato → torna al login
-        location.replace(`/${lang}/login.html`);
-      }
-    });
-  </script>
-</body>
-</html>
+    const uid = session.user.id;
+
+    // Leggi o crea il profilo
+    let { data: profile, error } =
+      await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', uid).single();
+
+    if (error || !profile) {
+      const ins = await supabase.from('profiles')
+        .insert({ id: uid, email: session.user.email })
+        .select('onboarded, plan_type, trial_end').single();
+      profile = ins.data || { onboarded:false, plan_type:'trial' };
+    }
+
+    // eventuale paywall futuro: se scaduto trial → go('paywall')
+    return profile.onboarded ? go('dashboard') : go('onboarding');
+  } catch (e) {
+    go('login');
+  }
+</script>
