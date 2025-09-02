@@ -8,7 +8,6 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
 
-  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -20,13 +19,12 @@
                  base-uri 'self';
                  form-action 'self'">
 
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G_DUMMY"></script><!-- replace with your ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-LSD3V9G_DUMMY', { anonymize_ip: true });
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
   <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
@@ -34,23 +32,18 @@
   <link rel="icon" href="/favicon.ico">
 
   <style>
-    :root{
-      --fg:#111; --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.68);
-      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius-lg:16px; --radius-md:12px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
-    }
+    :root{--fg:#111;--glass:rgba(255,255,255,.58);--glass-strong:rgba(255,255,255,.68);
+      --card-border:rgba(0,0,0,.06);--shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px;--radius-md:12px;--grad:linear-gradient(135deg,#6c5ce7,#00cec9)}
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
     h1,h2,h3,h4,p,a,small,strong,button{font-family:inherit}
     a:focus-visible,button:focus-visible{outline:2px solid #00cec9;outline-offset:2px;border-radius:8px}
-
     body{
       margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
-    }
+      min-height:100vh;display:flex;align-items:center;justify-content:center}
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
-    /* Topbar aligned with panel */
     .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);
       width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;justify-content:flex-start}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:auto}
@@ -58,20 +51,18 @@
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .logo-link:hover .logo-text{filter:brightness(1.06)}
 
-    .paywall-panel{
-      width:min(920px,calc(100% - 40px));background:var(--glass);
+    .paywall-panel{width:min(920px,calc(100% - 40px));background:var(--glass);
       backdrop-filter:saturate(1.1) blur(8px);-webkit-backdrop-filter:saturate(1.1) blur(5px);
-      color:var(--fg);border-radius:var(--radius-lg);padding:clamp(18px,4vw,26px);box-shadow:var(--shadow)
-    }
+      color:var(--fg);border-radius:var(--radius-lg);padding:clamp(18px,4vw,26px);box-shadow:var(--shadow)}
+
     .header{text-align:center;margin-bottom:16px}
     .header h1{margin:0;color:#111;font-size:clamp(1.8rem,4.6vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
-    .header p{margin:8px 0 0;color:#111;font-weight:600;font-size:clamp(1rem,2.4vw,1.08rem);text-shadow:none}
+    .header p{margin:8px 0 0;color:#111;font-weight:600;font-size:clamp(1rem,2.4vw,1.08rem)}
     .header p::after{content:"";display:block;width:120px;height:2px;margin:10px auto 0;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.7}
 
     .plans{background:var(--glass-strong);border:1px solid var(--card-border);border-radius:16px;padding:14px;
       box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 18px}
     @media(max-width:680px){.plans{grid-template-columns:1fr}}
-
     .price-card{background:rgba(255,255,255,.52);border:1px solid var(--card-border);border-radius:12px;padding:16px;
       text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;justify-content:center}
     .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.08rem}
@@ -81,7 +72,7 @@
     .cta-group{display:flex;flex-direction:column;gap:8px}
     .btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:11px 14px;border-radius:12px;font-weight:700;text-decoration:none;
       box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease,filter .15s ease;color:#fff;background:var(--grad);text-shadow:0 1px 0 rgba(0,0,0,.18)}
-    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)} .btn:is(:active){transform:translateY(0)}
+    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}.btn:is(:active){transform:translateY(0)}
 
     .secure{width:fit-content;margin:8px auto 0;padding:6px 12px;display:flex;align-items:center;gap:8px;color:#111;font-weight:600;border-radius:999px;
       background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,linear-gradient(90deg,#6c5ce7,#00cec9) border-box;border:1px solid transparent;box-shadow:var(--shadow)}
@@ -106,7 +97,6 @@
 </head>
 <body>
 
-  <!-- Logo aligned to panel -->
   <nav class="topbar" aria-label="Logo">
     <a href="/en/" class="logo-link" title="MyHomesBudget">
       <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="lazy">
@@ -171,6 +161,8 @@
   </main>
 
   <script>
+    try { localStorage.setItem('mhb_lang','en'); } catch(e) {}
+
     gtag('event','paywall_viewed');
     document.querySelectorAll('a[data-plan][data-method]').forEach(a=>{
       a.addEventListener('click',()=>gtag('event','checkout_started',{
