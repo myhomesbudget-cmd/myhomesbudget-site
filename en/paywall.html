@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trial Ended — MyHomesBudget</title>
+  <meta name="description" content="Your free trial has ended. Choose a plan to continue using MyHomesBudget without limits.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- CSP -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G_DUMMY"></script><!-- replace with your ID -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G_DUMMY', { anonymize_ip: true });
+  </script>
+
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+  <link rel="icon" href="/favicon.ico">
+
+  <style>
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.68);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --radius-md:12px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+    }
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    h1,h2,h3,h4,p,a,small,strong,button{font-family:inherit}
+    a:focus-visible,button:focus-visible{outline:2px solid #00cec9;outline-offset:2px;border-radius:8px}
+
+    body{
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+
+    /* Topbar aligned with panel */
+    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;justify-content:flex-start}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none;pointer-events:auto}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .logo-link:hover .logo-text{filter:brightness(1.06)}
+
+    .paywall-panel{
+      width:min(920px,calc(100% - 40px));background:var(--glass);
+      backdrop-filter:saturate(1.1) blur(8px);-webkit-backdrop-filter:saturate(1.1) blur(5px);
+      color:var(--fg);border-radius:var(--radius-lg);padding:clamp(18px,4vw,26px);box-shadow:var(--shadow)
+    }
+    .header{text-align:center;margin-bottom:16px}
+    .header h1{margin:0;color:#111;font-size:clamp(1.8rem,4.6vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .header p{margin:8px 0 0;color:#111;font-weight:600;font-size:clamp(1rem,2.4vw,1.08rem);text-shadow:none}
+    .header p::after{content:"";display:block;width:120px;height:2px;margin:10px auto 0;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.7}
+
+    .plans{background:var(--glass-strong);border:1px solid var(--card-border);border-radius:16px;padding:14px;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 18px}
+    @media(max-width:680px){.plans{grid-template-columns:1fr}}
+
+    .price-card{background:rgba(255,255,255,.52);border:1px solid var(--card-border);border-radius:12px;padding:16px;
+      text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;justify-content:center}
+    .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.08rem}
+    .plan-name{font-weight:700}.sep{opacity:.45}
+    .price-inline{font-weight:800;font-size:1.2rem;line-height:1}
+    .price-inline small{font-weight:600;font-size:.9rem;color:#333}
+    .cta-group{display:flex;flex-direction:column;gap:8px}
+    .btn{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:11px 14px;border-radius:12px;font-weight:700;text-decoration:none;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease,filter .15s ease;color:#fff;background:var(--grad);text-shadow:0 1px 0 rgba(0,0,0,.18)}
+    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)} .btn:is(:active){transform:translateY(0)}
+
+    .secure{width:fit-content;margin:8px auto 0;padding:6px 12px;display:flex;align-items:center;gap:8px;color:#111;font-weight:600;border-radius:999px;
+      background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,linear-gradient(90deg,#6c5ce7,#00cec9) border-box;border:1px solid transparent;box-shadow:var(--shadow)}
+    .secure svg{flex:0 0 16px;color:#6c5ce7;opacity:.95}
+
+    .faq{margin-top:16px;padding-top:0;position:relative;color:#222;border-top:none}
+    .faq::before{content:"";display:block;height:2px;margin:14px 0 16px;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.85}
+    .faq h3{text-align:center;margin:0 0 10px}
+    .faq-item{padding:8px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+    .faq-item:last-child{border-bottom:none}
+    .faq-item strong{color:#111}
+    .faq-item p{margin:4px 0 0;color:#444}
+
+    .login{margin-top:14px;background:rgba(255,255,255,.45);border:1px solid var(--card-border);border-radius:12px;padding:12px;text-align:center;color:#222}
+    .login a{font-weight:700;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .login a:hover{text-decoration:underline}
+
+    .reveal{opacity:0;transform:translateY(16px);transition:opacity .8s ease,transform .8s cubic-bezier(.22,1,.36,1)}
+    .reveal.in{opacity:1;transform:none}
+    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+
+  <!-- Logo aligned to panel -->
+  <nav class="topbar" aria-label="Logo">
+    <a href="/en/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+  </nav>
+
+  <main class="paywall-panel">
+    <header class="header reveal">
+      <h1>Your trial has ended</h1>
+      <p>Continue using MyHomesBudget without limits by choosing a plan.</p>
+    </header>
+
+    <section class="plans reveal" aria-label="Available plans">
+      <article class="price-card" aria-label="Monthly Plan 2.99 euros per month">
+        <h2 class="plan-title">
+          <span class="plan-name">Monthly Plan</span>
+          <span class="sep">—</span>
+          <span class="price-inline">€2.99 <small>/ month</small></span>
+        </h2>
+        <div class="cta-group">
+          <a class="btn" href="/checkout/stripe?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="stripe">Pay with Stripe</a>
+          <a class="btn" href="/checkout/paypal?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="paypal">Pay with PayPal</a>
+        </div>
+      </article>
+
+      <article class="price-card" aria-label="One-time 19.99 euros forever">
+        <h2 class="plan-title">
+          <span class="plan-name">One-time</span>
+          <span class="sep">—</span>
+          <span class="price-inline">€19.99 <small>/ forever</small></span>
+        </h2>
+        <div class="cta-group">
+          <a class="btn" href="/checkout/stripe?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="stripe">Pay with Stripe</a>
+          <a class="btn" href="/checkout/paypal?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="paypal">Pay with PayPal</a>
+        </div>
+      </article>
+    </section>
+
+    <div class="secure reveal" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
+      Secure payments with Stripe & PayPal
+    </div>
+
+    <section class="faq reveal" aria-labelledby="faq-title">
+      <h3 id="faq-title">Quick questions</h3>
+      <div class="faq-item">
+        <strong>What happens to my data?</strong>
+        <p>Your data stays safe and is unlocked immediately after activation. We don’t delete anything.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Which payment methods do you accept?</strong>
+        <p>Cards via Stripe and PayPal account payments. All transactions are secure.</p>
+      </div>
+      <div class="faq-item">
+        <strong>Can I cancel the monthly plan anytime?</strong>
+        <p>Yes, anytime. You keep access until the end of the already paid period.</p>
+      </div>
+    </section>
+
+    <p class="login reveal">Already subscribed? <a href="/en/login.html">Sign in</a></p>
+  </main>
+
+  <script>
+    gtag('event','paywall_viewed');
+    document.querySelectorAll('a[data-plan][data-method]').forEach(a=>{
+      a.addEventListener('click',()=>gtag('event','checkout_started',{
+        plan:a.dataset.plan, payment_method:a.dataset.method, source:'paywall'
+      }));
+    });
+    (function(){
+      const els=document.querySelectorAll('.reveal');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
+      const ordered=[...els].map(el=>({el,r:el.getBoundingClientRect()}))
+        .sort((a,b)=>(a.r.top-b.r.top)||(a.r.left-b.r.left)).map(x=>x.el);
+      ordered.forEach((el,i)=>el.style.transitionDelay=(i*0.10)+'s');
+      requestAnimationFrame(()=>ordered.forEach(el=>el.classList.add('in')));
+    })();
+  </script>
+</body>
+</html>
