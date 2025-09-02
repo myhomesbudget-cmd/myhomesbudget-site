@@ -63,6 +63,15 @@
     }
     body::before{content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1}
 
+    /* ===== Top-left logo (come nelle altre pagine) ===== */
+    .topbar{
+      position:fixed; top:16px; left:20px; z-index:20;
+    }
+    .logo-link{display:flex; align-items:center; gap:8px; text-decoration:none}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600; color:#fff; font-size:1.05rem; text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .logo-link:hover .logo-text{filter:brightness(1.06)}
+
     /* ===== Paywall Panel ===== */
     .paywall-panel{
       width:min(920px, calc(100% - 40px));
@@ -136,7 +145,6 @@
 
     /* ===== Secure badge + separatore colorato ===== */
     .secure{
-      /* badge pill centrato con bordo a gradiente */
       width:fit-content; margin:8px auto 0; padding:6px 12px;
       display:flex; align-items:center; gap:8px;
       color:#111; font-weight:600;
@@ -149,10 +157,9 @@
     }
     .secure svg{flex:0 0 16px; color:#6c5ce7; opacity:.95}
 
-    /* separatore a gradiente full width sotto il badge */
     .faq{
       margin-top:16px; padding-top:0; position:relative; color:#222;
-      border-top:none; /* rimuove la vecchia linea grigia */
+      border-top:none;
     }
     .faq::before{
       content:""; display:block; height:2px; margin:14px 0 16px;
@@ -181,6 +188,14 @@
   </style>
 </head>
 <body>
+
+  <!-- Logo in alto a sinistra -->
+  <nav class="topbar" aria-label="Logo">
+    <a href="/it/" class="logo-link" title="myHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+  </nav>
 
   <main class="paywall-panel">
     <header class="header reveal">
