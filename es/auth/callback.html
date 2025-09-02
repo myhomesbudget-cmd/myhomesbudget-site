@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8">
+<title>Redirección…</title>
+<meta name="robots" content="noindex">
+<style>body{font-family:system-ui;margin:40px;text-align:center}</style>
+<script type="module">
+  import { supabase } from "/es/supabase-client.js";
+  const lang = (localStorage.getItem('mhb_lang') || 'es');
+  const go = (p) => location.replace(`/${lang}/${p}.html`);
+
+  try {
+    const { data:{ session } } = await supabase.auth.getSession();
+    if (!session) return go('login');
+
+    const uid = session.user.id;
+    let { data: profile, error } =
+      await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', uid).single();
+
+    if (error || !profile) {
+      const ins = await supabase.from('profiles')
+        .insert({ id: uid, email: session.user.email })
+        .select('onboarded, plan_type, trial_end').single();
+      profile = ins.data || { onboarded:false, plan_type:'trial' };
+    }
+
+    return profile.onboarded ? go('dashboard') : go('onboarding');
+  } catch { go('login'); }
+</script>
