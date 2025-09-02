@@ -7,6 +7,7 @@
   <meta name="description" content="Accedi per gestire entrate, spese e risparmi in modo semplice.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
@@ -17,7 +18,8 @@
                             https://www.googletagmanager.com
                             https://www.google-analytics.com
                             https://accounts.google.com
-                            https://apis.google.com;
+                            https://apis.google.com
+                            https://esm.sh;
                  connect-src 'self'
                              https://www.google-analytics.com
                              https://region1.google-analytics.com
@@ -49,9 +51,9 @@
 
   <style>
     :root{
-      --fg:#111; --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.68);
+      --fg:#111; --glass:rgba(255,255,255,.58);
       --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius-lg:16px; --radius-md:12px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
     }
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
@@ -101,19 +103,22 @@
 
     .divider{height:2px;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.8;margin:16px auto;width:140px}
 
-    /* Google */
+    /* Google ufficiale (GIS) */
     .row-google{display:grid;gap:8px;margin-top:6px}
-    #gsi-btn{display:flex;justify-content:center;min-height:46px;}
+    #gsi-btn{display:flex;justify-content:center;min-height:46px}
     #gsi-btn > div{margin:8px auto !important}
 
-    /* Footer */
     .foot{text-align:center;margin-top:12px;color:#333}
     .foot a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
     .foot a:hover{text-decoration:underline}
 
-    .reveal{opacity:0;transform:translateY(16px);transition:opacity .8s ease,transform .8s cubic-bezier(.22,1,.36,1)}
-    .reveal.in{opacity:1;transform:none}
-    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none}}
+    /* Reveal: visibile di default; JS la anima */
+    .reveal{opacity:1;transform:none;transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1)}
+    .js .reveal{opacity:0;transform:translateY(16px)}
+    .js .reveal.in{opacity:1;transform:none}
+    @media (prefers-reduced-motion: reduce){
+      .js .reveal, .js .reveal.in{transition:none;opacity:1;transform:none}
+    }
   </style>
 </head>
 <body>
@@ -161,17 +166,16 @@
 
     <div class="divider" aria-hidden="true"></div>
 
-    <!-- Google -->
+    <!-- Google (GIS) -->
     <section class="row-google reveal" aria-label="Accesso con Google">
       <label>Oppure continua con Google</label>
       <div id="gsi-btn"></div>
-      <button id="google-oauth" type="button" class="btn" style="width:100%">Continua con Google</button>
     </section>
 
     <p class="foot reveal">© MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a></p>
   </main>
 
-  <!-- Google Identity Services (per pulsante blu) -->
+  <!-- Google Identity Services (pulsante blu ufficiale) -->
   <script
     src="https://accounts.google.com/gsi/client"
     async defer
@@ -182,7 +186,6 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    /* lingua + redirect */
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
     const ORIGIN = window.location.origin;
     const lang   = 'it';
@@ -220,20 +223,7 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    /* Google OAuth (redirect flow) */
-    document.getElementById('google-oauth').addEventListener('click', async () => {
-      gtag('event','oauth_click',{provider:'google',lang});
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${ORIGIN}/${lang}/dashboard.html`,
-          queryParams: { prompt: 'select_account' }
-        }
-      });
-      if (error) alert('Errore Google login: ' + error.message);
-    });
-
-    /* GIS (pulsante blu) → one-tap/ID token */
+    /* GIS: bottone ufficiale con ID token → Supabase */
     const gsiContainer  = document.getElementById("gsi-btn");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
 
@@ -268,7 +258,7 @@
       }
     }
 
-    /* Reveal animazione top→bottom */
+    /* Reveal sequenziale top→bottom */
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
