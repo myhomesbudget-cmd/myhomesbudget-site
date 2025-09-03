@@ -25,7 +25,7 @@
     })();
   </script>
 
-  <!-- CSP (coerente con le altre pagine) -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -236,6 +236,9 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // lingua coerente
+    try { localStorage.setItem('mhb_lang','it'); } catch(e){}
+
     // === Config ===
     const TOTAL_STEPS = 3;
     const CATEGORIES = [
@@ -394,6 +397,7 @@
     // Init
     populateCategories();
     loadState();
+    populateFormWithState();   // ✅ ripristino UI da localStorage
     renderStep(currentStep);
   });
   </script>
