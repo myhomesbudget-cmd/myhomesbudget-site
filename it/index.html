@@ -27,6 +27,38 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
+  <!-- 🔹 NEW: gestione link da email verificata → redirect onboarding/dashboard -->
+  <script>
+    (function(){
+      // Rileva prefisso lingua, accetta /it/ o /ita/; default /it/
+      function itPrefix(){
+        var m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+        return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+      }
+      var prefix = itPrefix();
+
+      var q = new URLSearchParams(location.search);
+      var verified = q.get('verified') === '1' || q.get('status') === 'verified' || location.hash.includes('verified');
+
+      if (!verified) return; // se non arrivo dal link mail, non fare nulla
+
+      try { localStorage.setItem('email_verified','1'); } catch(e){}
+
+      try {
+        if (localStorage.getItem('onboarding_completed') === '1') {
+          // Utente ha già completato l’onboarding in passato → vai in dashboard
+          location.replace(prefix + 'dashboard.html');
+        } else {
+          // Prima volta → vai in onboarding
+          location.replace(prefix + 'onboarding.html');
+        }
+      } catch(e){
+        // Fallback: porta comunque all’onboarding
+        location.replace(prefix + 'onboarding.html');
+      }
+    })();
+  </script>
+
   <!-- Canonical + hreflang -->
   <link rel="canonical" href="https://www.myhomesbudget.com/it/" />
   <link rel="alternate" href="https://www.myhomesbudget.com/it/" hreflang="it" />
