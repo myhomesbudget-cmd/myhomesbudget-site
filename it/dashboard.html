@@ -473,5 +473,33 @@
     renderSelectors();
     refresh();
   </script>
+  <script type="module">
+  import { supabase } from "/it/supabase-client.js";
+
+  // Se non autenticato → login
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    location.replace("/it/login.html");
+  } else {
+    // Prendi il profilo e reidrata localStorage
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("onboarding_goal,onboarding_saving_method,onboarding_categories,onboarded")
+      .eq("id", user.id)
+      .single();
+
+    if (!error && profile) {
+      try {
+        localStorage.setItem("onboarding_goal", profile.onboarding_goal || "");
+        localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method || "");
+        localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories || []));
+        if (profile.onboarded) localStorage.setItem("onboarding_completed","1");
+      } catch(e){}
+    }
+
+    // Se hai una funzione che costruisce la UI dopo i dati, richiamala qui
+    if (window.mhbAfterProfileHydrated) window.mhbAfterProfileHydrated();
+  }
+</script>
 </body>
 </html>
