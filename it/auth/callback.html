@@ -1,84 +1,57 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Reindirizzamento…</title>
-<meta name="robots" content="noindex, nofollow">
-<style>
-  body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:40px; text-align:center}
-</style>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conferma account — MyHomesBudget</title>
 
-<script type="module">
-  import { supabase } from "/it/supabase-client.js";
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://esm.sh;
+                 connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
 
-  // Prefisso lingua coerente con /it/ o /ita/
-  const itPrefix = () => {
-    const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-    return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-  };
-  const go = (p) => location.replace(itPrefix() + p + ".html");
+  <style>
+    body{margin:0;font-family:-apple-system,system-ui,Roboto,sans-serif;display:grid;place-items:center;height:100svh;background:#f6f7fb;color:#111}
+    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.06);max-width:520px}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Conferma in corso…</h1>
+    <p class="muted" id="stato">Stiamo attivando il tuo account.</p>
+  </div>
 
-  // Tieni la lingua allineata
-  try { localStorage.setItem("mhb_lang","it"); } catch(e){}
+  <script type="module">
+    import { supabase } from '/it/supabase-client.js';
 
-  try {
-    // Sessione corrente
-    const { data:{ session } } = await supabase.auth.getSession();
-    if (!session) { go("login"); throw new Error("No session"); }
-
-    const user = session.user;
-    const uid  = user.id;
-
-    // 1) Upsert del profilo (allinea campi base + eventuali metadati del signup)
-    //    NOTA: non forziamo onboarded qui; lo leggiamo dopo per decidere il redirect.
-    const base = {
-      id: uid,
-      email: user.email,
-      name: user.user_metadata?.name ?? null,
-      plan_type: user.user_metadata?.plan ?? "trial"
-    };
-
-    try {
-      await supabase.from("profiles").upsert(base, { onConflict: "id" });
-    } catch (e) {
-      // non bloccare il flusso
-      console.warn("profiles upsert (callback) warning:", e?.message || e);
-    }
-
-    // 2) Leggi stato onboarding per decidere dove mandare l’utente
-    let { data: profile, error } =
-      await supabase.from("profiles")
-        .select("onboarded, onboarding_goal, onboarding_saving_method, onboarding_categories")
-        .eq("id", uid)
-        .single();
-
-    if (error) {
-      console.warn("profiles select (callback) warning:", error?.message || error);
-      // fallback prudente
-      profile = { onboarded: false };
-    }
-
-    // 3) Sincronizza localStorage per coerenza UI
-    try {
-      if (profile.onboarded) {
-        localStorage.setItem("onboarding_completed","1");
-        // opzionale: ripristino preferenze se presenti
-        if (profile.onboarding_goal)           localStorage.setItem("onboarding_goal", profile.onboarding_goal);
-        if (profile.onboarding_saving_method)  localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method);
-        if (profile.onboarding_categories)     localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories));
-      } else {
-        localStorage.removeItem("onboarding_completed");
+    // v2: se nel link c'è l'access_token, supabase-js (detectSessionInUrl:true) imposta la sessione.
+    // In alcuni casi (codice OTP/magic link) serve exchangeCodeForSession: proviamo entrambi.
+    (async () => {
+      try {
+        // tenta lo scambio codice → sessione (non fa danni se non serve)
+        await supabase.auth.exchangeCodeForSession().catch(()=>{});
+        // verifica sessione
+        const { data:{ session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          try { localStorage.setItem('onboarding_completed','0'); } catch(_){}
+          document.getElementById('stato').textContent = 'Account confermato. Reindirizzamento…';
+          setTimeout(()=> location.replace('/it/onboarding.html'), 500);
+        } else {
+          document.getElementById('stato').textContent = 'Sessione non trovata. Prova ad accedere.';
+          setTimeout(()=> location.replace('/it/login.html'), 1200);
+        }
+      } catch (e) {
+        document.getElementById('stato').textContent = 'Errore di attivazione. Prova ad accedere.';
+        setTimeout(()=> location.replace('/it/login.html'), 1500);
       }
-    } catch(e){}
-
-    // 4) Redirect finale
-    if (profile.onboarded) {
-      go("dashboard");
-    } else {
-      go("onboarding");
-    }
-  } catch (e) {
-    console.warn("Auth callback error:", e?.message || e);
-    // ripiego sicuro
-    try { localStorage.removeItem("onboarding_completed"); } catch(_){}
-    go("login");
-  }
-</script>
+    })();
+  </script>
+</body>
+</html>
