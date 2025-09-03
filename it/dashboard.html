@@ -246,11 +246,38 @@
 
   <!-- Imposta qui le ENV del progetto (oppure inietta via server) -->
   <script>
-    window.ENV = {
-  SUPABASE_URL: 'https://abcd1234.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....'
-};
-  </script>
+  window.ENV = window.ENV || {};
+  // ESEMPIO (se non già iniettati dal server)
+  // ENV.SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+  // ENV.SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+</script>
+<script type="module" src="/js/mhb.supabase.adapter.js"></script>
+<script type="module">
+  // Mappa SOLO i selettori che ESISTONO già nel tuo layout
+  import { MHB } from '/js/mhb.supabase.adapter.js';
+
+  MHB.init({
+    selectors: {
+      // opzionali: se non esistono, lo script salta la render di quella parte
+      kpiIncome: '#kpi-income',
+      kpiExpense: '#kpi-expense',
+      kpiSaving: '#kpi-saving',
+      kpiNet: '#kpi-net',
+      monthInput: '#inp-month',
+      accountSelect: '#sel-account',
+      tableBody: '#tbl-body',
+      onboardingBanner: '#onboarding-banner', // il tuo banner (se c’è)
+      userName: '#user-name',
+      householdName: '#household-name',
+      // chart canvases (se li hai già; se no vengono ignorati)
+      chartSeries: '#chart-series',
+      chartPie: '#chart-pie',
+    },
+    // opzionale: locale valuta
+    currency: 'EUR',
+    locale: 'it-IT'
+  });
+</script>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -572,5 +599,282 @@
       }
     })();
   </script>
+  // /js/mhb.supabase.adapter.js
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const fmtMoney = (n, currency='EUR', locale='it-IT') =>
+  new Intl.NumberFormat(locale, { style:'currency', currency }).format(Number(n||0));
+
+function qs(sel) { try { return sel ? document.querySelector(sel) : null; } catch { return null; } }
+
+export const MHB = (() => {
+  let supabase, USER=null, H_ID=null;
+  let cfg = { selectors:{}, currency:'EUR', locale:'it-IT' };
+
+  async function ensureAuth() {
+    const { data:{ user } } = await supabase.auth.getUser();
+    if (!user) {
+      // non cambio rotta: lascio al tuo router/guard decidere
+      console.warn('Nessun utente autenticato');
+      return null;
+    }
+    USER = user;
+    return user;
+  }
+
+  async function loadProfile() {
+    const sel = cfg.selectors;
+    try {
+      const { data, error } = await supabase.from('app.profiles')
+        .select('full_name').eq('user_id', USER.id).maybeSingle();
+      if (!error && data && sel.userName && qs(sel.userName)) {
+        qs(sel.userName).textContent = data.full_name || '—';
+      }
+    } catch {}
+  }
+
+  async function getDefaultHousehold() {
+    const sel = cfg.selectors;
+    const { data, error } = await supabase
+      .from('app.household_members')
+      .select('household_id, app.households(name)')
+      .eq('user_id', USER.id).limit(1).maybeSingle();
+    if (error) throw error;
+    H_ID = data?.household_id || null;
+    if (sel.householdName && qs(sel.householdName)) {
+      qs(sel.householdName).textContent = data?.households?.name || '—';
+    }
+    return H_ID;
+  }
+
+  async function checkOnboarding() {
+    const sel = cfg.selectors;
+    if (!sel.onboardingBanner) return;
+    const banner = qs(sel.onboardingBanner);
+    if (!banner) return;
+    try {
+      const { data, error } = await supabase
+        .from('app.onboarding_state')
+        .select('completed')
+        .eq('user_id', USER.id)
+        .maybeSingle();
+      if (error) { console.warn(error); return; }
+      banner.hidden = !!(data && data.completed);
+    } catch (e) { console.warn(e); }
+  }
+
+  async function loadAccounts() {
+    const sel = cfg.selectors;
+    if (!sel.accountSelect || !qs(sel.accountSelect)) return;
+    const el = qs(sel.accountSelect);
+    const { data, error } = await supabase
+      .from('app.accounts')
+      .select('id,name')
+      .eq('household_id', H_ID)
+      .eq('archived', false)
+      .order('name');
+    if (error) throw error;
+    // *** NON forzo una option “Tutti”: rispetto il tuo HTML. Se vuoi, mettila tu. ***
+    // Se vuoi aggiungerla via JS, decommenta:
+    // el.insertAdjacentHTML('afterbegin','<option value=\"\">Tutti</option>');
+    // Non sovrascrivo le opzioni esistenti: aggiorno se mancano
+    const existing = new Set(Array.from(el.options).map(o => o.value));
+    for (const a of data) {
+      if (!existing.has(a.id)) {
+        el.insertAdjacentHTML('beforeend', `<option value="${a.id}">${escapeHtml(a.name)}</option>`);
+      }
+    }
+  }
+
+  async function fetchMonthlyTotalsSeries() {
+    const { data, error } = await supabase
+      .from('app.v_monthly_totals')
+      .select('ym,income_total,expense_total,saving_total,net_total')
+      .eq('household_id', H_ID)
+      .order('ym', { ascending: true });
+    if (error) throw error;
+    return data||[];
+  }
+
+  async function fetchMonthlyTotalsFor(monthISO) {
+    const { data, error } = await supabase
+      .from('app.v_monthly_totals')
+      .select('ym,income_total,expense_total,saving_total,net_total')
+      .eq('household_id', H_ID)
+      .eq('ym', monthISO)
+      .maybeSingle();
+    if (error && error.code !== 'PGRST116') throw error;
+    return data || { income_total:0, expense_total:0, saving_total:0, net_total:0 };
+  }
+
+  async function fetchTransactions(monthISO, accountId) {
+    let q = supabase.from('app.v_transactions_enriched')
+      .select('id,account_id,account_name,kind,category_name,subcategory_name,occurred_at,amount,currency')
+      .eq('household_id', H_ID)
+      .eq('ym', monthISO)
+      .order('occurred_at', { ascending: false });
+    if (accountId) q = q.eq('account_id', accountId);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data||[];
+  }
+
+  async function fetchExpenseBreakdown(monthISO) {
+    const { data, error } = await supabase
+      .from('app.v_transactions_enriched')
+      .select('category_name, amount')
+      .eq('household_id', H_ID)
+      .eq('ym', monthISO)
+      .eq('kind', 'expense');
+    if (error) throw error;
+    const map = new Map();
+    for (const r of (data||[])) {
+      const key = r.category_name || '—';
+      map.set(key, (map.get(key)||0) + Number(r.amount||0));
+    }
+    return Array.from(map.entries()).map(([category,total]) => ({category,total}));
+  }
+
+  function yyyymm(date) {
+    const d = date || new Date();
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth()+1).padStart(2,'0');
+    return `${y}-${m}-01`;
+  }
+
+  function renderKPIs(sel, totals) {
+    if (sel.kpiIncome && qs(sel.kpiIncome)) qs(sel.kpiIncome).textContent = fmtMoney(totals.income_total, cfg.currency, cfg.locale);
+    if (sel.kpiExpense && qs(sel.kpiExpense)) qs(sel.kpiExpense).textContent = fmtMoney(totals.expense_total, cfg.currency, cfg.locale);
+    if (sel.kpiSaving && qs(sel.kpiSaving)) qs(sel.kpiSaving).textContent = fmtMoney(totals.saving_total, cfg.currency, cfg.locale);
+    if (sel.kpiNet && qs(sel.kpiNet)) qs(sel.kpiNet).textContent = fmtMoney(totals.net_total, cfg.currency, cfg.locale);
+  }
+
+  function renderTable(sel, rows) {
+    if (!sel.tableBody || !qs(sel.tableBody)) return;
+    const tb = qs(sel.tableBody);
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" style="opacity:.7">Nessuna transazione per il mese selezionato.</td></tr>'; return; }
+    tb.innerHTML = rows.map(r => `
+      <tr>
+        <td>${new Date(r.occurred_at).toLocaleDateString(cfg.locale)}</td>
+        <td>${escapeHtml(r.account_name||'—')}</td>
+        <td>${escapeHtml(r.kind)}</td>
+        <td>${escapeHtml(r.category_name||'—')}</td>
+        <td>${escapeHtml(r.subcategory_name||'—')}</td>
+        <td style="text-align:right">${fmtMoney(r.amount, r.currency||cfg.currency, cfg.locale)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Rendering dei grafici: SOLO se la tua pagina ha già i canvas (qui nessuna lib esterna)
+  async function renderSeries(sel, series) {
+    if (!sel.chartSeries || !qs(sel.chartSeries) || !window.Chart) return;
+    const ctx = qs(sel.chartSeries);
+    if (ctx._mhbChart) { ctx._mhbChart.destroy(); ctx._mhbChart = null; }
+    const labels = series.map(s => s.ym);
+    const income = series.map(s => s.income_total||0);
+    const expense = series.map(s => s.expense_total||0);
+    const net = series.map(s => s.net_total||0);
+    ctx._mhbChart = new window.Chart(ctx, {
+      type:'line',
+      data:{ labels, datasets:[
+        { label:'Entrate', data:income },
+        { label:'Uscite', data:expense },
+        { label:'Saldo', data:net },
+      ]},
+      options:{ responsive:true }
+    });
+  }
+
+  async function renderPie(sel, breakdown) {
+    if (!sel.chartPie || !qs(sel.chartPie) || !window.Chart) return;
+    const ctx = qs(sel.chartPie);
+    if (ctx._mhbChart) { ctx._mhbChart.destroy(); ctx._mhbChart = null; }
+    ctx._mhbChart = new window.Chart(ctx, {
+      type:'pie',
+      data:{ labels:breakdown.map(x=>x.category), datasets:[{ data:breakdown.map(x=>x.total) }]},
+      options:{ responsive:true }
+    });
+  }
+
+  async function refreshAll() {
+    const sel = cfg.selectors;
+    const monthISO = (sel.monthInput && qs(sel.monthInput) && qs(sel.monthInput).value)
+      ? (qs(sel.monthInput).value + '-01')
+      : yyyymm(new Date());
+    const accountId = (sel.accountSelect && qs(sel.accountSelect)) ? qs(sel.accountSelect).value || null : null;
+
+    const [totals, rows, series, breakdown] = await Promise.all([
+      fetchMonthlyTotalsFor(monthISO),
+      fetchTransactions(monthISO, accountId),
+      fetchMonthlyTotalsSeries(),
+      fetchExpenseBreakdown(monthISO)
+    ]);
+
+    renderKPIs(sel, totals);
+    renderTable(sel, rows);
+    await renderSeries(sel, series);
+    await renderPie(sel, breakdown);
+  }
+
+  function bindEvents() {
+    const sel = cfg.selectors;
+    if (sel.monthInput && qs(sel.monthInput)) qs(sel.monthInput).addEventListener('change', refreshAll);
+    if (sel.accountSelect && qs(sel.accountSelect)) qs(sel.accountSelect).addEventListener('change', refreshAll);
+  }
+
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+  async function init(userCfg={}) {
+    cfg = Object.assign(cfg, userCfg||{});
+    const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.ENV||{};
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { console.error('ENV Supabase mancante'); return; }
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
+
+    const user = await ensureAuth(); if (!user) return;
+    await loadProfile();
+    await getDefaultHousehold();
+    await checkOnboarding();
+    await loadAccounts();
+    bindEvents();
+    await refreshAll();
+  }
+
+  return { init };
+})();
+
+    <!-- carica la libreria Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+  <!-- la tua config ENV -->
+  <script>
+    window.ENV = {
+      SUPABASE_URL: 'https://TUO-PROGETTO.supabase.co',
+      SUPABASE_ANON_KEY: 'LA-TUA-ANON-KEY'
+    };
+  </script>
+
+  <!-- adapter Supabase che ti ho preparato -->
+  <script type="module" src="/js/mhb.supabase.adapter.js"></script>
+  <script type="module">
+    import { MHB } from '/js/mhb.supabase.adapter.js';
+    MHB.init({
+      selectors: {
+        kpiIncome: '#kpi-income',
+        kpiExpense: '#kpi-expense',
+        kpiSaving: '#kpi-saving',
+        kpiNet: '#kpi-net',
+        monthInput: '#inp-month',
+        accountSelect: '#sel-account',
+        tableBody: '#tbl-body',
+        onboardingBanner: '#onboarding',
+        userName: '#user-name',
+        householdName: '#household-name',
+        chartSeries: '#chart-series',
+        chartPie: '#chart-pie',
+      },
+      currency: 'EUR',
+      locale: 'it-IT'
+    });
+  </script>  
 </body>
 </html>
