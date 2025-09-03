@@ -221,12 +221,45 @@
     </div>
   </div>
 
-  <!-- JS: identico (signUp + messaggi) -->
+  <!-- JS: identico (signUp + messaggi) con minime aggiunte funzionali -->
   <script type="module">
     import { supabase } from '/it/supabase-client.js';
 
     const form = document.getElementById('signup-form');
     const msg  = document.getElementById('form-msg');
+
+    // Helper: prefisso lingua coerente /it/ o /ita/
+    const itPrefix = () => {
+      const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+      return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+    };
+
+    // Redirect post-auth: onboarding se non completata, altrimenti dashboard
+    function postAuthRedirect(){
+      try {
+        if (localStorage.getItem('onboarding_completed') === '1') {
+          location.replace(itPrefix() + 'dashboard.html');
+        } else {
+          location.replace(itPrefix() + 'onboarding.html');
+        }
+      } catch(e){
+        location.replace(itPrefix() + 'onboarding.html');
+      }
+    }
+
+    // Se già autenticato, porta subito a onboarding/dashboard
+    (async () => {
+      const { data:{ session } } = await supabase.auth.getSession();
+      if (session?.user) postAuthRedirect();
+    })();
+
+    // Pre-seleziona piano da querystring ?plan=monthly|lifetime|trial
+    (function presetPlanFromQuery(){
+      const plan = new URLSearchParams(location.search).get('plan');
+      if (!plan) return;
+      const radio = form.querySelector(`input[name="plan"][value="${plan}"]`);
+      if (radio) radio.checked = true;
+    })();
 
     function show(type, text){
       msg.className = 'msg ' + (type === 'error' ? 'err' : 'ok');
@@ -252,17 +285,30 @@
 
       show('ok','Creazione account in corso...');
 
+      // Imposta redirect della mail verso index con ?verified=1
+      const emailRedirectTo = `${window.location.origin}${itPrefix()}index.html?verified=1`;
+
       const { data, error } = await supabase.auth.signUp({
         email, password,
-        options: { data: { name, plan } }
+        options: {
+          data: { name, plan },
+          emailRedirectTo
+        }
       });
 
       if (error) {
         show('error', error.message);
-      } else {
-        show('ok','Ti abbiamo inviato una mail di conferma. Controlla la tua casella di posta.');
-        form.reset();
+        return;
       }
+
+      // Se la policy NON richiede conferma email e la sessione esiste, vai subito
+      if (data?.session?.access_token) {
+        postAuthRedirect();
+        return;
+      }
+
+      show('ok','Ti abbiamo inviato una mail di conferma. Controlla la tua casella di posta.');
+      form.reset();
     });
   </script>
 </body>
