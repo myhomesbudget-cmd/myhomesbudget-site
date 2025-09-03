@@ -482,6 +482,8 @@ location.replace('/it/dashboard.html');
       try {
         if (typeof gtag === 'function') gtag('event','logout',{page:'onboarding',lang:'it'});
         await supabase.auth.signOut();
+// opzionale: pulisci solo chiavi locali non persistenti
+location.replace('/it/');
       } catch (err) {
         console.warn('Logout error:', err);
       } finally {
