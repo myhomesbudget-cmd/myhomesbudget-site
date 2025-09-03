@@ -431,24 +431,35 @@ location.replace('/it/dashboard.html');
 
     // 👉 handler async per poter attendere il salvataggio su Supabase
     nextBtn.addEventListener('click', async () => {
-      if (!validateStep(currentStep)) return;
+  if (!validateStep(currentStep)) return;
 
-      if (currentStep === TOTAL_STEPS){
-        try { localStorage.setItem('onboarding_completed','1'); } catch(e){}
-        ga('event','onboarding_completed');
+  if (currentStep === TOTAL_STEPS){
+    // UI feedback
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Salvataggio...';
 
-        // Salva su DB se possibile (definita dal modulo precedente)
-        try {
-          if (window.mhbSaveOnboarding) {
-            await window.mhbSaveOnboarding(state);
-          }
-        } catch(e){ console.warn('save onboarding skipped:', e); }
-
-        location.replace(itPrefix() + 'dashboard.html');
-        return;
+    try {
+      if (window.completeOnboarding) {
+        await window.completeOnboarding(state); // salva su Supabase
+      } else {
+        // fallback: segna completato in locale
+        localStorage.setItem('onboarding_completed','1');
       }
-      currentStep++; renderStep(currentStep);
-    });
+
+      gtag('event','onboarding_completed');
+      location.replace(itPrefix() + 'dashboard.html');
+      return;
+    } catch (err) {
+      console.warn('Onboarding save error:', err);
+      showError('Errore di salvataggio. Riprova.');
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Fine';
+      return;
+    }
+  }
+
+  currentStep++; renderStep(currentStep);
+});
 
     backBtn.addEventListener('click', () => {
       if (currentStep > 1){ currentStep--; renderStep(currentStep); }
