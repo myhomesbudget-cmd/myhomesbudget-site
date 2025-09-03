@@ -273,29 +273,45 @@
     let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12
 
     function renderSelectors(){
-      yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
-      const start = new Date().getFullYear() - 1;
-      for (let y=start; y<start+12; y++){
-        const a = document.createElement('button');
-        a.className='pill'; a.textContent=y; a.setAttribute('aria-current', String(y===curYear));
-        a.addEventListener('click',()=>{curYear=y; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:curMonth});});
-        yearsRow.appendChild(a);
-      }
-      const all = document.createElement('button');
-      all.className='pill'; all.textContent='TUTTO';
-      all.addEventListener('click',()=>{curMonth=0; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:0});});
-      yearsRow.appendChild(all);
+  yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
+  const start = new Date().getFullYear() - 1;
+  for (let y=start; y<start+12; y++){
+    const a = document.createElement('button');
+    a.className='pill'; a.textContent=y;
+    a.addEventListener('click',()=>{
+      curYear=y; persistPeriod(); setActivePills(); // <— aggiorna solo “attivo”
+      refresh();                                    // <— ricalcola tabelle/grafici
+      fire('filter_change',{year:curYear,month:curMonth});
+    });
+    yearsRow.appendChild(a);
+  }
+  const all = document.createElement('button');
+  all.className='pill'; all.textContent='TUTTO';
+  all.addEventListener('click',()=>{
+    curMonth=0; persistPeriod(); setActivePills();
+    refresh();
+    fire('filter_change',{year:curYear,month:0});
+  });
+  yearsRow.appendChild(all);
 
-      monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
-      const names = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-      names.forEach((n,i)=>{
-        const m=i+1;
-        const b=document.createElement('button');
-        b.className='pill'; b.textContent=n; b.setAttribute('aria-current', String(m===curMonth));
-        b.addEventListener('click',()=>{curMonth=m; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:curMonth});});
-        monthsRow.appendChild(b);
-      });
-    }
+  monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
+  const names = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  names.forEach((n,i)=>{
+    const m=i+1;
+    const b=document.createElement('button');
+    b.className='pill'; b.textContent=n;
+    b.addEventListener('click',()=>{
+      curMonth=m; persistPeriod(); setActivePills();
+      refresh();
+      fire('filter_change',{year:curYear,month:curMonth});
+    });
+    monthsRow.appendChild(b);
+  });
+
+  // inizializza gli “attivi” al primo render
+  setActivePills();
+}
+
     function persistPeriod(){ localStorage.setItem('mhb_year',curYear); localStorage.setItem('mhb_month',curMonth); }
 
     // ---------- Tables ----------
@@ -400,11 +416,11 @@
     }
 
     function refresh(){
-      renderSelectors(); // re-paint pills to highlight current
-      const { ins, outs, sumIn, sumOut } = collectData();
-      renderTables(ins, outs);
-      renderCharts(ins, outs, sumIn, sumOut);
-    }
+  // NIENTE renderSelectors() qui — evita il flicker
+  const { ins, outs, sumIn, sumOut } = collectData();
+  renderTables(ins, outs);
+  renderCharts(ins, outs, sumIn, sumOut);
+}
 
     // ---------- Form add ----------
     const form = qs('#tx-form');
@@ -511,6 +527,20 @@
         if (opt.value) dl.appendChild(opt);
       });
     }
+    
+function setActivePills(){
+  // anni
+  qsa('#years-row .pill').forEach(btn=>{
+    const t = btn.textContent.trim();
+    const isYear = /^\d{4}$/.test(t) && Number(t)===curYear;
+    // il pill "TUTTO" non va mai attivo qui
+    btn.setAttribute('aria-current', String(isYear));
+  });
+  // mesi
+  qsa('#months-row .pill').forEach((btn,idx)=>{
+    btn.setAttribute('aria-current', String(idx === (curMonth-1)));
+  });
+}
 
     // ---------- Logout ----------
     qs('#logout-btn').addEventListener('click', async (e) => {
