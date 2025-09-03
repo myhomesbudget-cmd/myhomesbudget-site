@@ -503,5 +503,74 @@ const { data: profile } = await supabase
     if (window.mhbAfterProfileHydrated) window.mhbAfterProfileHydrated();
   }
 </script>
+  <script type="module">
+  import { supabase } from "/it/supabase-client.js";
+
+  const itPrefix = () => {
+    const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+    return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+  };
+
+  // Carica profilo e categorie dall'API e fai render della dashboard
+  async function loadProfileIntoDashboard(){
+    const { data: { user }, error: uerr } = await supabase.auth.getUser();
+    if (uerr) { console.error(uerr); return; }
+    if (!user) { location.replace(itPrefix() + "login.html"); return; }
+
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("name,onboarded,onboarding_goal,onboarding_saving_method,onboarding_categories")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      // Cache locale (opzionale)
+      if (profile?.onboarded) localStorage.setItem("onboarding_completed","1");
+      if (profile?.onboarding_goal) localStorage.setItem("onboarding_goal", profile.onboarding_goal);
+      if (profile?.onboarding_saving_method) localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method);
+      if (profile?.onboarding_categories) localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories));
+
+      // 🔸 Qui richiamare le TUE funzioni di render esistenti
+      //    Se non le hai ancora, usa i dati direttamente.
+      if (window.renderDashboardFromProfile) {
+        window.renderDashboardFromProfile(profile);
+      } else {
+        // Fallback minimale: passa le categorie alla tua init corrente
+        const cats = profile?.onboarding_categories || [];
+        if (window.renderDashboardFromLocal) window.renderDashboardFromLocal(cats);
+      }
+    } catch (err) {
+      console.error("loadProfileIntoDashboard failed:", err);
+      // Fallback a localStorage
+      try {
+        const cats = JSON.parse(localStorage.getItem("onboarding_categories") || "[]");
+        if (window.renderDashboardFromLocal) window.renderDashboardFromLocal(cats);
+      } catch(e) {}
+    }
+  }
+
+  // Modifica configurazione → onboarding in edit mode
+  document.getElementById("btn-edit-config")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    location.href = itPrefix() + "onboarding.html?edit=1";
+  });
+
+  // Logout (non cancelliamo i dati applicativi locali)
+  document.getElementById("logout-btn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("logout error", err);
+    } finally {
+      location.replace(itPrefix());
+    }
+  });
+
+  // Avvio
+  loadProfileIntoDashboard();
+</script>
 </body>
 </html>
