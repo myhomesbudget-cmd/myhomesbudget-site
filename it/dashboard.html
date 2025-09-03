@@ -4,541 +4,573 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard — MyHomesBudget</title>
-  <meta name="description" content="Riepilogo mensile di entrate, uscite e risparmi.">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Riepilogo mensile di entrate, uscite e risparmi con collegamento a Supabase." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="color-scheme" content="light dark" />
+  <script>document.documentElement.classList.add('js');</script>
 
-  <!-- CSP -->
+  <!-- CSP (allinea a quanto usi altrove) -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
-                 connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
-
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config','G-LSD3V9G957',{ anonymize_ip:true });
-  </script>
-
-  <link rel="preload" href="/bg.webp" as="image" />
-  <link rel="icon" href="/favicon.ico">
+                 script-src 'self' 'unsafe-inline'
+                            https://www.googletagmanager.com
+                            https://www.google-analytics.com
+                            https://accounts.google.com
+                            https://apis.google.com
+                            https://esm.sh;
+                 connect-src 'self' https://*.supabase.co https://www.google-analytics.com;">
 
   <style>
-    :root{
-      --fg:#111; --glass:rgba(255,255,255,.58);
-      --card-border:rgba(0,0,0,.08); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+    :root {
+      --bg: #0b0f19;          /* background scuro elegante */
+      --panel: #111827;       /* pannelli */
+      --muted: #6b7280;       /* testo secondario */
+      --text: #e5e7eb;        /* testo principale */
+      --brand: #22c55e;       /* verde brand */
+      --danger: #ef4444;      /* rosso uscite */
+      --info: #0ea5e9;        /* blu risparmio */
+      --card: #0f172a;        /* card */
+      --ring: rgba(255,255,255,0.12);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box}
-    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+    html,body { height: 100%; }
+    body {
+      margin: 0;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, Noto Sans, 'Apple Color Emoji', 'Segoe UI Emoji';
+      background: radial-gradient(1200px 600px at 100% -10%, rgba(34,197,94,.18), transparent 60%),
+                  radial-gradient(1400px 800px at -10% 20%, rgba(14,165,233,.16), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 16px 24px; position: sticky; top:0; backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(11,15,25,0.85), rgba(11,15,25,0.65));
+      border-bottom: 1px solid var(--ring);
+      z-index: 50;
+    }
+    .brand { display:flex; gap:10px; align-items:center; font-weight:700; letter-spacing:.3px; }
+    .brand .dot { width:10px; height:10px; border-radius:999px; background: var(--brand); box-shadow: 0 0 18px rgba(34,197,94,.8); }
+    .lang { display:flex; gap:8px; align-items:center; }
+    .lang a { text-decoration:none; filter: grayscale(.4) opacity(.85); }
+    .lang a.active { filter: none; }
+    .user { display:flex; gap:12px; align-items:center; }
+    .user .avatar { width:28px; height:28px; border-radius:50%; background:#1f2937; border:1px solid var(--ring); }
+    .btn { background:#1f2937; color:#fff; border:1px solid var(--ring); padding:8px 12px; border-radius:10px; cursor:pointer; }
+    .btn:hover { background:#243042; }
 
-    body{
-      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
-      min-height:100vh;
-    }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+    .grid { display:grid; gap:16px; }
+    @media (min-width: 1024px) { .grid-cols-12 { grid-template-columns: repeat(12, minmax(0,1fr)); } }
 
-    /* Topbar */
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;
-      margin-bottom:10px;
-    }
-    .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#fff}
-    .brand img{height:28px;border-radius:6px}
-    .brand span{font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:6px 10px;font-weight:700}
-    .logout{background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:6px 10px;text-decoration:none}
-    .logout:hover{background:rgba(0,0,0,.38)}
-    .link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px}
-    .link:hover{background:rgba(255,255,255,.12)}
+    .card { background: linear-gradient(180deg, rgba(17,24,39,.65), rgba(15,23,42,.85)); border:1px solid var(--ring);
+            border-radius:16px; box-shadow: var(--shadow); }
+    .card .hd { padding:14px 16px; border-bottom:1px solid var(--ring); display:flex; align-items:center; justify-content:space-between; }
+    .card .bd { padding:16px; }
 
-    /* Selettori */
-    .selectors{
-      background:var(--glass); color:var(--fg); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:10px 12px; display:grid; gap:8px;
-    }
-    .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-    .row strong{min-width:120px}
-    .pill{
-      background:#fff;border:1px solid rgba(0,0,0,.12); color:#111; border-radius:999px; padding:6px 10px; cursor:pointer;
-    }
-    .pill[aria-current="true"]{background:#111;color:#fff;border-color:#111}
+    .kpis { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+    @media (min-width: 800px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+    .kpi { padding:16px; border-radius:14px; background: var(--card); border:1px solid var(--ring); }
+    .kpi small { color: var(--muted); display:block; margin-bottom:6px; }
+    .kpi strong { font-size: 20px; letter-spacing:.2px; }
+    .ok { color: var(--brand); }
+    .bad { color: var(--danger); }
+    .info { color: var(--info); }
 
-    /* Griglia cards */
-    .grid{display:grid;gap:12px;margin-top:12px}
-    @media (min-width:1000px){
-      .grid{grid-template-columns:1.2fr 1.2fr 1.2fr 1fr}
-    }
-    .card{
-      background:var(--glass); color:var(--fg); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:12px;
-    }
-    .card h3{margin:0 0 8px;font-size:1rem;color:#111}
-    .center{display:flex;align-items:center;justify-content:center}
-
-    .kpi{
-      text-align:center;background:rgba(255,255,255,.55);border:1px solid var(--card-border);
-      border-radius:12px;padding:10px
-    }
-    .kpi .big{font-size:1.2rem;font-weight:800}
-
-    /* layout tabelle + form */
-    .grid-2{
-      display:grid;gap:12px;margin-top:12px
-    }
-    @media (min-width:1000px){
-      .grid-2{grid-template-columns:2fr 1fr}
+    .onb {
+      background: linear-gradient(180deg, rgba(34,197,94,.15), transparent 60%);
+      border:1px dashed rgba(34,197,94,.35); padding:14px; border-radius:14px; margin-bottom:12px;
     }
 
-    table{
-      width:100%;border-collapse:collapse;background:rgba(255,255,255,.55);
-      border:1px solid var(--card-border);border-radius:12px;overflow:hidden;
-    }
-    th,td{padding:10px;border-bottom:1px solid rgba(0,0,0,.06);font-size:.95rem;color:#111}
-    th{background:#fff;font-weight:800;text-align:left}
-    tr:last-child td{border-bottom:none}
-    .right{text-align:right}
-    .muted{color:#495057;font-weight:600}
-    .action{display:inline-flex;gap:6px}
-    .btn-mini{
-      border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:700
-    }
-    .btn-mini:hover{background:#f7f7f7}
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--ring); font-size: 13px; }
+    th { text-align:left; color: var(--muted); font-weight:500; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
 
-    /* form rapido */
-    .form{
-      background:rgba(255,255,255,.55);border:1px solid var(--card-border);border-radius:12px;padding:12px;color:#111
-    }
-    .form .field{display:grid;gap:6px;margin-bottom:8px}
-    .form input,.form select, .form textarea{
-      border:1px solid rgba(0,0,0,.15);border-radius:10px;padding:10px;background:#fff;color:#111;font-size:.95rem
-    }
-    .form .row{gap:8px}
-    .form .row > *{flex:1}
-    .primary{
-      background:#6c5ce7;color:#fff;border:none;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.14)
-    }
-    .primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
-    .ghost{background:transparent;border:1px solid rgba(0,0,0,.15);border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}
+    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    input, select, textarea { background:#0b1220; border:1px solid var(--ring); color:#fff; border-radius:10px; padding:8px 10px; }
+    .row { display:grid; gap:10px; grid-template-columns: repeat(12, 1fr); }
+    .col-3 { grid-column: span 3; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 6; }
+    .col-8 { grid-column: span 8; }
+    .col-12 { grid-column: span 12; }
+
+    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.02), rgba(255,255,255,.06));
+                background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius:8px; height: 18px; }
+    @keyframes shimmer { 0% { background-position: 0 0; } 100% { background-position: -200% 0; } }
+
+    footer { color: var(--muted); text-align:center; padding: 24px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Topbar -->
-    <header class="topbar">
-      <a class="brand" href="/it/" title="MyHomesBudget">
-        <img src="/homes.png" alt=""><span>myhomesbudget</span>
-      </a>
-      <div class="top-actions">
-        <span class="badge" id="welcome">Benvenuto</span>
-        <a class="link" id="edit-onb" href="/it/onboarding.html?edit=1">Modifica configurazione</a>
-        <span class="badge" id="plan-badge">Abbonamento</span>
-        <a class="logout" href="#" id="logout-btn">Esci</a>
+  <header>
+    <div class="brand"><span class="dot"></span> <span>MyHomesBudget</span></div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      <nav class="lang" aria-label="Lingua">
+        <a href="/it/dashboard" id="lng-it" title="Italiano" aria-label="Italiano">🇮🇹</a>
+        <a href="/en/dashboard" id="lng-en" title="English" aria-label="English">🇬🇧</a>
+        <a href="/es/dashboard" id="lng-es" title="Español" aria-label="Español">🇪🇸</a>
+      </nav>
+      <div class="user">
+        <div class="avatar" id="user-avatar"></div>
+        <span id="user-name" style="color:var(--muted)">—</span>
+        <button class="btn" id="btn-signout">Esci</button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- Selettori -->
-    <section class="selectors" aria-label="Filtri periodo">
-      <div class="row" id="years-row"><strong>Seleziona anno</strong></div>
-      <div class="row" id="months-row"><strong>Seleziona mese</strong></div>
-    </section>
+  <div class="container">
+    <div id="onboarding" class="onb" hidden>
+      <strong>Benvenuto! Completa l'onboarding per iniziare</strong>
+      <div style="margin-top:6px; color:var(--muted)">Imposta almeno un <em>conto</em> e verifica le <em>categorie</em> di base. Puoi farlo anche inserendo la prima transazione: ti guideremo noi.</div>
+    </div>
 
-    <!-- Charts + KPI -->
-    <section class="grid">
-      <article class="card">
-        <h3>Entrate</h3>
-        <div class="center"><canvas id="pie-in" width="240" height="220" aria-label="Grafico entrate"></canvas></div>
-      </article>
-
-      <article class="card">
-        <h3>Summary</h3>
-        <div class="center"><canvas id="pie-sum" width="240" height="220" aria-label="Grafico riepilogo"></canvas></div>
-      </article>
-
-      <article class="card">
-        <h3>Uscite</h3>
-        <div class="center"><canvas id="pie-out" width="240" height="220" aria-label="Grafico uscite"></canvas></div>
-      </article>
-
-      <article class="card kpi">
-        <h3>Totale risparmiato</h3>
-        <div class="big" id="saved-total">—</div>
-      </article>
-    </section>
-
-    <!-- Tabelle + Form -->
-    <section class="grid-2">
-      <div>
-        <article class="card">
-          <h3>Entrate</h3>
-          <table id="tbl-in">
-            <thead><tr><th>Data</th><th>Categ.</th><th>Sott. Categ.</th><th>Descrizione</th><th class="right">Importo</th><th>Azione</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </article>
-
-        <article class="card" style="margin-top:12px">
-          <h3>Uscite</h3>
-          <table id="tbl-out">
-            <thead><tr><th>Data</th><th>Categ.</th><th>Sott. Categ.</th><th>Descrizione</th><th class="right">Importo</th><th>Azione</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </article>
+    <section class="grid grid-cols-12" style="gap:16px;">
+      <div class="col-12 card">
+        <div class="hd">
+          <div class="toolbar">
+            <label><small>Mese</small><br>
+              <input type="month" id="inp-month" />
+            </label>
+            <label><small>Conto</small><br>
+              <select id="sel-account"><option value="">Tutti</option></select>
+            </label>
+            <button class="btn" id="btn-add">+ Nuova transazione</button>
+          </div>
+          <div><span id="household-name" style="color:var(--muted)">—</span></div>
+        </div>
+        <div class="bd">
+          <div class="kpis" id="kpis">
+            <div class="kpi"><small>Entrate</small><strong id="kpi-income" class="ok">—</strong></div>
+            <div class="kpi"><small>Uscite</small><strong id="kpi-expense" class="bad">—</strong></div>
+            <div class="kpi"><small>Risparmio</small><strong id="kpi-saving" class="info">—</strong></div>
+            <div class="kpi"><small>Saldo mese</small><strong id="kpi-net">—</strong></div>
+          </div>
+        </div>
       </div>
 
-      <aside class="card">
-        <h3>Nuovo movimento</h3>
-        <form id="tx-form" class="form" autocomplete="on">
-          <div class="row">
-            <label class="field">Tipo
-              <select id="tx-type">
-                <option value="in">Entrata</option>
-                <option value="out">Uscita</option>
-              </select>
-            </label>
-            <label class="field">Data
-              <input type="date" id="tx-date" required>
-            </label>
-          </div>
-          <div class="row">
-            <label class="field">Categoria
-              <!-- 🔹 suggerimenti dalle categorie dell’onboarding -->
-              <input type="text" id="tx-cat" placeholder="Es. Stipendio / Casa" list="cat-list" required>
-              <datalist id="cat-list"></datalist>
-            </label>
-            <label class="field">Sottocategoria
-              <input type="text" id="tx-sub" placeholder="Es. Agosto / Utenze" required>
-            </label>
-          </div>
-          <label class="field">Descrizione
-            <input type="text" id="tx-desc" placeholder="Nota breve">
-          </label>
-          <div class="row">
-            <label class="field">Importo (EUR)
-              <input type="number" id="tx-amt" inputmode="decimal" step="0.01" min="0" placeholder="0,00" required>
-            </label>
-            <label class="field">Ricorrente
-              <select id="tx-rec">
-                <option value="no">No</option>
-                <option value="mensile">Mensile</option>
-              </select>
-            </label>
-          </div>
-          <div class="row" style="justify-content:flex-end">
-            <button type="button" class="ghost" id="reset-form">Annulla</button>
-            <button type="submit" class="primary">Aggiungi</button>
-          </div>
-        </form>
-      </aside>
+      <div class="col-12 card">
+        <div class="hd"><strong>Andamento ultimi 12 mesi</strong></div>
+        <div class="bd"><canvas id="chart-series" height="110"></canvas></div>
+      </div>
+
+      <div class="col-12 card">
+        <div class="hd"><strong>Scomposizione uscite (mese selezionato)</strong></div>
+        <div class="bd"><canvas id="chart-pie" height="120"></canvas></div>
+      </div>
+
+      <div class="col-12 card">
+        <div class="hd"><strong>Transazioni</strong></div>
+        <div class="bd">
+          <table aria-describedby="Transazioni mese">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Conto</th>
+                <th>Tipo</th>
+                <th>Categoria</th>
+                <th>Subcat</th>
+                <th style="text-align:right">Importo</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-body">
+              <tr><td colspan="6"><div class="skeleton" style="height:22px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
+
+    <!-- Modal Add Transaction -->
+    <dialog id="dlg-add" style="border:none; background:transparent;">
+      <div class="card" style="max-width:760px; margin: 10vh auto;">
+        <div class="hd"><strong>Nuova transazione</strong><button class="btn" id="btn-close">Chiudi</button></div>
+        <div class="bd">
+          <form id="form-add" class="row" autocomplete="off">
+            <div class="col-3">
+              <label><small>Data</small><br>
+                <input type="date" id="tx-date" required />
+              </label>
+            </div>
+            <div class="col-3">
+              <label><small>Tipo</small><br>
+                <select id="tx-kind" required>
+                  <option value="income">Entrata</option>
+                  <option value="expense">Uscita</option>
+                  <option value="saving">Risparmio</option>
+                  <option value="transfer">Trasferimento</option>
+                </select>
+              </label>
+            </div>
+            <div class="col-6">
+              <label><small>Conto</small><br>
+                <select id="tx-account" required></select>
+              </label>
+            </div>
+            <div class="col-4">
+              <label><small>Categoria</small><br>
+                <select id="tx-category"></select>
+              </label>
+            </div>
+            <div class="col-4">
+              <label><small>Sottocategoria</small><br>
+                <select id="tx-subcategory"></select>
+              </label>
+            </div>
+            <div class="col-4">
+              <label><small>Importo (EUR)</small><br>
+                <input type="number" id="tx-amount" min="0" step="0.01" required />
+              </label>
+            </div>
+            <div class="col-12">
+              <label><small>Nota</small><br>
+                <textarea id="tx-note" rows="2" placeholder="Facoltativo"></textarea>
+              </label>
+            </div>
+            <div class="col-12" style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+              <button class="btn" type="button" id="btn-cancel">Annulla</button>
+              <button class="btn" type="submit" id="btn-save">Salva</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <footer>© <span id="year"></span> MyHomesBudget</footer>
   </div>
 
-  <!-- Logic -->
+  <!-- Imposta qui le ENV del progetto (oppure inietta via server) -->
+  <script>
+    window.ENV = {
+  SUPABASE_URL: 'https://abcd1234.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....'
+};
+  </script>
+
   <script type="module">
-  import { supabase } from "/it/supabase-client.js";
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    import Chart from 'https://esm.sh/chart.js@4';
 
-  // Evita doppi init per qualunque motivo (più script, estensioni, hot reload)
-  if (window.__MHB_BOOTED__) { console.debug("MHB dashboard: duplicate init skipped"); }
-  else {
-    window.__MHB_BOOTED__ = true;
-
-    // ---------- Utils ----------
-    const it = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
-    const fmt = v => it.format(Number(v||0));
-    const ymd = d => d?.slice?.(0,10) || new Date().toISOString().slice(0,10);
-    const getYM = (d)=> (d||ymd()).slice(0,7); // YYYY-MM
-    const qs = s => document.querySelector(s);
-    const qsa = s => [...document.querySelectorAll(s)];
-    const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(_){} };
-    const itPrefix = () => {
-      const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-      return m ? `/${m[1].toLowerCase()}/` : "/it/";
-    };
-
-    // ---------- Storage locale ----------
-    // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
-    const store = {
-      load(){ try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch{ return {}; } },
-      save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch{} }
-    };
-
-    // ---------- Stato periodo + selettori ----------
-    const yearsRow = qs('#years-row');
-    const monthsRow = qs('#months-row');
-    let curYear  = Number(localStorage.getItem('mhb_year'))  || new Date().getFullYear();
-    let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12, 0 = TUTTO
-
-    function persistPeriod(){
-      localStorage.setItem('mhb_year',curYear);
-      localStorage.setItem('mhb_month',curMonth);
+    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      console.error('Config Supabase mancante.');
+      alert('Config Supabase non impostata. Modifica window.ENV in fondo alla pagina.');
     }
 
-    // crea i selettori UNA VOLTA
-    function renderSelectorsOnce(){
-      yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
-      const start = new Date().getFullYear() - 1;
-      for (let y=start; y<start+12; y++){
-        const b = document.createElement('button');
-        b.className = 'pill'; b.textContent = y;
-        b.addEventListener('click', ()=>{
-          if (curYear!==y){ curYear=y; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
-        });
-        yearsRow.appendChild(b);
-      }
-      const all = document.createElement('button');
-      all.className='pill'; all.textContent='TUTTO';
-      all.addEventListener('click', ()=>{
-        if (curMonth!==0){ curMonth=0; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:0}); }
-      });
-      yearsRow.appendChild(all);
-
-      monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
-      const names = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-      names.forEach((n,i)=>{
-        const m=i+1;
-        const b=document.createElement('button');
-        b.className='pill'; b.textContent=n;
-        b.addEventListener('click', ()=>{
-          if (curMonth!==m){ curMonth=m; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
-        });
-        monthsRow.appendChild(b);
-      });
-
-      setActivePills();
-    }
-
-    function setActivePills(){
-      // anni: evidenzia l'anno o "TUTTO" (quando curMonth=0)
-      qsa('#years-row .pill').forEach(btn=>{
-        const t = btn.textContent.trim();
-        const isYear = /^\d{4}$/.test(t) && Number(t) === curYear && curMonth !== 0;
-        const isAll  = t.toUpperCase() === 'TUTTO' && curMonth === 0;
-        btn.setAttribute('aria-current', String(isYear || isAll));
-      });
-      // mesi: solo se è 1..12
-      qsa('#months-row .pill').forEach((btn, idx)=>{
-        btn.setAttribute('aria-current', String(curMonth > 0 && idx === (curMonth - 1)));
-      });
-    }
-
-    // ---------- Tabelle ----------
-    function rowHTML(e){
-      return `<tr>
-        <td class="muted">${e.date.split('-').reverse().join('/')}</td>
-        <td>${e.cat}</td>
-        <td>${e.sub}</td>
-        <td>${e.desc||''}</td>
-        <td class="right">${fmt(e.amt)}</td>
-        <td><button class="btn-mini" data-act="del" data-id="${e.id}">Elimina</button></td>
-      </tr>`;
-    }
-    function bindRowActions(type){
-      qsa(`#tbl-${type} [data-act="del"]`).forEach(btn=>{
-        btn.onclick = ()=>{
-          const id = btn.getAttribute('data-id');
-          const data = store.load();
-          const key = curMonth? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
-          if (key && data[key]) data[key][type] = data[key][type].filter(x=>x.id!==id);
-          store.save(data); fire('tx_delete',{type});
-          refresh();
-        };
-      });
-    }
-
-    // ---------- Charts (canvas, no libs) ----------
-    function drawDonut(canvas, series=[], colors=[], label=''){
-      const ctx = canvas.getContext('2d');
-      const W = canvas.width, H = canvas.height, R = Math.min(W,H)*0.42, CX = W/2, CY = H/2;
-      ctx.clearRect(0,0,W,H);
-      const total = series.reduce((s,x)=>s+x,0);
-      if (!total){
-        ctx.strokeStyle='rgba(0,0,0,.1)'; ctx.lineWidth=24;
-        ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.stroke();
-        ctx.fillStyle='#666'; ctx.font='600 14px system-ui'; ctx.textAlign='center';
-        ctx.fillText('—',CX,CY+5); return;
-      }
-      let start = -Math.PI/2; ctx.lineWidth = 24;
-      series.forEach((v,i)=>{
-        const angle = (v/total)*Math.PI*2;
-        ctx.strokeStyle = colors[i % colors.length] || '#999';
-        ctx.beginPath(); ctx.arc(CX,CY,R,start,start+angle); ctx.stroke();
-        start += angle;
-      });
-      ctx.fillStyle='#111'; ctx.font='700 14px system-ui'; ctx.textAlign='center';
-      ctx.fillText(label, CX, CY+5);
-    }
-
-    // ---------- Compute ----------
-    function collectData(){
-      const data = store.load();
-
-      // “TUTTO” = aggrega tutto l’anno corrente
-      if (curMonth === 0){
-        const ins = [], outs = [];
-        for (let m=1; m<=12; m++){
-          const key = `${curYear}-${String(m).padStart(2,'0')}`;
-          if (data[key]?.in)  ins.push(...data[key].in);
-          if (data[key]?.out) outs.push(...data[key].out);
-        }
-        const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-        const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-        return { ins, outs, sumIn, sumOut };
-      }
-
-      const key = `${curYear}-${String(curMonth).padStart(2,'0')}`;
-      const ins  = data[key]?.in  || [];
-      const outs = data[key]?.out || [];
-      const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-      const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-      return { ins, outs, sumIn, sumOut };
-    }
-
-    function renderTables(ins, outs){
-      const tin = qs('#tbl-in tbody'); const tout = qs('#tbl-out tbody');
-      tin.innerHTML  = ins.length  ? ins.map(rowHTML).join('')  : `<tr><td colspan="6" class="muted">Nessuna entrata nel periodo</td></tr>`;
-      tout.innerHTML = outs.length ? outs.map(rowHTML).join('') : `<tr><td colspan="6" class="muted">Nessuna uscita nel periodo</td></tr>`;
-      bindRowActions('in'); bindRowActions('out');
-    }
-
-    function renderCharts(ins, outs, sumIn, sumOut){
-      const inByCat = {}; ins.forEach(x=> inByCat[x.cat]=(inByCat[x.cat]||0)+x.amt);
-      const outByCat = {}; outs.forEach(x=> outByCat[x.cat]=(outByCat[x.cat]||0)+x.amt);
-
-      const inVals  = Object.values(inByCat);
-      const outVals = Object.values(outByCat);
-
-      const saved = Math.max(0, sumIn - sumOut);
-      const sumVals = [sumIn, sumOut, saved];
-
-      drawDonut(qs('#pie-in'),  inVals,  ['#2ecc71','#27ae60','#7bed9f','#55efc4','#00cec9'], sumIn ? fmt(sumIn) : '');
-      drawDonut(qs('#pie-out'), outVals, ['#ff7675','#e17055','#fab1a0','#fdcb6e','#e84393'], sumOut ? fmt(sumOut) : '');
-      drawDonut(qs('#pie-sum'), sumVals, ['#6c5ce7','#ff7675','#00cec9'], fmt(saved));
-
-      qs('#saved-total').textContent = fmt(saved);
-    }
-
-    // ---------- Refresh (debounced su RAF) ----------
-    function refreshNow(){
-      const { ins, outs, sumIn, sumOut } = collectData();
-      renderTables(ins, outs);
-      renderCharts(ins, outs, sumIn, sumOut);
-    }
-    const refresh = (()=>{ let raf=0; return ()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(refreshNow); }; })();
-
-    // ---------- Form add ----------
-    const form = qs('#tx-form');
-    const resetBtn = qs('#reset-form');
-    form.tx_date = qs('#tx-date'); form.tx_date.value = ymd(new Date().toISOString());
-    resetBtn.addEventListener('click', e=>{ e.preventDefault(); form.reset(); form.tx_date.value=ymd(new Date().toISOString()); });
-
-    form.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const type = qs('#tx-type').value;                 // in | out
-      const date = qs('#tx-date').value || ymd();
-      const cat  = qs('#tx-cat').value.trim();
-      const sub  = qs('#tx-sub').value.trim();
-      const desc = qs('#tx-desc').value.trim();
-      const amt  = Number((qs('#tx-amt').value||'').replace(',','.'));
-      const rec  = qs('#tx-rec').value;                  // no | mensile
-      if (!cat || !sub || !amt || amt<=0){ alert('Compila correttamente i campi obbligatori.'); return; }
-
-      const data = store.load();
-      const ym = getYM(date);
-      data[ym] = data[ym] || { in:[], out:[] };
-      const entry = { id:crypto.randomUUID(), date, cat, sub, desc, amt, rec };
-      data[ym][type].push(entry);
-
-      if (rec==='mensile'){
-        const d = new Date(date);
-        for (let i=1;i<= (12 - d.getMonth() - 1); i++){
-          const nd = new Date(d); nd.setMonth(d.getMonth()+i);
-          const nym = getYM(nd.toISOString());
-          data[nym] = data[nym] || { in:[], out:[] };
-          data[nym][type].push({ ...entry, id:crypto.randomUUID(), date: ymd(nd.toISOString()) });
-        }
-      }
-
-      store.save(data);
-      fire('tx_add',{type,amt,rec});
-      form.reset(); form.tx_date.value = ymd(new Date().toISOString());
-      refresh();
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
 
-    // ---------- Hydration Supabase (no loop, no flicker) ----------
-    async function hydrateFromSupabase(){
-      const { data:{ user } } = await supabase.auth.getUser();
-      if (!user){ location.replace(itPrefix() + "login.html"); return; }
+    // UI refs
+    const yearEl = document.getElementById('year');
+    const avatarEl = document.getElementById('user-avatar');
+    const nameEl = document.getElementById('user-name');
+    const signOutBtn = document.getElementById('btn-signout');
+    const kpiIncome = document.getElementById('kpi-income');
+    const kpiExpense = document.getElementById('kpi-expense');
+    const kpiSaving = document.getElementById('kpi-saving');
+    const kpiNet = document.getElementById('kpi-net');
+    const monthInput = document.getElementById('inp-month');
+    const tableBody = document.getElementById('tbl-body');
+    const onb = document.getElementById('onboarding');
+    const dlg = document.getElementById('dlg-add');
+    const btnAdd = document.getElementById('btn-add');
+    const btnClose = document.getElementById('btn-close');
+    const btnCancel = document.getElementById('btn-cancel');
+    const formAdd = document.getElementById('form-add');
+    const selAccount = document.getElementById('sel-account');
 
-      // badge
-      const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Utente';
-      qs('#welcome').textContent = `Benvenuto — ${name}`;
-      const planMeta = user?.user_metadata?.plan;
-      if (planMeta) qs('#plan-badge').textContent = (planMeta==='lifetime'?'Permanente':(planMeta==='monthly'?'Mensile':'Prova'));
+    const txDate = document.getElementById('tx-date');
+    const txKind = document.getElementById('tx-kind');
+    const txAccount = document.getElementById('tx-account');
+    const txCategory = document.getElementById('tx-category');
+    const txSubcategory = document.getElementById('tx-subcategory');
+    const txAmount = document.getElementById('tx-amount');
+    const txNote = document.getElementById('tx-note');
 
-      // profilo
-      try{
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('onboarded,onboarding_goal,onboarding_saving_method,onboarding_categories,plan_type')
-          .eq('id', user.id).single();
+    const householdNameEl = document.getElementById('household-name');
+
+    let chartSeries, chartPie;
+    let CURRENT_USER = null;
+    let HOUSEHOLD_ID = null;
+
+    const fmt = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' });
+
+    function firstOfMonth(d = new Date()) {
+      return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
+    }
+    function toISODateUTC(date) {
+      // YYYY-MM-DD
+      return date.toISOString().slice(0,10);
+    }
+
+    // Auth guard
+    async function ensureAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        location.href = '/login';
+        return null;
+      }
+      CURRENT_USER = user;
+      return user;
+    }
+
+    async function loadProfile() {
+      try {
+        const { data, error } = await supabase.from('app.profiles').select('full_name, avatar_url, locale').eq('user_id', CURRENT_USER.id).maybeSingle();
         if (error) throw error;
-
-        if (!profile?.onboarded){ location.replace(itPrefix() + 'onboarding.html'); return; }
-
-        if (Array.isArray(profile.onboarding_categories)){
-          localStorage.setItem('onboarding_categories', JSON.stringify(profile.onboarding_categories));
-          populateCategoryDatalist(profile.onboarding_categories);
-        } else {
-          const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
-          populateCategoryDatalist(cats);
+        nameEl.textContent = data?.full_name || 'Utente';
+        if (data?.avatar_url) {
+          avatarEl.style.backgroundImage = `url(${CSS.escape(data.avatar_url)})`;
+          avatarEl.style.backgroundSize = 'cover';
         }
-
-        if (!planMeta && profile?.plan_type){
-          qs('#plan-badge').textContent = (profile.plan_type==='lifetime'?'Permanente':(profile.plan_type==='monthly'?'Mensile':'Prova'));
-        }
-      } catch(err){
-        console.warn('profile load failed:', err);
-        const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
-        populateCategoryDatalist(cats);
-      }
+      } catch (e) { console.warn(e); }
     }
 
-    function populateCategoryDatalist(cats){
-      const dl = qs('#cat-list'); if (!dl) return;
-      dl.innerHTML = '';
-      (cats||[]).forEach(c=>{
-        const opt = document.createElement('option');
-        opt.value = typeof c === 'string' ? c : (c.name || '');
-        if (opt.value) dl.appendChild(opt);
+    async function getDefaultHousehold() {
+      const { data: hm, error } = await supabase
+        .from('app.household_members')
+        .select('household_id, role, app.households(name)')
+        .eq('user_id', CURRENT_USER.id)
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      HOUSEHOLD_ID = hm?.household_id;
+      householdNameEl.textContent = hm?.households?.name || '—';
+      return HOUSEHOLD_ID;
+    }
+
+    async function checkOnboarding() {
+      const { data, error } = await supabase
+        .from('app.onboarding_state')
+        .select('completed')
+        .eq('user_id', CURRENT_USER.id)
+        .maybeSingle();
+      if (error) { console.warn(error); }
+      onb.hidden = !!(data && data.completed);
+    }
+
+    async function loadAccounts() {
+      const { data, error } = await supabase
+        .from('app.accounts')
+        .select('id, name')
+        .eq('household_id', HOUSEHOLD_ID)
+        .eq('archived', false)
+        .order('name');
+      if (error) throw error;
+      // Fill filters and modal select
+      selAccount.innerHTML = '<option value="">Tutti</option>' + data.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+      txAccount.innerHTML = data.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
+    }
+
+    async function loadCategories(kind = 'expense') {
+      const { data: cats, error } = await supabase
+        .from('app.categories')
+        .select('id, name, kind')
+        .eq('household_id', HOUSEHOLD_ID)
+        .eq('kind', kind)
+        .order('position');
+      if (error) throw error;
+      txCategory.innerHTML = '<option value="">—</option>' + cats.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+      txSubcategory.innerHTML = '<option value="">—</option>';
+      txCategory.onchange = async () => {
+        const catId = txCategory.value;
+        if (!catId) { txSubcategory.innerHTML = '<option value="">—</option>'; return; }
+        const { data: subs, error: e2 } = await supabase
+          .from('app.subcategories')
+          .select('id, name')
+          .eq('category_id', catId)
+          .order('position');
+        if (e2) { console.warn(e2); return; }
+        txSubcategory.innerHTML = '<option value="">—</option>' + subs.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+      };
+    }
+
+    async function fetchMonthlyTotalsSeries() {
+      const { data, error } = await supabase
+        .from('app.v_monthly_totals')
+        .select('ym, income_total, expense_total, saving_total, net_total')
+        .eq('household_id', HOUSEHOLD_ID)
+        .order('ym', { ascending: true });
+      if (error) throw error;
+      return data;
+    }
+
+    async function fetchMonthlyTotalsFor(monthISO) {
+      const { data, error } = await supabase
+        .from('app.v_monthly_totals')
+        .select('ym, income_total, expense_total, saving_total, net_total')
+        .eq('household_id', HOUSEHOLD_ID)
+        .eq('ym', monthISO)
+        .maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error; // not found is ok
+      return data || { income_total: 0, expense_total: 0, saving_total: 0, net_total: 0 };
+    }
+
+    async function fetchTransactions(monthISO) {
+      let q = supabase
+        .from('app.v_transactions_enriched')
+        .select('id, account_name, kind, category_name, subcategory_name, occurred_at, amount, currency')
+        .eq('household_id', HOUSEHOLD_ID)
+        .eq('ym', monthISO)
+        .order('occurred_at', { ascending: false });
+      if (selAccount.value) q = q.eq('account_id', selAccount.value);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data;
+    }
+
+    async function fetchExpenseBreakdown(monthISO) {
+      const { data, error } = await supabase
+        .from('app.v_transactions_enriched')
+        .select('category_name, amount')
+        .eq('household_id', HOUSEHOLD_ID)
+        .eq('ym', monthISO)
+        .eq('kind', 'expense');
+      if (error) throw error;
+      // aggregate by category_name
+      const map = new Map();
+      for (const r of data) {
+        map.set(r.category_name || '—', (map.get(r.category_name || '—') || 0) + Number(r.amount));
+      }
+      return Array.from(map.entries()).map(([category, total]) => ({ category, total }));
+    }
+
+    function renderKPIs(tot) {
+      kpiIncome.textContent = fmt.format(tot.income_total || 0);
+      kpiExpense.textContent = fmt.format(tot.expense_total || 0);
+      kpiSaving.textContent = fmt.format(tot.saving_total || 0);
+      kpiNet.textContent = fmt.format(tot.net_total || 0);
+      kpiNet.classList.toggle('ok', (tot.net_total||0) >= 0);
+      kpiNet.classList.toggle('bad', (tot.net_total||0) < 0);
+    }
+
+    function renderTable(rows) {
+      if (!rows.length) { tableBody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Nessuna transazione nel mese selezionato.</td></tr>'; return; }
+      tableBody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${new Date(r.occurred_at).toLocaleDateString('it-IT')}</td>
+          <td>${escapeHtml(r.account_name||'—')}</td>
+          <td>${escapeHtml(r.kind)}</td>
+          <td>${escapeHtml(r.category_name||'—')}</td>
+          <td>${escapeHtml(r.subcategory_name||'—')}</td>
+          <td style="text-align:right">${fmt.format(r.amount)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderSeries(series) {
+      const ctx = document.getElementById('chart-series');
+      const labels = series.map(x => x.ym);
+      const income = series.map(x => x.income_total||0);
+      const expense = series.map(x => x.expense_total||0);
+      const net = series.map(x => x.net_total||0);
+      if (chartSeries) chartSeries.destroy();
+      chartSeries = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [
+          { label: 'Entrate', data: income },
+          { label: 'Uscite', data: expense },
+          { label: 'Saldo', data: net }
+        ]},
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#cbd5e1' } } },
+          scales: {
+            x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+            y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+          }
+        }
       });
     }
 
-    // ---------- Logout ----------
-    qs('#logout-btn').addEventListener('click', async (e) => {
-      e.preventDefault();
-      fire('logout',{page:'dashboard',lang:'it'});
-      try { await supabase.auth.signOut(); } catch (err) { console.warn('logout error:', err); }
-      finally { location.replace(itPrefix()); }
-    });
+    function renderPie(entries) {
+      const ctx = document.getElementById('chart-pie');
+      const labels = entries.map(e => e.category);
+      const values = entries.map(e => e.total);
+      if (chartPie) chartPie.destroy();
+      chartPie = new Chart(ctx, {
+        type: 'pie',
+        data: { labels, datasets: [{ data: values }]},
+        options: { plugins: { legend: { labels: { color: '#cbd5e1' } } } }
+      });
+    }
 
-    // ---------- Boot ----------
-    fire('dashboard_viewed',{lang:'it'});
-    renderSelectorsOnce();      // crea i selettori solo una volta
-    await hydrateFromSupabase(); // badge + categorie
-    refresh();                  // primo render
-  }
-</script>
+    // Add transaction
+    async function handleSaveTx(ev) {
+      ev.preventDefault();
+      const dateVal = txDate.value; // YYYY-MM-DD local
+      const kind = txKind.value;
+      const account_id = txAccount.value;
+      const category_id = txCategory.value || null;
+      const subcategory_id = txSubcategory.value || null;
+      const amount = Number(txAmount.value);
+      const note = txNote.value || null;
+      if (!dateVal || !account_id || !kind || !amount) return;
+      // Save occurred_at in UTC noon to avoid TZ edge cases
+      const occurred_at = new Date(dateVal + 'T12:00:00Z').toISOString();
+      const payload = { household_id: HOUSEHOLD_ID, account_id, kind, category_id, subcategory_id, amount, currency:'EUR', occurred_at, note, created_by: CURRENT_USER.id };
+      const { error } = await supabase.from('app.transactions').insert(payload);
+      if (error) { console.error(error); alert('Errore salvataggio transazione'); return; }
+      dlg.close(); formAdd.reset();
+      await refreshAll();
+    }
+
+    async function refreshAll() {
+      const monthVal = monthInput.value || toISODateUTC(firstOfMonth()); // YYYY-MM
+      const monthISO = monthVal.length === 7 ? monthVal + '-01' : monthVal; // YYYY-MM-01
+      const [totals, rows, series, pie] = await Promise.all([
+        fetchMonthlyTotalsFor(monthISO),
+        fetchTransactions(monthISO),
+        fetchMonthlyTotalsSeries(),
+        fetchExpenseBreakdown(monthISO)
+      ]);
+      renderKPIs(totals);
+      renderTable(rows);
+      renderSeries(series);
+      renderPie(pie);
+    }
+
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+    }
+
+    // Events
+    signOutBtn.addEventListener('click', async () => { await supabase.auth.signOut(); location.href = '/login'; });
+    monthInput.addEventListener('change', refreshAll);
+    selAccount.addEventListener('change', refreshAll);
+    btnAdd.addEventListener('click', () => { dlg.showModal(); });
+    btnClose.addEventListener('click', () => dlg.close());
+    btnCancel.addEventListener('click', () => dlg.close());
+    formAdd.addEventListener('submit', handleSaveTx);
+
+    // Init
+    (async function init(){
+      try {
+        yearEl.textContent = new Date().getFullYear();
+        const user = await ensureAuth(); if (!user) return;
+        await loadProfile();
+        await getDefaultHousehold();
+        await checkOnboarding();
+        await loadAccounts();
+        await loadCategories('expense');
+        // Default month = current
+        const now = new Date();
+        monthInput.value = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}`;
+        txDate.valueAsDate = new Date();
+        await refreshAll();
+      } catch (e) {
+        console.error(e);
+        alert('Errore di inizializzazione dashboard. Verifica policy RLS e viste.');
+      }
+    })();
+  </script>
 </body>
 </html>
