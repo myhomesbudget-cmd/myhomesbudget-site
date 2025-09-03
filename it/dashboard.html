@@ -320,7 +320,7 @@
       <section id="cfg-summary-card" class="card" aria-label="Riepilogo configurazione">
         <header class="cfg-hd">
           <h2>La tua configurazione</h2>
-          <button id="cfg-edit" type="button" class="cfg-btn">Modifica</button>
+          <a id="cfg-edit" class="cfg-btn" href="/it/onboarding.html?edit=1" role="button">Modifica</a>
         </header>
         <ul class="cfg-list" id="cfg-list">
           <li><span>Obiettivo</span><strong id="cfg-goal">—</strong></li>
@@ -341,10 +341,10 @@
   <script>
   (function(){
     // --- Utils & locale ---
-    const itPrefix = () => {
-      const m = location.pathname.match(/^\\/(it|ita)(\\/|$)/i);
-      return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-    };
+    function itPrefix(){
+  const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+  return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+      
     const locale = navigator.language || 'it-IT';
     const currency = 'EUR';
     const fmt = (v) => new Intl.NumberFormat(locale, { style:'currency', currency }).format(v || 0);
@@ -388,7 +388,18 @@
       const elMeth = document.getElementById('cfg-method');
       const elCats = document.getElementById('cfg-cats');
       const elCTA  = document.getElementById('cfg-cta');
-      const btnEdit= document.getElementById('cfg-edit');
+      const btnEdit = document.getElementById('cfg-edit');
+if (btnEdit){
+  btnEdit.addEventListener('click', (e)=>{
+    gtag('event','dashboard_onboarding_edit_click');
+    // Se l'href non c'è o è un placeholder, usa il prefisso lingua
+    const href = btnEdit.getAttribute('href') || '';
+    if (!href || href === '#'){
+      e.preventDefault();
+      location.href = itPrefix() + 'onboarding.html?edit=1';
+    }
+  });
+}
 
       if (obCompleted){
         elGoal.textContent = obGoal || '—';
