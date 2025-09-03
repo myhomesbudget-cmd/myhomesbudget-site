@@ -1,880 +1,136 @@
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard — MyHomesBudget</title>
-  <meta name="description" content="Riepilogo mensile di entrate, uscite e risparmi con collegamento a Supabase." />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="color-scheme" content="light dark" />
-  <script>document.documentElement.classList.add('js');</script>
-
-  <!-- CSP (allinea a quanto usi altrove) -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline'
-                            https://www.googletagmanager.com
-                            https://www.google-analytics.com
-                            https://accounts.google.com
-                            https://apis.google.com
-                            https://esm.sh;
-                 connect-src 'self' https://*.supabase.co https://www.google-analytics.com;">
-
-  <style>
-    :root {
-      --bg: #0b0f19;          /* background scuro elegante */
-      --panel: #111827;       /* pannelli */
-      --muted: #6b7280;       /* testo secondario */
-      --text: #e5e7eb;        /* testo principale */
-      --brand: #22c55e;       /* verde brand */
-      --danger: #ef4444;      /* rosso uscite */
-      --info: #0ea5e9;        /* blu risparmio */
-      --card: #0f172a;        /* card */
-      --ring: rgba(255,255,255,0.12);
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
-    html,body { height: 100%; }
-    body {
-      margin: 0;
-      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, Noto Sans, 'Apple Color Emoji', 'Segoe UI Emoji';
-      background: radial-gradient(1200px 600px at 100% -10%, rgba(34,197,94,.18), transparent 60%),
-                  radial-gradient(1400px 800px at -10% 20%, rgba(14,165,233,.16), transparent 60%),
-                  var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-    header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 16px 24px; position: sticky; top:0; backdrop-filter: blur(8px);
-      background: linear-gradient(180deg, rgba(11,15,25,0.85), rgba(11,15,25,0.65));
-      border-bottom: 1px solid var(--ring);
-      z-index: 50;
-    }
-    .brand { display:flex; gap:10px; align-items:center; font-weight:700; letter-spacing:.3px; }
-    .brand .dot { width:10px; height:10px; border-radius:999px; background: var(--brand); box-shadow: 0 0 18px rgba(34,197,94,.8); }
-    .lang { display:flex; gap:8px; align-items:center; }
-    .lang a { text-decoration:none; filter: grayscale(.4) opacity(.85); }
-    .lang a.active { filter: none; }
-    .user { display:flex; gap:12px; align-items:center; }
-    .user .avatar { width:28px; height:28px; border-radius:50%; background:#1f2937; border:1px solid var(--ring); }
-    .btn { background:#1f2937; color:#fff; border:1px solid var(--ring); padding:8px 12px; border-radius:10px; cursor:pointer; }
-    .btn:hover { background:#243042; }
-
-    .grid { display:grid; gap:16px; }
-    @media (min-width: 1024px) { .grid-cols-12 { grid-template-columns: repeat(12, minmax(0,1fr)); } }
-
-    .card { background: linear-gradient(180deg, rgba(17,24,39,.65), rgba(15,23,42,.85)); border:1px solid var(--ring);
-            border-radius:16px; box-shadow: var(--shadow); }
-    .card .hd { padding:14px 16px; border-bottom:1px solid var(--ring); display:flex; align-items:center; justify-content:space-between; }
-    .card .bd { padding:16px; }
-
-    .kpis { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
-    @media (min-width: 800px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } }
-    .kpi { padding:16px; border-radius:14px; background: var(--card); border:1px solid var(--ring); }
-    .kpi small { color: var(--muted); display:block; margin-bottom:6px; }
-    .kpi strong { font-size: 20px; letter-spacing:.2px; }
-    .ok { color: var(--brand); }
-    .bad { color: var(--danger); }
-    .info { color: var(--info); }
-
-    .onb {
-      background: linear-gradient(180deg, rgba(34,197,94,.15), transparent 60%);
-      border:1px dashed rgba(34,197,94,.35); padding:14px; border-radius:14px; margin-bottom:12px;
-    }
-
-    table { width:100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--ring); font-size: 13px; }
-    th { text-align:left; color: var(--muted); font-weight:500; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
-
-    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    input, select, textarea { background:#0b1220; border:1px solid var(--ring); color:#fff; border-radius:10px; padding:8px 10px; }
-    .row { display:grid; gap:10px; grid-template-columns: repeat(12, 1fr); }
-    .col-3 { grid-column: span 3; }
-    .col-4 { grid-column: span 4; }
-    .col-6 { grid-column: span 6; }
-    .col-8 { grid-column: span 8; }
-    .col-12 { grid-column: span 12; }
-
-    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.02), rgba(255,255,255,.06));
-                background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius:8px; height: 18px; }
-    @keyframes shimmer { 0% { background-position: 0 0; } 100% { background-position: -200% 0; } }
-
-    footer { color: var(--muted); text-align:center; padding: 24px; }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="brand"><span class="dot"></span> <span>MyHomesBudget</span></div>
-    <div style="display:flex; gap:16px; align-items:center;">
-      <nav class="lang" aria-label="Lingua">
-        <a href="/it/dashboard" id="lng-it" title="Italiano" aria-label="Italiano">🇮🇹</a>
-        <a href="/en/dashboard" id="lng-en" title="English" aria-label="English">🇬🇧</a>
-        <a href="/es/dashboard" id="lng-es" title="Español" aria-label="Español">🇪🇸</a>
-      </nav>
-      <div class="user">
-        <div class="avatar" id="user-avatar"></div>
-        <span id="user-name" style="color:var(--muted)">—</span>
-        <button class="btn" id="btn-signout">Esci</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="container">
-    <div id="onboarding" class="onb" hidden>
-      <strong>Benvenuto! Completa l'onboarding per iniziare</strong>
-      <div style="margin-top:6px; color:var(--muted)">Imposta almeno un <em>conto</em> e verifica le <em>categorie</em> di base. Puoi farlo anche inserendo la prima transazione: ti guideremo noi.</div>
-    </div>
-
-    <section class="grid grid-cols-12" style="gap:16px;">
-      <div class="col-12 card">
-        <div class="hd">
-          <div class="toolbar">
-            <label><small>Mese</small><br>
-              <input type="month" id="inp-month" />
-            </label>
-            <label><small>Conto</small><br>
-              <select id="sel-account"><option value="">Tutti</option></select>
-            </label>
-            <button class="btn" id="btn-add">+ Nuova transazione</button>
-          </div>
-          <div><span id="household-name" style="color:var(--muted)">—</span></div>
-        </div>
-        <div class="bd">
-          <div class="kpis" id="kpis">
-            <div class="kpi"><small>Entrate</small><strong id="kpi-income" class="ok">—</strong></div>
-            <div class="kpi"><small>Uscite</small><strong id="kpi-expense" class="bad">—</strong></div>
-            <div class="kpi"><small>Risparmio</small><strong id="kpi-saving" class="info">—</strong></div>
-            <div class="kpi"><small>Saldo mese</small><strong id="kpi-net">—</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 card">
-        <div class="hd"><strong>Andamento ultimi 12 mesi</strong></div>
-        <div class="bd"><canvas id="chart-series" height="110"></canvas></div>
-      </div>
-
-      <div class="col-12 card">
-        <div class="hd"><strong>Scomposizione uscite (mese selezionato)</strong></div>
-        <div class="bd"><canvas id="chart-pie" height="120"></canvas></div>
-      </div>
-
-      <div class="col-12 card">
-        <div class="hd"><strong>Transazioni</strong></div>
-        <div class="bd">
-          <table aria-describedby="Transazioni mese">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Conto</th>
-                <th>Tipo</th>
-                <th>Categoria</th>
-                <th>Subcat</th>
-                <th style="text-align:right">Importo</th>
-              </tr>
-            </thead>
-            <tbody id="tbl-body">
-              <tr><td colspan="6"><div class="skeleton" style="height:22px"></div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Modal Add Transaction -->
-    <dialog id="dlg-add" style="border:none; background:transparent;">
-      <div class="card" style="max-width:760px; margin: 10vh auto;">
-        <div class="hd"><strong>Nuova transazione</strong><button class="btn" id="btn-close">Chiudi</button></div>
-        <div class="bd">
-          <form id="form-add" class="row" autocomplete="off">
-            <div class="col-3">
-              <label><small>Data</small><br>
-                <input type="date" id="tx-date" required />
-              </label>
-            </div>
-            <div class="col-3">
-              <label><small>Tipo</small><br>
-                <select id="tx-kind" required>
-                  <option value="income">Entrata</option>
-                  <option value="expense">Uscita</option>
-                  <option value="saving">Risparmio</option>
-                  <option value="transfer">Trasferimento</option>
-                </select>
-              </label>
-            </div>
-            <div class="col-6">
-              <label><small>Conto</small><br>
-                <select id="tx-account" required></select>
-              </label>
-            </div>
-            <div class="col-4">
-              <label><small>Categoria</small><br>
-                <select id="tx-category"></select>
-              </label>
-            </div>
-            <div class="col-4">
-              <label><small>Sottocategoria</small><br>
-                <select id="tx-subcategory"></select>
-              </label>
-            </div>
-            <div class="col-4">
-              <label><small>Importo (EUR)</small><br>
-                <input type="number" id="tx-amount" min="0" step="0.01" required />
-              </label>
-            </div>
-            <div class="col-12">
-              <label><small>Nota</small><br>
-                <textarea id="tx-note" rows="2" placeholder="Facoltativo"></textarea>
-              </label>
-            </div>
-            <div class="col-12" style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
-              <button class="btn" type="button" id="btn-cancel">Annulla</button>
-              <button class="btn" type="submit" id="btn-save">Salva</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </dialog>
-
-    <footer>© <span id="year"></span> MyHomesBudget</footer>
-  </div>
-
-  <!-- Imposta qui le ENV del progetto (oppure inietta via server) -->
-  <script>
-  window.ENV = window.ENV || {};
-  // ESEMPIO (se non già iniettati dal server)
-  // ENV.SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-  // ENV.SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
-</script>
-<script type="module" src="/js/mhb.supabase.adapter.js"></script>
-<script type="module">
-  // Mappa SOLO i selettori che ESISTONO già nel tuo layout
-  import { MHB } from '/js/mhb.supabase.adapter.js';
-
-  MHB.init({
-    selectors: {
-      // opzionali: se non esistono, lo script salta la render di quella parte
-      kpiIncome: '#kpi-income',
-      kpiExpense: '#kpi-expense',
-      kpiSaving: '#kpi-saving',
-      kpiNet: '#kpi-net',
-      monthInput: '#inp-month',
-      accountSelect: '#sel-account',
-      tableBody: '#tbl-body',
-      onboardingBanner: '#onboarding-banner', // il tuo banner (se c’è)
-      userName: '#user-name',
-      householdName: '#household-name',
-      // chart canvases (se li hai già; se no vengono ignorati)
-      chartSeries: '#chart-series',
-      chartPie: '#chart-pie',
-    },
-    // opzionale: locale valuta
-    currency: 'EUR',
-    locale: 'it-IT'
-  });
-</script>
-
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-    import Chart from 'https://esm.sh/chart.js@4';
-
-    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
-    const SUPABASE_ANON_KEY = window.ENV?.SUPABASE_ANON_KEY;
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.error('Config Supabase mancante.');
-      alert('Config Supabase non impostata. Modifica window.ENV in fondo alla pagina.');
-    }
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
-
-    // UI refs
-    const yearEl = document.getElementById('year');
-    const avatarEl = document.getElementById('user-avatar');
-    const nameEl = document.getElementById('user-name');
-    const signOutBtn = document.getElementById('btn-signout');
-    const kpiIncome = document.getElementById('kpi-income');
-    const kpiExpense = document.getElementById('kpi-expense');
-    const kpiSaving = document.getElementById('kpi-saving');
-    const kpiNet = document.getElementById('kpi-net');
-    const monthInput = document.getElementById('inp-month');
-    const tableBody = document.getElementById('tbl-body');
-    const onb = document.getElementById('onboarding');
-    const dlg = document.getElementById('dlg-add');
-    const btnAdd = document.getElementById('btn-add');
-    const btnClose = document.getElementById('btn-close');
-    const btnCancel = document.getElementById('btn-cancel');
-    const formAdd = document.getElementById('form-add');
-    const selAccount = document.getElementById('sel-account');
-
-    const txDate = document.getElementById('tx-date');
-    const txKind = document.getElementById('tx-kind');
-    const txAccount = document.getElementById('tx-account');
-    const txCategory = document.getElementById('tx-category');
-    const txSubcategory = document.getElementById('tx-subcategory');
-    const txAmount = document.getElementById('tx-amount');
-    const txNote = document.getElementById('tx-note');
-
-    const householdNameEl = document.getElementById('household-name');
-
-    let chartSeries, chartPie;
-    let CURRENT_USER = null;
-    let HOUSEHOLD_ID = null;
-
-    const fmt = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR' });
-
-    function firstOfMonth(d = new Date()) {
-      return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1));
-    }
-    function toISODateUTC(date) {
-      // YYYY-MM-DD
-      return date.toISOString().slice(0,10);
-    }
-
-    // Auth guard
-    async function ensureAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        location.href = '/login';
-        return null;
-      }
-      CURRENT_USER = user;
-      return user;
-    }
-
-    async function loadProfile() {
-      try {
-        const { data, error } = await supabase.from('app.profiles').select('full_name, avatar_url, locale').eq('user_id', CURRENT_USER.id).maybeSingle();
-        if (error) throw error;
-        nameEl.textContent = data?.full_name || 'Utente';
-        if (data?.avatar_url) {
-          avatarEl.style.backgroundImage = `url(${CSS.escape(data.avatar_url)})`;
-          avatarEl.style.backgroundSize = 'cover';
-        }
-      } catch (e) { console.warn(e); }
-    }
-
-    async function getDefaultHousehold() {
-      const { data: hm, error } = await supabase
-        .from('app.household_members')
-        .select('household_id, role, app.households(name)')
-        .eq('user_id', CURRENT_USER.id)
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      HOUSEHOLD_ID = hm?.household_id;
-      householdNameEl.textContent = hm?.households?.name || '—';
-      return HOUSEHOLD_ID;
-    }
-
-    async function checkOnboarding() {
-      const { data, error } = await supabase
-        .from('app.onboarding_state')
-        .select('completed')
-        .eq('user_id', CURRENT_USER.id)
-        .maybeSingle();
-      if (error) { console.warn(error); }
-      onb.hidden = !!(data && data.completed);
-    }
-
-    async function loadAccounts() {
-      const { data, error } = await supabase
-        .from('app.accounts')
-        .select('id, name')
-        .eq('household_id', HOUSEHOLD_ID)
-        .eq('archived', false)
-        .order('name');
-      if (error) throw error;
-      // Fill filters and modal select
-      selAccount.innerHTML = '<option value="">Tutti</option>' + data.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
-      txAccount.innerHTML = data.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('');
-    }
-
-    async function loadCategories(kind = 'expense') {
-      const { data: cats, error } = await supabase
-        .from('app.categories')
-        .select('id, name, kind')
-        .eq('household_id', HOUSEHOLD_ID)
-        .eq('kind', kind)
-        .order('position');
-      if (error) throw error;
-      txCategory.innerHTML = '<option value="">—</option>' + cats.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
-      txSubcategory.innerHTML = '<option value="">—</option>';
-      txCategory.onchange = async () => {
-        const catId = txCategory.value;
-        if (!catId) { txSubcategory.innerHTML = '<option value="">—</option>'; return; }
-        const { data: subs, error: e2 } = await supabase
-          .from('app.subcategories')
-          .select('id, name')
-          .eq('category_id', catId)
-          .order('position');
-        if (e2) { console.warn(e2); return; }
-        txSubcategory.innerHTML = '<option value="">—</option>' + subs.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
-      };
-    }
-
-    async function fetchMonthlyTotalsSeries() {
-      const { data, error } = await supabase
-        .from('app.v_monthly_totals')
-        .select('ym, income_total, expense_total, saving_total, net_total')
-        .eq('household_id', HOUSEHOLD_ID)
-        .order('ym', { ascending: true });
-      if (error) throw error;
-      return data;
-    }
-
-    async function fetchMonthlyTotalsFor(monthISO) {
-      const { data, error } = await supabase
-        .from('app.v_monthly_totals')
-        .select('ym, income_total, expense_total, saving_total, net_total')
-        .eq('household_id', HOUSEHOLD_ID)
-        .eq('ym', monthISO)
-        .maybeSingle();
-      if (error && error.code !== 'PGRST116') throw error; // not found is ok
-      return data || { income_total: 0, expense_total: 0, saving_total: 0, net_total: 0 };
-    }
-
-    async function fetchTransactions(monthISO) {
-      let q = supabase
-        .from('app.v_transactions_enriched')
-        .select('id, account_name, kind, category_name, subcategory_name, occurred_at, amount, currency')
-        .eq('household_id', HOUSEHOLD_ID)
-        .eq('ym', monthISO)
-        .order('occurred_at', { ascending: false });
-      if (selAccount.value) q = q.eq('account_id', selAccount.value);
-      const { data, error } = await q;
-      if (error) throw error;
-      return data;
-    }
-
-    async function fetchExpenseBreakdown(monthISO) {
-      const { data, error } = await supabase
-        .from('app.v_transactions_enriched')
-        .select('category_name, amount')
-        .eq('household_id', HOUSEHOLD_ID)
-        .eq('ym', monthISO)
-        .eq('kind', 'expense');
-      if (error) throw error;
-      // aggregate by category_name
-      const map = new Map();
-      for (const r of data) {
-        map.set(r.category_name || '—', (map.get(r.category_name || '—') || 0) + Number(r.amount));
-      }
-      return Array.from(map.entries()).map(([category, total]) => ({ category, total }));
-    }
-
-    function renderKPIs(tot) {
-      kpiIncome.textContent = fmt.format(tot.income_total || 0);
-      kpiExpense.textContent = fmt.format(tot.expense_total || 0);
-      kpiSaving.textContent = fmt.format(tot.saving_total || 0);
-      kpiNet.textContent = fmt.format(tot.net_total || 0);
-      kpiNet.classList.toggle('ok', (tot.net_total||0) >= 0);
-      kpiNet.classList.toggle('bad', (tot.net_total||0) < 0);
-    }
-
-    function renderTable(rows) {
-      if (!rows.length) { tableBody.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">Nessuna transazione nel mese selezionato.</td></tr>'; return; }
-      tableBody.innerHTML = rows.map(r => `
-        <tr>
-          <td>${new Date(r.occurred_at).toLocaleDateString('it-IT')}</td>
-          <td>${escapeHtml(r.account_name||'—')}</td>
-          <td>${escapeHtml(r.kind)}</td>
-          <td>${escapeHtml(r.category_name||'—')}</td>
-          <td>${escapeHtml(r.subcategory_name||'—')}</td>
-          <td style="text-align:right">${fmt.format(r.amount)}</td>
-        </tr>
-      `).join('');
-    }
-
-    function renderSeries(series) {
-      const ctx = document.getElementById('chart-series');
-      const labels = series.map(x => x.ym);
-      const income = series.map(x => x.income_total||0);
-      const expense = series.map(x => x.expense_total||0);
-      const net = series.map(x => x.net_total||0);
-      if (chartSeries) chartSeries.destroy();
-      chartSeries = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets: [
-          { label: 'Entrate', data: income },
-          { label: 'Uscite', data: expense },
-          { label: 'Saldo', data: net }
-        ]},
-        options: {
-          responsive: true,
-          plugins: { legend: { labels: { color: '#cbd5e1' } } },
-          scales: {
-            x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-            y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.06)' } }
-          }
-        }
-      });
-    }
-
-    function renderPie(entries) {
-      const ctx = document.getElementById('chart-pie');
-      const labels = entries.map(e => e.category);
-      const values = entries.map(e => e.total);
-      if (chartPie) chartPie.destroy();
-      chartPie = new Chart(ctx, {
-        type: 'pie',
-        data: { labels, datasets: [{ data: values }]},
-        options: { plugins: { legend: { labels: { color: '#cbd5e1' } } } }
-      });
-    }
-
-    // Add transaction
-    async function handleSaveTx(ev) {
-      ev.preventDefault();
-      const dateVal = txDate.value; // YYYY-MM-DD local
-      const kind = txKind.value;
-      const account_id = txAccount.value;
-      const category_id = txCategory.value || null;
-      const subcategory_id = txSubcategory.value || null;
-      const amount = Number(txAmount.value);
-      const note = txNote.value || null;
-      if (!dateVal || !account_id || !kind || !amount) return;
-      // Save occurred_at in UTC noon to avoid TZ edge cases
-      const occurred_at = new Date(dateVal + 'T12:00:00Z').toISOString();
-      const payload = { household_id: HOUSEHOLD_ID, account_id, kind, category_id, subcategory_id, amount, currency:'EUR', occurred_at, note, created_by: CURRENT_USER.id };
-      const { error } = await supabase.from('app.transactions').insert(payload);
-      if (error) { console.error(error); alert('Errore salvataggio transazione'); return; }
-      dlg.close(); formAdd.reset();
-      await refreshAll();
-    }
-
-    async function refreshAll() {
-      const monthVal = monthInput.value || toISODateUTC(firstOfMonth()); // YYYY-MM
-      const monthISO = monthVal.length === 7 ? monthVal + '-01' : monthVal; // YYYY-MM-01
-      const [totals, rows, series, pie] = await Promise.all([
-        fetchMonthlyTotalsFor(monthISO),
-        fetchTransactions(monthISO),
-        fetchMonthlyTotalsSeries(),
-        fetchExpenseBreakdown(monthISO)
-      ]);
-      renderKPIs(totals);
-      renderTable(rows);
-      renderSeries(series);
-      renderPie(pie);
-    }
-
-    function escapeHtml(str) {
-      if (str == null) return '';
-      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
-    }
-
-    // Events
-    signOutBtn.addEventListener('click', async () => { await supabase.auth.signOut(); location.href = '/login'; });
-    monthInput.addEventListener('change', refreshAll);
-    selAccount.addEventListener('change', refreshAll);
-    btnAdd.addEventListener('click', () => { dlg.showModal(); });
-    btnClose.addEventListener('click', () => dlg.close());
-    btnCancel.addEventListener('click', () => dlg.close());
-    formAdd.addEventListener('submit', handleSaveTx);
-
-    // Init
-    (async function init(){
-      try {
-        yearEl.textContent = new Date().getFullYear();
-        const user = await ensureAuth(); if (!user) return;
-        await loadProfile();
-        await getDefaultHousehold();
-        await checkOnboarding();
-        await loadAccounts();
-        await loadCategories('expense');
-        // Default month = current
-        const now = new Date();
-        monthInput.value = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}`;
-        txDate.valueAsDate = new Date();
-        await refreshAll();
-      } catch (e) {
-        console.error(e);
-        alert('Errore di inizializzazione dashboard. Verifica policy RLS e viste.');
-      }
-    })();
-  </script>
-  // /js/mhb.supabase.adapter.js
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const fmtMoney = (n, currency='EUR', locale='it-IT') =>
-  new Intl.NumberFormat(locale, { style:'currency', currency }).format(Number(n||0));
-
-function qs(sel) { try { return sel ? document.querySelector(sel) : null; } catch { return null; } }
-
-export const MHB = (() => {
-  let supabase, USER=null, H_ID=null;
-  let cfg = { selectors:{}, currency:'EUR', locale:'it-IT' };
-
-  async function ensureAuth() {
-    const { data:{ user } } = await supabase.auth.getUser();
-    if (!user) {
-      // non cambio rotta: lascio al tuo router/guard decidere
-      console.warn('Nessun utente autenticato');
-      return null;
-    }
-    USER = user;
-    return user;
-  }
-
-  async function loadProfile() {
-    const sel = cfg.selectors;
-    try {
-      const { data, error } = await supabase.from('app.profiles')
-        .select('full_name').eq('user_id', USER.id).maybeSingle();
-      if (!error && data && sel.userName && qs(sel.userName)) {
-        qs(sel.userName).textContent = data.full_name || '—';
-      }
-    } catch {}
-  }
-
-  async function getDefaultHousehold() {
-    const sel = cfg.selectors;
-    const { data, error } = await supabase
-      .from('app.household_members')
-      .select('household_id, app.households(name)')
-      .eq('user_id', USER.id).limit(1).maybeSingle();
-    if (error) throw error;
-    H_ID = data?.household_id || null;
-    if (sel.householdName && qs(sel.householdName)) {
-      qs(sel.householdName).textContent = data?.households?.name || '—';
-    }
-    return H_ID;
-  }
-
-  async function checkOnboarding() {
-    const sel = cfg.selectors;
-    if (!sel.onboardingBanner) return;
-    const banner = qs(sel.onboardingBanner);
-    if (!banner) return;
-    try {
-      const { data, error } = await supabase
-        .from('app.onboarding_state')
-        .select('completed')
-        .eq('user_id', USER.id)
-        .maybeSingle();
-      if (error) { console.warn(error); return; }
-      banner.hidden = !!(data && data.completed);
-    } catch (e) { console.warn(e); }
-  }
-
-  async function loadAccounts() {
-    const sel = cfg.selectors;
-    if (!sel.accountSelect || !qs(sel.accountSelect)) return;
-    const el = qs(sel.accountSelect);
-    const { data, error } = await supabase
-      .from('app.accounts')
-      .select('id,name')
-      .eq('household_id', H_ID)
-      .eq('archived', false)
-      .order('name');
-    if (error) throw error;
-    // *** NON forzo una option “Tutti”: rispetto il tuo HTML. Se vuoi, mettila tu. ***
-    // Se vuoi aggiungerla via JS, decommenta:
-    // el.insertAdjacentHTML('afterbegin','<option value=\"\">Tutti</option>');
-    // Non sovrascrivo le opzioni esistenti: aggiorno se mancano
-    const existing = new Set(Array.from(el.options).map(o => o.value));
-    for (const a of data) {
-      if (!existing.has(a.id)) {
-        el.insertAdjacentHTML('beforeend', `<option value="${a.id}">${escapeHtml(a.name)}</option>`);
-      }
-    }
-  }
-
-  async function fetchMonthlyTotalsSeries() {
-    const { data, error } = await supabase
-      .from('app.v_monthly_totals')
-      .select('ym,income_total,expense_total,saving_total,net_total')
-      .eq('household_id', H_ID)
-      .order('ym', { ascending: true });
-    if (error) throw error;
-    return data||[];
-  }
-
-  async function fetchMonthlyTotalsFor(monthISO) {
-    const { data, error } = await supabase
-      .from('app.v_monthly_totals')
-      .select('ym,income_total,expense_total,saving_total,net_total')
-      .eq('household_id', H_ID)
-      .eq('ym', monthISO)
-      .maybeSingle();
-    if (error && error.code !== 'PGRST116') throw error;
-    return data || { income_total:0, expense_total:0, saving_total:0, net_total:0 };
-  }
-
-  async function fetchTransactions(monthISO, accountId) {
-    let q = supabase.from('app.v_transactions_enriched')
-      .select('id,account_id,account_name,kind,category_name,subcategory_name,occurred_at,amount,currency')
-      .eq('household_id', H_ID)
-      .eq('ym', monthISO)
-      .order('occurred_at', { ascending: false });
-    if (accountId) q = q.eq('account_id', accountId);
-    const { data, error } = await q;
-    if (error) throw error;
-    return data||[];
-  }
-
-  async function fetchExpenseBreakdown(monthISO) {
-    const { data, error } = await supabase
-      .from('app.v_transactions_enriched')
-      .select('category_name, amount')
-      .eq('household_id', H_ID)
-      .eq('ym', monthISO)
-      .eq('kind', 'expense');
-    if (error) throw error;
-    const map = new Map();
-    for (const r of (data||[])) {
-      const key = r.category_name || '—';
-      map.set(key, (map.get(key)||0) + Number(r.amount||0));
-    }
-    return Array.from(map.entries()).map(([category,total]) => ({category,total}));
-  }
-
-  function yyyymm(date) {
-    const d = date || new Date();
-    const y = d.getUTCFullYear();
-    const m = String(d.getUTCMonth()+1).padStart(2,'0');
-    return `${y}-${m}-01`;
-  }
-
-  function renderKPIs(sel, totals) {
-    if (sel.kpiIncome && qs(sel.kpiIncome)) qs(sel.kpiIncome).textContent = fmtMoney(totals.income_total, cfg.currency, cfg.locale);
-    if (sel.kpiExpense && qs(sel.kpiExpense)) qs(sel.kpiExpense).textContent = fmtMoney(totals.expense_total, cfg.currency, cfg.locale);
-    if (sel.kpiSaving && qs(sel.kpiSaving)) qs(sel.kpiSaving).textContent = fmtMoney(totals.saving_total, cfg.currency, cfg.locale);
-    if (sel.kpiNet && qs(sel.kpiNet)) qs(sel.kpiNet).textContent = fmtMoney(totals.net_total, cfg.currency, cfg.locale);
-  }
-
-  function renderTable(sel, rows) {
-    if (!sel.tableBody || !qs(sel.tableBody)) return;
-    const tb = qs(sel.tableBody);
-    if (!rows.length) { tb.innerHTML = '<tr><td colspan="6" style="opacity:.7">Nessuna transazione per il mese selezionato.</td></tr>'; return; }
-    tb.innerHTML = rows.map(r => `
-      <tr>
-        <td>${new Date(r.occurred_at).toLocaleDateString(cfg.locale)}</td>
-        <td>${escapeHtml(r.account_name||'—')}</td>
-        <td>${escapeHtml(r.kind)}</td>
-        <td>${escapeHtml(r.category_name||'—')}</td>
-        <td>${escapeHtml(r.subcategory_name||'—')}</td>
-        <td style="text-align:right">${fmtMoney(r.amount, r.currency||cfg.currency, cfg.locale)}</td>
-      </tr>
-    `).join('');
-  }
-
-  // Rendering dei grafici: SOLO se la tua pagina ha già i canvas (qui nessuna lib esterna)
-  async function renderSeries(sel, series) {
-    if (!sel.chartSeries || !qs(sel.chartSeries) || !window.Chart) return;
-    const ctx = qs(sel.chartSeries);
-    if (ctx._mhbChart) { ctx._mhbChart.destroy(); ctx._mhbChart = null; }
-    const labels = series.map(s => s.ym);
-    const income = series.map(s => s.income_total||0);
-    const expense = series.map(s => s.expense_total||0);
-    const net = series.map(s => s.net_total||0);
-    ctx._mhbChart = new window.Chart(ctx, {
-      type:'line',
-      data:{ labels, datasets:[
-        { label:'Entrate', data:income },
-        { label:'Uscite', data:expense },
-        { label:'Saldo', data:net },
-      ]},
-      options:{ responsive:true }
-    });
-  }
-
-  async function renderPie(sel, breakdown) {
-    if (!sel.chartPie || !qs(sel.chartPie) || !window.Chart) return;
-    const ctx = qs(sel.chartPie);
-    if (ctx._mhbChart) { ctx._mhbChart.destroy(); ctx._mhbChart = null; }
-    ctx._mhbChart = new window.Chart(ctx, {
-      type:'pie',
-      data:{ labels:breakdown.map(x=>x.category), datasets:[{ data:breakdown.map(x=>x.total) }]},
-      options:{ responsive:true }
-    });
-  }
-
-  async function refreshAll() {
-    const sel = cfg.selectors;
-    const monthISO = (sel.monthInput && qs(sel.monthInput) && qs(sel.monthInput).value)
-      ? (qs(sel.monthInput).value + '-01')
-      : yyyymm(new Date());
-    const accountId = (sel.accountSelect && qs(sel.accountSelect)) ? qs(sel.accountSelect).value || null : null;
-
-    const [totals, rows, series, breakdown] = await Promise.all([
-      fetchMonthlyTotalsFor(monthISO),
-      fetchTransactions(monthISO, accountId),
-      fetchMonthlyTotalsSeries(),
-      fetchExpenseBreakdown(monthISO)
-    ]);
-
-    renderKPIs(sel, totals);
-    renderTable(sel, rows);
-    await renderSeries(sel, series);
-    await renderPie(sel, breakdown);
-  }
-
-  function bindEvents() {
-    const sel = cfg.selectors;
-    if (sel.monthInput && qs(sel.monthInput)) qs(sel.monthInput).addEventListener('change', refreshAll);
-    if (sel.accountSelect && qs(sel.accountSelect)) qs(sel.accountSelect).addEventListener('change', refreshAll);
-  }
-
-  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-  async function init(userCfg={}) {
-    cfg = Object.assign(cfg, userCfg||{});
-    const { SUPABASE_URL, SUPABASE_ANON_KEY } = window.ENV||{};
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) { console.error('ENV Supabase mancante'); return; }
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true } });
-
-    const user = await ensureAuth(); if (!user) return;
-    await loadProfile();
-    await getDefaultHousehold();
-    await checkOnboarding();
-    await loadAccounts();
-    bindEvents();
-    await refreshAll();
-  }
-
-  return { init };
-})();
-
-    <!-- carica la libreria Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-
-  <!-- la tua config ENV -->
-  <script>
-    window.ENV = {
-      SUPABASE_URL: 'https://TUO-PROGETTO.supabase.co',
-      SUPABASE_ANON_KEY: 'LA-TUA-ANON-KEY'
-    };
-  </script>
-
-  <!-- adapter Supabase che ti ho preparato -->
-  <script type="module" src="/js/mhb.supabase.adapter.js"></script>
-  <script type="module">
-    import { MHB } from '/js/mhb.supabase.adapter.js';
-    MHB.init({
-      selectors: {
-        kpiIncome: '#kpi-income',
-        kpiExpense: '#kpi-expense',
-        kpiSaving: '#kpi-saving',
-        kpiNet: '#kpi-net',
-        monthInput: '#inp-month',
-        accountSelect: '#sel-account',
-        tableBody: '#tbl-body',
-        onboardingBanner: '#onboarding',
-        userName: '#user-name',
-        householdName: '#household-name',
-        chartSeries: '#chart-series',
-        chartPie: '#chart-pie',
-      },
-      currency: 'EUR',
-      locale: 'it-IT'
-    });
-  </script>  
-</body>
-</html>
+-- Schema applicativo
+create schema if not exists app;
+
+-- Utenti ↔ Household
+create table if not exists app.households (
+  id uuid primary key default gen_random_uuid(),
+  name text,
+  created_at timestamptz default now()
+);
+
+create table if not exists app.household_members (
+  household_id uuid references app.households(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text default 'owner',
+  primary key (household_id, user_id),
+  created_at timestamptz default now()
+);
+
+-- Conti
+create table if not exists app.accounts (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references app.households(id) on delete cascade,
+  name text not null,
+  type text check (type in ('checking','savings','cash')) default 'checking',
+  currency text default 'EUR',
+  archived boolean default false,
+  created_at timestamptz default now()
+);
+
+-- Categorie e sottocategorie
+create table if not exists app.categories (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references app.households(id) on delete cascade,
+  kind text not null check (kind in ('income','expense')),
+  name text not null,
+  is_system boolean default false,
+  unique (household_id, kind, name)
+);
+
+create table if not exists app.subcategories (
+  id uuid primary key default gen_random_uuid(),
+  category_id uuid not null references app.categories(id) on delete cascade,
+  name text not null,
+  unique (category_id, name)
+);
+
+-- Transazioni
+create table if not exists app.transactions (
+  id uuid primary key default gen_random_uuid(),
+  household_id uuid not null references app.households(id) on delete cascade,
+  account_id uuid not null references app.accounts(id) on delete restrict,
+  kind text not null check (kind in ('income','expense')),
+  category_id uuid references app.categories(id) on delete set null,
+  subcategory_id uuid references app.subcategories(id) on delete set null,
+  amount numeric(14,2) not null check (amount >= 0),
+  currency text not null default 'EUR',
+  occurred_at timestamptz not null,
+  note text,
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz default now()
+);
+
+-- View "enriched" per la dashboard
+create or replace view app.v_transactions_enriched as
+select
+  t.id,
+  t.household_id,
+  t.account_id,
+  t.kind,
+  t.amount,
+  t.currency,
+  t.occurred_at,
+  t.note,
+  c.name as category_name,
+  s.name as subcategory_name
+from app.transactions t
+left join app.categories c on c.id = t.category_id
+left join app.subcategories s on s.id = t.subcategory_id;
+
+-- Indici utili
+create index if not exists idx_tx_household_date on app.transactions(household_id, occurred_at);
+create index if not exists idx_tx_kind on app.transactions(kind);
+
+-- RLS (abilita e consenti solo al proprio household)
+alter table app.household_members enable row level security;
+alter table app.accounts enable row level security;
+alter table app.categories enable row level security;
+alter table app.subcategories enable row level security;
+alter table app.transactions enable row level security;
+
+-- Policy helper: household_ids dell'utente
+-- Nota: in Supabase puoi usare auth.uid()
+create policy "members can read their households"
+on app.household_members for select
+using ( user_id = auth.uid() );
+
+create policy "members can read accounts"
+on app.accounts for select
+using ( household_id in (select household_id from app.household_members where user_id = auth.uid()) );
+
+create policy "members can read categories"
+on app.categories for select
+using ( household_id in (select household_id from app.household_members where user_id = auth.uid()) );
+
+create policy "members can upsert categories"
+on app.categories for insert with check (
+  household_id in (select household_id from app.household_members where user_id = auth.uid())
+);
+create policy "members can upsert categories upd"
+on app.categories for update using (
+  household_id in (select household_id from app.household_members where user_id = auth.uid())
+);
+
+create policy "members can read subcategories"
+on app.subcategories for select
+using (
+  category_id in (select id from app.categories where household_id in (select household_id from app.household_members where user_id = auth.uid()))
+);
+create policy "members can upsert subcategories"
+on app.subcategories for insert with check (
+  category_id in (select id from app.categories where household_id in (select household_id from app.household_members where user_id = auth.uid()))
+);
+
+create policy "members can read transactions"
+on app.transactions for select
+using ( household_id in (select household_id from app.household_members where user_id = auth.uid()) );
+
+create policy "members can insert transactions"
+on app.transactions for insert with check (
+  household_id in (select household_id from app.household_members where user_id = auth.uid())
+);
+
+create policy "members can delete transactions"
+on app.transactions for delete using (
+  household_id in (select household_id from app.household_members where user_id = auth.uid())
+);
