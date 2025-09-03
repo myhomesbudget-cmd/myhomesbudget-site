@@ -214,7 +214,9 @@
           </div>
           <div class="row">
             <label class="field">Categoria
-              <input type="text" id="tx-cat" placeholder="Es. Stipendio / Casa" required>
+              <!-- 🔹 suggerimenti dalle categorie dell’onboarding -->
+              <input type="text" id="tx-cat" placeholder="Es. Stipendio / Casa" list="cat-list" required>
+              <datalist id="cat-list"></datalist>
             </label>
             <label class="field">Sottocategoria
               <input type="text" id="tx-sub" placeholder="Es. Agosto / Utenze" required>
@@ -255,36 +257,12 @@
     const qs = s => document.querySelector(s);
     const qsa = s => [...document.querySelectorAll(s)];
     const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(e){} };
-
-    // ---------- Auth / welcome ----------
-    (async function(){
-      const { data:{ session } } = await supabase.auth.getSession();
-      const user = session?.user;
-      const name = user?.user_metadata?.name || 'Utente';
-      qs('#welcome').textContent = `Benvenuto — ${name}`;
-      const plan = (user?.user_metadata?.plan || 'trial');
-      qs('#plan-badge').textContent = plan === 'lifetime' ? 'Permanente' : (plan === 'monthly' ? 'Mensile' : 'Prova');
-    })();
-
-    // Logout
-    qs('#logout-btn').addEventListener('click', async (e) => {
-      e.preventDefault();
-      fire('logout',{page:'dashboard',lang:'it'});
-      try { await supabase.auth.signOut(); } catch(e){}
-      try {
-        localStorage.removeItem('mhb_tx');
-        localStorage.removeItem('mhb_year');
-        localStorage.removeItem('mhb_month');
-      } catch(e){}
-      location.replace('/it/');
-    });
+    const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${RegExp.$1.toLowerCase()}/` : "/it/");
 
     // ---------- Storage schema ----------
     // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
     const store = {
-      load(){
-        try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch(e){ return {}; }
-      },
+      load(){ try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch(e){ return {}; } },
       save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch(e){} }
     };
 
@@ -319,46 +297,6 @@
       });
     }
     function persistPeriod(){ localStorage.setItem('mhb_year',curYear); localStorage.setItem('mhb_month',curMonth); }
-
-    // ---------- Add transaction ----------
-    const form = qs('#tx-form');
-    const resetBtn = qs('#reset-form');
-    form.tx_date = qs('#tx-date'); form.tx_date.value = ymd(new Date().toISOString());
-    resetBtn.addEventListener('click', e=>{ e.preventDefault(); form.reset(); form.tx_date.value=ymd(new Date().toISOString()); });
-
-    form.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const type = qs('#tx-type').value;                 // in | out
-      const date = qs('#tx-date').value || ymd();
-      const cat  = qs('#tx-cat').value.trim();
-      const sub  = qs('#tx-sub').value.trim();
-      const desc = qs('#tx-desc').value.trim();
-      const amt  = Number(qs('#tx-amt').value.replace(',','.'));
-      const rec  = qs('#tx-rec').value;                  // no | mensile
-      if (!cat || !sub || !amt || amt<=0){ alert('Compila correttamente i campi obbligatori.'); return; }
-
-      const data = store.load();
-      const ym = getYM(date);
-      data[ym] = data[ym] || { in:[], out:[] };
-      const entry = { id:crypto.randomUUID(), date, cat, sub, desc, amt, rec };
-      data[ym][type].push(entry);
-
-      // ricorrenza mensile: duplica fino a fine anno corrente
-      if (rec==='mensile'){
-        const d = new Date(date);
-        for (let i=1;i<= (12 - d.getMonth() - 1); i++){
-          const nd = new Date(d); nd.setMonth(d.getMonth()+i);
-          const nym = getYM(nd.toISOString());
-          data[nym] = data[nym] || { in:[], out:[] };
-          data[nym][type].push({ ...entry, id:crypto.randomUUID(), date: ymd(nd.toISOString()) });
-        }
-      }
-
-      store.save(data);
-      fire('tx_add',{type,amt,rec});
-      form.reset(); form.tx_date.value = ymd(new Date().toISOString());
-      refresh();
-    });
 
     // ---------- Tables ----------
     function rowHTML(e){
@@ -468,109 +406,129 @@
       renderCharts(ins, outs, sumIn, sumOut);
     }
 
+    // ---------- Form add ----------
+    const form = qs('#tx-form');
+    const resetBtn = qs('#reset-form');
+    form.tx_date = qs('#tx-date'); form.tx_date.value = ymd(new Date().toISOString());
+    resetBtn.addEventListener('click', e=>{ e.preventDefault(); form.reset(); form.tx_date.value=ymd(new Date().toISOString()); });
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const type = qs('#tx-type').value;                 // in | out
+      const date = qs('#tx-date').value || ymd();
+      const cat  = qs('#tx-cat').value.trim();
+      const sub  = qs('#tx-sub').value.trim();
+      const desc = qs('#tx-desc').value.trim();
+      const amt  = Number((qs('#tx-amt').value||'').replace(',','.'));
+      const rec  = qs('#tx-rec').value;                  // no | mensile
+      if (!cat || !sub || !amt || amt<=0){ alert('Compila correttamente i campi obbligatori.'); return; }
+
+      const data = store.load();
+      const ym = getYM(date);
+      data[ym] = data[ym] || { in:[], out:[] };
+      const entry = { id:crypto.randomUUID(), date, cat, sub, desc, amt, rec };
+      data[ym][type].push(entry);
+
+      // ricorrenza mensile: duplica fino a fine anno corrente
+      if (rec==='mensile'){
+        const d = new Date(date);
+        for (let i=1;i<= (12 - d.getMonth() - 1); i++){
+          const nd = new Date(d); nd.setMonth(d.getMonth()+i);
+          const nym = getYM(nd.toISOString());
+          data[nym] = data[nym] || { in:[], out:[] };
+          data[nym][type].push({ ...entry, id:crypto.randomUUID(), date: ymd(nd.toISOString()) });
+        }
+      }
+
+      store.save(data);
+      fire('tx_add',{type,amt,rec});
+      form.reset(); form.tx_date.value = ymd(new Date().toISOString());
+      refresh();
+    });
+
+    // ---------- Auth + Hydration ----------
+    async function hydrateFromSupabase(){
+      // redirect se non loggato
+      const { data:{ user } } = await supabase.auth.getUser();
+      if (!user){ location.replace(itPrefix() + "login.html"); return; }
+
+      // Badge "Benvenuto" / piano
+      const nameFromMeta = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Utente';
+      qs('#welcome').textContent = `Benvenuto — ${nameFromMeta}`;
+      const planMeta = user?.user_metadata?.plan;
+      if (planMeta) qs('#plan-badge').textContent = (planMeta==='lifetime'?'Permanente':(planMeta==='monthly'?'Mensile':'Prova'));
+
+      // profilo
+      try{
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('name, plan_type, onboarded, onboarding_goal, onboarding_saving_method, onboarding_categories')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        // se non ha completato onboarding → guidalo subito
+        if (!profile?.onboarded){
+          location.replace(itPrefix() + 'onboarding.html');
+          return;
+        }
+
+        // salva anche in localStorage (continuità logica)
+        if (profile.onboarding_goal) localStorage.setItem('onboarding_goal', profile.onboarding_goal);
+        if (profile.onboarding_saving_method) localStorage.setItem('onboarding_saving_method', profile.onboarding_saving_method);
+        if (Array.isArray(profile.onboarding_categories)) {
+          localStorage.setItem('onboarding_categories', JSON.stringify(profile.onboarding_categories));
+          populateCategoryDatalist(profile.onboarding_categories);
+        } else {
+          // fallback locale
+          const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
+          populateCategoryDatalist(cats);
+        }
+
+        // eventuale piano dal profilo
+        if (!planMeta && profile.plan_type) {
+          qs('#plan-badge').textContent = (profile.plan_type==='lifetime'?'Permanente':(profile.plan_type==='monthly'?'Mensile':'Prova'));
+        }
+
+      }catch(err){
+        console.warn('profile load failed:', err);
+        // fallback: categorie da localStorage
+        try{
+          const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
+          populateCategoryDatalist(cats);
+        }catch(e){}
+      }
+    }
+
+    function populateCategoryDatalist(cats){
+      const dl = qs('#cat-list');
+      if (!dl) return;
+      dl.innerHTML = '';
+      (cats||[]).forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = (typeof c === 'string') ? c : (c.name || '');
+        if (opt.value) dl.appendChild(opt);
+      });
+    }
+
+    // ---------- Logout ----------
+    qs('#logout-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      fire('logout',{page:'dashboard',lang:'it'});
+      try { await supabase.auth.signOut(); }
+      catch (err) { console.warn('logout error:', err); }
+      finally {
+        // NON eliminiamo mhb_tx: i movimenti locali restano sul device
+        location.replace(itPrefix());
+      }
+    });
+
     // ---------- Boot ----------
     fire('dashboard_viewed',{lang:'it'});
     renderSelectors();
+    await hydrateFromSupabase();  // categorie & badge
     refresh();
   </script>
-  <script type="module">
-  import { supabase } from "/it/supabase-client.js";
-
-  // Se non autenticato → login
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    location.replace("/it/login.html");
-  } else {
-    // Prendi il profilo e reidrata localStorage
-    const { data: { user } } = await supabase.auth.getUser();
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('onboarding_goal,onboarding_saving_method,onboarding_categories,onboarded')
-  .eq('id', user.id).single();
-
-// usa profile.onboarding_categories per inizializzare filtri/grafici
-
-    if (!error && profile) {
-      try {
-        localStorage.setItem("onboarding_goal", profile.onboarding_goal || "");
-        localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method || "");
-        localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories || []));
-        if (profile.onboarded) localStorage.setItem("onboarding_completed","1");
-      } catch(e){}
-    }
-
-    // Se hai una funzione che costruisce la UI dopo i dati, richiamala qui
-    if (window.mhbAfterProfileHydrated) window.mhbAfterProfileHydrated();
-  }
-</script>
-  <script type="module">
-  import { supabase } from "/it/supabase-client.js";
-
-  const itPrefix = () => {
-    const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-    return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-  };
-
-  // Carica profilo e categorie dall'API e fai render della dashboard
-  async function loadProfileIntoDashboard(){
-    const { data: { user }, error: uerr } = await supabase.auth.getUser();
-    if (uerr) { console.error(uerr); return; }
-    if (!user) { location.replace(itPrefix() + "login.html"); return; }
-
-    try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("name,onboarded,onboarding_goal,onboarding_saving_method,onboarding_categories")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-
-      // Cache locale (opzionale)
-      if (profile?.onboarded) localStorage.setItem("onboarding_completed","1");
-      if (profile?.onboarding_goal) localStorage.setItem("onboarding_goal", profile.onboarding_goal);
-      if (profile?.onboarding_saving_method) localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method);
-      if (profile?.onboarding_categories) localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories));
-
-      // 🔸 Qui richiamare le TUE funzioni di render esistenti
-      //    Se non le hai ancora, usa i dati direttamente.
-      if (window.renderDashboardFromProfile) {
-        window.renderDashboardFromProfile(profile);
-      } else {
-        // Fallback minimale: passa le categorie alla tua init corrente
-        const cats = profile?.onboarding_categories || [];
-        if (window.renderDashboardFromLocal) window.renderDashboardFromLocal(cats);
-      }
-    } catch (err) {
-      console.error("loadProfileIntoDashboard failed:", err);
-      // Fallback a localStorage
-      try {
-        const cats = JSON.parse(localStorage.getItem("onboarding_categories") || "[]");
-        if (window.renderDashboardFromLocal) window.renderDashboardFromLocal(cats);
-      } catch(e) {}
-    }
-  }
-
-  // Modifica configurazione → onboarding in edit mode
-  document.getElementById("btn-edit-config")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    location.href = itPrefix() + "onboarding.html?edit=1";
-  });
-
-  // Logout (non cancelliamo i dati applicativi locali)
-  document.getElementById("logout-btn")?.addEventListener("click", async (e) => {
-    e.preventDefault();
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      console.warn("logout error", err);
-    } finally {
-      location.replace(itPrefix());
-    }
-  });
-
-  // Avvio
-  loadProfileIntoDashboard();
-</script>
 </body>
 </html>
