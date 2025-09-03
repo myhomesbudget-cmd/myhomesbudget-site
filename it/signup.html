@@ -228,6 +228,9 @@
     const form = document.getElementById('signup-form');
     const msg  = document.getElementById('form-msg');
 
+    // (Facoltativo) allinea la lingua al resto dell'app
+    try { localStorage.setItem('mhb_lang','it'); } catch(e){}
+
     // Helper: prefisso lingua coerente /it/ o /ita/
     const itPrefix = () => {
       const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
