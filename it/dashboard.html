@@ -256,6 +256,9 @@
   <script type="module">
   import { supabase } from "/it/supabase-client.js";
 
+/* AGGIUNGI QUESTA RIGA DOPO L'IMPORT */
+await supabase.rpc('ensure_bootstrap').catch(()=>{});
+
   // Evita doppi init
   if (window.__MHB_BOOTED__) { console.debug("MHB dashboard: duplicate init skipped"); }
   else {
