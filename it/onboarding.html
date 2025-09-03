@@ -10,11 +10,11 @@
   <!-- Guard: se onboarding già completato, salta alla dashboard della stessa lingua -->
   <script>
     (function(){
-      function langPrefix(){
-        var m = location.pathname.match(/^\/(it|ita|en|es)(\/|$)/i);
-        return m ? ("/" + m[1].toLowerCase() + "/") : "/";
+      function itPrefix(){
+        var m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+        return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
       }
-      var prefix = langPrefix();
+      var prefix = itPrefix();
       try {
         if (localStorage.getItem('onboarding_completed') === '1') {
           location.replace(prefix + 'dashboard.html');
@@ -265,9 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const state = { goal: null, saving_method: null, categories: [] };
 
   // Helpers
-  function langPrefix(){
-    const m = location.pathname.match(/^\/(it|ita|en|es)(\/|$)/i);
-    return m ? ("/" + m[1].toLowerCase() + "/") : "/";
+  function itPrefix(){
+    const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+    return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
   }
 
   function populateCategories() {
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function customizeStep2() {
     const title = document.getElementById('step-2-title');
-    const description = document.getElementById('step-2-description');
+    const description = document.getElementById('step2-desc');
     switch (state.goal) {
       case 'Risparmio fisso mensile':
         title.textContent = 'Come vuoi risparmiare?';
@@ -375,12 +375,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // CTA -> dashboard della stessa lingua
     const panelBody = document.querySelector('.panel-body');
     const dashboardLink = document.createElement('a');
-    dashboardLink.href = langPrefix() + 'dashboard.html';
+    dashboardLink.href = itPrefix() + 'dashboard.html';
     dashboardLink.className = 'btn btn-primary';
     dashboardLink.textContent = 'Vai alla dashboard';
     dashboardLink.style.marginTop = '24px';
     dashboardLink.addEventListener('click', () => {
-      gtag('event','onboarding_completed'); // extra tracking (già inviato alla fine dello step 3)
+      gtag('event','onboarding_completed'); // tracking extra (già inviato a fine step 3)
     });
     panelBody.appendChild(dashboardLink);
   }
@@ -391,30 +391,21 @@ document.addEventListener('DOMContentLoaded', () => {
     switch (stepNumber) {
       case 1: {
         const selected = document.querySelector('input[name="goal"]:checked');
-        if (!selected) {
-          errorContainer.textContent = 'Per favore, scegli un obiettivo.';
-          return false;
-        }
+        if (!selected) { errorContainer.textContent = 'Per favore, scegli un obiettivo.'; return false; }
         state.goal = selected.value;
         localStorage.setItem('onboarding_goal', state.goal);
         return true;
       }
       case 2: {
         const selected = document.querySelector('input[name="saving_method"]:checked');
-        if (!selected) {
-          errorContainer.textContent = 'Per favore, scegli una modalità.';
-          return false;
-        }
+        if (!selected) { errorContainer.textContent = 'Per favore, scegli una modalità.'; return false; }
         state.saving_method = selected.value;
         localStorage.setItem('onboarding_saving_method', state.saving_method);
         return true;
       }
       case 3: {
         const selected = [...document.querySelectorAll('input[name="category"]:checked')].map(el => el.value);
-        if (!selected.length) {
-          errorContainer.textContent = 'Per favore, seleziona almeno una categoria.';
-          return false;
-        }
+        if (!selected.length) { errorContainer.textContent = 'Per favore, seleziona almeno una categoria.'; return false; }
         state.categories = selected;
         localStorage.setItem('onboarding_categories', JSON.stringify(state.categories));
         return true;
@@ -438,16 +429,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   backBtn.addEventListener('click', () => {
-    if (currentStep > 1) {
-      currentStep--;
-      renderStep(currentStep);
-    }
+    if (currentStep > 1) { currentStep--; renderStep(currentStep); }
   });
 
   // Init
-  populateCategories();
-  loadState();
-  renderStep(currentStep);
+  (function init(){
+    // Popola UI e stato salvato
+    const container = document.getElementById('category-options');
+    if (container && !container.children.length) populateCategories();
+    loadState();
+    renderStep(currentStep);
+  })();
 });
 </script>
 
