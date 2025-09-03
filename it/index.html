@@ -27,10 +27,10 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- 🔹 NEW: gestione link da email verificata → redirect onboarding/dashboard -->
+  <!-- 🔹 LINK EMAIL VERIFICATA → redirect onboarding/dashboard -->
   <script>
     (function(){
-      // Rileva prefisso lingua, accetta /it/ o /ita/; default /it/
+      // prefisso lingua /it/ o /ita/ (default /it/)
       function itPrefix(){
         var m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
         return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
@@ -38,24 +38,32 @@
       var prefix = itPrefix();
 
       var q = new URLSearchParams(location.search);
-      var verified = q.get('verified') === '1' || q.get('status') === 'verified' || location.hash.includes('verified');
+      var hash = location.hash || '';
+      // accettiamo diverse varianti di "verificato"
+      var verified =
+        q.get('verified') === '1' ||
+        q.get('status') === 'verified' ||
+        q.get('confirmed') === '1' ||
+        hash.includes('verified');
 
-      if (!verified) return; // se non arrivo dal link mail, non fare nulla
-
-      try { localStorage.setItem('email_verified','1'); } catch(e){}
+      if (!verified) return; // visita normale: non fare nulla
 
       try {
-        if (localStorage.getItem('onboarding_completed') === '1') {
-          // Utente ha già completato l’onboarding in passato → vai in dashboard
-          location.replace(prefix + 'dashboard.html');
-        } else {
-          // Prima volta → vai in onboarding
-          location.replace(prefix + 'onboarding.html');
+        localStorage.setItem('email_verified','1');
+        localStorage.setItem('last_verified', String(Date.now()));
+      } catch(e){}
+
+      var done = false;
+      try { done = (localStorage.getItem('onboarding_completed') === '1'); } catch(e){}
+
+      var dest = done ? 'dashboard.html' : 'onboarding.html';
+      try {
+        if (typeof gtag === 'function') {
+          gtag('event','verified_entry_redirect',{ dest: done ? 'dashboard' : 'onboarding', lang:'it' });
         }
-      } catch(e){
-        // Fallback: porta comunque all’onboarding
-        location.replace(prefix + 'onboarding.html');
-      }
+      } catch(e){}
+
+      location.replace(prefix + dest);
     })();
   </script>
 
@@ -372,10 +380,8 @@
   <!-- Reveal + GA base -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // GA: page view della landing (facoltativo ma utile)
       gtag('event','view_landing',{ lang:'it' });
 
-      // REVEAL (sequenza top→bottom)
       const targets = document.querySelectorAll('.reveal');
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         targets.forEach(el => el.classList.add('in')); return;
