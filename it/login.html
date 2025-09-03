@@ -198,13 +198,35 @@
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
     const ORIGIN = window.location.origin;
     const lang   = 'it';
-    const goDash = () => location.replace(`/${lang}/dashboard.html`);
+
+    // 🔹 Helper: prefisso lingua /it/ o /ita/
+    const itPrefix = () => {
+      const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+      return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+    };
+
+    // 🔹 Redirect post-auth: onboarding se non completato, altrimenti dashboard
+    function postAuthRedirect(){
+      try {
+        if (localStorage.getItem('onboarding_completed') === '1') {
+          gtag('event','auth_success_redirect',{dest:'dashboard',lang});
+          location.replace(itPrefix() + 'dashboard.html');
+        } else {
+          gtag('event','auth_success_redirect',{dest:'onboarding',lang});
+          location.replace(itPrefix() + 'onboarding.html');
+        }
+      } catch(e){
+        location.replace(itPrefix() + 'onboarding.html');
+      }
+    }
 
     gtag('event','login_viewed',{lang});
 
+    // Se già autenticato, manda subito dove serve (onboarding/dashboard)
     const { data:{ session } } = await supabase.auth.getSession();
-    if (session?.user){ goDash(); }
+    if (session?.user){ postAuthRedirect(); }
 
+    // Email+Password
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -212,9 +234,10 @@
       gtag('event','login_submit',{method:'password',lang});
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return alert('Errore accesso: ' + error.message);
-      goDash();
+      postAuthRedirect();
     });
 
+    // Magic Link
     document.getElementById('magic-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -228,6 +251,7 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
+    // Google GIS
     const gsiContainer  = document.getElementById("gsi-btn");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
 
@@ -256,12 +280,13 @@
         });
         if (error) return alert("Accesso con Google non riuscito: " + error.message);
         gtag('event','oauth_success',{provider:'google',lang,mode:'idtoken'});
-        goDash();
+        postAuthRedirect();
       }catch(err){
         alert("Errore inatteso: " + (err?.message || err));
       }
     }
 
+    // Reveal (come prima)
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
