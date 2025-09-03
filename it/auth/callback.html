@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Conferma account — MyHomesBudget</title>
-
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -15,7 +14,6 @@
                  frame-ancestors 'none';
                  base-uri 'self';
                  form-action 'self'">
-
   <style>
     body{margin:0;font-family:-apple-system,system-ui,Roboto,sans-serif;display:grid;place-items:center;height:100svh;background:#f6f7fb;color:#111}
     .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.06);max-width:520px}
@@ -30,24 +28,20 @@
 
   <script type="module">
     import { supabase } from '/it/supabase-client.js';
-
-    // v2: se nel link c'è l'access_token, supabase-js (detectSessionInUrl:true) imposta la sessione.
-    // In alcuni casi (codice OTP/magic link) serve exchangeCodeForSession: proviamo entrambi.
     (async () => {
       try {
-        // tenta lo scambio codice → sessione (non fa danni se non serve)
+        // gestisce code/otp → sessione, se presente
         await supabase.auth.exchangeCodeForSession().catch(()=>{});
-        // verifica sessione
         const { data:{ session } } = await supabase.auth.getSession();
         if (session?.user) {
-          try { localStorage.setItem('onboarding_completed','0'); } catch(_){}
+          try{ localStorage.setItem('onboarding_completed','0'); }catch{}
           document.getElementById('stato').textContent = 'Account confermato. Reindirizzamento…';
           setTimeout(()=> location.replace('/it/onboarding.html'), 500);
         } else {
           document.getElementById('stato').textContent = 'Sessione non trovata. Prova ad accedere.';
           setTimeout(()=> location.replace('/it/login.html'), 1200);
         }
-      } catch (e) {
+      } catch(e){
         document.getElementById('stato').textContent = 'Errore di attivazione. Prova ad accedere.';
         setTimeout(()=> location.replace('/it/login.html'), 1500);
       }
