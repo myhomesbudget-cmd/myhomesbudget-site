@@ -244,12 +244,44 @@
     </div>
   </main>
 
-  <!-- Logica onboarding + salvataggio Supabase -->
+  <!-- 🧩 Supabase: salvataggio profilo/onboarding -->
   <script type="module">
-  import { supabase } from "/it/supabase-client.js";
+    import { supabase } from "/it/supabase-client.js";
 
+    // Espongo una funzione globale per il salvataggio: la usa lo script non-module sotto.
+    window.mhbSaveOnboarding = async (state) => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false; // utente non loggato → niente DB, ma non bloccare
+
+        const payload = {
+          id: user.id,
+          email: user.email,
+          onboarding_goal: state.goal || null,
+          onboarding_saving_method: state.saving_method || null,
+          onboarding_categories: state.categories || [],
+          onboarded: true
+        };
+
+        const { error } = await supabase
+          .from("profiles")
+          .upsert(payload, { onConflict: "id" });
+
+        if (error) { console.warn("save onboarding error:", error.message); return false; }
+        return true;
+      } catch (e) {
+        console.warn("save onboarding exception:", e?.message || e);
+        return false;
+      }
+    };
+  </script>
+
+  <!-- Logica onboarding -->
+  <script>
   document.addEventListener('DOMContentLoaded', () => {
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
+
+    const ga = (...args) => { try { if (window.gtag) window.gtag(...args); } catch(_){} };
 
     const TOTAL_STEPS = 3;
     const CATEGORIES = [
@@ -349,7 +381,7 @@
     }
 
     function renderStep(n){
-      gtag('event','onboarding_step_view',{ step: n });
+      ga('event','onboarding_step_view',{ step: n });
 
       steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step,10) === n));
       const progress = n <= TOTAL_STEPS ? ((n - 1) / TOTAL_STEPS) * 100 : 100;
@@ -384,37 +416,20 @@
       return true;
     }
 
-    async function upsertProfileToSupabase(){
-      // Prova a salvare l'onboarding nel profilo dell'utente
-      try{
-        const { data:{ session } } = await supabase.auth.getSession();
-        const user = session?.user;
-        if (!user) return; // se non loggato, esce silenziosamente
-
-        await supabase.from('profiles').upsert({
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.name || null,
-          plan_type: user.user_metadata?.plan || 'trial',
-          onboarded: true,
-          onboarding_goal: state.goal,
-          onboarding_saving_method: state.saving_method,
-          onboarding_categories: state.categories
-        }, { onConflict: 'id' });
-      } catch (e){
-        console.warn('onboarding → supabase upsert profilo fallita:', e);
-      }
-    }
-
+    // 👉 handler async per poter attendere il salvataggio su Supabase
     nextBtn.addEventListener('click', async () => {
       if (!validateStep(currentStep)) return;
 
       if (currentStep === TOTAL_STEPS){
         try { localStorage.setItem('onboarding_completed','1'); } catch(e){}
-        gtag('event','onboarding_completed');
+        ga('event','onboarding_completed');
 
-        // 🔹 Salva su Supabase (se autenticato), poi redirect
-        await upsertProfileToSupabase();
+        // Salva su DB se possibile (definita dal modulo precedente)
+        try {
+          if (window.mhbSaveOnboarding) {
+            await window.mhbSaveOnboarding(state);
+          }
+        } catch(e){ console.warn('save onboarding skipped:', e); }
 
         location.replace(itPrefix() + 'dashboard.html');
         return;
