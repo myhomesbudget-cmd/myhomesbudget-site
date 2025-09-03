@@ -1,46 +1,84 @@
-<!doctype html><meta charset="utf-8">
+<!doctype html>
+<meta charset="utf-8">
 <title>Reindirizzamento…</title>
-<meta name="robots" content="noindex">
-<style>body{font-family:system-ui;margin:40px;text-align:center}</style>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  body{font-family:system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:40px; text-align:center}
+</style>
 
 <script type="module">
   import { supabase } from "/it/supabase-client.js";
 
-  const lang = (localStorage.getItem('mhb_lang') || 'it');
-  const go = (p) => location.replace(`/${lang}/${p}.html`);
+  // Prefisso lingua coerente con /it/ o /ita/
+  const itPrefix = () => {
+    const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+    return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+  };
+  const go = (p) => location.replace(itPrefix() + p + ".html");
+
+  // Tieni la lingua allineata
+  try { localStorage.setItem("mhb_lang","it"); } catch(e){}
 
   try {
-    // Piccolo delay: consente a Supabase di completare l'handshake del magic link
-    await new Promise(r => setTimeout(r, 50));
-
+    // Sessione corrente
     const { data:{ session } } = await supabase.auth.getSession();
-    if (!session?.user) return go('login');
+    if (!session) { go("login"); throw new Error("No session"); }
 
-    const uid = session.user.id;
+    const user = session.user;
+    const uid  = user.id;
 
-    // 1) Sorgente primaria: localStorage
-    let completed = (localStorage.getItem('onboarding_completed') === '1');
+    // 1) Upsert del profilo (allinea campi base + eventuali metadati del signup)
+    //    NOTA: non forziamo onboarded qui; lo leggiamo dopo per decidere il redirect.
+    const base = {
+      id: uid,
+      email: user.email,
+      name: user.user_metadata?.name ?? null,
+      plan_type: user.user_metadata?.plan ?? "trial"
+    };
 
-    // 2) Fallback opzionale: Supabase (se hai creato la tabella onboarding_settings)
-    if (!completed) {
-      try {
-        const { data: onb, error } = await supabase
-          .from('onboarding_settings')
-          .select('completed')
-          .eq('user_id', uid)
-          .single();
-
-        if (!error && onb?.completed) {
-          completed = true;
-          try { localStorage.setItem('onboarding_completed', '1'); } catch(e){}
-        }
-      } catch(e) {
-        // Tabella non esiste o altro errore: ignora e prosegui verso onboarding
-      }
+    try {
+      await supabase.from("profiles").upsert(base, { onConflict: "id" });
+    } catch (e) {
+      // non bloccare il flusso
+      console.warn("profiles upsert (callback) warning:", e?.message || e);
     }
 
-    return completed ? go('dashboard') : go('onboarding');
+    // 2) Leggi stato onboarding per decidere dove mandare l’utente
+    let { data: profile, error } =
+      await supabase.from("profiles")
+        .select("onboarded, onboarding_goal, onboarding_saving_method, onboarding_categories")
+        .eq("id", uid)
+        .single();
+
+    if (error) {
+      console.warn("profiles select (callback) warning:", error?.message || error);
+      // fallback prudente
+      profile = { onboarded: false };
+    }
+
+    // 3) Sincronizza localStorage per coerenza UI
+    try {
+      if (profile.onboarded) {
+        localStorage.setItem("onboarding_completed","1");
+        // opzionale: ripristino preferenze se presenti
+        if (profile.onboarding_goal)           localStorage.setItem("onboarding_goal", profile.onboarding_goal);
+        if (profile.onboarding_saving_method)  localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method);
+        if (profile.onboarding_categories)     localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories));
+      } else {
+        localStorage.removeItem("onboarding_completed");
+      }
+    } catch(e){}
+
+    // 4) Redirect finale
+    if (profile.onboarded) {
+      go("dashboard");
+    } else {
+      go("onboarding");
+    }
   } catch (e) {
-    go('login');
+    console.warn("Auth callback error:", e?.message || e);
+    // ripiego sicuro
+    try { localStorage.removeItem("onboarding_completed"); } catch(_){}
+    go("login");
   }
 </script>
