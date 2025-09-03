@@ -63,9 +63,6 @@
     .logout:hover{background:rgba(0,0,0,.38)}
     .link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px}
     .link:hover{background:rgba(255,255,255,.12)}
-    .langs{display:flex;gap:6px;margin-left:8px}
-    .langs a{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.3);text-decoration:none;color:#fff;font-weight:700}
-    .langs a[aria-current="true"]{background:rgba(0,0,0,.28)}
 
     /* Selettori */
     .selectors{
@@ -141,15 +138,10 @@
   <div class="wrap">
     <!-- Topbar -->
     <header class="topbar">
-      <a class="brand" id="brand-link" href="/it/" title="MyHomesBudget">
+      <a class="brand" href="/it/" title="MyHomesBudget">
         <img src="/homes.png" alt=""><span>myhomesbudget</span>
       </a>
       <div class="top-actions">
-        <nav class="langs" aria-label="Lingue">
-          <a id="lnk-it" lang="it" hreflang="it">IT</a>
-          <a id="lnk-en" lang="en" hreflang="en">EN</a>
-          <a id="lnk-es" lang="es" hreflang="es">ES</a>
-        </nav>
         <span class="badge" id="welcome">Benvenuto</span>
         <a class="link" id="edit-onb" href="/it/onboarding.html?edit=1">Modifica configurazione</a>
         <span class="badge" id="plan-badge">Abbonamento</span>
@@ -222,8 +214,7 @@
           </div>
           <div class="row">
             <label class="field">Categoria
-              <input type="text" id="tx-cat" placeholder="Es. Stipendio / Casa" list="cat-list" required>
-              <datalist id="cat-list"></datalist>
+              <input type="text" id="tx-cat" placeholder="Es. Stipendio / Casa" required>
             </label>
             <label class="field">Sottocategoria
               <input type="text" id="tx-sub" placeholder="Es. Agosto / Utenze" required>
@@ -254,83 +245,67 @@
 
   <!-- Logic -->
   <script type="module">
-  import { supabase } from "/it/supabase-client.js";
-
-/* AGGIUNGI QUESTA RIGA DOPO L'IMPORT */
-await supabase.rpc('ensure_bootstrap').catch(()=>{});
-
-  // Evita doppi init
-  if (window.__MHB_BOOTED__) { console.debug("MHB dashboard: duplicate init skipped"); }
-  else {
-    window.__MHB_BOOTED__ = true;
-
-    // ---------- Config ----------
-    const ENABLE_REMOTE = true; // se le tabelle app.* non esistono, il codice ricade su localStorage
-    const DEFAULT_CURRENCY = 'EUR';
-    const LANG = (location.pathname.match(/^\/(it|en|es)\b/i)?.[1] || document.documentElement.lang || 'it').toLowerCase();
-    const LOCALE = LANG === 'it' ? 'it-IT' : (LANG === 'es' ? 'es-ES' : 'en-GB');
+    import { supabase } from "/it/supabase-client.js";
 
     // ---------- Utils ----------
-    const itFmt = new Intl.NumberFormat(LOCALE,{style:'currency',currency:DEFAULT_CURRENCY});
-    const fmt = v => itFmt.format(Number(v||0));
+    const it = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+    const fmt = v => it.format(Number(v||0));
     const ymd = d => d?.slice?.(0,10) || new Date().toISOString().slice(0,10);
     const getYM = (d)=> (d||ymd()).slice(0,7); // YYYY-MM
     const qs = s => document.querySelector(s);
     const qsa = s => [...document.querySelectorAll(s)];
-    const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(_){} };
-    const langPrefix = () => `/${LANG}/`;
+    const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(e){} };
 
-    // Topbar dynamic links (brand + onboarding + langs)
-    (function setTopbarLinks(){
-      const curPath = location.pathname.replace(/^\//,''); // e.g. it/dashboard.html
-      const page = curPath.split('/').slice(1).join('/') || 'index.html';
-      const brand = qs('#brand-link'); if (brand) brand.href = langPrefix();
-      const onb = qs('#edit-onb'); if (onb) onb.href = langPrefix() + 'onboarding.html?edit=1';
-      const langCodes = ['it','en','es'];
-      langCodes.forEach(code=>{
-        const a = qs('#lnk-'+code);
-        if (!a) return;
-        const target = '/' + code + '/' + (page || 'dashboard.html');
-        a.href = target;
-        a.setAttribute('aria-current', String(code===LANG));
-      });
+    // ---------- Auth / welcome ----------
+    (async function(){
+      const { data:{ session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      const name = user?.user_metadata?.name || 'Utente';
+      qs('#welcome').textContent = `Benvenuto — ${name}`;
+      const plan = (user?.user_metadata?.plan || 'trial');
+      qs('#plan-badge').textContent = plan === 'lifetime' ? 'Permanente' : (plan === 'monthly' ? 'Mensile' : 'Prova');
     })();
 
-    // ---------- Storage locale ----------
+    // Logout
+    qs('#logout-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+      fire('logout',{page:'dashboard',lang:'it'});
+      try { await supabase.auth.signOut(); } catch(e){}
+      try {
+        localStorage.removeItem('mhb_tx');
+        localStorage.removeItem('mhb_year');
+        localStorage.removeItem('mhb_month');
+      } catch(e){}
+      location.replace('/it/');
+    });
+
+    // ---------- Storage schema ----------
     // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
     const store = {
-      load(){ try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch{ return {}; } },
-      save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch{} }
+      load(){
+        try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch(e){ return {}; }
+      },
+      save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch(e){} }
     };
 
-    // ---------- Stato periodo + selettori ----------
+    // ---------- Period selectors ----------
     const yearsRow = qs('#years-row');
     const monthsRow = qs('#months-row');
     let curYear  = Number(localStorage.getItem('mhb_year'))  || new Date().getFullYear();
-    let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12, 0 = TUTTO
+    let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12
 
-    function persistPeriod(){
-      localStorage.setItem('mhb_year',curYear);
-      localStorage.setItem('mhb_month',curMonth);
-    }
-
-    // crea i selettori UNA VOLTA
-    function renderSelectorsOnce(){
+    function renderSelectors(){
       yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
       const start = new Date().getFullYear() - 1;
       for (let y=start; y<start+12; y++){
-        const b = document.createElement('button');
-        b.className = 'pill'; b.textContent = y;
-        b.addEventListener('click', ()=>{
-          if (curYear!==y){ curYear=y; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
-        });
-        yearsRow.appendChild(b);
+        const a = document.createElement('button');
+        a.className='pill'; a.textContent=y; a.setAttribute('aria-current', String(y===curYear));
+        a.addEventListener('click',()=>{curYear=y; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:curMonth});});
+        yearsRow.appendChild(a);
       }
       const all = document.createElement('button');
       all.className='pill'; all.textContent='TUTTO';
-      all.addEventListener('click', ()=>{
-        if (curMonth!==0){ curMonth=0; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:0}); }
-      });
+      all.addEventListener('click',()=>{curMonth=0; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:0});});
       yearsRow.appendChild(all);
 
       monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
@@ -338,27 +313,80 @@ await supabase.rpc('ensure_bootstrap').catch(()=>{});
       names.forEach((n,i)=>{
         const m=i+1;
         const b=document.createElement('button');
-        b.className='pill'; b.textContent=n;
-        b.addEventListener('click', ()=>{
-          if (curMonth!==m){ curMonth=m; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
-        });
+        b.className='pill'; b.textContent=n; b.setAttribute('aria-current', String(m===curMonth));
+        b.addEventListener('click',()=>{curMonth=m; persistPeriod(); refresh(); fire('filter_change',{year:curYear,month:curMonth});});
         monthsRow.appendChild(b);
       });
-
-      setActivePills();
     }
+    function persistPeriod(){ localStorage.setItem('mhb_year',curYear); localStorage.setItem('mhb_month',curMonth); }
 
-    function setActivePills(){
-      // anni: evidenzia l'anno o "TUTTO" (quando curMonth=0)
-      qsa('#years-row .pill').forEach(btn=>{
-        const t = btn.textContent.trim();
-        const isYear = /^\d{4}$/.test(t) && Number(t) === curYear && curMonth !== 0;
-        const isAll  = t.toUpperCase() === 'TUTTO' && curMonth === 0;
-        btn.setAttribute('aria-current', String(isYear || isAll));
-      });
-      // mesi: solo se è 1..12
-      qsa('#months-row .pill').forEach((btn, idx)=>{
-        btn.setAttribute('aria-current', String(curMonth > 0 && idx === (curMonth - 1)));
+    // ---------- Add transaction ----------
+    const form = qs('#tx-form');
+    const resetBtn = qs('#reset-form');
+    form.tx_date = qs('#tx-date'); form.tx_date.value = ymd(new Date().toISOString());
+    resetBtn.addEventListener('click', e=>{ e.preventDefault(); form.reset(); form.tx_date.value=ymd(new Date().toISOString()); });
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const type = qs('#tx-type').value;                 // in | out
+      const date = qs('#tx-date').value || ymd();
+      const cat  = qs('#tx-cat').value.trim();
+      const sub  = qs('#tx-sub').value.trim();
+      const desc = qs('#tx-desc').value.trim();
+      const amt  = Number(qs('#tx-amt').value.replace(',','.'));
+      const rec  = qs('#tx-rec').value;                  // no | mensile
+      if (!cat || !sub || !amt || amt<=0){ alert('Compila correttamente i campi obbligatori.'); return; }
+
+      const data = store.load();
+      const ym = getYM(date);
+      data[ym] = data[ym] || { in:[], out:[] };
+      const entry = { id:crypto.randomUUID(), date, cat, sub, desc, amt, rec };
+      data[ym][type].push(entry);
+
+      // ricorrenza mensile: duplica fino a fine anno corrente
+      if (rec==='mensile'){
+        const d = new Date(date);
+        for (let i=1;i<= (12 - d.getMonth() - 1); i++){
+          const nd = new Date(d); nd.setMonth(d.getMonth()+i);
+          const nym = getYM(nd.toISOString());
+          data[nym] = data[nym] || { in:[], out:[] };
+          data[nym][type].push({ ...entry, id:crypto.randomUUID(), date: ymd(nd.toISOString()) });
+        }
+      }
+
+      store.save(data);
+      fire('tx_add',{type,amt,rec});
+      form.reset(); form.tx_date.value = ymd(new Date().toISOString());
+      refresh();
+    });
+
+    // ---------- Tables ----------
+    function rowHTML(e){
+      return `<tr>
+        <td class="muted">${e.date.split('-').reverse().join('/')}</td>
+        <td>${e.cat}</td>
+        <td>${e.sub}</td>
+        <td>${e.desc||''}</td>
+        <td class="right">${fmt(e.amt)}</td>
+        <td>
+          <span class="action">
+            <button class="btn-mini" data-act="del" data-id="${e.id}">Elimina</button>
+          </span>
+        </td>
+      </tr>`;
+    }
+    function bindRowActions(type){
+      qsa(`#tbl-${type} [data-act="del"]`).forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const id = btn.getAttribute('data-id');
+          const data = store.load();
+          const key = curMonth? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
+          if (key && data[key]){
+            data[key][type] = data[key][type].filter(x=>x.id!==id);
+          }
+          store.save(data); fire('tx_delete',{type});
+          refresh();
+        });
       });
     }
 
@@ -369,297 +397,35 @@ await supabase.rpc('ensure_bootstrap').catch(()=>{});
       ctx.clearRect(0,0,W,H);
       const total = series.reduce((s,x)=>s+x,0);
       if (!total){
+        // placeholder
         ctx.strokeStyle='rgba(0,0,0,.1)'; ctx.lineWidth=24;
         ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.stroke();
         ctx.fillStyle='#666'; ctx.font='600 14px system-ui'; ctx.textAlign='center';
         ctx.fillText('—',CX,CY+5); return;
       }
-      let start = -Math.PI/2; ctx.lineWidth = 24;
+      let start = -Math.PI/2;
+      ctx.lineWidth = 24;
       series.forEach((v,i)=>{
         const angle = (v/total)*Math.PI*2;
         ctx.strokeStyle = colors[i % colors.length] || '#999';
-        ctx.beginPath(); ctx.arc(CX,CY,R,start,start+angle); ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(CX,CY,R,start,start+angle);
+        ctx.stroke();
         start += angle;
       });
+      // center label
       ctx.fillStyle='#111'; ctx.font='700 14px system-ui'; ctx.textAlign='center';
       ctx.fillText(label, CX, CY+5);
     }
 
-    // ---------- Tabelle ----------
-    function rowHTML(e){
-      return `<tr>
-        <td class="muted">${e.date.split('-').reverse().join('/')}</td>
-        <td>${escapeHtml(e.cat)}</td>
-        <td>${escapeHtml(e.sub)}</td>
-        <td>${escapeHtml(e.desc||'')}</td>
-        <td class="right">${fmt(e.amt)}</td>
-        <td><button class="btn-mini" data-act="del" data-id="${e.id}">Elimina</button></td>
-      </tr>`;
-    }
-    function bindRowActions(type){
-      qsa(`#tbl-${type} [data-act="del"]`).forEach(btn=>{
-        btn.onclick = async ()=>{
-          const id = btn.getAttribute('data-id');
-          // Local
-          const data = store.load();
-          const key = curMonth? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
-          if (key && data[key]) data[key][type] = data[key][type].filter(x=>x.id!==id);
-          store.save(data);
-          // Remote
-          if (ENABLE_REMOTE) {
-            try { await removeRemoteTx(id); } catch(e){ console.warn('remove remote tx failed', e); }
-          }
-          fire('tx_delete',{type});
-          refresh();
-        };
-      });
-    }
-
-    // ---------- Supabase helpers ----------
-    let CURRENT_USER = null;
-    let HOUSEHOLD_ID = null;
-    let DEFAULT_ACCOUNT_ID = null;
-
-    async function ensureAuthOrRedirect(){
-      const { data:{ user } } = await supabase.auth.getUser();
-      if (!user){ location.replace(langPrefix() + "login.html"); return null; }
-      CURRENT_USER = user;
-      return user;
-    }
-
-    async function hydrateFromSupabase(){
-      const user = await ensureAuthOrRedirect(); if (!user) return;
-      // badge
-      const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Utente';
-      qs('#welcome').textContent = `Benvenuto — ${name}`;
-      const planMeta = user?.user_metadata?.plan;
-      if (planMeta) qs('#plan-badge').textContent = (planMeta==='lifetime'?'Permanente':(planMeta==='monthly'?'Mensile':'Prova'));
-
-      // profilo + onboarding (profilo legacy)
-      try{
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('onboarded,onboarding_goal,onboarding_saving_method,onboarding_categories,plan_type')
-          .eq('id', user.id).maybeSingle();
-        if (error) throw error;
-        // fallback anche su app.onboarding_state
-        let onbCompleted = profile?.onboarded ?? null;
-        if (onbCompleted === null) {
-          const { data: onb, error: e2 } = await supabase.from('app.onboarding_state')
-            .select('completed').eq('user_id', user.id).maybeSingle();
-          if (!e2 && onb) onbCompleted = !!onb.completed;
-        }
-        if (!onbCompleted){ location.replace(langPrefix() + 'onboarding.html'); return; }
-
-        // categorie per datalist
-        if (Array.isArray(profile?.onboarding_categories)){
-          localStorage.setItem('onboarding_categories', JSON.stringify(profile.onboarding_categories));
-          populateCategoryDatalist(profile.onboarding_categories);
-        } else {
-          const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
-          populateCategoryDatalist(cats);
-        }
-
-        if (!planMeta && profile?.plan_type){
-          qs('#plan-badge').textContent = (profile.plan_type==='lifetime'?'Permanente':(profile.plan_type==='monthly'?'Mensile':'Prova'));
-        }
-      } catch(err){
-        console.warn('profile load failed:', err);
-        const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
-        populateCategoryDatalist(cats);
-      }
-
-      // household & account
-      if (ENABLE_REMOTE){
-        try{
-          await ensureHouseholdAndAccount();
-        }catch(e){ console.warn('household/account ensure failed', e); }
-      }
-    }
-
-    function populateCategoryDatalist(cats){
-      const dl = qs('#cat-list'); if (!dl) return;
-      dl.innerHTML = '';
-      (cats||[]).forEach(c=>{
-        const val = typeof c === 'string' ? c : (c.name || '');
-        if (val) {
-          const opt = document.createElement('option');
-          opt.value = val;
-          dl.appendChild(opt);
-        }
-      });
-    }
-
-    async function ensureHouseholdAndAccount(){
-      // household (membro esistente)
-      const { data: hm, error: e1 } = await supabase
-        .from('app.household_members')
-        .select('household_id').eq('user_id', CURRENT_USER.id).limit(1).maybeSingle();
-      if (e1) throw e1;
-      HOUSEHOLD_ID = hm?.household_id || null;
-
-      // account
-      if (HOUSEHOLD_ID){
-        const { data: accs, error: e2 } = await supabase
-          .from('app.accounts')
-          .select('id').eq('household_id', HOUSEHOLD_ID).eq('archived', false)
-          .order('created_at',{ascending:true}).limit(1);
-        if (e2) throw e2;
-        if (accs && accs.length){ DEFAULT_ACCOUNT_ID = accs[0].id; }
-        else {
-          const { data: created, error: e3 } = await supabase
-            .from('app.accounts').insert({ household_id: HOUSEHOLD_ID, name: 'Conto Principale', type:'checking', currency: DEFAULT_CURRENCY })
-            .select('id').maybeSingle();
-          if (e3) throw e3;
-          DEFAULT_ACCOUNT_ID = created?.id || null;
-        }
-      }
-    }
-
-    async function ensureCategory(kind, name){
-      if (!name) return { category_id:null, subcategory_id:null };
-      // cerca o crea category
-      const { data: catFound, error: e1 } = await supabase
-        .from('app.categories')
-        .select('id').eq('household_id', HOUSEHOLD_ID).eq('kind', kind).eq('name', name).maybeSingle();
-      if (e1 && e1.code!=='PGRST116') throw e1;
-      let category_id = catFound?.id || null;
-      if (!category_id){
-        const { data: catIns, error: e2 } = await supabase.from('app.categories')
-          .insert({ household_id: HOUSEHOLD_ID, kind, name, is_system:false }).select('id').maybeSingle();
-        if (e2) throw e2;
-        category_id = catIns.id;
-      }
-      return { category_id };
-    }
-
-    async function ensureSubcategory(category_id, name){
-      if (!name || !category_id) return null;
-      const { data: found, error: e1 } = await supabase
-        .from('app.subcategories')
-        .select('id').eq('category_id', category_id).eq('name', name).maybeSingle();
-      if (e1 && e1.code!=='PGRST116') throw e1;
-      if (found?.id) return found.id;
-      const { data: ins, error: e2 } = await supabase
-        .from('app.subcategories').insert({ category_id, name }).select('id').maybeSingle();
-      if (e2) throw e2;
-      return ins.id;
-    }
-
-    async function insertRemoteTx({type,date,cat,sub,desc,amt,rec}){
-      if (!HOUSEHOLD_ID || !DEFAULT_ACCOUNT_ID) return null;
-      const kind = (type==='in') ? 'income' : 'expense';
-      const { category_id } = await ensureCategory(kind, cat);
-      const subcategory_id = await ensureSubcategory(category_id, sub);
-      // midday UTC per evitare edge timezone; la view usa occurred_at
-      const occurred_at = new Date(date + 'T12:00:00Z').toISOString();
-      const payload = {
-        household_id: HOUSEHOLD_ID,
-        account_id: DEFAULT_ACCOUNT_ID,
-        kind, category_id, subcategory_id,
-        amount: Number(amt),
-        currency: DEFAULT_CURRENCY,
-        occurred_at,
-        note: desc || null,
-        created_by: CURRENT_USER.id
-      };
-      const { data, error } = await supabase.from('app.transactions').insert(payload).select('id').maybeSingle();
-      if (error) throw error;
-      return data?.id || null;
-    }
-
-    async function removeRemoteTx(txId){
-      if (!txId) return;
-      const { error } = await supabase.from('app.transactions').delete().eq('id', txId);
-      if (error) throw error;
-    }
-
-    // ---- FIX: ricerche mese/anno senza colonna "ym" ----
-    function monthRange(year, month){
-      // month: 1..12
-      const start = new Date(Date.UTC(year, month-1, 1, 0,0,0));
-      const end   = new Date(Date.UTC(year, month,   1, 0,0,0)); // esclusivo
-      return { gte: start.toISOString(), lt: end.toISOString() };
-    }
-
-    async function fetchRemoteMonth(year, month){
-      if (!HOUSEHOLD_ID) throw new Error('No household');
-      const { gte, lt } = monthRange(year, month);
-      const { data, error } = await supabase
-        .from('app.v_transactions_enriched')
-        .select('id, kind, category_name, subcategory_name, occurred_at, amount, note')
-        .eq('household_id', HOUSEHOLD_ID)
-        .gte('occurred_at', gte)
-        .lt('occurred_at', lt)
-        .order('occurred_at', { ascending: true });
-      if (error) throw error;
-      const ins = [], outs = [];
-      for (const r of (data||[])) {
-        const entry = {
-          id: r.id,
-          date: ymd(r.occurred_at),
-          cat: r.category_name || '',
-          sub: r.subcategory_name || '',
-          desc: r.note || '',
-          amt: Number(r.amount)||0,
-          rec: 'no'
-        };
-        if (r.kind === 'income') ins.push(entry);
-        else if (r.kind === 'expense') outs.push(entry);
-      }
-      const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-      const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-      return { ins, outs, sumIn, sumOut };
-    }
-
-    async function fetchRemoteYear(year){
-      if (!HOUSEHOLD_ID) throw new Error('No household');
-      const from = new Date(Date.UTC(year,0,1,0,0,0)).toISOString();
-      const to   = new Date(Date.UTC(year+1,0,1,0,0,0)).toISOString(); // esclusivo
-      const { data, error } = await supabase
-        .from('app.v_transactions_enriched')
-        .select('id, kind, category_name, subcategory_name, occurred_at, amount, note')
-        .eq('household_id', HOUSEHOLD_ID)
-        .gte('occurred_at', from)
-        .lt('occurred_at', to)
-        .order('occurred_at', { ascending: true });
-      if (error) throw error;
-      const ins = [], outs = [];
-      for (const r of (data||[])) {
-        const entry = {
-          id: r.id,
-          date: ymd(r.occurred_at),
-          cat: r.category_name || '',
-          sub: r.subcategory_name || '',
-          desc: r.note || '',
-          amt: Number(r.amount)||0,
-          rec: 'no'
-        };
-        if (r.kind === 'income') ins.push(entry);
-        else if (r.kind === 'expense') outs.push(entry);
-      }
-      const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-      const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-      return { ins, outs, sumIn, sumOut };
-    }
-
-    // ---------- Compute / render ----------
-    function collectDataLocal(){
+    // ---------- Compute + Render ----------
+    function collectData(){
       const data = store.load();
-      if (curMonth === 0){
-        const ins = [], outs = [];
-        for (let m=1; m<=12; m++){
-          const key = `${curYear}-${String(m).padStart(2,'0')}`;
-          if (data[key]?.in)  ins.push(...data[key].in);
-          if (data[key]?.out) outs.push(...data[key].out);
-        }
-        const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-        const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-        return { ins, outs, sumIn, sumOut };
-      }
-      const key = `${curYear}-${String(curMonth).padStart(2,'0')}`;
-      const ins  = data[key]?.in  || [];
-      const outs = data[key]?.out || [];
+      const key = curMonth ? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
+
+      const ins  = key && data[key]?.in  ? data[key].in  : [];
+      const outs = key && data[key]?.out ? data[key].out : [];
+
       const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
       const sumOut = outs.reduce((s,x)=>s+x.amt,0);
       return { ins, outs, sumIn, sumOut };
@@ -667,136 +433,75 @@ await supabase.rpc('ensure_bootstrap').catch(()=>{});
 
     function renderTables(ins, outs){
       const tin = qs('#tbl-in tbody'); const tout = qs('#tbl-out tbody');
-      tin.innerHTML  = ins.length  ? ins.map(rowHTML).join('')  : `<tr><td colspan="6" class="muted">Nessuna entrata nel periodo</td></tr>`;
-      tout.innerHTML = outs.length ? outs.map(rowHTML).join('') : `<tr><td colspan="6" class="muted">Nessuna uscita nel periodo</td></tr>`;
+      tin.innerHTML = ins.map(rowHTML).join('') || `<tr><td colspan="6" class="muted">Nessuna entrata nel periodo</td></tr>`;
+      tout.innerHTML = outs.map(rowHTML).join('') || `<tr><td colspan="6" class="muted">Nessuna uscita nel periodo</td></tr>`;
       bindRowActions('in'); bindRowActions('out');
     }
 
     function renderCharts(ins, outs, sumIn, sumOut){
-      const inByCat = {}; ins.forEach(x=> inByCat[x.cat]=(inByCat[x.cat]||0)+x.amt);
-      const outByCat = {}; outs.forEach(x=> outByCat[x.cat]=(outByCat[x.cat]||0)+x.amt);
+      // Entrate per categoria
+      const inByCat = {};
+      ins.forEach(x=> inByCat[x.cat]=(inByCat[x.cat]||0)+x.amt);
+      const inVals = Object.values(inByCat); const inColors = ['#2ecc71','#27ae60','#7bed9f','#55efc4','#00cec9'];
 
-      const inVals  = Object.values(inByCat);
-      const outVals = Object.values(outByCat);
+      // Uscite per categoria
+      const outByCat = {};
+      outs.forEach(x=> outByCat[x.cat]=(outByCat[x.cat]||0)+x.amt);
+      const outVals = Object.values(outByCat); const outColors = ['#ff7675','#e17055','#fab1a0','#fdcb6e','#e84393'];
 
+      // Summary: [Entrate, Uscite, Risparmio]
       const saved = Math.max(0, sumIn - sumOut);
       const sumVals = [sumIn, sumOut, saved];
+      const sumColors = ['#6c5ce7','#ff7675','#00cec9'];
 
-      drawDonut(qs('#pie-in'),  inVals,  ['#2ecc71','#27ae60','#7bed9f','#55efc4','#00cec9'], sumIn ? fmt(sumIn) : '');
-      drawDonut(qs('#pie-out'), outVals, ['#ff7675','#e17055','#fab1a0','#fdcb6e','#e84393'], sumOut ? fmt(sumOut) : '');
-      drawDonut(qs('#pie-sum'), sumVals, ['#6c5ce7','#ff7675','#00cec9'], fmt(saved));
+      drawDonut(qs('#pie-in'),  inVals,  inColors,  sumIn ? fmt(sumIn) : '');
+      drawDonut(qs('#pie-out'), outVals, outColors, sumOut ? fmt(sumOut) : '');
+      drawDonut(qs('#pie-sum'), sumVals, sumColors, fmt(saved));
 
       qs('#saved-total').textContent = fmt(saved);
     }
 
-    // ---------- Refresh (con remote + fallback) ----------
-    async function refreshNow(){
-      let ins=[], outs=[], sumIn=0, sumOut=0;
-      let usedRemote = false;
-
-      if (ENABLE_REMOTE && HOUSEHOLD_ID){
-        try{
-          if (curMonth === 0) {
-            ({ins, outs, sumIn, sumOut} = await fetchRemoteYear(curYear));
-          } else {
-            ({ins, outs, sumIn, sumOut} = await fetchRemoteMonth(curYear, curMonth));
-          }
-          usedRemote = true;
-
-          // Allinea cache locale del periodo (solo mese singolo)
-          if (curMonth !== 0){
-            const key = `${curYear}-${String(curMonth).padStart(2,'0')}`;
-            const data = store.load();
-            data[key] = { in: ins, out: outs };
-            store.save(data);
-          }
-        } catch (e) {
-          console.warn('remote fetch failed, fallback to localStorage', e);
-        }
-      }
-
-      if (!usedRemote){
-        ({ins, outs, sumIn, sumOut} = collectDataLocal());
-      }
-
+    function refresh(){
+      renderSelectors(); // re-paint pills to highlight current
+      const { ins, outs, sumIn, sumOut } = collectData();
       renderTables(ins, outs);
       renderCharts(ins, outs, sumIn, sumOut);
     }
-    const refresh = (()=>{ let raf=0; return ()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ refreshNow().catch(console.error); }); }; })();
-
-    // ---------- Form add ----------
-    const form = qs('#tx-form');
-    const resetBtn = qs('#reset-form');
-    form.tx_date = qs('#tx-date'); form.tx_date.value = ymd(new Date().toISOString());
-    resetBtn.addEventListener('click', e=>{ e.preventDefault(); form.reset(); form.tx_date.value=ymd(new Date().toISOString()); });
-
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const type = qs('#tx-type').value;                 // in | out
-      const date = qs('#tx-date').value || ymd();
-      const cat  = qs('#tx-cat').value.trim();
-      const sub  = qs('#tx-sub').value.trim();
-      const desc = qs('#tx-desc').value.trim();
-      const amt  = Number((qs('#tx-amt').value||'').replace(',','.'));
-      const rec  = qs('#tx-rec').value;                  // no | mensile
-      if (!cat || !sub || !amt || amt<=0){ alert('Compila correttamente i campi obbligatori.'); return; }
-
-      // 1) Salva in remoto (se possibile)
-      let remoteId = null;
-      if (ENABLE_REMOTE && HOUSEHOLD_ID && DEFAULT_ACCOUNT_ID){
-        try{
-          remoteId = await insertRemoteTx({type,date,cat,sub,desc,amt,rec});
-          // Ricorrenze future lato remoto gestibili con app.recurring_rules (non clonate client-side)
-        }catch(err){
-          console.warn('insert remote tx failed, will keep local only:', err);
-        }
-      }
-
-      // 2) Salva in locale (sempre)
-      const data = store.load();
-      const baseId = remoteId || (crypto?.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random().toString(16).slice(2));
-      const ymKey = getYM(date);
-      data[ymKey] = data[ymKey] || { in:[], out:[] };
-      const entry = { id: baseId, date, cat, sub, desc, amt, rec };
-      data[ymKey][type].push(entry);
-
-      if (rec==='mensile'){
-        const d = new Date(date);
-        for (let i=1;i<= (12 - d.getMonth() - 1); i++){
-          const nd = new Date(d); nd.setMonth(d.getMonth()+i);
-          const nym = getYM(nd.toISOString());
-          data[nym] = data[nym] || { in:[], out:[] };
-          data[nym][type].push({ ...entry, id: (crypto?.randomUUID?crypto.randomUUID():baseId+'-'+i), date: ymd(nd.toISOString()) });
-        }
-      }
-
-      store.save(data);
-      fire('tx_add',{type,amt,rec});
-      form.reset(); form.tx_date.value = ymd(new Date().toISOString());
-      await refreshNow();
-    });
-
-    // ---------- Logout ----------
-    qs('#logout-btn').addEventListener('click', async (e) => {
-      e.preventDefault();
-      fire('logout',{page:'dashboard',lang:LANG});
-      try { await supabase.auth.signOut(); } catch (err) { console.warn('logout error:', err); }
-      finally { location.replace(langPrefix()); }
-    });
-
-    // ---------- Escape helper ----------
-    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
     // ---------- Boot ----------
-    fire('dashboard_viewed',{lang:LANG});
-    renderSelectorsOnce();            // crea i selettori solo una volta
-    await hydrateFromSupabase();      // badge + categorie + household/account
-    await refreshNow();               // primo render
-
-    // Rerender su cambio periodo
-    yearsRow.addEventListener('click', (e)=>{ if (e.target.matches('.pill')) refresh(); });
-    monthsRow.addEventListener('click', (e)=>{ if (e.target.matches('.pill')) refresh(); });
-  }
+    fire('dashboard_viewed',{lang:'it'});
+    renderSelectors();
+    refresh();
   </script>
+  <script type="module">
+  import { supabase } from "/it/supabase-client.js";
+
+  // Se non autenticato → login
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    location.replace("/it/login.html");
+  } else {
+    // Prendi il profilo e reidrata localStorage
+    const { data: { user } } = await supabase.auth.getUser();
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('onboarding_goal,onboarding_saving_method,onboarding_categories,onboarded')
+  .eq('id', user.id).single();
+
+// usa profile.onboarding_categories per inizializzare filtri/grafici
+
+    if (!error && profile) {
+      try {
+        localStorage.setItem("onboarding_goal", profile.onboarding_goal || "");
+        localStorage.setItem("onboarding_saving_method", profile.onboarding_saving_method || "");
+        localStorage.setItem("onboarding_categories", JSON.stringify(profile.onboarding_categories || []));
+        if (profile.onboarded) localStorage.setItem("onboarding_completed","1");
+      } catch(e){}
+    }
+
+    // Se hai una funzione che costruisce la UI dopo i dati, richiamala qui
+    if (window.mhbAfterProfileHydrated) window.mhbAfterProfileHydrated();
+  }
+</script>
 </body>
 </html>
