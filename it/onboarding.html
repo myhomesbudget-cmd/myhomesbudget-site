@@ -244,8 +244,10 @@
     </div>
   </main>
 
-  <!-- Logica onboarding (come tua) -->
-  <script>
+  <!-- Logica onboarding + salvataggio Supabase -->
+  <script type="module">
+  import { supabase } from "/it/supabase-client.js";
+
   document.addEventListener('DOMContentLoaded', () => {
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
 
@@ -382,11 +384,38 @@
       return true;
     }
 
-    nextBtn.addEventListener('click', () => {
+    async function upsertProfileToSupabase(){
+      // Prova a salvare l'onboarding nel profilo dell'utente
+      try{
+        const { data:{ session } } = await supabase.auth.getSession();
+        const user = session?.user;
+        if (!user) return; // se non loggato, esce silenziosamente
+
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || null,
+          plan_type: user.user_metadata?.plan || 'trial',
+          onboarded: true,
+          onboarding_goal: state.goal,
+          onboarding_saving_method: state.saving_method,
+          onboarding_categories: state.categories
+        }, { onConflict: 'id' });
+      } catch (e){
+        console.warn('onboarding → supabase upsert profilo fallita:', e);
+      }
+    }
+
+    nextBtn.addEventListener('click', async () => {
       if (!validateStep(currentStep)) return;
+
       if (currentStep === TOTAL_STEPS){
         try { localStorage.setItem('onboarding_completed','1'); } catch(e){}
         gtag('event','onboarding_completed');
+
+        // 🔹 Salva su Supabase (se autenticato), poi redirect
+        await upsertProfileToSupabase();
+
         location.replace(itPrefix() + 'dashboard.html');
         return;
       }
@@ -417,15 +446,11 @@
     logoutBtn?.addEventListener('click', async (e) => {
       e.preventDefault();
       try {
-        // GA
         if (typeof gtag === 'function') gtag('event','logout',{page:'onboarding',lang:'it'});
-
-        // Logout Supabase
         await supabase.auth.signOut();
       } catch (err) {
         console.warn('Logout error:', err);
       } finally {
-        // Pulisci stato locale per evitare ambiguità tra account diversi
         try {
           localStorage.removeItem('onboarding_goal');
           localStorage.removeItem('onboarding_saving_method');
@@ -434,7 +459,6 @@
           localStorage.removeItem('mhb_lang');
           localStorage.removeItem('email_verified');
         } catch(e){}
-        // Redirect alla Home IT
         location.replace(itPrefix());
       }
     });
