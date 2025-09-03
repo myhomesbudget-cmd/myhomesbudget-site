@@ -257,7 +257,10 @@
     const qs = s => document.querySelector(s);
     const qsa = s => [...document.querySelectorAll(s)];
     const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(e){} };
-    const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${RegExp.$1.toLowerCase()}/` : "/it/");
+    const itPrefix = () => {
+  const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+  return m ? `/${m[1].toLowerCase()}/` : "/it/";
+};
 
     // ---------- Storage schema ----------
     // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
@@ -374,16 +377,29 @@
 
     // ---------- Compute + Render ----------
     function collectData(){
-      const data = store.load();
-      const key = curMonth ? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
+  const data = store.load();
 
-      const ins  = key && data[key]?.in  ? data[key].in  : [];
-      const outs = key && data[key]?.out ? data[key].out : [];
-
-      const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
-      const sumOut = outs.reduce((s,x)=>s+x.amt,0);
-      return { ins, outs, sumIn, sumOut };
+  // TUTTO l'anno corrente
+  if (curMonth === 0){
+    const ins = [], outs = [];
+    for (let m = 1; m <= 12; m++){
+      const key = `${curYear}-${String(m).padStart(2,'0')}`;
+      if (data[key]?.in)  ins.push(...data[key].in);
+      if (data[key]?.out) outs.push(...data[key].out);
     }
+    const sumIn  = ins.reduce((s,x)=>s + x.amt, 0);
+    const sumOut = outs.reduce((s,x)=>s + x.amt, 0);
+    return { ins, outs, sumIn, sumOut };
+  }
+
+  // Solo il mese selezionato
+  const key   = `${curYear}-${String(curMonth).padStart(2,'0')}`;
+  const ins   = data[key]?.in  || [];
+  const outs  = data[key]?.out || [];
+  const sumIn = ins.reduce((s,x)=>s + x.amt, 0);
+  const sumOut= outs.reduce((s,x)=>s + x.amt, 0);
+  return { ins, outs, sumIn, sumOut };
+}
 
     function renderTables(ins, outs){
       const tin = qs('#tbl-in tbody'); const tout = qs('#tbl-out tbody');
@@ -529,16 +545,16 @@
     }
     
 function setActivePills(){
-  // anni
+  // anni: evidenzia l'anno scelto, oppure "TUTTO" quando curMonth=0
   qsa('#years-row .pill').forEach(btn=>{
     const t = btn.textContent.trim();
-    const isYear = /^\d{4}$/.test(t) && Number(t)===curYear;
-    // il pill "TUTTO" non va mai attivo qui
-    btn.setAttribute('aria-current', String(isYear));
+    const isYear = /^\d{4}$/.test(t) && Number(t) === curYear && curMonth !== 0;
+    const isAll  = t.toUpperCase() === 'TUTTO' && curMonth === 0;
+    btn.setAttribute('aria-current', String(isYear || isAll));
   });
-  // mesi
-  qsa('#months-row .pill').forEach((btn,idx)=>{
-    btn.setAttribute('aria-current', String(idx === (curMonth-1)));
+  // mesi: evidenzia solo se è selezionato 1..12 (non quando è TUTTO)
+  qsa('#months-row .pill').forEach((btn, idx)=>{
+    btn.setAttribute('aria-current', String(curMonth > 0 && idx === (curMonth - 1)));
   });
 }
 
