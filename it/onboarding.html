@@ -254,6 +254,19 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) location.replace("/it/login.html");
+
+await supabase.from('profiles').upsert({
+  id: user.id,
+  onboarding_goal: state.goal,
+  onboarding_saving_method: state.saving_method,
+  onboarding_categories: state.categories,   // array JS → JSONB
+  onboarded: true
+});
+localStorage.setItem('onboarding_completed','1'); // opzionale
+location.replace('/it/dashboard.html');
+
     // Espongo una funzione globale per il salvataggio: la usa lo script non-module sotto.
     window.mhbSaveOnboarding = async (state) => {
       try {
