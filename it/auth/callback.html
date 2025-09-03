@@ -2,6 +2,7 @@
 <title>Reindirizzamento…</title>
 <meta name="robots" content="noindex">
 <style>body{font-family:system-ui;margin:40px;text-align:center}</style>
+
 <script type="module">
   import { supabase } from "/it/supabase-client.js";
 
@@ -9,24 +10,36 @@
   const go = (p) => location.replace(`/${lang}/${p}.html`);
 
   try {
+    // Piccolo delay: consente a Supabase di completare l'handshake del magic link
+    await new Promise(r => setTimeout(r, 50));
+
     const { data:{ session } } = await supabase.auth.getSession();
-    if (!session) return go('login');
+    if (!session?.user) return go('login');
 
     const uid = session.user.id;
 
-    // Leggi o crea il profilo
-    let { data: profile, error } =
-      await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', uid).single();
+    // 1) Sorgente primaria: localStorage
+    let completed = (localStorage.getItem('onboarding_completed') === '1');
 
-    if (error || !profile) {
-      const ins = await supabase.from('profiles')
-        .insert({ id: uid, email: session.user.email })
-        .select('onboarded, plan_type, trial_end').single();
-      profile = ins.data || { onboarded:false, plan_type:'trial' };
+    // 2) Fallback opzionale: Supabase (se hai creato la tabella onboarding_settings)
+    if (!completed) {
+      try {
+        const { data: onb, error } = await supabase
+          .from('onboarding_settings')
+          .select('completed')
+          .eq('user_id', uid)
+          .single();
+
+        if (!error && onb?.completed) {
+          completed = true;
+          try { localStorage.setItem('onboarding_completed', '1'); } catch(e){}
+        }
+      } catch(e) {
+        // Tabella non esiste o altro errore: ignora e prosegui verso onboarding
+      }
     }
 
-    // eventuale paywall futuro: se scaduto trial → go('paywall')
-    return profile.onboarded ? go('dashboard') : go('onboarding');
+    return completed ? go('dashboard') : go('onboarding');
   } catch (e) {
     go('login');
   }
