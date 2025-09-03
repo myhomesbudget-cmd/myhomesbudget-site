@@ -247,7 +247,12 @@
 
   <!-- Logic -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+  import { supabase } from "/it/supabase-client.js";
+
+  // Evita doppi init per qualunque motivo (più script, estensioni, hot reload)
+  if (window.__MHB_BOOTED__) { console.debug("MHB dashboard: duplicate init skipped"); }
+  else {
+    window.__MHB_BOOTED__ = true;
 
     // ---------- Utils ----------
     const it = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
@@ -256,68 +261,79 @@
     const getYM = (d)=> (d||ymd()).slice(0,7); // YYYY-MM
     const qs = s => document.querySelector(s);
     const qsa = s => [...document.querySelectorAll(s)];
-    const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(e){} };
+    const fire = (name,params={}) => { try{ gtag('event',name,params);}catch(_){} };
     const itPrefix = () => {
-  const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-  return m ? `/${m[1].toLowerCase()}/` : "/it/";
-};
-
-    // ---------- Storage schema ----------
-    // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
-    const store = {
-      load(){ try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch(e){ return {}; } },
-      save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch(e){} }
+      const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+      return m ? `/${m[1].toLowerCase()}/` : "/it/";
     };
 
-    // ---------- Period selectors ----------
+    // ---------- Storage locale ----------
+    // mhb_tx = { "YYYY-MM": { in:[{id,date,cat,sub,desc,amt,rec}], out:[...] } }
+    const store = {
+      load(){ try{ return JSON.parse(localStorage.getItem('mhb_tx')||'{}'); }catch{ return {}; } },
+      save(data){ try{ localStorage.setItem('mhb_tx',JSON.stringify(data)); }catch{} }
+    };
+
+    // ---------- Stato periodo + selettori ----------
     const yearsRow = qs('#years-row');
     const monthsRow = qs('#months-row');
     let curYear  = Number(localStorage.getItem('mhb_year'))  || new Date().getFullYear();
-    let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12
+    let curMonth = Number(localStorage.getItem('mhb_month')) || (new Date().getMonth()+1); // 1..12, 0 = TUTTO
 
-    function renderSelectors(){
-  yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
-  const start = new Date().getFullYear() - 1;
-  for (let y=start; y<start+12; y++){
-    const a = document.createElement('button');
-    a.className='pill'; a.textContent=y;
-    a.addEventListener('click',()=>{
-      curYear=y; persistPeriod(); setActivePills(); // <— aggiorna solo “attivo”
-      refresh();                                    // <— ricalcola tabelle/grafici
-      fire('filter_change',{year:curYear,month:curMonth});
-    });
-    yearsRow.appendChild(a);
-  }
-  const all = document.createElement('button');
-  all.className='pill'; all.textContent='TUTTO';
-  all.addEventListener('click',()=>{
-    curMonth=0; persistPeriod(); setActivePills();
-    refresh();
-    fire('filter_change',{year:curYear,month:0});
-  });
-  yearsRow.appendChild(all);
+    function persistPeriod(){
+      localStorage.setItem('mhb_year',curYear);
+      localStorage.setItem('mhb_month',curMonth);
+    }
 
-  monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
-  const names = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-  names.forEach((n,i)=>{
-    const m=i+1;
-    const b=document.createElement('button');
-    b.className='pill'; b.textContent=n;
-    b.addEventListener('click',()=>{
-      curMonth=m; persistPeriod(); setActivePills();
-      refresh();
-      fire('filter_change',{year:curYear,month:curMonth});
-    });
-    monthsRow.appendChild(b);
-  });
+    // crea i selettori UNA VOLTA
+    function renderSelectorsOnce(){
+      yearsRow.innerHTML = '<strong>Seleziona anno</strong>';
+      const start = new Date().getFullYear() - 1;
+      for (let y=start; y<start+12; y++){
+        const b = document.createElement('button');
+        b.className = 'pill'; b.textContent = y;
+        b.addEventListener('click', ()=>{
+          if (curYear!==y){ curYear=y; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
+        });
+        yearsRow.appendChild(b);
+      }
+      const all = document.createElement('button');
+      all.className='pill'; all.textContent='TUTTO';
+      all.addEventListener('click', ()=>{
+        if (curMonth!==0){ curMonth=0; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:0}); }
+      });
+      yearsRow.appendChild(all);
 
-  // inizializza gli “attivi” al primo render
-  setActivePills();
-}
+      monthsRow.innerHTML = '<strong>Seleziona mese</strong>';
+      const names = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+      names.forEach((n,i)=>{
+        const m=i+1;
+        const b=document.createElement('button');
+        b.className='pill'; b.textContent=n;
+        b.addEventListener('click', ()=>{
+          if (curMonth!==m){ curMonth=m; persistPeriod(); setActivePills(); refresh(); fire('filter_change',{year:curYear,month:curMonth}); }
+        });
+        monthsRow.appendChild(b);
+      });
 
-    function persistPeriod(){ localStorage.setItem('mhb_year',curYear); localStorage.setItem('mhb_month',curMonth); }
+      setActivePills();
+    }
 
-    // ---------- Tables ----------
+    function setActivePills(){
+      // anni: evidenzia l'anno o "TUTTO" (quando curMonth=0)
+      qsa('#years-row .pill').forEach(btn=>{
+        const t = btn.textContent.trim();
+        const isYear = /^\d{4}$/.test(t) && Number(t) === curYear && curMonth !== 0;
+        const isAll  = t.toUpperCase() === 'TUTTO' && curMonth === 0;
+        btn.setAttribute('aria-current', String(isYear || isAll));
+      });
+      // mesi: solo se è 1..12
+      qsa('#months-row .pill').forEach((btn, idx)=>{
+        btn.setAttribute('aria-current', String(curMonth > 0 && idx === (curMonth - 1)));
+      });
+    }
+
+    // ---------- Tabelle ----------
     function rowHTML(e){
       return `<tr>
         <td class="muted">${e.date.split('-').reverse().join('/')}</td>
@@ -325,25 +341,19 @@
         <td>${e.sub}</td>
         <td>${e.desc||''}</td>
         <td class="right">${fmt(e.amt)}</td>
-        <td>
-          <span class="action">
-            <button class="btn-mini" data-act="del" data-id="${e.id}">Elimina</button>
-          </span>
-        </td>
+        <td><button class="btn-mini" data-act="del" data-id="${e.id}">Elimina</button></td>
       </tr>`;
     }
     function bindRowActions(type){
       qsa(`#tbl-${type} [data-act="del"]`).forEach(btn=>{
-        btn.addEventListener('click',()=>{
+        btn.onclick = ()=>{
           const id = btn.getAttribute('data-id');
           const data = store.load();
           const key = curMonth? `${curYear}-${String(curMonth).padStart(2,'0')}` : null;
-          if (key && data[key]){
-            data[key][type] = data[key][type].filter(x=>x.id!==id);
-          }
+          if (key && data[key]) data[key][type] = data[key][type].filter(x=>x.id!==id);
           store.save(data); fire('tx_delete',{type});
           refresh();
-        });
+        };
       });
     }
 
@@ -354,89 +364,78 @@
       ctx.clearRect(0,0,W,H);
       const total = series.reduce((s,x)=>s+x,0);
       if (!total){
-        // placeholder
         ctx.strokeStyle='rgba(0,0,0,.1)'; ctx.lineWidth=24;
         ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.stroke();
         ctx.fillStyle='#666'; ctx.font='600 14px system-ui'; ctx.textAlign='center';
         ctx.fillText('—',CX,CY+5); return;
       }
-      let start = -Math.PI/2;
-      ctx.lineWidth = 24;
+      let start = -Math.PI/2; ctx.lineWidth = 24;
       series.forEach((v,i)=>{
         const angle = (v/total)*Math.PI*2;
         ctx.strokeStyle = colors[i % colors.length] || '#999';
-        ctx.beginPath();
-        ctx.arc(CX,CY,R,start,start+angle);
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(CX,CY,R,start,start+angle); ctx.stroke();
         start += angle;
       });
-      // center label
       ctx.fillStyle='#111'; ctx.font='700 14px system-ui'; ctx.textAlign='center';
       ctx.fillText(label, CX, CY+5);
     }
 
-    // ---------- Compute + Render ----------
+    // ---------- Compute ----------
     function collectData(){
-  const data = store.load();
+      const data = store.load();
 
-  // TUTTO l'anno corrente
-  if (curMonth === 0){
-    const ins = [], outs = [];
-    for (let m = 1; m <= 12; m++){
-      const key = `${curYear}-${String(m).padStart(2,'0')}`;
-      if (data[key]?.in)  ins.push(...data[key].in);
-      if (data[key]?.out) outs.push(...data[key].out);
+      // “TUTTO” = aggrega tutto l’anno corrente
+      if (curMonth === 0){
+        const ins = [], outs = [];
+        for (let m=1; m<=12; m++){
+          const key = `${curYear}-${String(m).padStart(2,'0')}`;
+          if (data[key]?.in)  ins.push(...data[key].in);
+          if (data[key]?.out) outs.push(...data[key].out);
+        }
+        const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
+        const sumOut = outs.reduce((s,x)=>s+x.amt,0);
+        return { ins, outs, sumIn, sumOut };
+      }
+
+      const key = `${curYear}-${String(curMonth).padStart(2,'0')}`;
+      const ins  = data[key]?.in  || [];
+      const outs = data[key]?.out || [];
+      const sumIn  = ins.reduce((s,x)=>s+x.amt,0);
+      const sumOut = outs.reduce((s,x)=>s+x.amt,0);
+      return { ins, outs, sumIn, sumOut };
     }
-    const sumIn  = ins.reduce((s,x)=>s + x.amt, 0);
-    const sumOut = outs.reduce((s,x)=>s + x.amt, 0);
-    return { ins, outs, sumIn, sumOut };
-  }
-
-  // Solo il mese selezionato
-  const key   = `${curYear}-${String(curMonth).padStart(2,'0')}`;
-  const ins   = data[key]?.in  || [];
-  const outs  = data[key]?.out || [];
-  const sumIn = ins.reduce((s,x)=>s + x.amt, 0);
-  const sumOut= outs.reduce((s,x)=>s + x.amt, 0);
-  return { ins, outs, sumIn, sumOut };
-}
 
     function renderTables(ins, outs){
       const tin = qs('#tbl-in tbody'); const tout = qs('#tbl-out tbody');
-      tin.innerHTML = ins.map(rowHTML).join('') || `<tr><td colspan="6" class="muted">Nessuna entrata nel periodo</td></tr>`;
-      tout.innerHTML = outs.map(rowHTML).join('') || `<tr><td colspan="6" class="muted">Nessuna uscita nel periodo</td></tr>`;
+      tin.innerHTML  = ins.length  ? ins.map(rowHTML).join('')  : `<tr><td colspan="6" class="muted">Nessuna entrata nel periodo</td></tr>`;
+      tout.innerHTML = outs.length ? outs.map(rowHTML).join('') : `<tr><td colspan="6" class="muted">Nessuna uscita nel periodo</td></tr>`;
       bindRowActions('in'); bindRowActions('out');
     }
 
     function renderCharts(ins, outs, sumIn, sumOut){
-      // Entrate per categoria
-      const inByCat = {};
-      ins.forEach(x=> inByCat[x.cat]=(inByCat[x.cat]||0)+x.amt);
-      const inVals = Object.values(inByCat); const inColors = ['#2ecc71','#27ae60','#7bed9f','#55efc4','#00cec9'];
+      const inByCat = {}; ins.forEach(x=> inByCat[x.cat]=(inByCat[x.cat]||0)+x.amt);
+      const outByCat = {}; outs.forEach(x=> outByCat[x.cat]=(outByCat[x.cat]||0)+x.amt);
 
-      // Uscite per categoria
-      const outByCat = {};
-      outs.forEach(x=> outByCat[x.cat]=(outByCat[x.cat]||0)+x.amt);
-      const outVals = Object.values(outByCat); const outColors = ['#ff7675','#e17055','#fab1a0','#fdcb6e','#e84393'];
+      const inVals  = Object.values(inByCat);
+      const outVals = Object.values(outByCat);
 
-      // Summary: [Entrate, Uscite, Risparmio]
       const saved = Math.max(0, sumIn - sumOut);
       const sumVals = [sumIn, sumOut, saved];
-      const sumColors = ['#6c5ce7','#ff7675','#00cec9'];
 
-      drawDonut(qs('#pie-in'),  inVals,  inColors,  sumIn ? fmt(sumIn) : '');
-      drawDonut(qs('#pie-out'), outVals, outColors, sumOut ? fmt(sumOut) : '');
-      drawDonut(qs('#pie-sum'), sumVals, sumColors, fmt(saved));
+      drawDonut(qs('#pie-in'),  inVals,  ['#2ecc71','#27ae60','#7bed9f','#55efc4','#00cec9'], sumIn ? fmt(sumIn) : '');
+      drawDonut(qs('#pie-out'), outVals, ['#ff7675','#e17055','#fab1a0','#fdcb6e','#e84393'], sumOut ? fmt(sumOut) : '');
+      drawDonut(qs('#pie-sum'), sumVals, ['#6c5ce7','#ff7675','#00cec9'], fmt(saved));
 
       qs('#saved-total').textContent = fmt(saved);
     }
 
-    function refresh(){
-  // NIENTE renderSelectors() qui — evita il flicker
-  const { ins, outs, sumIn, sumOut } = collectData();
-  renderTables(ins, outs);
-  renderCharts(ins, outs, sumIn, sumOut);
-}
+    // ---------- Refresh (debounced su RAF) ----------
+    function refreshNow(){
+      const { ins, outs, sumIn, sumOut } = collectData();
+      renderTables(ins, outs);
+      renderCharts(ins, outs, sumIn, sumOut);
+    }
+    const refresh = (()=>{ let raf=0; return ()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(refreshNow); }; })();
 
     // ---------- Form add ----------
     const form = qs('#tx-form');
@@ -461,7 +460,6 @@
       const entry = { id:crypto.randomUUID(), date, cat, sub, desc, amt, rec };
       data[ym][type].push(entry);
 
-      // ricorrenza mensile: duplica fino a fine anno corrente
       if (rec==='mensile'){
         const d = new Date(date);
         for (let i=1;i<= (12 - d.getMonth() - 1); i++){
@@ -478,15 +476,14 @@
       refresh();
     });
 
-    // ---------- Auth + Hydration ----------
+    // ---------- Hydration Supabase (no loop, no flicker) ----------
     async function hydrateFromSupabase(){
-      // redirect se non loggato
       const { data:{ user } } = await supabase.auth.getUser();
       if (!user){ location.replace(itPrefix() + "login.html"); return; }
 
-      // Badge "Benvenuto" / piano
-      const nameFromMeta = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Utente';
-      qs('#welcome').textContent = `Benvenuto — ${nameFromMeta}`;
+      // badge
+      const name = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Utente';
+      qs('#welcome').textContent = `Benvenuto — ${name}`;
       const planMeta = user?.user_metadata?.plan;
       if (planMeta) qs('#plan-badge').textContent = (planMeta==='lifetime'?'Permanente':(planMeta==='monthly'?'Mensile':'Prova'));
 
@@ -494,87 +491,54 @@
       try{
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('name, plan_type, onboarded, onboarding_goal, onboarding_saving_method, onboarding_categories')
-          .eq('id', user.id)
-          .single();
-
+          .select('onboarded,onboarding_goal,onboarding_saving_method,onboarding_categories,plan_type')
+          .eq('id', user.id).single();
         if (error) throw error;
 
-        // se non ha completato onboarding → guidalo subito
-        if (!profile?.onboarded){
-          location.replace(itPrefix() + 'onboarding.html');
-          return;
-        }
+        if (!profile?.onboarded){ location.replace(itPrefix() + 'onboarding.html'); return; }
 
-        // salva anche in localStorage (continuità logica)
-        if (profile.onboarding_goal) localStorage.setItem('onboarding_goal', profile.onboarding_goal);
-        if (profile.onboarding_saving_method) localStorage.setItem('onboarding_saving_method', profile.onboarding_saving_method);
-        if (Array.isArray(profile.onboarding_categories)) {
+        if (Array.isArray(profile.onboarding_categories)){
           localStorage.setItem('onboarding_categories', JSON.stringify(profile.onboarding_categories));
           populateCategoryDatalist(profile.onboarding_categories);
         } else {
-          // fallback locale
           const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
           populateCategoryDatalist(cats);
         }
 
-        // eventuale piano dal profilo
-        if (!planMeta && profile.plan_type) {
+        if (!planMeta && profile?.plan_type){
           qs('#plan-badge').textContent = (profile.plan_type==='lifetime'?'Permanente':(profile.plan_type==='monthly'?'Mensile':'Prova'));
         }
-
-      }catch(err){
+      } catch(err){
         console.warn('profile load failed:', err);
-        // fallback: categorie da localStorage
-        try{
-          const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
-          populateCategoryDatalist(cats);
-        }catch(e){}
+        const cats = JSON.parse(localStorage.getItem('onboarding_categories')||'[]');
+        populateCategoryDatalist(cats);
       }
     }
 
     function populateCategoryDatalist(cats){
-      const dl = qs('#cat-list');
-      if (!dl) return;
+      const dl = qs('#cat-list'); if (!dl) return;
       dl.innerHTML = '';
       (cats||[]).forEach(c=>{
         const opt = document.createElement('option');
-        opt.value = (typeof c === 'string') ? c : (c.name || '');
+        opt.value = typeof c === 'string' ? c : (c.name || '');
         if (opt.value) dl.appendChild(opt);
       });
     }
-    
-function setActivePills(){
-  // anni: evidenzia l'anno scelto, oppure "TUTTO" quando curMonth=0
-  qsa('#years-row .pill').forEach(btn=>{
-    const t = btn.textContent.trim();
-    const isYear = /^\d{4}$/.test(t) && Number(t) === curYear && curMonth !== 0;
-    const isAll  = t.toUpperCase() === 'TUTTO' && curMonth === 0;
-    btn.setAttribute('aria-current', String(isYear || isAll));
-  });
-  // mesi: evidenzia solo se è selezionato 1..12 (non quando è TUTTO)
-  qsa('#months-row .pill').forEach((btn, idx)=>{
-    btn.setAttribute('aria-current', String(curMonth > 0 && idx === (curMonth - 1)));
-  });
-}
 
     // ---------- Logout ----------
     qs('#logout-btn').addEventListener('click', async (e) => {
       e.preventDefault();
       fire('logout',{page:'dashboard',lang:'it'});
-      try { await supabase.auth.signOut(); }
-      catch (err) { console.warn('logout error:', err); }
-      finally {
-        // NON eliminiamo mhb_tx: i movimenti locali restano sul device
-        location.replace(itPrefix());
-      }
+      try { await supabase.auth.signOut(); } catch (err) { console.warn('logout error:', err); }
+      finally { location.replace(itPrefix()); }
     });
 
     // ---------- Boot ----------
     fire('dashboard_viewed',{lang:'it'});
-    renderSelectors();
-    await hydrateFromSupabase();  // categorie & badge
-    refresh();
-  </script>
+    renderSelectorsOnce();      // crea i selettori solo una volta
+    await hydrateFromSupabase(); // badge + categorie
+    refresh();                  // primo render
+  }
+</script>
 </body>
 </html>
