@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="it" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riepilogo — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px;border-radius:6px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:0.9rem;font-weight:600;}
+    .top-link:hover{background:rgba(0,0,0,.38)}
+    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass);color:var(--fg);border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}
+    h1,h2,h3{color:#111;}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px;}
+    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600;}
+    .dash-nav a.is-active{background-color:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+    .content-section{background:rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
+    /* Stili per le card di riepilogo */
+    .summary-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;}
+    .summary-card {background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+    .summary-card .title {font-weight: 600; color: #555; margin: 0 0 8px 0;}
+    .summary-card .value {font-size: 2rem; font-weight: 800; color: #111;}
+    .value.income {color: #2e7d32;}
+    .value.expense {color: #d32f2f;}
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-actions">
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
+    </div>
+  </nav>
+
+  <main class="panel">
+    <nav id="dash-nav" class="dash-nav">
+      <a href="/it/dashboard.html">Operazioni</a>
+      <a href="/it/dashboard-riepilogo.html" class="is-active" aria-current="page">Riepilogo</a>
+    </nav>
+
+    <section class="content-section">
+      <h2>Riepilogo del Mese</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h3 class="title">Entrate</h3>
+          <p id="total-income" class="value income">-- €</p>
+        </div>
+        <div class="summary-card">
+          <h3 class="title">Uscite</h3>
+          <p id="total-expenses" class="value expense">-- €</p>
+        </div>
+        <div class="summary-card">
+          <h3 class="title">Saldo Rimanente</h3>
+          <p id="remaining-budget" class="value">-- €</p>
+        </div>
+      </div>
+    </section>
+
+    </main>
+  
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    // Seleziona gli elementi dove mostrare i dati
+    const incomeEl = document.getElementById('total-income');
+    const expensesEl = document.getElementById('total-expenses');
+    const budgetEl = document.getElementById('remaining-budget');
+
+    async function initializePage() {
+      // Controlla che l'utente sia loggato
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        location.replace("/it/login.html");
+        return;
+      }
+
+      // Chiama la nostra funzione SQL
+      console.log("Chiamo la funzione get_monthly_summary...");
+      const { data, error } = await supabase.rpc('get_monthly_summary');
+
+      if (error) {
+        console.error("Errore nel recuperare il riepilogo:", error);
+        incomeEl.textContent = "Errore";
+        expensesEl.textContent = "Errore";
+        budgetEl.textContent = "Errore";
+        return;
+      }
+      
+      console.log("Dati ricevuti:", data); // Qui vedrai l'oggetto JSON completo
+
+      // Aggiorna l'interfaccia con i dati ricevuti
+      const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
+      
+      incomeEl.textContent = formatCurrency(data.totalIncome);
+      expensesEl.textContent = formatCurrency(data.totalExpenses);
+      budgetEl.textContent = formatCurrency(data.remainingBudget);
+
+      // Logica per il logout
+      document.getElementById('logout-btn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        location.replace("/it/");
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+
+</body>
+</html>
