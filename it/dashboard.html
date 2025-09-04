@@ -1,7 +1,47 @@
 <!doctype html>
 <html lang="it" data-app="myhomesbudget">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Dashboard — MyHomesBudget</title><style>/* CSS è identico a prima */ :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}*{box-sizing:border-box}html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}.topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;align-items:center;justify-content:space-between;}.logo-link,.top-actions{pointer-events:auto}.logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}.logo-image{height:32px;border-radius:6px}.logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}.top-actions{display:flex;gap:8px;align-items:center}.top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}.top-link:hover{background:rgba(0,0,0,.38)}main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}h1, h2, h3 { color: #111; }.btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition: all .2s ease;}.btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}.btn[disabled]{opacity:.6;cursor:not-allowed}.dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}.dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}.dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}.content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}.transaction-form {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;align-items: flex-end;}@media (min-width: 820px) {.transaction-form {grid-template-columns: repeat(3, 1fr) auto;}}.form-group { display: flex; flex-direction: column; }.form-group.full-width { grid-column: 1 / -1; }.form-group label { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }.form-group input, .form-group select {width: 100%;padding: 10px;border-radius: 8px;border: 1px solid #ccc;background: #fff;font-size: 1rem;}.transaction-list .item {display: grid;grid-template-columns: auto 1fr auto;gap: 12px;align-items: center;padding: 12px 4px;border-bottom: 1px solid rgba(0,0,0,0.05);}.item-icon { font-size: 1.5rem; }.item-details { display: flex; flex-direction: column; }.item-details .note { font-weight: 600; }.item-details .category { font-size: 0.9rem; color: #555; }.item-amount { text-align: right; }.item-amount.expense { color: #d32f2f; font-weight: 700; }.item-amount.income { color: #2e7d32; font-weight: 700; }.empty-state { text-align: center; padding: 40px; color: #555; }</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard — MyHomesBudget</title>
+  <meta name="description" content="Gestisci le tue finanze, traccia le spese e raggiungi i tuoi obiettivi.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link,.top-actions{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px;border-radius:6px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}.top-link:hover{background:rgba(0,0,0,.38)}
+    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}
+    h1, h2, h3 { color: #111; }
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition: all .2s ease;}.btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}.btn[disabled]{opacity:.6;cursor:not-allowed}
+    .dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}.dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}.dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}
+    .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
+    .transaction-form {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;align-items: flex-end;}@media (min-width: 820px) {.transaction-form {grid-template-columns: repeat(3, 1fr) auto;}}
+    .form-group { display: flex; flex-direction: column; }.form-group.full-width { grid-column: 1 / -1; }.form-group label { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }.form-group input, .form-group select {width: 100%;padding: 10px;border-radius: 8px;border: 1px solid #ccc;background: #fff;font-size: 1rem;}
+    /* Stili per la lista transazioni aggiornata */
+    .transaction-list .item {display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,0.05);}
+    .item-icon { font-size: 1.5rem; }
+    .item-details { display: flex; flex-direction: column; }
+    .item-details .note { font-weight: 600; }
+    .item-details .category { font-size: 0.9rem; color: #555; }
+    .item-amount { text-align: right; white-space: nowrap; }
+    .item-amount.expense { color: #d32f2f; font-weight: 700; }
+    .item-amount.income { color: #2e7d32; font-weight: 700; }
+    .item-actions { display: flex; gap: 8px; }
+    .action-btn { background: none; border: none; cursor: pointer; padding: 4px; font-size: 1.2rem; line-height: 1; border-radius: 50%;}
+    .action-btn:hover { background-color: rgba(0,0,0,0.1); }
+    .empty-state { text-align: center; padding: 40px; color: #555; }
+  </style>
 </head>
 <body>
   <nav class="topbar">
@@ -18,8 +58,9 @@
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
     </nav>
     <section class="content-section">
-      <h2>Nuova Transazione</h2>
+      <h2 id="form-title">Nuova Transazione</h2>
       <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group full-width"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
         <div class="form-group full-width"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required></div>
         <div class="form-group"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
@@ -40,6 +81,8 @@
 
     // --- SELETTORI DOM & STATO ---
     const transactionForm = document.getElementById('transaction-form');
+    const transactionIdInput = document.getElementById('transaction-id');
+    const formTitle = document.getElementById('form-title');
     const transactionList = document.getElementById('transaction-list');
     const categorySelect = document.getElementById('category_id');
     const subcategorySelect = document.getElementById('subcategory_id');
@@ -47,31 +90,27 @@
     let user = null;
     let allCategories = [];
     let allSubcategories = [];
+    let allTransactions = []; // Memorizziamo le transazioni caricate
 
     // --- FUNZIONI ---
     async function loadCategories() {
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
         const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*, categories(created_by)').eq('categories.created_by', user.id);
         if (cError || sError) { console.error(cError || sError); return; }
-        
         allCategories = categories;
         allSubcategories = subcategories;
-
         categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
         allCategories.forEach(cat => {
-            // Mostra l'icona e il nome nel menu a tendina
             const option = new Option(`${cat.icon} ${cat.name}`, cat.id);
             categorySelect.add(option);
         });
     }
 
-    function updateSubcategories() {
+    function updateSubcategories(selectedSubcategoryId = null) {
         const selectedCategoryId = categorySelect.value;
         subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
         subcategorySelect.disabled = true;
-        
         if (!selectedCategoryId) return;
-
         const relevantSubcategories = allSubcategories.filter(sub => sub.category_id === selectedCategoryId);
         if (relevantSubcategories.length > 0) {
             subcategorySelect.disabled = false;
@@ -79,6 +118,9 @@
                 const option = new Option(`${sub.icon} ${sub.name}`, sub.id);
                 subcategorySelect.add(option);
             });
+            if (selectedSubcategoryId) {
+                subcategorySelect.value = selectedSubcategoryId;
+            }
         }
     }
 
@@ -89,6 +131,7 @@
             .order('occurred_at', { ascending: false }).limit(15);
         if (error) { console.error(error); return; }
 
+        allTransactions = data; // Salva i dati
         transactionList.innerHTML = '';
         if (data.length === 0) {
             transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
@@ -98,11 +141,9 @@
         data.forEach(tx => {
             const item = document.createElement('div');
             item.className = 'item';
-            
             const cat = tx.categories;
             const sub = tx.subcategories;
-            // Usa l'icona della sottocategoria se esiste, altrimenti quella della categoria
-            const icon = sub?.icon || cat?.icon || '💸'; 
+            const icon = sub?.icon || cat?.icon || '💸';
             const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
             
             item.innerHTML = `
@@ -114,17 +155,60 @@
                 <div class="item-amount ${tx.kind}">
                     ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
                 </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">✏️</button>
+                    <button class="action-btn delete-btn" data-id="${tx.id}" title="Elimina">🗑️</button>
+                </div>
             `;
             transactionList.appendChild(item);
         });
     }
     
+    // --- NUOVE FUNZIONI PER MODIFICA ED ELIMINA ---
+
+    function handleEdit(id) {
+        const tx = allTransactions.find(t => t.id === id);
+        if (!tx) return;
+
+        // Popola il form con i dati della transazione
+        formTitle.textContent = "Modifica Transazione";
+        transactionIdInput.value = tx.id;
+        document.getElementById('kind').value = tx.kind;
+        document.getElementById('note').value = tx.note;
+        document.getElementById('amount').value = tx.amount;
+        document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0]; // Formatta la data
+        categorySelect.value = tx.category_id;
+        
+        // Aggiorna le sottocategorie e seleziona quella corretta
+        updateSubcategories(tx.subcategory_id);
+
+        window.scrollTo(0, 0); // Scorre la pagina in cima per vedere il form
+    }
+
+    async function handleDelete(id) {
+        // Chiedi conferma all'utente
+        if (!confirm("Sei sicuro di voler eliminare questa transazione?")) {
+            return;
+        }
+
+        const { error } = await supabase.from('transactions').delete().eq('id', id);
+        if (error) {
+            console.error("Errore eliminazione:", error);
+            alert("Impossibile eliminare la transazione.");
+        } else {
+            loadTransactions(); // Ricarica la lista
+        }
+    }
+    
+    // --- GESTIONE FORM ---
+
     async function handleFormSubmit(event) {
         event.preventDefault();
         const formData = new FormData(transactionForm);
+        const id = formData.get('transaction-id');
         const subcategory_id = formData.get('subcategory_id') || null;
 
-        const { error } = await supabase.from('transactions').insert({
+        const payload = {
             kind: formData.get('kind'),
             note: formData.get('note'),
             amount: formData.get('amount'),
@@ -132,12 +216,24 @@
             category_id: formData.get('category_id'),
             subcategory_id: subcategory_id,
             created_by: user.id
-        });
+        };
+
+        let error;
+        if (id) {
+            // Se c'è un ID, è un aggiornamento (UPDATE)
+            ({ error } = await supabase.from('transactions').update(payload).eq('id', id));
+        } else {
+            // Altrimenti, è un nuovo inserimento (INSERT)
+            ({ error } = await supabase.from('transactions').insert(payload));
+        }
 
         if (error) {
-            alert("Errore nel salvataggio. Riprova.");
+            console.error("Errore salvataggio:", error);
+            alert("Si è verificato un errore. Riprova.");
         } else {
             transactionForm.reset();
+            formTitle.textContent = "Nuova Transazione";
+            transactionIdInput.value = "";
             document.getElementById('occurred_at').valueAsDate = new Date();
             updateSubcategories();
             loadTransactions();
@@ -155,10 +251,20 @@
         await loadCategories();
         await loadTransactions();
         
-        categorySelect.addEventListener('change', updateSubcategories);
+        categorySelect.addEventListener('change', () => updateSubcategories());
         transactionForm.addEventListener('submit', handleFormSubmit);
         logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
-        
+
+        // Aggiungi un unico listener sulla lista per gestire i click sui pulsanti
+        transactionList.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.classList.contains('edit-btn')) {
+                handleEdit(target.dataset.id);
+            } else if (target.classList.contains('delete-btn')) {
+                handleDelete(target.dataset.id);
+            }
+        });
+
         updateSubcategories();
     }
 
