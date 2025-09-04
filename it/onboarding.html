@@ -221,7 +221,7 @@
             const amountInput = parentDiv.querySelector('input[name="goal_target_amount"]');
             if (!nameInput || !amountInput) return false;
             if (!nameInput.value.trim()) { showError('Per favore, inserisci un nome per il tuo obiettivo.'); return false; }
-            if (!amountInput.value || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
+            if (amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
             state.goal_name = nameInput.value.trim();
             state.goal_target_amount = parseFloat(amountInput.value);
         } else if (n === 2) {
@@ -230,7 +230,7 @@
             state.contribution_method = methodRadio.value;
             const parentDiv = methodRadio.closest('div');
             const amountInput = parentDiv.querySelector('input[name="contribution_amount"]');
-            if (!amountInput || !amountInput.value || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
+            if (!amountInput || amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
             state.contribution_amount = parseFloat(amountInput.value);
         } else if (n === 3) {
             const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e => JSON.parse(e.value));
@@ -307,6 +307,7 @@
     
     // --- FUNZIONE DI INIZIALIZZAZIONE ---
     async function initializePage() {
+      try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { location.replace(itPrefix() + "login.html"); return; }
         
@@ -318,7 +319,11 @@
             supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
         ]);
         
-        if (profileRes.error) { showError("Impossibile caricare i dati del profilo."); return; }
+        if (profileRes.error || userCatRes.error || defaultCatRes.error || goalRes.error || budgetRes.error) {
+            console.error(profileRes.error || userCatRes.error || defaultCatRes.error || goalRes.error || budgetRes.error);
+            showError("Impossibile caricare i dati. Ricarica la pagina."); 
+            return;
+        }
         
         const profile = profileRes.data;
         const userCategories = userCatRes.data || [];
@@ -333,7 +338,7 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-        preselectFormData(profile, goal, budget, userCategories);
+        preselectFormData(goal, budget, userCategories);
         renderStep(1);
         
         nextBtn.addEventListener('click', async () => {
@@ -348,6 +353,10 @@
         });
         backBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; renderStep(currentStep); } });
         logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace(itPrefix()); });
+      } catch (e) {
+        console.error("Errore critico di inizializzazione:", e);
+        showError("Si è verificato un errore imprevisto. Ricarica la pagina.");
+      }
     }
     
     document.addEventListener('DOMContentLoaded', initializePage);
