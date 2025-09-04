@@ -130,10 +130,16 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // --- CONFIGURAZIONE ---
+    // --- CONFIGURAZIONE E STATO ---
     const TOTAL_STEPS = 3;
+    const state = {
+        goal_type: null, goal_name: null, goal_target_amount: null,
+        contribution_method: null, contribution_amount: null,
+        categories: []
+    };
+    let currentStep = 1;
 
-    // --- SELETTORI DOM & STATO ---
+    // --- SELETTORI DOM ---
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
     const logoutBtn = document.getElementById('logout-btn');
@@ -141,18 +147,23 @@
     const stepIndicator = document.getElementById('step-indicator');
     const errorBox = document.getElementById('error');
     const steps = document.querySelectorAll('.step');
-    let currentStep = 1;
-    const state = {
-        goal_type: null, goal_name: null, goal_target_amount: null,
-        contribution_method: null, contribution_amount: null,
-        categories: []
-    };
 
     // --- FUNZIONI HELPER ---
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
     const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
 
     // --- FUNZIONI UI ---
+    function renderStep(n) {
+        steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
+        const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
+        progressBarInner.style.width = progress + '%';
+        (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
+        stepIndicator.textContent = `Passo ${n} di ${TOTAL_STEPS}`;
+        backBtn.style.visibility = (n > 1) ? 'visible' : 'hidden';
+        nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
+        showError('');
+    }
+
     function populateCategoriesFromDB(defaultCategories) {
         const incomeContainer = document.getElementById('income-category-options');
         const expenseContainer = document.getElementById('expense-category-options');
@@ -170,17 +181,35 @@
         });
     }
 
-    function renderStep(n) {
-        steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
-        const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
-        progressBarInner.style.width = progress + '%';
-        (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
-        stepIndicator.textContent = `Passo ${n} di ${TOTAL_STEPS}`;
-        backBtn.style.visibility = (n > 1) ? 'visible' : 'hidden';
-        nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
-        showError('');
+    function preselectFormData(profile, goal, budget, userCategories) {
+        if (goal) {
+            const typeRadio = document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
+            if (typeRadio) {
+                typeRadio.checked = true;
+                const parentDiv = typeRadio.closest('div');
+                parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
+                parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
+            }
+        }
+        if (budget) {
+            // Logica semplificata: assumiamo che il budget salvato sia di tipo "Cifra fissa"
+            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
+            if (methodRadio) {
+                methodRadio.checked = true;
+                methodRadio.closest('div').querySelector('input[name="contribution_amount"]').value = budget.amount;
+            }
+        }
+        
+        const selectedNames = userCategories.map(c => c.name);
+        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            try {
+                const catObj = JSON.parse(checkbox.value);
+                if (selectedNames.includes(catObj.name)) checkbox.checked = true;
+            } catch(e) {}
+        });
     }
 
+    // --- FUNZIONI DI LOGICA ---
     function validateAndUpdateState(n) {
         showError('');
         if (n === 1) {
@@ -215,22 +244,20 @@
         nextBtn.disabled = true;
         nextBtn.textContent = 'Salvataggio...';
         try {
-            const { error: goalError } = await supabase.from('goals').upsert({
+            await supabase.from('goals').upsert({
                 user_id: user.id,
                 goal_type: state.goal_type,
                 name: state.goal_name,
                 target_amount: state.goal_target_amount,
             }, { onConflict: 'user_id' });
-            if (goalError) throw goalError;
 
             const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
-            const { error: budgetError } = await supabase.from('budgets').upsert({
+            await supabase.from('budgets').upsert({
                 user_id: user.id,
                 month: currentMonth,
                 macro_category: 'Risparmi',
                 amount: state.contribution_amount
             }, { onConflict: 'user_id, month, macro_category' });
-            if (budgetError) throw budgetError;
 
             const existingNames = existingUserCategories.map(c => c.name);
             const selectedObjects = state.categories;
@@ -240,8 +267,7 @@
 
             if (categoriesToDelete.length > 0) {
                 const idsToDelete = categoriesToDelete.map(c => c.id);
-                const { error } = await supabase.from('categories').delete().in('id', idsToDelete);
-                if (error) throw error;
+                await supabase.from('categories').delete().in('id', idsToDelete);
             }
 
             let createdCategories = [];
@@ -263,14 +289,11 @@
                     }
                 }
                 if (subcategoriesPayload.length > 0) {
-                    const { error } = await supabase.from('subcategories').insert(subcategoriesPayload);
-                    if (error) throw error;
+                    await supabase.from('subcategories').insert(subcategoriesPayload);
                 }
             }
             
-            const profilePayload = { onboarded: true };
-            const { error: profileError } = await supabase.from("profiles").update(profilePayload).eq('id', user.id);
-            if (profileError) throw profileError;
+            await supabase.from("profiles").update({ onboarded: true }).eq('id', user.id);
             
             return true;
         } catch (error) {
@@ -282,6 +305,7 @@
         }
     }
     
+    // --- FUNZIONE DI INIZIALIZZAZIONE ---
     async function initializePage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { location.replace(itPrefix() + "login.html"); return; }
@@ -309,33 +333,7 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-
-        if (goal) {
-            const typeRadio = document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
-            if (typeRadio) {
-                typeRadio.checked = true;
-                const parentDiv = typeRadio.closest('div');
-                parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
-                parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
-            }
-        }
-        if (budget) {
-            // Qui andrebbe una logica più complessa per metodo % vs fisso
-            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
-            if (methodRadio) {
-                methodRadio.checked = true;
-                methodRadio.closest('div').querySelector('input[name="contribution_amount"]').value = budget.amount;
-            }
-        }
-        
-        const selectedNames = userCategories.map(c => c.name);
-        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
-            try {
-                const catObj = JSON.parse(checkbox.value);
-                if (selectedNames.includes(catObj.name)) checkbox.checked = true;
-            } catch(e) {}
-        });
-
+        preselectFormData(profile, goal, budget, userCategories);
         renderStep(1);
         
         nextBtn.addEventListener('click', async () => {
