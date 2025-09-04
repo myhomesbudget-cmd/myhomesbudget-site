@@ -57,7 +57,7 @@
 </head>
 <body>
   <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image" style="height:32px; border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
+    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-actions"><a href="#" id="logout-btn" class="logout-link">Esci</a></div>
   </nav>
 
@@ -105,6 +105,11 @@
             <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
          </div>
          <div>
+            <input type="radio" id="method-variable" name="contribution_method" value="Importo variabile">
+            <label for="method-variable" class="option-label"><strong>🎛️ Importo variabile</strong><span>Decidi quanto accantonare in base alle tue spese.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
+         </div>
+         <div>
             <input type="radio" id="method-percentage" name="contribution_method" value="Percentuale sulle entrate">
             <label for="method-percentage" class="option-label"><strong>📊 Percentuale sulle entrate</strong><span>Imposta una percentuale fissa del tuo reddito.</span></label>
             <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="1"></div>
@@ -125,7 +130,10 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
+    // --- CONFIGURAZIONE ---
     const TOTAL_STEPS = 3;
+
+    // --- SELETTORI DOM & STATO ---
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
     const logoutBtn = document.getElementById('logout-btn');
@@ -140,14 +148,16 @@
         categories: []
     };
 
+    // --- FUNZIONI HELPER ---
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
     const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
 
+    // --- FUNZIONI UI ---
     function populateCategoriesFromDB(defaultCategories) {
         const incomeContainer = document.getElementById('income-category-options');
         const expenseContainer = document.getElementById('expense-category-options');
         if (incomeContainer.childElementCount > 0) return;
-
+        
         defaultCategories.forEach((cat, i) => {
             const id = 'cat-' + i;
             const w = document.createElement('div');
@@ -177,25 +187,21 @@
             const typeRadio = document.querySelector('input[name="goal_type"]:checked');
             if (!typeRadio) { showError('Per favore, scegli un obiettivo.'); return false; }
             state.goal_type = typeRadio.value;
-            
             const parentDiv = typeRadio.closest('div');
             const nameInput = parentDiv.querySelector('input[name="goal_name"]');
             const amountInput = parentDiv.querySelector('input[name="goal_target_amount"]');
-
+            if (!nameInput || !amountInput) return false;
             if (!nameInput.value.trim()) { showError('Per favore, inserisci un nome per il tuo obiettivo.'); return false; }
             if (!amountInput.value || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
-            
             state.goal_name = nameInput.value.trim();
             state.goal_target_amount = parseFloat(amountInput.value);
         } else if (n === 2) {
             const methodRadio = document.querySelector('input[name="contribution_method"]:checked');
             if (!methodRadio) { showError('Per favore, scegli un metodo.'); return false; }
             state.contribution_method = methodRadio.value;
-
             const parentDiv = methodRadio.closest('div');
             const amountInput = parentDiv.querySelector('input[name="contribution_amount"]');
-
-            if (!amountInput.value || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
+            if (!amountInput || !amountInput.value || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
             state.contribution_amount = parseFloat(amountInput.value);
         } else if (n === 3) {
             const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e => JSON.parse(e.value));
@@ -208,31 +214,24 @@
     async function saveOnboardingToSupabase(user, existingUserCategories) {
         nextBtn.disabled = true;
         nextBtn.textContent = 'Salvataggio...';
-
         try {
-            // 1. Salva/Aggiorna l'obiettivo a lungo termine
             const { error: goalError } = await supabase.from('goals').upsert({
                 user_id: user.id,
                 goal_type: state.goal_type,
                 name: state.goal_name,
                 target_amount: state.goal_target_amount,
-                // current_amount si aggiornerà con le transazioni
-            }, { onConflict: 'user_id' }); // Assumiamo 1 obiettivo principale per utente
-            
+            }, { onConflict: 'user_id' });
             if (goalError) throw goalError;
 
-            // 2. Salva/Aggiorna il budget mensile per i risparmi
             const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
             const { error: budgetError } = await supabase.from('budgets').upsert({
                 user_id: user.id,
                 month: currentMonth,
                 macro_category: 'Risparmi',
-                amount: state.contribution_amount // NOTA: se è %, andrà calcolata sul reddito
+                amount: state.contribution_amount
             }, { onConflict: 'user_id, month, macro_category' });
-
             if (budgetError) throw budgetError;
-            
-            // 3. Sincronizza categorie e crea sottocategorie
+
             const existingNames = existingUserCategories.map(c => c.name);
             const selectedObjects = state.categories;
             const selectedNames = selectedObjects.map(c => c.name);
@@ -241,7 +240,8 @@
 
             if (categoriesToDelete.length > 0) {
                 const idsToDelete = categoriesToDelete.map(c => c.id);
-                await supabase.from('categories').delete().in('id', idsToDelete);
+                const { error } = await supabase.from('categories').delete().in('id', idsToDelete);
+                if (error) throw error;
             }
 
             let createdCategories = [];
@@ -263,13 +263,14 @@
                     }
                 }
                 if (subcategoriesPayload.length > 0) {
-                    await supabase.from('subcategories').insert(subcategoriesPayload);
+                    const { error } = await supabase.from('subcategories').insert(subcategoriesPayload);
+                    if (error) throw error;
                 }
             }
             
-            // 4. Aggiorna il profilo
             const profilePayload = { onboarded: true };
-            await supabase.from("profiles").update(profilePayload).eq('id', user.id);
+            const { error: profileError } = await supabase.from("profiles").update(profilePayload).eq('id', user.id);
+            if (profileError) throw profileError;
             
             return true;
         } catch (error) {
@@ -299,7 +300,7 @@
         const userCategories = userCatRes.data || [];
         const defaultCategories = defaultCatRes.data || [];
         const goal = goalRes.data;
-        const budget = budgetRes.data ? budgetRes.data[0] : null;
+        const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit') === '1';
         if (profile.onboarded && !isEditing) {
@@ -335,7 +336,7 @@
             } catch(e) {}
         });
 
-        renderStep(1); // Parte sempre dal primo step
+        renderStep(1);
         
         nextBtn.addEventListener('click', async () => {
             if (!validateAndUpdateState(currentStep)) return;
