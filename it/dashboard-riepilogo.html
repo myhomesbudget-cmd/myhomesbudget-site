@@ -81,27 +81,117 @@
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
+
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 
-    function renderSummaryWidget(data) { const c = document.getElementById('summary-widget-content'); const s = data.totalExpenses; const b = data.totalIncome - data.savingsBudget; const r = b-s; const p = b>0?(s/b)*100:0; c.innerHTML = `<div class=chart-container><canvas id=summaryDonutChart></canvas><div class=chart-center-text><div class=chart-percentage>${p.toFixed(1)}%</div><div class=chart-subtext>del budget</div></div></div><div class=summary-details><p class=label>Spese Attuali</p><p class="amount expense">${formatCurrency(s)}</p><p class=label>Budget Rimanente</p><p class="amount remaining">${formatCurrency(r)}</p></div>`; new Chart(document.getElementById('summaryDonutChart'),{type:'doughnut',data:{datasets:[{data:[s,r>0?r:0],backgroundColor:['var(--primary-color)','rgba(0,0,0,0.1)'],borderWidth:0,borderRadius:5}]},options:{cutout:'80%',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}}); }
-    function renderMainChart(data) { const ctx = document.getElementById('monthlyExpensesChart'); if(!ctx) return; const labels = data.map(r => new Date(r.month_start).toLocaleDateString('it-IT', { month: 'short' })); const values = data.map(r => r.total_expenses); new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}, plugins: { legend: { display: false } } } }); }
-    function renderBarList(containerId, data) { const c = document.getElementById(containerId); c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>'; return; } const max = Math.max(...data.map(i => i.total)); data.forEach(i => { const p = max > 0 ? (i.total / max) * 100 : 0; const e = document.createElement('div'); e.className = 'bar-list-item'; e.innerHTML = `<div class=label><span>${i.icon||''} ${i.name}</span><span>${formatCurrency(i.total)}</span></div><div class=bar-background><div class="bar-foreground expense-bar" style="width: ${p}%;"></div></div>`; c.appendChild(e); }); }
-    function renderGoalWidget(data) { const c = document.getElementById('goal-widget-content'); const p = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0; c.innerHTML = `<div class="goal-name">${data.name}</div><div class="goal-progress"><div class="progress-label"><span class="current">${formatCurrency(data.current_amount)}</span><span class="target">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`; }
-    
+    // --- FUNZIONI DI RENDER (per disegnare i widget) ---
+    function renderSummaryWidget(data) {
+        const container = document.getElementById('summary-widget-content');
+        const spent = data.totalExpenses;
+        const budget = data.totalIncome - data.savingsBudget;
+        const remaining = budget - spent;
+        const percentage = budget > 0 ? (spent / budget) * 100 : 0;
+        
+        container.innerHTML = `
+            <div class="chart-container">
+                <canvas id="summaryDonutChart"></canvas>
+                <div class="chart-center-text">
+                    <div class="chart-percentage">${percentage.toFixed(1)}%</div>
+                    <div class="chart-subtext">del budget</div>
+                </div>
+            </div>
+            <div class="summary-details">
+                <p class="label">Spese Attuali</p>
+                <p class="amount expense">${formatCurrency(spent)}</p>
+                <p class="label">Budget Rimanente</p>
+                <p class="amount remaining">${formatCurrency(remaining)}</p>
+            </div>
+        `;
+        
+        new Chart(document.getElementById('summaryDonutChart'), {
+            type: 'doughnut',
+            data: { datasets: [{ data: [spent, remaining > 0 ? remaining : 0], backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'], borderWidth: 0, borderRadius: 5 }] },
+            options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+        });
+    }
+
+    function renderMainChart(data) {
+        const ctx = document.getElementById('monthlyExpensesChart');
+        if (!ctx) return;
+        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' }));
+        const values = data.map(row => row.total_expenses);
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+        });
+    }
+
+    function renderBarList(containerId, data) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>';
+            return;
+        }
+        const maxTotal = Math.max(...data.map(item => item.total));
+        data.forEach(item => {
+            const percentage = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+            const itemEl = document.createElement('div');
+            itemEl.className = 'bar-list-item';
+            itemEl.innerHTML = `
+                <div class="label">
+                    <span>${item.icon || ''} ${item.name}</span>
+                    <span>${formatCurrency(item.total)}</span>
+                </div>
+                <div class="bar-background">
+                    <div class="bar-foreground expense-bar" style="width: ${percentage}%;"></div>
+                </div>`;
+            container.appendChild(itemEl);
+        });
+    }
+
+    function renderGoalWidget(data) {
+        const container = document.getElementById('goal-widget-content');
+        const percentage = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
+        container.innerHTML = `
+            <div class="goal-name">${data.name}</div>
+            <div class="goal-progress">
+                <div class="progress-label">
+                    <span class="current">${formatCurrency(data.current_amount)}</span>
+                    <span class="target">di ${formatCurrency(data.target_amount)}</span>
+                </div>
+                <div class="bar-background">
+                    <div class="bar-foreground" style="width: ${Math.min(percentage, 100)}%;"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- FUNZIONE PRINCIPALE PER CARICARE I DATI ---
     async function loadDashboardData(user, selectedMonth) {
-        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'block');
+        document.getElementById('summary-widget-content').innerHTML = '<p class="loading-text">Caricamento...</p>';
+        document.getElementById('top-categories-list').innerHTML = '<p class="loading-text">Caricamento...</p>';
+        
         const [summaryRes, topCatRes] = await Promise.all([
             supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
             supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
         ]);
+        
         if (summaryRes.data) renderSummaryWidget(summaryRes.data);
         if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
     }
     
+    // --- INIZIALIZZAZIONE PAGINA ---
     async function initializePage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { location.replace("/it/login.html"); return; }
+        
         const monthSelector = document.getElementById('month-selector');
+        
         for (let i = 0; i < 12; i++) {
             const date = new Date();
             date.setMonth(date.getMonth() - i);
@@ -110,16 +200,22 @@
             monthSelector.add(new Option(label, value));
         }
 
-        await loadDashboardData(user, monthSelector.value);
-
+        // Carica i dati non dipendenti dal mese (una sola volta all'inizio)
         const [chartRes, goalRes] = await Promise.all([
             supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
             supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
         ]);
         if (chartRes.data) renderMainChart(chartRes.data);
         if (goalRes.data) renderGoalWidget(goalRes.data);
+        
+        // Carica i dati per il mese corrente
+        await loadDashboardData(user, monthSelector.value);
 
-        monthSelector.addEventListener('change', () => loadDashboardData(user, monthSelector.value));
+        // Aggiungi l'ascoltatore per quando l'utente cambia mese
+        monthSelector.addEventListener('change', () => {
+            loadDashboardData(user, monthSelector.value);
+        });
+
         document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
     }
 
