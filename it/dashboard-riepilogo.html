@@ -3,136 +3,168 @@
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Riepilogo — MyHomesBudget</title><link rel="icon" href="/favicon.ico"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;}
+    :root{--fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);--radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;--font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;}
     *{box-sizing:border-box}
-    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
-    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;display:flex;align-items:center;justify-content:space-between;}
+    html{font-family:var(--font-sans); background-color: var(--bg);}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,0.05), rgba(0,206,201,0.05));z-index:-1}
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100;}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
-    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}
-    h2 { color: #111; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-top: 0;}
-    .dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}.dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}.dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}
-    .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
-    .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-    .loading-text { color: #999; font-size: 1.2rem; text-align: center; padding: 20px;}
-    /* Stili per il nuovo widget di riepilogo */
-    .summary-widget { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-    .chart-container { position: relative; width: 180px; height: 180px; margin: 0 auto; }
-    .chart-container canvas { position: absolute; top: 0; left: 0; }
-    .chart-center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    .chart-percentage { font-size: 2.2rem; font-weight: 800; color: var(--fg); }
-    .chart-subtext { font-size: 0.9rem; color: #555; }
-    .summary-details { margin-top: 16px; }
-    .summary-details p { margin: 4px 0; }
-    .summary-details .label { color: #555; font-size: 0.9rem;}
-    .summary-details .amount { font-weight: 700; font-size: 1.5rem; color: var(--danger-color); }
-    .summary-details .amount.remaining { color: var(--success-color); }
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
+    .top-link:hover{background:rgba(0,0,0,.38)}
+    main.container{padding:84px 24px 24px; max-width:1280px; margin:0 auto; width:100%;}
+    .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
+    .card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
+    h2{margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
+    .loading-text{color:#999;font-size:1rem;text-align:center;padding:20px;width:100%;}
+    /* Widget specifici */
+    .widget-summary{grid-column:span 12; md:grid-column:span 4;}
+    .widget-main-chart{grid-column:span 12; md:grid-column:span 8;}
+    .widget-top-expenses{grid-column:span 12; md:grid-column:span 6;}
+    .widget-distribution{grid-column:span 12; md:grid-column:span 6;}
+    @media (min-width:768px){.widget-summary{grid-column:span 4;}.widget-main-chart{grid-column:span 8;}.widget-top-expenses{grid-column:span 6;}.widget-distribution{grid-column:span 6;}}
+    /* Riepilogo Mese */
+    .summary-widget{text-align:center;}
+    .chart-container{position:relative;width:180px;height:180px;margin:0 auto;}
+    .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+    .chart-percentage{font-size:2.2rem;font-weight:800;color:var(--fg);}
+    .chart-subtext{font-size:0.9rem;color:#555;}
+    .summary-details{margin-top:16px;}
+    .summary-details .label{color:#555;font-size:0.9rem;}
+    .summary-details .amount{font-weight:700;font-size:1.5rem;color:var(--danger-color);}
+    .summary-details .amount.remaining{color:var(--success-color);}
+    /* Spese Principali */
+    .bar-list-item{margin-bottom:12px;font-size:0.9rem;}
+    .bar-list-item .label{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:600;}
+    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:5px;height:10px;overflow:hidden;}
+    .bar-foreground{height:100%;background-color:var(--primary-color);width:0%;transition:width 0.5s ease-out;border-radius:5px;}
   </style>
 </head>
 <body>
   <nav class="topbar">
-    <a href="/it/" class="logo-link" style="text-decoration:none;"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-actions" style="display:flex;gap:8px;align-items:center;"><a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a><a href="#" id="logout-btn" class="top-link">Esci</a></div>
+    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
+    <div class="top-actions">
+      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
+    </div>
   </nav>
 
-  <main class="panel">
-    <nav class="dash-nav"><a href="/it/dashboard.html">Operazioni</a><a href="/it/dashboard-riepilogo.html" class="is-active">Riepilogo</a></nav>
-
-    <div class="grid-container">
-        <section class="content-section">
-            <div id="summary-widget" class="summary-widget">
-                <div class="chart-container">
-                    <canvas id="summaryDonutChart"></canvas>
-                    <div class="chart-center-text">
-                        <div id="summary-percentage" class="chart-percentage loading-text">...</div>
-                        <div class="chart-subtext">Speso</div>
-                    </div>
-                </div>
-                <div class="summary-details">
-                    <p class="label">Spese Attuali</p>
-                    <p id="summary-spent" class="amount loading-text">...</p>
-                    <p class="label">Budget Rimanente</p>
-                    <p id="summary-remaining" class="amount remaining loading-text">...</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="content-section">
-            <h2>Suddivisione Budget</h2>
-            <div id="kpi-grid">
-                <p class="loading-text">Caricamento...</p>
-            </div>
-        </section>
+  <main class="container">
+    <div class="dash-grid">
+      <div class="widget-summary card">
+        <h2>Riepilogo Mese</h2>
+        <div id="summary-widget-content" class="summary-widget"><p class="loading-text">Caricamento...</p></div>
+      </div>
+      <div class="widget-main-chart card">
+        <h2>Spese Mensili</h2>
+        <div style="height:250px;"><canvas id="monthlyExpensesChart"></canvas></div>
+      </div>
+      <div class="widget-top-expenses card">
+        <h2>Spese Principali</h2>
+        <div id="top-categories-list"><p class="loading-text">Caricamento...</p></div>
+      </div>
+       <div class="widget-top-expenses card">
+        <h2>Sottocategorie Principali</h2>
+        <div id="top-subcategories-list"><p class="loading-text">Caricamento...</p></div>
+      </div>
     </div>
-    
-    </main>
+  </main>
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
-
-    const logoutBtn = document.getElementById('logout-btn');
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 
-    function renderSummaryDonutChart(summaryData, budgetData) {
-        const spent = summaryData.totalExpenses;
-        const savings = budgetData ? budgetData.amount : 0;
-        const totalBudget = summaryData.totalIncome - savings;
+    function renderSummaryWidget(data) {
+        const container = document.getElementById('summary-widget-content');
+        const spent = data.totalExpenses;
+        const budget = data.totalIncome - data.savingsBudget;
+        const remaining = budget - spent;
+        const percentage = budget > 0 ? (spent / budget) * 100 : 0;
         
-        const remaining = totalBudget - spent;
-        const percentage = totalBudget > 0 ? (spent / totalBudget) * 100 : 0;
+        container.innerHTML = `
+            <div class="chart-container">
+                <canvas id="summaryDonutChart"></canvas>
+                <div class="chart-center-text">
+                    <div class="chart-percentage">${percentage.toFixed(1)}%</div>
+                    <div class="chart-subtext">del budget</div>
+                </div>
+            </div>
+            <div class="summary-details">
+                <p class="label">Spese Attuali</p>
+                <p class="amount">${formatCurrency(spent)}</p>
+                <p class="label">Budget Rimanente</p>
+                <p class="amount remaining">${formatCurrency(remaining)}</p>
+            </div>
+        `;
         
-        document.getElementById('summary-percentage').textContent = `${percentage.toFixed(1)}%`;
-        document.getElementById('summary-spent').textContent = formatCurrency(spent);
-        document.getElementById('summary-remaining').textContent = formatCurrency(remaining);
-        
-        // Rimuovi le classi di caricamento
-        document.querySelectorAll('.summary-widget .loading-text').forEach(el => el.classList.remove('loading-text'));
-
         new Chart(document.getElementById('summaryDonutChart'), {
             type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [spent, remaining > 0 ? remaining : 0],
-                    backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'],
-                    borderWidth: 0,
-                    borderRadius: 5
-                }]
-            },
+            data: { datasets: [{ data: [spent, remaining > 0 ? remaining : 0], backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'], borderWidth: 0, borderRadius: 5 }] },
             options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
         });
     }
+    
+    function renderMainChart(data) {
+        const ctx = document.getElementById('monthlyExpensesChart');
+        if(!ctx) return;
+        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
+        const values = data.map(row => row.total_expenses);
+        new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}, plugins: { legend: { display: false } } }
+        });
+    }
 
+    function renderBarList(containerId, data) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>';
+            return;
+        }
+        const maxTotal = Math.max(...data.map(item => item.total));
+        data.forEach(item => {
+            const percentage = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+            const itemEl = document.createElement('div');
+            itemEl.className = 'bar-list-item';
+            itemEl.innerHTML = `
+                <div class="label">
+                    <span>${item.icon || ''} ${item.name}</span>
+                    <span>${formatCurrency(item.total)}</span>
+                </div>
+                <div class="bar-background">
+                    <div class="bar-foreground" style="width: ${percentage}%;"></div>
+                </div>`;
+            container.appendChild(itemEl);
+        });
+    }
+    
     async function initializePage() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { location.replace("/it/login.html"); return; }
-
-      // Recupera i dati necessari in parallelo
-      const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
-      const [summaryRes, budgetRes] = await Promise.all([
-        supabase.rpc('get_monthly_summary', { user_id_param: user.id }),
-        supabase.from('budgets').select('amount').eq('user_id', user.id).eq('month', currentMonth).eq('macro_category', 'Risparmi').maybeSingle()
-      ]);
-
-      if (summaryRes.error || budgetRes.error) {
-        console.error(summaryRes.error || budgetRes.error);
-        // gestisci errore UI
-        return;
-      }
-      
-      renderSummaryDonutChart(summaryRes.data, budgetRes.data);
-      
-      logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        location.replace("/it/");
-      });
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { location.replace("/it/login.html"); return; }
+        
+        const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+        
+        const [summaryRes, chartRes, topCatRes, topSubcatRes] = await Promise.all([
+            supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: currentMonth }),
+            supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
+            supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: currentMonth }),
+            supabase.rpc('get_top_spending_subcategories', { user_id_param: user.id, month_param: currentMonth })
+        ]);
+        
+        if (summaryRes.data) renderSummaryWidget(summaryRes.data);
+        if (chartRes.data) renderMainChart(chartRes.data);
+        if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
+        if (topSubcatRes.data) renderBarList('top-subcategories-list', topSubcatRes.data);
+        
+        document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
-
 </body>
 </html>
