@@ -39,7 +39,8 @@
     .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:10px;background:rgba(255,255,255,.6);transition:.18s ease;cursor:pointer}
     .option-label:hover{background:#fff}
     input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
-    input[type="radio"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
+    input[type="radio"]:checked + .option-label,
+    input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
     .option-label strong{display:block;font-size:1.05rem}
     .option-label span{font-size:.92rem;color:#444}
     .option-details { display: none; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 14px 0; }
@@ -190,7 +191,7 @@
             }
         }
         if (budget) {
-            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
+            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`); // Semplificato
             if (methodRadio) {
                 methodRadio.checked = true;
                 const parentDiv = methodRadio.closest('div');
@@ -204,7 +205,9 @@
         document.querySelectorAll('input[name="category"]').forEach(checkbox => {
             try {
                 const catObj = JSON.parse(checkbox.value);
-                if (selectedNames.includes(catObj.name)) checkbox.checked = true;
+                if (selectedNames.includes(catObj.name)) {
+                    checkbox.checked = true;
+                }
             } catch(e) {}
         });
     }
@@ -305,59 +308,59 @@
     }
     
     async function initializePage() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { location.replace(itPrefix() + "login.html"); return; }
-        
-        const [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes] = await Promise.all([
-            supabase.from('profiles').select('*').eq('id', user.id).single(),
-            supabase.from('categories').select('*').eq('created_by', user.id),
-            supabase.from('default_categories').select('name, icon, kind').order('id'),
-            supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle(),
-            supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
-        ]);
-        
-        const results = [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes];
-        for (const res of results) {
-            if (res.error) {
-                console.error("Errore durante il caricamento dati:", res.error);
-                showError("Impossibile caricare i dati. Ricarica la pagina."); 
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { location.replace(itPrefix() + "login.html"); return; }
+            
+            const [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes] = await Promise.all([
+                supabase.from('profiles').select('*').eq('id', user.id).single(),
+                supabase.from('categories').select('*').eq('created_by', user.id),
+                supabase.from('default_categories').select('name, icon, kind').order('id'),
+                supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle(),
+                supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
+            ]);
+            
+            const results = [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes];
+            for (const res of results) {
+                if (res.error) {
+                    console.error("Errore durante il caricamento dati:", res.error);
+                    showError("Impossibile caricare i dati. Ricarica la pagina."); 
+                    return;
+                }
+            }
+            
+            const profile = profileRes.data;
+            const userCategories = userCatRes.data || [];
+            const defaultCategories = defaultCatRes.data || [];
+            const goal = goalRes.data;
+            const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
+
+            const isEditing = new URLSearchParams(location.search).get('edit') === '1';
+            if (profile && profile.onboarded && !isEditing) {
+                location.replace(itPrefix() + "dashboard.html");
                 return;
             }
-        }
-        
-        const profile = profileRes.data;
-        const userCategories = userCatRes.data || [];
-        const defaultCategories = defaultCatRes.data || [];
-        const goal = goalRes.data;
-        const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
 
-        const isEditing = new URLSearchParams(location.search).get('edit') === '1';
-        if (profile && profile.onboarded && !isEditing) {
-            location.replace(itPrefix() + "dashboard.html");
-            return;
+            populateCategoriesFromDB(defaultCategories);
+            preselectFormData(goal, budget, userCategories);
+            renderStep(1);
+            
+            nextBtn.addEventListener('click', async () => {
+                if (!validateAndUpdateState(currentStep)) return;
+                if (currentStep === TOTAL_STEPS) {
+                    const success = await saveOnboardingToSupabase(user, userCategories);
+                    if (success) location.replace(itPrefix() + 'dashboard.html');
+                } else {
+                    currentStep++;
+                    renderStep(currentStep);
+                }
+            });
+            backBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; renderStep(currentStep); } });
+            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace(itPrefix()); });
+        } catch (e) {
+            console.error("Errore critico di inizializzazione:", e);
+            showError("Si è verificato un errore imprevisto. Ricarica la pagina.");
         }
-
-        populateCategoriesFromDB(defaultCategories);
-        preselectFormData(goal, budget, userCategories);
-        renderStep(1);
-        
-        nextBtn.addEventListener('click', async () => {
-            if (!validateAndUpdateState(currentStep)) return;
-            if (currentStep === TOTAL_STEPS) {
-                const success = await saveOnboardingToSupabase(user, userCategories);
-                if (success) location.replace(itPrefix() + 'dashboard.html');
-            } else {
-                currentStep++;
-                renderStep(currentStep);
-            }
-        });
-        backBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; renderStep(currentStep); } });
-        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace(itPrefix()); });
-      } catch (e) {
-        console.error("Errore critico di inizializzazione:", e);
-        showError("Si è verificato un errore imprevisto. Ricarica la pagina.");
-      }
     }
     
     document.addEventListener('DOMContentLoaded', initializePage);
