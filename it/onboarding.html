@@ -8,36 +8,17 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
 
-  <!-- Guard: se già completata → dashboard (override con ?edit=1) -->
-  <script>
-    (function(){
-      function itPrefix(){
-        var m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-        return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-      }
-      var editing = new URLSearchParams(location.search).get('edit') === '1';
-      if (editing) return;
-      try {
-        if (localStorage.getItem('onboarding_completed') === '1') {
-          location.replace(itPrefix() + 'dashboard.html');
-        }
-      } catch(e){}
-    })();
-  </script>
-
-  <!-- CSP (aggiunto Supabase in connect-src) -->
   <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               img-src 'self' https: data:;
-               style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
-               connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co;
-               font-src 'self' https: data:;
-               frame-ancestors 'none';
-               base-uri 'self';
-               form-action 'self'">
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none';
+                 base-uri 'self';
+                 form-action 'self'">
 
-  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -46,7 +27,6 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- Performance -->
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
   <link rel="icon" href="/favicon.ico">
 
@@ -139,7 +119,6 @@
   </style>
 </head>
 <body>
-  <!-- Topbar -->
   <nav class="topbar" aria-label="Barra superiore">
     <a href="/it/" class="logo-link" title="MyHomesBudget">
       <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
@@ -151,12 +130,10 @@
         <a href="/en/onboarding.html" lang="en">🇬🇧</a>
         <a href="/es/onboarding.html" lang="es">🇪🇸</a>
       </span>
-      <!-- 🔹 Esci -->
       <a href="#" id="logout-btn" class="logout-link" aria-label="Esci">Esci</a>
     </div>
   </nav>
 
-  <!-- Pannello -->
   <main class="panel">
     <div class="panel-header">
       <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-labelledby="step-indicator">
@@ -232,7 +209,7 @@
       <p id="s3d" class="step-description">Scegli quelle che usi più spesso. Potrai aggiungerle o modificarle in qualsiasi momento.</p>
       <fieldset class="form-group">
         <legend class="sr-only">Scegli le categorie</legend>
-        <div class="options-grid cols-2" id="category-options"><!-- popolato via JS --></div>
+        <div class="options-grid cols-2" id="category-options"></div>
       </fieldset>
     </section>
 
@@ -243,59 +220,11 @@
       <button id="next-btn" class="btn btn-primary">Avanti</button>
     </div>
   </main>
-
-  <!-- 🧩 Supabase: salvataggio profilo/onboarding -->
+  
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-const { data: { user } } = await supabase.auth.getUser();
-if (!user) location.replace("/it/login.html");
-
-await supabase.from('profiles').upsert({
-  id: user.id,
-  onboarding_goal: state.goal,
-  onboarding_saving_method: state.saving_method,
-  onboarding_categories: state.categories,   // array JS → JSONB
-  onboarded: true
-});
-localStorage.setItem('onboarding_completed','1'); // opzionale
-location.replace('/it/dashboard.html');
-
-    // Espongo una funzione globale per il salvataggio: la usa lo script non-module sotto.
-    window.mhbSaveOnboarding = async (state) => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return false; // utente non loggato → niente DB, ma non bloccare
-
-        const payload = {
-          id: user.id,
-          email: user.email,
-          onboarding_goal: state.goal || null,
-          onboarding_saving_method: state.saving_method || null,
-          onboarding_categories: state.categories || [],
-          onboarded: true
-        };
-
-        const { error } = await supabase
-          .from("profiles")
-          .upsert(payload, { onConflict: "id" });
-
-        if (error) { console.warn("save onboarding error:", error.message); return false; }
-        return true;
-      } catch (e) {
-        console.warn("save onboarding exception:", e?.message || e);
-        return false;
-      }
-    };
-  </script>
-
-  <!-- Logica onboarding -->
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    try { localStorage.setItem('mhb_lang','it'); } catch(e){}
-
-    const ga = (...args) => { try { if (window.gtag) window.gtag(...args); } catch(_){} };
-
+    // --- CONFIGURAZIONE E COSTANTI ---
     const TOTAL_STEPS = 3;
     const CATEGORIES = [
       '🏠 Casa','🛠️ Casa Straordinarie','💡 Utenze','🛒 Spesa alimentare','🚗 Auto/Moto',
@@ -305,27 +234,42 @@ location.replace('/it/dashboard.html');
       '🧾 Tasse & Tributi','📦 Altro'
     ];
 
+    // --- SELETTORI DEGLI ELEMENTI DOM ---
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
+    const logoutBtn = document.getElementById('logout-btn');
     const progressBar = document.querySelector('.progress-bar');
     const progressBarInner = document.querySelector('.progress-bar-inner');
     const stepIndicator = document.getElementById('step-indicator');
     const errorBox = document.getElementById('error');
     const steps = document.querySelectorAll('.step');
-
+    
+    // --- STATO DELL'APPLICAZIONE ---
     let currentStep = 1;
     const state = { goal: null, saving_method: null, categories: [] };
 
-    function itPrefix(){
+    // --- FUNZIONI HELPER ---
+    const itPrefix = () => {
       const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
       return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-    }
-    function showError(msg){ errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); }
+    };
+    const showError = (msg) => {
+      errorBox.textContent = msg || '';
+      errorBox.classList.toggle('show', !!msg);
+    };
+    const ga = (...args) => {
+      try { if (window.gtag) window.gtag(...args); } catch(_) {}
+    };
+    
+    // --- FUNZIONI PRINCIPALI DI LOGICA ---
 
-    function populateCategories(){
+    /**
+     * Popola dinamicamente le opzioni delle categorie nell'HTML.
+     */
+    function populateCategories() {
       const container = document.getElementById('category-options');
-      if (!container.childElementCount){
-        CATEGORIES.forEach((cat,i) => {
+      if (!container.childElementCount) {
+        CATEGORIES.forEach((cat, i) => {
           const id = 'cat-' + i;
           const w = document.createElement('div');
           w.innerHTML = `
@@ -337,41 +281,74 @@ location.replace('/it/dashboard.html');
       }
     }
 
-    function loadState(){
-      try{
-        state.goal = localStorage.getItem('onboarding_goal');
-        state.saving_method = localStorage.getItem('onboarding_saving_method');
-        const cats = localStorage.getItem('onboarding_categories');
-        if (cats) state.categories = JSON.parse(cats) || [];
-      }catch(e){}
+    /**
+     * Aggiorna l'interfaccia utente per mostrare lo step corrente.
+     */
+    function renderStep(n) {
+      ga('event', 'onboarding_step_view', { step: n });
+      steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
+      const progress = n <= TOTAL_STEPS ? ((n - 1) / TOTAL_STEPS) * 100 : 100;
+      progressBarInner.style.width = progress + '%';
+      progressBar.setAttribute('aria-valuenow', String(progress));
+      stepIndicator.textContent = n <= TOTAL_STEPS ? `Passo ${n} di ${TOTAL_STEPS}` : 'Completato!';
+      backBtn.style.visibility = (n > 1 && n <= TOTAL_STEPS) ? 'visible' : 'hidden';
+      nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
+      showError('');
+      if (n === 2) customizeStep2();
+    }
+    
+    /**
+     * Valida l'input dell'utente per lo step corrente e aggiorna lo stato.
+     */
+    function validateAndUpdateState(n) {
+      showError('');
+      if (n === 1) {
+        const sel = document.querySelector('input[name="goal"]:checked');
+        if (!sel) { showError('Per favore, scegli un obiettivo.'); return false; }
+        state.goal = sel.value;
+      } else if (n === 2) {
+        const sel = document.querySelector('input[name="saving_method"]:checked');
+        if (!sel) { showError('Per favore, scegli una modalità.'); return false; }
+        state.saving_method = sel.value;
+      } else if (n === 3) {
+        const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e => e.value);
+        if (!sel.length) { showError('Per favore, seleziona almeno una categoria.'); return false; }
+        state.categories = sel;
+      }
+      return true;
     }
 
-    function saveState(){
-      try{
-        if (state.goal) localStorage.setItem('onboarding_goal', state.goal);
-        if (state.saving_method) localStorage.setItem('onboarding_saving_method', state.saving_method);
-        localStorage.setItem('onboarding_categories', JSON.stringify(state.categories || []));
-      }catch(e){}
-    }
+    /**
+     * Salva lo stato finale dell'onboarding nel database Supabase.
+     */
+    async function saveOnboardingToSupabase(user) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Salvataggio...';
 
-    function populateFormWithState(){
-      if (state.goal){
-        const el = document.querySelector(`input[name="goal"][value="${state.goal}"]`);
-        if (el) el.checked = true;
-      }
-      if (state.saving_method){
-        const el = document.querySelector(`input[name="saving_method"][value="${state.saving_method}"]`);
-        if (el) el.checked = true;
-      }
-      if (state.categories?.length){
-        state.categories.forEach(c => {
-          const el = document.querySelector(`input[name="category"][value="${c}"]`);
-          if (el) el.checked = true;
-        });
-      }
-    }
+      const payload = {
+        id: user.id,
+        onboarding_goal: state.goal,
+        onboarding_saving_method: state.saving_method,
+        onboarding_categories: state.categories,
+        onboarded: true
+      };
 
-    function customizeStep2(){
+      const { error } = await supabase.from("profiles").update(payload).eq('id', user.id);
+
+      if (error) {
+        console.error("Errore durante il salvataggio:", error);
+        showError("Si è verificato un errore durante il salvataggio. Riprova.");
+        nextBtn.disabled = false;
+        nextBtn.textContent = 'Fine';
+        return false;
+      }
+      return true;
+    }
+    
+    /**
+     * Personalizza il testo dello step 2 in base alla scelta fatta nello step 1.
+     */
+    function customizeStep2() {
       const title = document.getElementById('step-2-title');
       const description = document.getElementById('s2d');
       switch (state.goal) {
@@ -380,7 +357,7 @@ location.replace('/it/dashboard.html');
           description.textContent = 'Scegli la strategia di risparmio più adatta a te.';
           break;
         case 'Riduzione debiti e Finanziamenti':
-          title.textContent = 'Come vuoi affrontare debiti e finanziamenti?';
+          title.textContent = 'Come vuoi affrontare i tuoi debiti?';
           description.textContent = 'Scegli un metodo per ridurre le tue uscite mese dopo mese.';
           break;
         case 'Raggiungi un obiettivo':
@@ -393,105 +370,103 @@ location.replace('/it/dashboard.html');
       }
     }
 
-    function renderStep(n){
-      ga('event','onboarding_step_view',{ step: n });
+    // --- LOGICA DI INIZIALIZZAZIONE ---
 
-      steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step,10) === n));
-      const progress = n <= TOTAL_STEPS ? ((n - 1) / TOTAL_STEPS) * 100 : 100;
-      progressBarInner.style.width = progress + '%';
-      progressBar.setAttribute('aria-valuenow', String(progress));
-      stepIndicator.textContent = n <= TOTAL_STEPS ? `Passo ${n} di ${TOTAL_STEPS}` : 'Completato!';
-
-      backBtn.style.visibility = (n > 1 && n <= TOTAL_STEPS) ? 'visible' : 'hidden';
-      nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
-      showError('');
-
-      if (n === 2) customizeStep2();
-    }
-
-    function validateStep(n){
-      showError('');
-      if (n === 1){
-        const sel = document.querySelector('input[name="goal"]:checked');
-        if (!sel){ showError('Per favore, scegli un obiettivo.'); return false; }
-        state.goal = sel.value; saveState(); return true;
-      }
-      if (n === 2){
-        const sel = document.querySelector('input[name="saving_method"]:checked');
-        if (!sel){ showError('Per favore, scegli una modalità.'); return false; }
-        state.saving_method = sel.value; saveState(); return true;
-      }
-      if (n === 3){
-        const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e=>e.value);
-        if (!sel.length){ showError('Per favore, seleziona almeno una categoria.'); return false; }
-        state.categories = sel; saveState(); return true;
-      }
-      return true;
-    }
-
-    // 👉 handler async per poter attendere il salvataggio su Supabase
-    nextBtn.addEventListener('click', async () => {
-      if (!validateStep(currentStep)) return;
-
-      if (currentStep === TOTAL_STEPS){
-        try { localStorage.setItem('onboarding_completed','1'); } catch(e){}
-        ga('event','onboarding_completed');
-
-        // Salva su DB se possibile (definita dal modulo precedente)
-        try {
-          if (window.mhbSaveOnboarding) {
-            await window.mhbSaveOnboarding(state);
-          }
-        } catch(e){ console.warn('save onboarding skipped:', e); }
-
-        location.replace(itPrefix() + 'dashboard.html');
+    async function initializeOnboarding() {
+      // 1. Controlla l'utente
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        location.replace(itPrefix() + "login.html");
         return;
       }
-      currentStep++; renderStep(currentStep);
-    });
 
-    backBtn.addEventListener('click', () => {
-      if (currentStep > 1){ currentStep--; renderStep(currentStep); }
-    });
+      // 2. Recupera il profilo dal DATABASE (la nostra fonte di verità)
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('onboarded, onboarding_goal, onboarding_saving_method, onboarding_categories')
+        .eq('id', user.id)
+        .single();
 
-    populateCategories();
-    loadState();
-    populateFormWithState();
-    renderStep(currentStep);
-  });
-  </script>
-
-  <!-- 🔹 Logout Supabase -->
-  <script type="module">
-    import { supabase } from "/it/supabase-client.js";
-
-    const logoutBtn = document.getElementById('logout-btn');
-    const itPrefix = () => {
-      const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
-      return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
-    };
-
-    logoutBtn?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        if (typeof gtag === 'function') gtag('event','logout',{page:'onboarding',lang:'it'});
-        await supabase.auth.signOut();
-// opzionale: pulisci solo chiavi locali non persistenti
-location.replace('/it/');
-      } catch (err) {
-        console.warn('Logout error:', err);
-      } finally {
-        try {
-          localStorage.removeItem('onboarding_goal');
-          localStorage.removeItem('onboarding_saving_method');
-          localStorage.removeItem('onboarding_categories');
-          localStorage.removeItem('onboarding_completed');
-          localStorage.removeItem('mhb_lang');
-          localStorage.removeItem('email_verified');
-        } catch(e){}
-        location.replace(itPrefix());
+      if (error) {
+        console.error("Impossibile recuperare il profilo:", error);
+        showError("Impossibile caricare i tuoi dati. Ricarica la pagina.");
+        return;
       }
-    });
+
+      // 3. GUARDIA: se l'utente ha già completato l'onboarding, reindirizza
+      const isEditing = new URLSearchParams(location.search).get('edit') === '1';
+      if (profile.onboarded && !isEditing) {
+        location.replace(itPrefix() + "dashboard.html");
+        return;
+      }
+
+      // 4. Se siamo in modalità modifica, popola lo stato con i dati dal database
+      if (profile) {
+          state.goal = profile.onboarding_goal;
+          state.saving_method = profile.onboarding_saving_method;
+          state.categories = profile.onboarding_categories || [];
+      }
+
+      // 5. Inizializza l'interfaccia
+      populateCategories();
+      // Pre-compila il form con i dati dello stato (caricati dal DB)
+      if (state.goal) {
+        const goalInput = document.querySelector(`input[name="goal"][value="${state.goal}"]`);
+        if (goalInput) goalInput.checked = true;
+      }
+      if (state.saving_method) {
+        const methodInput = document.querySelector(`input[name="saving_method"][value="${state.saving_method}"]`);
+        if (methodInput) methodInput.checked = true;
+      }
+      if (state.categories.length) {
+          state.categories.forEach(c => {
+              const el = document.querySelector(`input[name="category"][value="${c}"]`);
+              if (el) el.checked = true;
+          });
+      }
+      renderStep(currentStep);
+
+      // 6. Aggiungi gli event listener ai pulsanti
+      nextBtn.addEventListener('click', async () => {
+        if (!validateAndUpdateState(currentStep)) return;
+
+        if (currentStep === TOTAL_STEPS) {
+          ga('event', 'onboarding_completed');
+          const success = await saveOnboardingToSupabase(user);
+          if (success) {
+            // Non usiamo più localStorage come fonte di verità, ma possiamo impostarlo
+            // per coerenza con altre parti dell'app se necessario.
+            try { localStorage.setItem('onboarding_completed', '1'); } catch(e){}
+            location.replace(itPrefix() + 'dashboard.html');
+          }
+        } else {
+          currentStep++;
+          renderStep(currentStep);
+        }
+      });
+
+      backBtn.addEventListener('click', () => {
+        if (currentStep > 1) {
+          currentStep--;
+          renderStep(currentStep);
+        }
+      });
+      
+      logoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          // Pulisci il localStorage per sicurezza
+          Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('onboarding_') || key.startsWith('mhb_')) {
+                  localStorage.removeItem(key);
+              }
+          });
+          location.replace(itPrefix());
+      });
+    }
+
+    // Avvia l'applicazione
+    document.addEventListener('DOMContentLoaded', initializeOnboarding);
   </script>
 </body>
 </html>
