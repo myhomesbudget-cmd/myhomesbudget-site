@@ -14,38 +14,43 @@
     .top-actions{display:flex;gap:12px;align-items:center}
     .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
     .top-link:hover{background:rgba(0,0,0,.38)}
+    #month-selector { background: rgba(255,255,255,0.8); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; font-weight: 600;}
     main.container{padding:84px 24px 24px; max-width:1280px; margin:0 auto; width:100%;}
     .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
     .card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
     h2{margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
     .loading-text{color:#999;font-size:1rem;text-align:center;padding:20px;width:100%;}
-    /* Widget specifici */
-    .widget-summary{grid-column:span 12; md:grid-column:span 4;}
-    .widget-main-chart{grid-column:span 12; md:grid-column:span 8;}
-    .widget-top-expenses{grid-column:span 12; md:grid-column:span 6;}
-    .widget-distribution{grid-column:span 12; md:grid-column:span 6;}
-    @media (min-width:768px){.widget-summary{grid-column:span 4;}.widget-main-chart{grid-column:span 8;}.widget-top-expenses{grid-column:span 6;}.widget-distribution{grid-column:span 6;}}
+    @media (min-width:768px){.widget-summary{grid-column:span 4;}.widget-goal{grid-column:span 4;}.widget-main-chart{grid-column:span 8;}.widget-top-expenses{grid-column:span 6;}}
     /* Riepilogo Mese */
     .summary-widget{text-align:center;}
-    .chart-container{position:relative;width:180px;height:180px;margin:0 auto;}
+    .chart-container{position:relative;width:160px;height:160px;margin:0 auto;}
     .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-    .chart-percentage{font-size:2.2rem;font-weight:800;color:var(--fg);}
-    .chart-subtext{font-size:0.9rem;color:#555;}
+    .chart-percentage{font-size:2rem;font-weight:800;color:var(--fg);}
+    .chart-subtext{font-size:0.8rem;color:#555;}
     .summary-details{margin-top:16px;}
     .summary-details .label{color:#555;font-size:0.9rem;}
-    .summary-details .amount{font-weight:700;font-size:1.5rem;color:var(--danger-color);}
+    .summary-details .amount{font-weight:700;font-size:1.3rem;}
+    .summary-details .amount.expense{color:var(--danger-color);}
     .summary-details .amount.remaining{color:var(--success-color);}
+    /* Obiettivo */
+    .goal-widget .goal-name { font-weight: 700; font-size: 1.1rem; }
+    .goal-widget .goal-progress { margin-top: 12px; }
+    .goal-widget .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
+    .goal-widget .current { font-weight: 700; color: var(--primary-color); }
+    .goal-widget .target { color: #555; }
+    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:5px;height:12px;overflow:hidden;}
+    .bar-foreground{height:100%;background:linear-gradient(90deg, #8e44ad, #3498db);width:0%;transition:width 0.5s ease-out;border-radius:5px;}
     /* Spese Principali */
     .bar-list-item{margin-bottom:12px;font-size:0.9rem;}
     .bar-list-item .label{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:600;}
-    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:5px;height:10px;overflow:hidden;}
-    .bar-foreground{height:100%;background-color:var(--primary-color);width:0%;transition:width 0.5s ease-out;border-radius:5px;}
+    .bar-foreground.expense-bar { background: var(--primary-color); }
   </style>
 </head>
 <body>
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-actions">
+      <select id="month-selector" aria-label="Seleziona mese"></select>
       <a href="/it/dashboard.html" class="top-link">Operazioni</a>
       <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
       <a href="#" id="logout-btn" class="top-link">Esci</a>
@@ -56,19 +61,19 @@
     <div class="dash-grid">
       <div class="widget-summary card">
         <h2>Riepilogo Mese</h2>
-        <div id="summary-widget-content" class="summary-widget"><p class="loading-text">Caricamento...</p></div>
+        <div id="summary-widget-content"><p class="loading-text">Caricamento...</p></div>
       </div>
       <div class="widget-main-chart card">
-        <h2>Spese Mensili</h2>
+        <h2>Andamento Spese</h2>
         <div style="height:250px;"><canvas id="monthlyExpensesChart"></canvas></div>
+      </div>
+      <div class="widget-goal card">
+        <h2>Obiettivo Principale</h2>
+        <div id="goal-widget-content"><p class="loading-text">Caricamento...</p></div>
       </div>
       <div class="widget-top-expenses card">
         <h2>Spese Principali</h2>
         <div id="top-categories-list"><p class="loading-text">Caricamento...</p></div>
-      </div>
-       <div class="widget-top-expenses card">
-        <h2>Sottocategorie Principali</h2>
-        <div id="top-subcategories-list"><p class="loading-text">Caricamento...</p></div>
       </div>
     </div>
   </main>
@@ -77,92 +82,81 @@
     import { supabase } from "/it/supabase-client.js";
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 
-    function renderSummaryWidget(data) {
-        const container = document.getElementById('summary-widget-content');
-        const spent = data.totalExpenses;
-        const budget = data.totalIncome - data.savingsBudget;
-        const remaining = budget - spent;
-        const percentage = budget > 0 ? (spent / budget) * 100 : 0;
-        
-        container.innerHTML = `
-            <div class="chart-container">
-                <canvas id="summaryDonutChart"></canvas>
-                <div class="chart-center-text">
-                    <div class="chart-percentage">${percentage.toFixed(1)}%</div>
-                    <div class="chart-subtext">del budget</div>
-                </div>
-            </div>
-            <div class="summary-details">
-                <p class="label">Spese Attuali</p>
-                <p class="amount">${formatCurrency(spent)}</p>
-                <p class="label">Budget Rimanente</p>
-                <p class="amount remaining">${formatCurrency(remaining)}</p>
-            </div>
-        `;
-        
-        new Chart(document.getElementById('summaryDonutChart'), {
-            type: 'doughnut',
-            data: { datasets: [{ data: [spent, remaining > 0 ? remaining : 0], backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'], borderWidth: 0, borderRadius: 5 }] },
-            options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
-        });
-    }
-    
-    function renderMainChart(data) {
-        const ctx = document.getElementById('monthlyExpensesChart');
-        if(!ctx) return;
-        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
-        const values = data.map(row => row.total_expenses);
-        new Chart(ctx, {
-            type: 'bar',
-            data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}, plugins: { legend: { display: false } } }
-        });
-    }
+    // --- FUNZIONI DI RENDER ---
+    function renderSummaryWidget(data) { /* ... invariata ... */ }
+    function renderMainChart(data) { /* ... invariata ... */ }
+    function renderBarList(containerId, data) { /* ... invariata ... */ }
 
-    function renderBarList(containerId, data) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        if (!data || data.length === 0) {
-            container.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>';
-            return;
-        }
-        const maxTotal = Math.max(...data.map(item => item.total));
-        data.forEach(item => {
-            const percentage = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
-            const itemEl = document.createElement('div');
-            itemEl.className = 'bar-list-item';
-            itemEl.innerHTML = `
-                <div class="label">
-                    <span>${item.icon || ''} ${item.name}</span>
-                    <span>${formatCurrency(item.total)}</span>
+    function renderGoalWidget(data) {
+        const container = document.getElementById('goal-widget-content');
+        const percentage = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
+        container.innerHTML = `
+            <div class="goal-name">${data.name}</div>
+            <div class="goal-progress">
+                <div class="progress-label">
+                    <span class="current">${formatCurrency(data.current_amount)}</span>
+                    <span class="target">di ${formatCurrency(data.target_amount)}</span>
                 </div>
                 <div class="bar-background">
-                    <div class="bar-foreground" style="width: ${percentage}%;"></div>
-                </div>`;
-            container.appendChild(itemEl);
-        });
+                    <div class="bar-foreground" style="width: ${Math.min(percentage, 100)}%;"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // --- FUNZIONE PRINCIPALE PER CARICARE I DATI ---
+    async function loadDashboardData(user, selectedMonth) {
+        // Mostra lo stato di caricamento
+        document.querySelectorAll('.loading-text').forEach(el => el.style.display = 'block');
+
+        const [summaryRes, topCatRes] = await Promise.all([
+            supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
+            supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
+        ]);
+        
+        if (summaryRes.data) renderSummaryWidget(summaryRes.data);
+        if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
     }
     
+    // --- INIZIALIZZAZIONE ---
     async function initializePage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { location.replace("/it/login.html"); return; }
         
-        const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+        const monthSelector = document.getElementById('month-selector');
         
-        const [summaryRes, chartRes, topCatRes, topSubcatRes] = await Promise.all([
-            supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: currentMonth }),
+        // Popola il selettore dei mesi
+        for (let i = 0; i < 12; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const value = date.toISOString().slice(0, 7) + '-01';
+            const label = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            monthSelector.add(new Option(label, value));
+        }
+
+        // Carica i dati per il mese corrente all'avvio
+        await loadDashboardData(user, monthSelector.value);
+
+        // Carica i dati che non dipendono dal mese (una sola volta)
+        const [chartRes, goalRes] = await Promise.all([
             supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
-            supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: currentMonth }),
-            supabase.rpc('get_top_spending_subcategories', { user_id_param: user.id, month_param: currentMonth })
+            supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
         ]);
-        
-        if (summaryRes.data) renderSummaryWidget(summaryRes.data);
         if (chartRes.data) renderMainChart(chartRes.data);
-        if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
-        if (topSubcatRes.data) renderBarList('top-subcategories-list', topSubcatRes.data);
-        
+        if (goalRes.data) renderGoalWidget(goalRes.data);
+
+        // Aggiungi l'ascoltatore per quando l'utente cambia mese
+        monthSelector.addEventListener('change', () => {
+            loadDashboardData(user, monthSelector.value);
+        });
+
         document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
     }
+    
+    // Funzioni di render complete (da includere)
+    function renderSummaryWidget(data){ const c = document.getElementById('summary-widget-content'); const s = data.totalExpenses; const b = data.totalIncome - data.savingsBudget; const r = b-s; const p = b>0?(s/b)*100:0; c.innerHTML = `<div class=chart-container><canvas id=summaryDonutChart></canvas><div class=chart-center-text><div class=chart-percentage>${p.toFixed(1)}%</div><div class=chart-subtext>del budget</div></div></div><div class=summary-details><p class=label>Spese Attuali</p><p class="amount expense">${formatCurrency(s)}</p><p class=label>Budget Rimanente</p><p class="amount remaining">${formatCurrency(r)}</p></div>`; new Chart(document.getElementById('summaryDonutChart'),{type:'doughnut',data:{datasets:[{data:[s,r>0?r:0],backgroundColor:['var(--primary-color)','rgba(0,0,0,0.1)'],borderWidth:0,borderRadius:5}]},options:{cutout:'80%',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{enabled:false}}}}); }
+    function renderMainChart(data) { const ctx = document.getElementById('monthlyExpensesChart'); if(!ctx) return; const labels = data.map(r => new Date(r.month_start).toLocaleDateString('it-IT', { month: 'short' })); const values = data.map(r => r.total_expenses); new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}, plugins: { legend: { display: false } } } }); }
+    function renderBarList(containerId, data) { const c = document.getElementById(containerId); c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>'; return; } const max = Math.max(...data.map(i => i.total)); data.forEach(i => { const p = max > 0 ? (i.total / max) * 100 : 0; const e = document.createElement('div'); e.className = 'bar-list-item'; e.innerHTML = `<div class=label><span>${i.icon||''} ${i.name}</span><span>${formatCurrency(i.total)}</span></div><div class=bar-background><div class="bar-foreground expense-bar" style="width: ${p}%;"></div></div>`; c.appendChild(e); }); }
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
