@@ -17,12 +17,27 @@
     #month-selector { background: rgba(255,255,255,0.8); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; font-weight: 600;}
     main.container{padding:84px 24px 24px; max-width:1280px; margin:0 auto; width:100%;}
     .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
-    .card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
+    .card{background:rgba(255,255,255,0.85);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
     h2{margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
     .loading-text{color:#999;font-size:1rem;text-align:center;padding:20px;width:100%;}
-    @media (min-width:768px){.widget-summary{grid-column:span 12;}.widget-main-chart{grid-column:span 12;}.widget-goal{grid-column:span 12;}.widget-top-expenses{grid-column:span 12;}}
-    @media (min-width:1024px){.widget-summary{grid-column:span 4;}.widget-main-chart{grid-column:span 8;}.widget-goal{grid-column:span 4;}.widget-top-expenses{grid-column:span 8;}}
-    /* Riepilogo Mese */
+    
+    /* Layout griglia migliorato */
+    .widget-summary { grid-column: span 12; }
+    .widget-main-chart { grid-column: span 12; }
+    .widget-goal { grid-column: span 12; }
+    .widget-top-expenses { grid-column: span 12; }
+
+    @media (min-width: 768px) {
+      .widget-summary { grid-column: span 6; }
+      .widget-goal { grid-column: span 6; }
+    }
+    @media (min-width: 1024px) {
+      .widget-summary { grid-column: span 4; }
+      .widget-main-chart { grid-column: span 8; }
+      .widget-goal { grid-column: span 4; }
+      .widget-top-expenses { grid-column: span 8; }
+    }
+
     .summary-widget{text-align:center;}
     .chart-container{position:relative;width:160px;height:160px;margin:0 auto;}
     .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
@@ -33,7 +48,6 @@
     .summary-details .amount{font-weight:700;font-size:1.3rem;}
     .summary-details .amount.expense{color:var(--danger-color);}
     .summary-details .amount.remaining{color:var(--success-color);}
-    /* Obiettivo */
     .goal-widget .goal-name { font-weight: 700; font-size: 1.1rem; }
     .goal-widget .goal-progress { margin-top: 12px; }
     .goal-widget .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
@@ -41,7 +55,6 @@
     .goal-widget .target { color: #555; }
     .bar-background{background-color:rgba(0,0,0,0.1);border-radius:5px;height:12px;overflow:hidden;}
     .bar-foreground{height:100%;background:linear-gradient(90deg, #8e44ad, #3498db);width:0%;transition:width 0.5s ease-out;border-radius:5px;}
-    /* Spese Principali */
     .bar-list-item{margin-bottom:12px;font-size:0.9rem;}
     .bar-list-item .label{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:600;}
     .bar-foreground.expense-bar { background: var(--primary-color); }
@@ -83,6 +96,7 @@
     import { supabase } from "/it/supabase-client.js";
 
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
+    let mainChartInstance = null; // Per poter distruggere e ricreare il grafico
 
     // --- FUNZIONI DI RENDER (per disegnare i widget) ---
     function renderSummaryWidget(data) {
@@ -101,10 +115,8 @@
                 </div>
             </div>
             <div class="summary-details">
-                <p class="label">Spese Attuali</p>
-                <p class="amount expense">${formatCurrency(spent)}</p>
-                <p class="label">Budget Rimanente</p>
-                <p class="amount remaining">${formatCurrency(remaining)}</p>
+                <p class="label">Spese Attuali</p><p class="amount expense">${formatCurrency(spent)}</p>
+                <p class="label">Budget Rimanente</p><p class="amount remaining">${formatCurrency(remaining)}</p>
             </div>
         `;
         
@@ -118,9 +130,12 @@
     function renderMainChart(data) {
         const ctx = document.getElementById('monthlyExpensesChart');
         if (!ctx) return;
-        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' }));
+        if (mainChartInstance) { mainChartInstance.destroy(); } // Distruggi il vecchio grafico prima di disegnarne uno nuovo
+
+        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
         const values = data.map(row => row.total_expenses);
-        new Chart(ctx, {
+        
+        mainChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -142,14 +157,7 @@
             const percentage = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
             const itemEl = document.createElement('div');
             itemEl.className = 'bar-list-item';
-            itemEl.innerHTML = `
-                <div class="label">
-                    <span>${item.icon || ''} ${item.name}</span>
-                    <span>${formatCurrency(item.total)}</span>
-                </div>
-                <div class="bar-background">
-                    <div class="bar-foreground expense-bar" style="width: ${percentage}%;"></div>
-                </div>`;
+            itemEl.innerHTML = `<div class="label"><span>${item.icon || ''} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class="bar-background"><div class="bar-foreground expense-bar" style="width: ${percentage}%;"></div></div>`;
             container.appendChild(itemEl);
         });
     }
@@ -157,18 +165,7 @@
     function renderGoalWidget(data) {
         const container = document.getElementById('goal-widget-content');
         const percentage = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
-        container.innerHTML = `
-            <div class="goal-name">${data.name}</div>
-            <div class="goal-progress">
-                <div class="progress-label">
-                    <span class="current">${formatCurrency(data.current_amount)}</span>
-                    <span class="target">di ${formatCurrency(data.target_amount)}</span>
-                </div>
-                <div class="bar-background">
-                    <div class="bar-foreground" style="width: ${Math.min(percentage, 100)}%;"></div>
-                </div>
-            </div>
-        `;
+        container.innerHTML = `<div class="goal-name">${data.name}</div><div class="goal-progress"><div class="progress-label"><span class="current">${formatCurrency(data.current_amount)}</span><span class="target">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(percentage, 100)}%;"></div></div></div>`;
     }
 
     // --- FUNZIONE PRINCIPALE PER CARICARE I DATI ---
@@ -181,8 +178,11 @@
             supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
         ]);
         
-        if (summaryRes.data) renderSummaryWidget(summaryRes.data);
-        if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
+        if (summaryRes.error) console.error("Errore Riepilogo:", summaryRes.error);
+        else if (summaryRes.data) renderSummaryWidget(summaryRes.data);
+        
+        if (topCatRes.error) console.error("Errore Top Categorie:", topCatRes.error);
+        else if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
     }
     
     // --- INIZIALIZZAZIONE PAGINA ---
@@ -200,18 +200,19 @@
             monthSelector.add(new Option(label, value));
         }
 
-        // Carica i dati non dipendenti dal mese (una sola volta all'inizio)
-        const [chartRes, goalRes] = await Promise.all([
+        // Carica TUTTI i dati in parallelo all'avvio
+        const [chartRes, goalRes, _] = await Promise.all([
             supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
-            supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
+            supabase.rpc('get_main_goal_progress', { user_id_param: user.id }),
+            loadDashboardData(user, monthSelector.value) // Carica anche i dati del mese corrente
         ]);
-        if (chartRes.data) renderMainChart(chartRes.data);
-        if (goalRes.data) renderGoalWidget(goalRes.data);
-        
-        // Carica i dati per il mese corrente
-        await loadDashboardData(user, monthSelector.value);
 
-        // Aggiungi l'ascoltatore per quando l'utente cambia mese
+        if (chartRes.error) console.error("Errore Grafico Principale:", chartRes.error);
+        else if (chartRes.data) renderMainChart(chartRes.data);
+        
+        if (goalRes.error) console.error("Errore Obiettivo:", goalRes.error);
+        else if (goalRes.data) renderGoalWidget(goalRes.data);
+
         monthSelector.addEventListener('change', () => {
             loadDashboardData(user, monthSelector.value);
         });
