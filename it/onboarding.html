@@ -130,7 +130,6 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // --- CONFIGURAZIONE E STATO ---
     const TOTAL_STEPS = 3;
     const state = {
         goal_type: null, goal_name: null, goal_target_amount: null,
@@ -139,7 +138,6 @@
     };
     let currentStep = 1;
 
-    // --- SELETTORI DOM ---
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
     const logoutBtn = document.getElementById('logout-btn');
@@ -148,11 +146,9 @@
     const errorBox = document.getElementById('error');
     const steps = document.querySelectorAll('.step');
 
-    // --- FUNZIONI HELPER ---
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
     const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
 
-    // --- FUNZIONI UI ---
     function renderStep(n) {
         steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
         const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
@@ -187,16 +183,20 @@
             if (typeRadio) {
                 typeRadio.checked = true;
                 const parentDiv = typeRadio.closest('div');
-                parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
-                parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
+                if (parentDiv) {
+                    parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
+                    parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
+                }
             }
         }
         if (budget) {
-            // Logica semplificata, da migliorare se si vogliono gestire metodi diversi
             const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
             if (methodRadio) {
                 methodRadio.checked = true;
-                methodRadio.closest('div').querySelector('input[name="contribution_amount"]').value = budget.amount;
+                const parentDiv = methodRadio.closest('div');
+                if (parentDiv) {
+                   parentDiv.querySelector('input[name="contribution_amount"]').value = budget.amount;
+                }
             }
         }
         
@@ -209,7 +209,6 @@
         });
     }
 
-    // --- FUNZIONI DI LOGICA ---
     function validateAndUpdateState(n) {
         showError('');
         if (n === 1) {
@@ -219,7 +218,7 @@
             const parentDiv = typeRadio.closest('div');
             const nameInput = parentDiv.querySelector('input[name="goal_name"]');
             const amountInput = parentDiv.querySelector('input[name="goal_target_amount"]');
-            if (!nameInput || !amountInput) return false;
+            if (!nameInput || !amountInput) { showError('Errore interno, ricarica la pagina.'); return false; }
             if (!nameInput.value.trim()) { showError('Per favore, inserisci un nome per il tuo obiettivo.'); return false; }
             if (amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
             state.goal_name = nameInput.value.trim();
@@ -305,7 +304,6 @@
         }
     }
     
-    // --- FUNZIONE DI INIZIALIZZAZIONE ---
     async function initializePage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -319,10 +317,13 @@
             supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
         ]);
         
-        if (profileRes.error || userCatRes.error || defaultCatRes.error || goalRes.error || budgetRes.error) {
-            console.error(profileRes.error || userCatRes.error || defaultCatRes.error || goalRes.error || budgetRes.error);
-            showError("Impossibile caricare i dati. Ricarica la pagina."); 
-            return;
+        const results = [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes];
+        for (const res of results) {
+            if (res.error) {
+                console.error("Errore durante il caricamento dati:", res.error);
+                showError("Impossibile caricare i dati. Ricarica la pagina."); 
+                return;
+            }
         }
         
         const profile = profileRes.data;
@@ -332,7 +333,7 @@
         const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit') === '1';
-        if (profile.onboarded && !isEditing) {
+        if (profile && profile.onboarded && !isEditing) {
             location.replace(itPrefix() + "dashboard.html");
             return;
         }
