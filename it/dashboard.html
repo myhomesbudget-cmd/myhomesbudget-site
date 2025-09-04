@@ -8,7 +8,6 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.ico">
   <style>
-    /* CSS Invariato */
     :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
@@ -63,14 +62,7 @@
       <h2 id="form-title">Nuova Transazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
-        <div class="form-group full-width">
-          <label for="kind">Tipo</label>
-          <select id="kind" name="kind" required>
-            <option value="expense">Uscita</option>
-            <option value="income">Entrata</option>
-            <option value="transfer">Trasferimento</option>
-          </select>
-        </div>
+        <div class="form-group full-width"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option><option value="transfer">Trasferimento</option></select></div>
         <div class="form-group full-width"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required></div>
         <div class="form-group"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
         <div class="form-group"><label for="occurred_at">Data</label><input type="date" id="occurred_at" name="occurred_at" required></div>
@@ -88,12 +80,10 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // --- SELETTORI DOM & STATO ---
     const transactionForm = document.getElementById('transaction-form');
-    const kindSelect = document.getElementById('kind'); // Selettore per il tipo
+    const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
     const subcategorySelect = document.getElementById('subcategory_id');
-    // ... (altri selettori come prima)
     const transactionIdInput = document.getElementById('transaction-id');
     const formTitle = document.getElementById('form-title');
     const transactionList = document.getElementById('transaction-list');
@@ -103,96 +93,185 @@
     let allSubcategories = [];
     let allTransactions = [];
 
-    // --- FUNZIONI ---
     async function loadInitialData() {
-      // Carica TUTTE le categorie e sottocategorie dell'utente una sola volta
-      const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
-      if (cError) { console.error("Errore caricamento categorie:", cError); return; }
-      allCategories = categories;
+        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
+        if (cError) { console.error("Errore caricamento categorie:", cError); return; }
+        allCategories = categories;
 
-      if (allCategories.length > 0) {
-        const categoryIds = allCategories.map(c => c.id);
-        const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', categoryIds);
-        if (sError) { console.error("Errore caricamento sottocategorie:", sError); return; }
-        allSubcategories = subcategories;
-      }
+        if (allCategories.length > 0) {
+            const categoryIds = allCategories.map(c => c.id);
+            const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', categoryIds);
+            if (sError) { console.error("Errore caricamento sottocategorie:", sError); return; }
+            allSubcategories = subcategories;
+        }
     }
 
-    /**
-     * NUOVA FUNZIONE: Popola il menu delle categorie filtrando per tipo (kind)
-     */
     function updateCategoryDropdown() {
-      const selectedKind = kindSelect.value;
-      
-      // Filtra le categorie globali in base al tipo selezionato
-      const filteredCategories = allCategories.filter(cat => cat.kind === selectedKind);
-
-      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
-      filteredCategories.forEach(cat => {
-        const option = new Option(`${cat.icon} ${cat.name}`, cat.id);
-        categorySelect.add(option);
-      });
-
-      // Aggiorna anche le sottocategorie, che ora saranno vuote
-      updateSubcategories();
+        const selectedKind = kindSelect.value;
+        const filteredCategories = allCategories.filter(cat => cat.kind === selectedKind);
+        
+        categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+        filteredCategories.forEach(cat => {
+            const option = new Option(`${cat.icon} ${cat.name}`, cat.id);
+            categorySelect.add(option);
+        });
+        
+        updateSubcategories();
     }
 
-    // `updateSubcategories` e `loadTransactions` rimangono quasi identiche
     function updateSubcategories(selectedSubcategoryId = null) {
-      // ... (logica invariata)
+        const selectedCategoryId = categorySelect.value;
+        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+        subcategorySelect.disabled = true;
+        if (!selectedCategoryId) return;
+
+        const relevantSubcategories = allSubcategories.filter(sub => String(sub.category_id) === String(selectedCategoryId));
+
+        if (relevantSubcategories.length > 0) {
+            subcategorySelect.disabled = false;
+            relevantSubcategories.forEach(sub => {
+                const option = new Option(`${sub.icon} ${sub.name}`, sub.id);
+                subcategorySelect.add(option);
+            });
+            if (selectedSubcategoryId) {
+                subcategorySelect.value = selectedSubcategoryId;
+            }
+        }
     }
+
     async function loadTransactions() {
-      // ... (logica invariata)
+        const { data, error } = await supabase.from('transactions')
+            .select(`*, categories(name, icon), subcategories(name, icon)`)
+            .eq('created_by', user.id)
+            .order('occurred_at', { ascending: false }).limit(15);
+        if (error) { console.error("Errore caricamento transazioni:", error); return; }
+
+        allTransactions = data;
+        transactionList.innerHTML = '';
+        if (data.length === 0) {
+            transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+            return;
+        }
+
+        data.forEach(tx => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            const cat = tx.categories;
+            const sub = tx.subcategories;
+            const icon = sub?.icon || cat?.icon || '💸';
+            const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+            
+            item.innerHTML = `
+                <div class="item-icon">${icon}</div>
+                <div class="item-details">
+                    <span class="note">${tx.note}</span>
+                    <span class="category">${categoryText}</span>
+                </div>
+                <div class="item-amount ${tx.kind}">
+                    ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">Modifica</button>
+                    <button class="action-btn delete-btn delete" data-id="${tx.id}" title="Elimina">Elimina</button>
+                </div>
+            `;
+            transactionList.appendChild(item);
+        });
     }
     
-    // Le funzioni per Modifica ed Elimina rimangono identiche
-    function handleEdit(id) { /* ... */ }
-    async function handleDelete(id) { /* ... */ }
-    
-    // La funzione di submit rimane identica
-    async function handleFormSubmit(event) { /* ... */ }
+    function handleEdit(id) {
+        const tx = allTransactions.find(t => t.id === id);
+        if (!tx) return;
+        formTitle.textContent = "Modifica Transazione";
+        transactionIdInput.value = tx.id;
+        document.getElementById('kind').value = tx.kind;
+        document.getElementById('note').value = tx.note;
+        document.getElementById('amount').value = tx.amount;
+        document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0];
+        
+        // Prima aggiorna la lista delle categorie per il tipo corretto
+        updateCategoryDropdown();
+        // Poi seleziona la categoria e aggiorna le sottocategorie
+        categorySelect.value = tx.category_id;
+        updateSubcategories(tx.subcategory_id);
+        
+        window.scrollTo(0, 0);
+    }
 
-    // --- INIZIALIZZAZIONE ---
+    async function handleDelete(id) {
+        if (!confirm("Sei sicuro di voler eliminare questa transazione?")) return;
+        const { error } = await supabase.from('transactions').delete().eq('id', id);
+        if (error) { 
+            console.error("Errore eliminazione:", error);
+            alert("Impossibile eliminare la transazione."); 
+        } else { 
+            loadTransactions(); 
+        }
+    }
+    
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        const formData = new FormData(transactionForm);
+        const id = formData.get('transaction-id');
+        const subcategory_id = formData.get('subcategory_id') || null;
+        const payload = {
+            kind: formData.get('kind'),
+            note: formData.get('note'),
+            amount: formData.get('amount'),
+            occurred_at: formData.get('occurred_at'),
+            category_id: formData.get('category_id'),
+            subcategory_id: subcategory_id,
+            created_by: user.id
+        };
+        let { error } = id 
+            ? await supabase.from('transactions').update(payload).eq('id', id)
+            : await supabase.from('transactions').insert(payload);
+        
+        if (error) {
+            console.error("Errore salvataggio:", error);
+            alert("Si è verificato un errore. Riprova.");
+        } else {
+            transactionForm.reset();
+            formTitle.textContent = "Nuova Transazione";
+            transactionIdInput.value = "";
+            document.getElementById('occurred_at').valueAsDate = new Date();
+            updateCategoryDropdown(); // Ripristina il dropdown delle categorie
+            loadTransactions();
+        }
+    }
+
     async function initializePage() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { location.replace("/it/login.html"); return; }
-      user = session.user;
-      
-      // ... (Controllo onboarding come prima)
-      
-      document.getElementById('occurred_at').valueAsDate = new Date();
-      
-      // Carica TUTTI i dati iniziali
-      await loadInitialData();
-      
-      // Popola i menu a tendina per la prima volta
-      updateCategoryDropdown();
-      updateSubcategories();
-
-      // Carica le transazioni
-      await loadTransactions();
-      
-      // --- EVENT LISTENERS ---
-      
-      // ASCOLTATORE CHIAVE: Quando cambio il TIPO, aggiorno le categorie
-      kindSelect.addEventListener('change', updateCategoryDropdown);
-      
-      // Gli altri listener rimangono invariati
-      categorySelect.addEventListener('change', () => updateSubcategories());
-      transactionForm.addEventListener('submit', handleFormSubmit);
-      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
-      transactionList.addEventListener('click', (event) => { /* ... */ });
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace("/it/login.html"); return; }
+        user = session.user;
+        
+        const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+        if (profile && !profile.onboarded) {
+            if (new URLSearchParams(window.location.search).get('edit') !== '1') {
+                location.replace("/it/onboarding.html");
+                return;
+            }
+        }
+        
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        
+        await loadInitialData();
+        updateCategoryDropdown();
+        await loadTransactions();
+        
+        kindSelect.addEventListener('change', updateCategoryDropdown);
+        categorySelect.addEventListener('change', () => updateSubcategories());
+        transactionForm.addEventListener('submit', handleFormSubmit);
+        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+        
+        transactionList.addEventListener('click', (event) => {
+            const target = event.target.closest('.action-btn');
+            if (!target) return;
+            const id = target.dataset.id;
+            if (target.classList.contains('edit-btn')) handleEdit(id);
+            else if (target.classList.contains('delete-btn')) handleDelete(id);
+        });
     }
-
-    // Le funzioni complete che sono rimaste invariate per brevità
-    // (Devi assicurarti che siano presenti nel tuo script finale)
-    /*
-    function updateSubcategories(selectedSubcategoryId = null) { ... }
-    async function loadTransactions() { ... }
-    function handleEdit(id) { ... }
-    async function handleDelete(id) { ... }
-    async function handleFormSubmit(event) { ... }
-    */
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
