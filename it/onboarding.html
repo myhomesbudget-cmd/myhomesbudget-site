@@ -1,109 +1,366 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-app="myhomesbudget">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DIAGNOSTICA ONBOARDING</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurazione Iniziale — MyHomesBudget</title>
+  <meta name="description" content="Configura il tuo profilo in pochi passi per iniziare a gestire il tuo bilancio familiare.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
   <style>
-    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f0f2f5; }
-    .message { font-size: 1.5rem; color: #111; background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
-    .message code { background: #e0e0e0; padding: 4px 8px; border-radius: 4px; }
+    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;align-items:center;justify-content:space-between;}
+    .logo-link,.top-actions{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px;border-radius:6px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .logout-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);}
+    .logout-link:hover{background:rgba(0,0,0,.38)}
+    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px;}
+    .panel-header{background:rgba(255,255,255,.55);border-radius:12px;padding:14px;border:1px solid var(--card-border)}
+    .progress-bar{width:100%;height:8px;background:rgba(0,0,0,.1);border-radius:4px;overflow:hidden}
+    .progress-bar-inner{width:0%;height:100%;background:var(--primary-color);transition:width .4s ease}
+    .step-indicator{font-size:.9rem;font-weight:600;color:#555;margin-top:8px;text-align:right}
+    .step{display:none}
+    .step.is-active{display:block;animation:fadeIn .45s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .step-title{text-align:center;margin:6px 0 8px;font-size:clamp(1.5rem,4vw,1.8rem);color:#111}
+    .step-description{text-align:center;color:#333;margin:0 auto 16px;max-width:520px}
+    .options-grid{display:grid;gap:12px}
+    .category-columns {display: grid; gap: 24px;}
+    @media(min-width: 768px) { .category-columns {grid-template-columns: 1fr 1fr;} }
+    .column h3 { text-align: center; margin-top: 0; color: #333; }
+    .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:10px;background:rgba(255,255,255,.6);transition:.18s ease;cursor:pointer}
+    .option-label:hover{background:#fff}
+    input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
+    input[type="radio"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
+    .option-label strong{display:block;font-size:1.05rem}
+    .option-label span{font-size:.92rem;color:#444}
+    .option-details { display: none; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 14px 0; }
+    input[type="radio"]:checked ~ .option-details { display: grid; }
+    .input-field { width: 100%; border: 1px solid #ccc; background: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; }
+    .input-field::placeholder { color: #999; }
+    .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:8px;padding:8px 10px;font-weight:600;text-align:center;display:none}
+    .error-message.show{display:block}
+    .panel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800}
+    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
   </style>
 </head>
 <body>
-  <div id="message" class="message">
-    Diagnostica in corso...<br>Apri la console (tasto F12) e ricarica la pagina.
-  </div>
+  <nav class="topbar">
+    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span></a>
+    <div class="top-actions"><a href="#" id="logout-btn" class="logout-link">Esci</a></div>
+  </nav>
 
+  <main class="panel">
+    <div class="panel-header"><div class="progress-bar" role="progressbar"><div class="progress-bar-inner"></div></div><div id="step-indicator" class="step-indicator"></div></div>
+    
+    <section id="step-1" class="step" data-step="1">
+      <h1 class="step-title">Qual è il tuo obiettivo principale?</h1>
+      <p class="step-description">Scegliere un obiettivo ci aiuta a personalizzare la tua esperienza e a tracciare i tuoi progressi.</p>
+      <fieldset class="options-grid">
+        <div>
+          <input type="radio" id="goal-saving" name="goal_type" value="Risparmio">
+          <label for="goal-saving" class="option-label"><strong>💰 Risparmio generico</strong><span>Accantona una somma specifica ogni mese.</span></label>
+          <div class="option-details">
+            <input type="text" class="input-field" name="goal_name" value="Risparmio Mensile" readonly>
+            <input type="number" class="input-field" name="goal_target_amount" placeholder="5.000,00" step="100">
+          </div>
+        </div>
+        <div>
+          <input type="radio" id="goal-debts" name="goal_type" value="Riduzione Debiti">
+          <label for="goal-debts" class="option-label"><strong>📉 Riduzione debiti</strong><span>Monitora e riduci i tuoi debiti in modo efficace.</span></label>
+          <div class="option-details">
+            <input type="text" class="input-field" name="goal_name" placeholder="Es: Estinzione mutuo">
+            <input type="number" class="input-field" name="goal_target_amount" placeholder="70.000,00" step="1000">
+          </div>
+        </div>
+        <div>
+          <input type="radio" id="goal-objective" name="goal_type" value="Obiettivo Specifico">
+          <label for="goal-objective" class="option-label"><strong>🎯 Raggiungi un obiettivo</strong><span>Viaggi, acquisti importanti, progetti personali.</span></label>
+          <div class="option-details">
+            <input type="text" class="input-field" name="goal_name" placeholder="Es: Vacanza a New York">
+            <input type="number" class="input-field" name="goal_target_amount" placeholder="1.500,00" step="50">
+          </div>
+        </div>
+      </fieldset>
+    </section>
+    
+    <section id="step-2" class="step" data-step="2">
+      <h1 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h1>
+      <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
+      <fieldset class="options-grid">
+         <div>
+            <input type="radio" id="method-fixed" name="contribution_method" value="Cifra fissa">
+            <label for="method-fixed" class="option-label"><strong>🗓️ Cifra fissa mensile</strong><span>Destina un importo prestabilito ogni mese.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
+         </div>
+         <div>
+            <input type="radio" id="method-variable" name="contribution_method" value="Importo variabile">
+            <label for="method-variable" class="option-label"><strong>🎛️ Importo variabile</strong><span>Decidi quanto accantonare in base alle tue spese.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
+         </div>
+         <div>
+            <input type="radio" id="method-percentage" name="contribution_method" value="Percentuale sulle entrate">
+            <label for="method-percentage" class="option-label"><strong>📊 Percentuale sulle entrate</strong><span>Imposta una percentuale fissa del tuo reddito.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="1"></div>
+         </div>
+      </fieldset>
+    </section>
+
+    <section id="step-3" class="step" data-step="3">
+        <h1 class="step-title">Scegli le tue categorie</h1>
+        <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
+        <fieldset><div class="category-columns"><div class="column"><h3>Entrate</h3><div id="income-category-options" class="options-grid"></div></div><div class="column"><h3>Uscite</h3><div id="expense-category-options" class="options-grid"></div></div></div></fieldset>
+    </section>
+    
+    <div id="error" class="error-message"></div>
+    <div class="panel-footer"><button id="back-btn" class="btn btn-secondary">Indietro</button><button id="next-btn" class="btn btn-primary">Avanti</button></div>
+  </main>
+  
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
-    const messageEl = document.getElementById('message');
 
-    async function runDiagnostics() {
-      try {
-        console.log("--- INIZIO TEST DIAGNOSTICO ---");
+    const TOTAL_STEPS = 3;
+    const state = {
+        goal_type: null, goal_name: null, goal_target_amount: null,
+        contribution_method: null, contribution_amount: null,
+        categories: []
+    };
+    let currentStep = 1;
+
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const progressBarInner = document.querySelector('.progress-bar-inner');
+    const stepIndicator = document.getElementById('step-indicator');
+    const errorBox = document.getElementById('error');
+    const steps = document.querySelectorAll('.step');
+
+    const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
+    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
+
+    function renderStep(n) {
+        steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
+        const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
+        progressBarInner.style.width = progress + '%';
+        (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
+        stepIndicator.textContent = `Passo ${n} di ${TOTAL_STEPS}`;
+        backBtn.style.visibility = (n > 1) ? 'visible' : 'hidden';
+        nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
+        showError('');
+    }
+
+    function populateCategoriesFromDB(defaultCategories) {
+        const incomeContainer = document.getElementById('income-category-options');
+        const expenseContainer = document.getElementById('expense-category-options');
+        if (incomeContainer.childElementCount > 0) return;
         
-        // Test 0: Connessione a Supabase
-        if (!supabase) {
-            console.error("ERRORE CRITICO: Il client Supabase non è stato importato correttamente. Controlla il percorso di /it/supabase-client.js");
-            messageEl.innerHTML = "ERRORE: Client Supabase non trovato.";
+        defaultCategories.forEach((cat, i) => {
+            const id = 'cat-' + i;
+            const w = document.createElement('div');
+            w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'><label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
+            if (cat.kind === 'income') {
+                incomeContainer.appendChild(w);
+            } else {
+                expenseContainer.appendChild(w);
+            }
+        });
+    }
+
+    function preselectFormData(goal, budget, userCategories) {
+        if (goal) {
+            const typeRadio = document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
+            if (typeRadio) {
+                typeRadio.checked = true;
+                const parentDiv = typeRadio.closest('div');
+                if(parentDiv){
+                    parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
+                    parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
+                }
+            }
+        }
+        if (budget) {
+            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
+            if (methodRadio) {
+                methodRadio.checked = true;
+                const parentDiv = methodRadio.closest('div');
+                if(parentDiv){
+                   parentDiv.querySelector('input[name="contribution_amount"]').value = budget.amount;
+                }
+            }
+        }
+        
+        const selectedNames = userCategories.map(c => c.name);
+        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            try {
+                const catObj = JSON.parse(checkbox.value);
+                if (selectedNames.includes(catObj.name)) checkbox.checked = true;
+            } catch(e) {}
+        });
+    }
+
+    function validateAndUpdateState(n) {
+        showError('');
+        if (n === 1) {
+            const typeRadio = document.querySelector('input[name="goal_type"]:checked');
+            if (!typeRadio) { showError('Per favore, scegli un obiettivo.'); return false; }
+            state.goal_type = typeRadio.value;
+            const parentDiv = typeRadio.closest('div');
+            const nameInput = parentDiv.querySelector('input[name="goal_name"]');
+            const amountInput = parentDiv.querySelector('input[name="goal_target_amount"]');
+            if (!nameInput || !amountInput) { showError('Errore interno, ricarica la pagina.'); return false; }
+            if (!nameInput.value.trim()) { showError('Per favore, inserisci un nome per il tuo obiettivo.'); return false; }
+            if (amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
+            state.goal_name = nameInput.value.trim();
+            state.goal_target_amount = parseFloat(amountInput.value);
+        } else if (n === 2) {
+            const methodRadio = document.querySelector('input[name="contribution_method"]:checked');
+            if (!methodRadio) { showError('Per favore, scegli un metodo.'); return false; }
+            state.contribution_method = methodRadio.value;
+            const parentDiv = methodRadio.closest('div');
+            const amountInput = parentDiv.querySelector('input[name="contribution_amount"]');
+            if (!amountInput || amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
+            state.contribution_amount = parseFloat(amountInput.value);
+        } else if (n === 3) {
+            const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e => JSON.parse(e.value));
+            if (!sel.length) { showError('Per favore, seleziona almeno una categoria.'); return false; }
+            state.categories = sel;
+        }
+        return true;
+    }
+
+    async function saveOnboardingToSupabase(user, existingUserCategories) {
+        nextBtn.disabled = true;
+        nextBtn.textContent = 'Salvataggio...';
+        try {
+            await supabase.from('goals').upsert({
+                user_id: user.id,
+                goal_type: state.goal_type,
+                name: state.goal_name,
+                target_amount: state.goal_target_amount,
+            }, { onConflict: 'user_id' });
+
+            const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+            await supabase.from('budgets').upsert({
+                user_id: user.id,
+                month: currentMonth,
+                macro_category: 'Risparmi',
+                amount: state.contribution_amount
+            }, { onConflict: 'user_id, month, macro_category' });
+
+            const existingNames = existingUserCategories.map(c => c.name);
+            const selectedObjects = state.categories;
+            const selectedNames = selectedObjects.map(c => c.name);
+            const categoriesToInsert = selectedObjects.filter(obj => !existingNames.includes(obj.name));
+            const categoriesToDelete = existingUserCategories.filter(cat => !selectedNames.includes(cat.name));
+
+            if (categoriesToDelete.length > 0) {
+                const idsToDelete = categoriesToDelete.map(c => c.id);
+                await supabase.from('categories').delete().in('id', idsToDelete);
+            }
+
+            let createdCategories = [];
+            if (categoriesToInsert.length > 0) {
+                const payload = categoriesToInsert.map(obj => ({ name: obj.name, icon: obj.icon, kind: obj.kind, created_by: user.id }));
+                const { data, error } = await supabase.from('categories').insert(payload).select();
+                if (error) throw error;
+                createdCategories = data;
+            }
+
+            if (createdCategories.length > 0) {
+                const { data: defaults, error: defaultsError } = await supabase.from('default_subcategories').select(`name, icon, default_categories ( name )`);
+                if (defaultsError) throw defaultsError;
+                const subcategoriesPayload = [];
+                for (const cat of createdCategories) {
+                    const matchingDefaults = defaults.filter(def => def.default_categories.name === cat.name);
+                    for (const sub of matchingDefaults) {
+                        subcategoriesPayload.push({ name: sub.name, icon: sub.icon, category_id: cat.id });
+                    }
+                }
+                if (subcategoriesPayload.length > 0) {
+                    await supabase.from('subcategories').insert(subcategoriesPayload);
+                }
+            }
+            
+            await supabase.from("profiles").update({ onboarded: true }).eq('id', user.id);
+            
+            return true;
+        } catch (error) {
+            console.error("Errore nel salvataggio:", error);
+            showError("Si è verificato un errore critico. Riprova.");
+            nextBtn.disabled = false;
+            nextBtn.textContent = 'Fine';
+            return false;
+        }
+    }
+    
+    async function initializePage() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { location.replace(itPrefix() + "login.html"); return; }
+        
+        const [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes] = await Promise.all([
+            supabase.from('profiles').select('*').eq('id', user.id).single(),
+            supabase.from('categories').select('*').eq('created_by', user.id),
+            supabase.from('default_categories').select('name, icon, kind').order('id'),
+            supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle(),
+            supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
+        ]);
+        
+        const results = [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes];
+        for (const res of results) {
+            if (res.error) {
+                console.error("Errore durante il caricamento dati:", res.error);
+                showError("Impossibile caricare i dati. Ricarica la pagina."); 
+                return;
+            }
+        }
+        
+        const profile = profileRes.data;
+        const userCategories = userCatRes.data || [];
+        const defaultCategories = defaultCatRes.data || [];
+        const goal = goalRes.data;
+        const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
+
+        const isEditing = new URLSearchParams(location.search).get('edit') === '1';
+        if (profile && profile.onboarded && !isEditing) {
+            location.replace(itPrefix() + "dashboard.html");
             return;
         }
-        console.log("0. Client Supabase importato correttamente.");
 
-        // Test 1: Ottenere l'utente
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            console.error("ERRORE nel Test 1 (getUser):", userError);
-            messageEl.innerHTML = "ERRORE: Impossibile ottenere l'utente. Sei loggato?";
-            return;
-        }
-        console.log("1. Utente ottenuto con successo:", user.id);
-
-        // Test 2: Lettura tabella 'profiles'
-        console.log("Inizio Test 2: Lettura 'profiles'...");
-        const profileRes = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        console.log("Risultato Test 2:", profileRes);
-        if (profileRes.error) {
-            console.error("--> ERRORE QUI <--- Il Test 2 (profiles) è fallito.", profileRes.error);
-            messageEl.innerHTML = "ERRORE nel Test 2 (profiles). Controlla la console.";
-            return;
-        }
-        console.log("Successo Test 2.");
-
-        // Test 3: Lettura tabella 'categories'
-        console.log("Inizio Test 3: Lettura 'categories'...");
-        const userCatRes = await supabase.from('categories').select('*').eq('created_by', user.id);
-        console.log("Risultato Test 3:", userCatRes);
-        if (userCatRes.error) {
-            console.error("--> ERRORE QUI <--- Il Test 3 (categories) è fallito.", userCatRes.error);
-            messageEl.innerHTML = "ERRORE nel Test 3 (categories). Controlla la console.";
-            return;
-        }
-        console.log("Successo Test 3.");
-
-        // Test 4: Lettura tabella 'default_categories'
-        console.log("Inizio Test 4: Lettura 'default_categories'...");
-        const defaultCatRes = await supabase.from('default_categories').select('name, icon, kind').order('id');
-        console.log("Risultato Test 4:", defaultCatRes);
-        if (defaultCatRes.error) {
-            console.error("--> ERRORE QUI <--- Il Test 4 (default_categories) è fallito.", defaultCatRes.error);
-            messageEl.innerHTML = "ERRORE nel Test 4 (default_categories). Controlla la console.";
-            return;
-        }
-        console.log("Successo Test 4.");
-
-        // Test 5: Lettura tabella 'goals'
-        console.log("Inizio Test 5: Lettura 'goals'...");
-        const goalRes = await supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle();
-        console.log("Risultato Test 5:", goalRes);
-        if (goalRes.error) {
-            console.error("--> ERRORE QUI <--- Il Test 5 (goals) è fallito.", goalRes.error);
-            messageEl.innerHTML = "ERRORE nel Test 5 (goals). Controlla la console.";
-            return;
-        }
-        console.log("Successo Test 5.");
-
-        // Test 6: Lettura tabella 'budgets'
-        console.log("Inizio Test 6: Lettura 'budgets'...");
-        const budgetRes = await supabase.from('budgets').select('*').eq('user_id', user.id);
-        console.log("Risultato Test 6:", budgetRes);
-        if (budgetRes.error) {
-            console.error("--> ERRORE QUI <--- Il Test 6 (budgets) è fallito.", budgetRes.error);
-            messageEl.innerHTML = "ERRORE nel Test 6 (budgets). Controlla la console.";
-            return;
-        }
-        console.log("Successo Test 6.");
-
-        console.log("--- FINE TEST DIAGNOSTICO --- Tutte le letture hanno avuto successo.");
-        messageEl.innerHTML = "Diagnostica completata con successo!<br>Per favore, invia lo screenshot della console.";
-
+        populateCategoriesFromDB(defaultCategories);
+        preselectFormData(goal, budget, userCategories);
+        renderStep(1);
+        
+        nextBtn.addEventListener('click', async () => {
+            if (!validateAndUpdateState(currentStep)) return;
+            if (currentStep === TOTAL_STEPS) {
+                const success = await saveOnboardingToSupabase(user, userCategories);
+                if (success) location.replace(itPrefix() + 'dashboard.html');
+            } else {
+                currentStep++;
+                renderStep(currentStep);
+            }
+        });
+        backBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; renderStep(currentStep); } });
+        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace(itPrefix()); });
       } catch (e) {
-        console.error("ERRORE JAVASCRIPT CRITICO:", e);
-        messageEl.innerHTML = "ERRORE JAVASCRIPT CRITICO. Controlla la console.";
+        console.error("Errore critico di inizializzazione:", e);
+        showError("Si è verificato un errore imprevisto. Ricarica la pagina.");
       }
     }
     
-    document.addEventListener('DOMContentLoaded', runDiagnostics);
+    document.addEventListener('DOMContentLoaded', initializePage);
   </script>
 </body>
 </html>
