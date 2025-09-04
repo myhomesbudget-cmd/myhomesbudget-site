@@ -28,7 +28,6 @@
     .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
     .transaction-form {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;align-items: flex-end;}@media (min-width: 820px) {.transaction-form {grid-template-columns: repeat(3, 1fr) auto;}}
     .form-group { display: flex; flex-direction: column; }.form-group.full-width { grid-column: 1 / -1; }.form-group label { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }.form-group input, .form-group select {width: 100%;padding: 10px;border-radius: 8px;border: 1px solid #ccc;background: #fff;font-size: 1rem;}
-    /* Stili per la lista transazioni aggiornata */
     .transaction-list .item {display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,0.05);}
     .item-icon { font-size: 1.5rem; }
     .item-details { display: flex; flex-direction: column; }
@@ -90,182 +89,194 @@
     let user = null;
     let allCategories = [];
     let allSubcategories = [];
-    let allTransactions = []; // Memorizziamo le transazioni caricate
+    let allTransactions = [];
 
     // --- FUNZIONI ---
+
+    /**
+     * Carica dal DB le categorie e sottocategorie create dall'utente.
+     * VERSIONE CORRETTA E AFFIDABILE
+     */
     async function loadCategories() {
-        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
-        const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*, categories(created_by)').eq('categories.created_by', user.id);
-        if (cError || sError) { console.error(cError || sError); return; }
-        allCategories = categories;
-        allSubcategories = subcategories;
-        categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
-        allCategories.forEach(cat => {
-            const option = new Option(`${cat.icon} ${cat.name}`, cat.id);
-            categorySelect.add(option);
-        });
+      // 1. Prendi le categorie dell'utente
+      const { data: categories, error: cError } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('created_by', user.id);
+      
+      if (cError) {
+        console.error("Errore caricamento categorie:", cError);
+        return;
+      }
+      allCategories = categories;
+
+      // Se non ci sono categorie, non ha senso cercare le sottocategorie
+      if (allCategories.length === 0) {
+        allSubcategories = [];
+        return;
+      }
+
+      // 2. Prendi le sottocategorie che appartengono a quelle categorie
+      const categoryIds = allCategories.map(c => c.id);
+      const { data: subcategories, error: sError } = await supabase
+        .from('subcategories')
+        .select('*')
+        .in('category_id', categoryIds); // .in() è la chiave della soluzione
+
+      if (sError) {
+        console.error("Errore caricamento sottocategorie:", sError);
+        return;
+      }
+      allSubcategories = subcategories;
+
+      // 3. Popola il menu delle categorie
+      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      allCategories.forEach(cat => {
+        const option = new Option(`${cat.icon} ${cat.name}`, cat.id);
+        categorySelect.add(option);
+      });
     }
 
     function updateSubcategories(selectedSubcategoryId = null) {
-        const selectedCategoryId = categorySelect.value;
-        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
-        subcategorySelect.disabled = true;
-        if (!selectedCategoryId) return;
-        const relevantSubcategories = allSubcategories.filter(sub => sub.category_id === selectedCategoryId);
-        if (relevantSubcategories.length > 0) {
-            subcategorySelect.disabled = false;
-            relevantSubcategories.forEach(sub => {
-                const option = new Option(`${sub.icon} ${sub.name}`, sub.id);
-                subcategorySelect.add(option);
-            });
-            if (selectedSubcategoryId) {
-                subcategorySelect.value = selectedSubcategoryId;
-            }
+      const selectedCategoryId = categorySelect.value;
+      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+      subcategorySelect.disabled = true;
+      if (!selectedCategoryId) return;
+      const relevantSubcategories = allSubcategories.filter(sub => sub.category_id === selectedCategoryId);
+      if (relevantSubcategories.length > 0) {
+        subcategorySelect.disabled = false;
+        relevantSubcategories.forEach(sub => {
+          const option = new Option(`${sub.icon} ${sub.name}`, sub.id);
+          subcategorySelect.add(option);
+        });
+        if (selectedSubcategoryId) {
+          subcategorySelect.value = selectedSubcategoryId;
         }
+      }
     }
 
     async function loadTransactions() {
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon), subcategories(name, icon)`)
-            .eq('created_by', user.id)
-            .order('occurred_at', { ascending: false }).limit(15);
-        if (error) { console.error(error); return; }
+      const { data, error } = await supabase.from('transactions')
+        .select(`*, categories(name, icon), subcategories(name, icon)`)
+        .eq('created_by', user.id)
+        .order('occurred_at', { ascending: false }).limit(15);
+      if (error) { console.error(error); return; }
 
-        allTransactions = data; // Salva i dati
-        transactionList.innerHTML = '';
-        if (data.length === 0) {
-            transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
-            return;
-        }
-
-        data.forEach(tx => {
-            const item = document.createElement('div');
-            item.className = 'item';
-            const cat = tx.categories;
-            const sub = tx.subcategories;
-            const icon = sub?.icon || cat?.icon || '💸';
-            const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
-            
-            item.innerHTML = `
-                <div class="item-icon">${icon}</div>
-                <div class="item-details">
-                    <span class="note">${tx.note}</span>
-                    <span class="category">${categoryText}</span>
-                </div>
-                <div class="item-amount ${tx.kind}">
-                    ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
-                </div>
-                <div class="item-actions">
-                    <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">✏️</button>
-                    <button class="action-btn delete-btn" data-id="${tx.id}" title="Elimina">🗑️</button>
-                </div>
-            `;
-            transactionList.appendChild(item);
-        });
+      allTransactions = data;
+      transactionList.innerHTML = '';
+      if (data.length === 0) {
+        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+        return;
+      }
+      data.forEach(tx => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        const cat = tx.categories;
+        const sub = tx.subcategories;
+        const icon = sub?.icon || cat?.icon || '💸';
+        const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        item.innerHTML = `
+          <div class="item-icon">${icon}</div>
+          <div class="item-details">
+            <span class="note">${tx.note}</span>
+            <span class="category">${categoryText}</span>
+          </div>
+          <div class="item-amount ${tx.kind}">
+            ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">✏️</button>
+            <button class="action-btn delete-btn" data-id="${tx.id}" title="Elimina">🗑️</button>
+          </div>
+        `;
+        transactionList.appendChild(item);
+      });
     }
     
-    // --- NUOVE FUNZIONI PER MODIFICA ED ELIMINA ---
-
     function handleEdit(id) {
-        const tx = allTransactions.find(t => t.id === id);
-        if (!tx) return;
-
-        // Popola il form con i dati della transazione
-        formTitle.textContent = "Modifica Transazione";
-        transactionIdInput.value = tx.id;
-        document.getElementById('kind').value = tx.kind;
-        document.getElementById('note').value = tx.note;
-        document.getElementById('amount').value = tx.amount;
-        document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0]; // Formatta la data
-        categorySelect.value = tx.category_id;
-        
-        // Aggiorna le sottocategorie e seleziona quella corretta
-        updateSubcategories(tx.subcategory_id);
-
-        window.scrollTo(0, 0); // Scorre la pagina in cima per vedere il form
+      const tx = allTransactions.find(t => t.id === id);
+      if (!tx) return;
+      formTitle.textContent = "Modifica Transazione";
+      transactionIdInput.value = tx.id;
+      document.getElementById('kind').value = tx.kind;
+      document.getElementById('note').value = tx.note;
+      document.getElementById('amount').value = tx.amount;
+      document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0];
+      categorySelect.value = tx.category_id;
+      updateSubcategories(tx.subcategory_id);
+      window.scrollTo(0, 0);
     }
 
     async function handleDelete(id) {
-        // Chiedi conferma all'utente
-        if (!confirm("Sei sicuro di voler eliminare questa transazione?")) {
-            return;
-        }
-
-        const { error } = await supabase.from('transactions').delete().eq('id', id);
-        if (error) {
-            console.error("Errore eliminazione:", error);
-            alert("Impossibile eliminare la transazione.");
-        } else {
-            loadTransactions(); // Ricarica la lista
-        }
+      if (!confirm("Sei sicuro di voler eliminare questa transazione?")) return;
+      const { error } = await supabase.from('transactions').delete().eq('id', id);
+      if (error) { alert("Impossibile eliminare la transazione."); } 
+      else { loadTransactions(); }
     }
     
-    // --- GESTIONE FORM ---
-
     async function handleFormSubmit(event) {
-        event.preventDefault();
-        const formData = new FormData(transactionForm);
-        const id = formData.get('transaction-id');
-        const subcategory_id = formData.get('subcategory_id') || null;
-
-        const payload = {
-            kind: formData.get('kind'),
-            note: formData.get('note'),
-            amount: formData.get('amount'),
-            occurred_at: formData.get('occurred_at'),
-            category_id: formData.get('category_id'),
-            subcategory_id: subcategory_id,
-            created_by: user.id
-        };
-
-        let error;
-        if (id) {
-            // Se c'è un ID, è un aggiornamento (UPDATE)
-            ({ error } = await supabase.from('transactions').update(payload).eq('id', id));
-        } else {
-            // Altrimenti, è un nuovo inserimento (INSERT)
-            ({ error } = await supabase.from('transactions').insert(payload));
-        }
-
-        if (error) {
-            console.error("Errore salvataggio:", error);
-            alert("Si è verificato un errore. Riprova.");
-        } else {
-            transactionForm.reset();
-            formTitle.textContent = "Nuova Transazione";
-            transactionIdInput.value = "";
-            document.getElementById('occurred_at').valueAsDate = new Date();
-            updateSubcategories();
-            loadTransactions();
-        }
+      event.preventDefault();
+      const formData = new FormData(transactionForm);
+      const id = formData.get('transaction-id');
+      const subcategory_id = formData.get('subcategory_id') || null;
+      const payload = {
+        kind: formData.get('kind'),
+        note: formData.get('note'),
+        amount: formData.get('amount'),
+        occurred_at: formData.get('occurred_at'),
+        category_id: formData.get('category_id'),
+        subcategory_id: subcategory_id,
+        created_by: user.id
+      };
+      let error;
+      if (id) {
+        ({ error } = await supabase.from('transactions').update(payload).eq('id', id));
+      } else {
+        ({ error } = await supabase.from('transactions').insert(payload));
+      }
+      if (error) {
+        alert("Si è verificato un errore. Riprova.");
+      } else {
+        transactionForm.reset();
+        formTitle.textContent = "Nuova Transazione";
+        transactionIdInput.value = "";
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        updateSubcategories();
+        loadTransactions();
+      }
     }
 
     // --- INIZIALIZZAZIONE ---
     async function initializePage() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { location.replace("/it/login.html"); return; }
-        user = session.user;
-        
-        document.getElementById('occurred_at').valueAsDate = new Date();
-        
-        await loadCategories();
-        await loadTransactions();
-        
-        categorySelect.addEventListener('change', () => updateSubcategories());
-        transactionForm.addEventListener('submit', handleFormSubmit);
-        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { location.replace("/it/login.html"); return; }
+      user = session.user;
+      
+      const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+      if (profile && !profile.onboarded) {
+        if (new URLSearchParams(window.location.search).get('edit') !== '1') {
+          location.replace("/it/onboarding.html");
+          return;
+        }
+      }
+      
+      document.getElementById('occurred_at').valueAsDate = new Date();
+      await loadCategories();
+      await loadTransactions();
+      
+      categorySelect.addEventListener('change', () => updateSubcategories());
+      transactionForm.addEventListener('submit', handleFormSubmit);
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+      
+      transactionList.addEventListener('click', (event) => {
+        const target = event.target.closest('.action-btn');
+        if (!target) return;
+        const id = target.dataset.id;
+        if (target.classList.contains('edit-btn')) handleEdit(id);
+        else if (target.classList.contains('delete-btn')) handleDelete(id);
+      });
 
-        // Aggiungi un unico listener sulla lista per gestire i click sui pulsanti
-        transactionList.addEventListener('click', (event) => {
-            const target = event.target;
-            if (target.classList.contains('edit-btn')) {
-                handleEdit(target.dataset.id);
-            } else if (target.classList.contains('delete-btn')) {
-                handleDelete(target.dataset.id);
-            }
-        });
-
-        updateSubcategories();
+      updateSubcategories();
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
