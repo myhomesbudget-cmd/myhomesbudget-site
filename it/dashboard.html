@@ -28,17 +28,36 @@
     .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
     .transaction-form {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;align-items: flex-end;}@media (min-width: 820px) {.transaction-form {grid-template-columns: repeat(3, 1fr) auto;}}
     .form-group { display: flex; flex-direction: column; }.form-group.full-width { grid-column: 1 / -1; }.form-group label { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }.form-group input, .form-group select {width: 100%;padding: 10px;border-radius: 8px;border: 1px solid #ccc;background: #fff;font-size: 1rem;}
-    .transaction-list .item {display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,0.05);}
-    .item-icon { font-size: 1.5rem; }
-    .item-details { display: flex; flex-direction: column; }
-    .item-details .note { font-weight: 600; }
-    .item-details .category { font-size: 0.9rem; color: #555; }
-    .item-amount { text-align: right; white-space: nowrap; }
+    .transaction-list .item {display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .item-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .item-details { display: flex; flex-direction: column; min-width: 0; } /* min-width per overflow testo */
+    .item-details .note { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-details .category { font-size: 0.9rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-amount { text-align: right; white-space: nowrap; flex-shrink: 0; }
     .item-amount.expense { color: #d32f2f; font-weight: 700; }
     .item-amount.income { color: #2e7d32; font-weight: 700; }
-    .item-actions { display: flex; gap: 8px; }
-    .action-btn { background: none; border: none; cursor: pointer; padding: 4px; font-size: 1.2rem; line-height: 1; border-radius: 50%;}
-    .action-btn:hover { background-color: rgba(0,0,0,0.1); }
+    .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    /* Stili per i nuovi pulsanti testuali */
+    .action-btn { 
+        background-color: rgba(0,0,0,0.05); /* Sfondo leggero */
+        color: #555; /* Testo grigio scuro */
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        white-space: nowrap; /* Non far andare a capo il testo */
+    }
+    .action-btn:hover { 
+        background-color: var(--primary-color); 
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+    .action-btn.delete { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
+    .action-btn.delete:hover { background-color: #dc3545; color: #fff; border-color: #dc3545; }
+
     .empty-state { text-align: center; padding: 40px; color: #555; }
   </style>
 </head>
@@ -95,13 +114,13 @@
 
     /**
      * Carica dal DB le categorie e sottocategorie create dall'utente.
-     * VERSIONE CORRETTA E AFFIDABILE
+     * Corretto il bug per il caricamento completo delle sottocategorie.
      */
     async function loadCategories() {
       // 1. Prendi le categorie dell'utente
       const { data: categories, error: cError } = await supabase
         .from('categories')
-        .select('*')
+        .select('id, name, icon') // Seleziona esplicitamente le colonne necessarie
         .eq('created_by', user.id);
       
       if (cError) {
@@ -113,21 +132,20 @@
       // Se non ci sono categorie, non ha senso cercare le sottocategorie
       if (allCategories.length === 0) {
         allSubcategories = [];
-        return;
-      }
+      } else {
+        // 2. Prendi le sottocategorie che appartengono a quelle categorie
+        const categoryIds = allCategories.map(c => c.id);
+        const { data: subcategories, error: sError } = await supabase
+          .from('subcategories')
+          .select('id, name, icon, category_id') // Seleziona esplicitamente le colonne
+          .in('category_id', categoryIds); // Filtra per ID di categoria validi
 
-      // 2. Prendi le sottocategorie che appartengono a quelle categorie
-      const categoryIds = allCategories.map(c => c.id);
-      const { data: subcategories, error: sError } = await supabase
-        .from('subcategories')
-        .select('*')
-        .in('category_id', categoryIds); // .in() è la chiave della soluzione
-
-      if (sError) {
-        console.error("Errore caricamento sottocategorie:", sError);
-        return;
+        if (sError) {
+          console.error("Errore caricamento sottocategorie:", sError);
+          return;
+        }
+        allSubcategories = subcategories;
       }
-      allSubcategories = subcategories;
 
       // 3. Popola il menu delle categorie
       categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
@@ -142,7 +160,10 @@
       subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
       subcategorySelect.disabled = true;
       if (!selectedCategoryId) return;
-      const relevantSubcategories = allSubcategories.filter(sub => sub.category_id === selectedCategoryId);
+      
+      // Filtra le sottocategorie in base alla category_id selezionata
+      const relevantSubcategories = allSubcategories.filter(sub => String(sub.category_id) === String(selectedCategoryId));
+
       if (relevantSubcategories.length > 0) {
         subcategorySelect.disabled = false;
         relevantSubcategories.forEach(sub => {
@@ -173,8 +194,9 @@
         item.className = 'item';
         const cat = tx.categories;
         const sub = tx.subcategories;
-        const icon = sub?.icon || cat?.icon || '💸';
+        const icon = sub?.icon || cat?.icon || '💸'; // Icona preferenziale: sottocategoria, poi categoria, altrimenti default
         const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        
         item.innerHTML = `
           <div class="item-icon">${icon}</div>
           <div class="item-details">
@@ -185,8 +207,8 @@
             ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
           </div>
           <div class="item-actions">
-            <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">✏️</button>
-            <button class="action-btn delete-btn" data-id="${tx.id}" title="Elimina">🗑️</button>
+            <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">Modifica</button>
+            <button class="action-btn delete-btn delete" data-id="${tx.id}" title="Elimina">Elimina</button>
           </div>
         `;
         transactionList.appendChild(item);
@@ -203,15 +225,20 @@
       document.getElementById('amount').value = tx.amount;
       document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0];
       categorySelect.value = tx.category_id;
-      updateSubcategories(tx.subcategory_id);
+      updateSubcategories(tx.subcategory_id); // Passa anche l'ID della sottocategoria per la pre-selezione
       window.scrollTo(0, 0);
     }
 
     async function handleDelete(id) {
       if (!confirm("Sei sicuro di voler eliminare questa transazione?")) return;
       const { error } = await supabase.from('transactions').delete().eq('id', id);
-      if (error) { alert("Impossibile eliminare la transazione."); } 
-      else { loadTransactions(); }
+      if (error) { 
+        console.error("Errore eliminazione:", error);
+        alert("Impossibile eliminare la transazione."); 
+      } 
+      else { 
+        loadTransactions(); // Ricarica la lista dopo l'eliminazione
+      }
     }
     
     async function handleFormSubmit(event) {
@@ -230,19 +257,22 @@
       };
       let error;
       if (id) {
+        // Se c'è un ID, è un aggiornamento (UPDATE)
         ({ error } = await supabase.from('transactions').update(payload).eq('id', id));
       } else {
+        // Altrimenti, è un nuovo inserimento (INSERT)
         ({ error } = await supabase.from('transactions').insert(payload));
       }
       if (error) {
+        console.error("Errore salvataggio:", error);
         alert("Si è verificato un errore. Riprova.");
       } else {
         transactionForm.reset();
-        formTitle.textContent = "Nuova Transazione";
-        transactionIdInput.value = "";
-        document.getElementById('occurred_at').valueAsDate = new Date();
-        updateSubcategories();
-        loadTransactions();
+        formTitle.textContent = "Nuova Transazione"; // Ripristina il titolo del form
+        transactionIdInput.value = ""; // Pulisci l'ID transazione
+        document.getElementById('occurred_at').valueAsDate = new Date(); // Reset data a oggi
+        updateSubcategories(); // Ricarica le sottocategorie (vuote)
+        loadTransactions(); // Ricarica la lista transazioni
       }
     }
 
@@ -252,6 +282,7 @@
       if (!session) { location.replace("/it/login.html"); return; }
       user = session.user;
       
+      // Controllo per l'onboarding non completato
       const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
       if (profile && !profile.onboarded) {
         if (new URLSearchParams(window.location.search).get('edit') !== '1') {
@@ -260,22 +291,26 @@
         }
       }
       
-      document.getElementById('occurred_at').valueAsDate = new Date();
-      await loadCategories();
-      await loadTransactions();
+      document.getElementById('occurred_at').valueAsDate = new Date(); // Imposta la data di default a oggi
       
+      await loadCategories(); // Carica categorie e sottocategorie
+      await loadTransactions(); // Carica le transazioni
+      
+      // Event Listeners
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
       logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
       
+      // Delega gli eventi di click per Modifica/Elimina alla lista transazioni
       transactionList.addEventListener('click', (event) => {
-        const target = event.target.closest('.action-btn');
-        if (!target) return;
+        const target = event.target.closest('.action-btn'); // Trova il pulsante più vicino
+        if (!target) return; // Se non è un pulsante, ignora
         const id = target.dataset.id;
         if (target.classList.contains('edit-btn')) handleEdit(id);
         else if (target.classList.contains('delete-btn')) handleDelete(id);
       });
 
+      // Aggiorna le sottocategorie inizialmente, nel caso una categoria sia pre-selezionata (es. in modalità modifica)
       updateSubcategories();
     }
 
