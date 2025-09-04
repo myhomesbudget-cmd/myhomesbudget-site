@@ -49,11 +49,13 @@
     .logo-image{height:32px;border-radius:6px}
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:8px;align-items:center}
-    .logout-link{
+    /* Stile per i link in alto a destra */
+    .top-link{
       color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;
       background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);
+      font-size: 0.9rem; font-weight: 600;
     }
-    .logout-link:hover{background:rgba(0,0,0,.38)}
+    .top-link:hover{background:rgba(0,0,0,.38)}
     
     main.panel{
       margin-top:84px;
@@ -151,7 +153,8 @@
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <div class="top-actions">
-      <a href="#" id="logout-btn" class="logout-link">Esci</a>
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
     </div>
   </nav>
 
@@ -256,14 +259,18 @@
     function updateSubcategories() {
       const selectedCategoryId = categorySelect.value;
       subcategorySelect.innerHTML = '<option value="">Scegli una sottocategoria...</option>';
+      subcategorySelect.disabled = true;
       
       if (!selectedCategoryId) return;
 
       const relevantSubcategories = allSubcategories.filter(sub => sub.category_id === selectedCategoryId);
-      relevantSubcategories.forEach(sub => {
-        const option = new Option(sub.name, sub.id);
-        subcategorySelect.add(option);
-      });
+      if (relevantSubcategories.length > 0) {
+        subcategorySelect.disabled = false;
+        relevantSubcategories.forEach(sub => {
+          const option = new Option(sub.name, sub.id);
+          subcategorySelect.add(option);
+        });
+      }
     }
 
     /**
@@ -320,8 +327,9 @@
      */
     async function handleFormSubmit(event) {
       event.preventDefault();
-      const formData = new FormData(transactionForm);
-      const subcategory_id = formData.get('subcategory_id') || null; // Invia null se vuoto
+      const form = event.target;
+      const formData = new FormData(form);
+      const subcategory_id = formData.get('subcategory_id') || null;
 
       const { error } = await supabase.from('transactions').insert({
         kind: formData.get('kind'),
@@ -337,10 +345,10 @@
         console.error("Errore salvataggio transazione:", error);
         alert("Si è verificato un errore. Riprova.");
       } else {
-        transactionForm.reset();
-        // Imposta la data di oggi come default per il prossimo inserimento
+        form.reset();
         document.getElementById('occurred_at').valueAsDate = new Date();
-        loadTransactions(); // Ricarica la lista per mostrare il nuovo elemento
+        updateSubcategories();
+        loadTransactions();
       }
     }
 
@@ -362,8 +370,11 @@
         .single();
       
       if (profile && !profile.onboarded) {
-        location.replace("/it/onboarding.html");
-        return;
+        // Permetti l'accesso se l'utente è in modalità modifica
+        if (new URLSearchParams(window.location.search).get('edit') !== '1') {
+            location.replace("/it/onboarding.html");
+            return;
+        }
       }
       
       // 2. Imposta valori di default
@@ -376,11 +387,15 @@
       categorySelect.addEventListener('change', updateSubcategories);
       transactionForm.addEventListener('submit', handleFormSubmit);
       
+      // LOGICA LOGOUT SPOSTATA QUI PER AFFIDABILITÀ
       logoutBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
         location.replace("/it/");
       });
+
+      // Inizializza lo stato delle sottocategorie
+      updateSubcategories();
     }
 
     // Avvia l'applicazione
