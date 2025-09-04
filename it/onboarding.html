@@ -39,7 +39,8 @@
     .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:10px;background:rgba(255,255,255,.6);transition:.18s ease;cursor:pointer}
     .option-label:hover{background:#fff}
     input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
-    input[type="radio"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
+    input[type="radio"]:checked + .option-label,
+    input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
     .option-label strong{display:block;font-size:1.05rem}
     .option-label span{font-size:.92rem;color:#444}
     .option-details { display: none; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 14px 0; }
@@ -192,7 +193,6 @@
             }
         }
         if (budget) {
-            // Logica semplificata: assumiamo che il budget salvato sia di tipo "Cifra fissa"
             const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
             if (methodRadio) {
                 methodRadio.checked = true;
@@ -200,6 +200,7 @@
             }
         }
         
+        // CORREZIONE: Confronta i nomi, non gli oggetti
         const selectedNames = userCategories.map(c => c.name);
         document.querySelectorAll('input[name="category"]').forEach(checkbox => {
             try {
