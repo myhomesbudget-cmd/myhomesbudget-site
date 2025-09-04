@@ -6,6 +6,7 @@
   <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
     *{box-sizing:border-box}
@@ -24,7 +25,6 @@
     h1, h2, h3 { color: #111; }
     .dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}.dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}.dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}
     .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
-    /* Stili per le card di riepilogo */
     .summary-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;}
     .summary-card {background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
     .summary-card .title {font-weight: 600; color: #555; margin: 0 0 8px 0; font-size: 1rem;}
@@ -52,72 +52,85 @@
     <section class="content-section">
       <h2>Riepilogo del Mese Corrente</h2>
       <div class="summary-grid">
-        <div class="summary-card">
-          <h3 class="title">Entrate</h3>
-          <p id="total-income" class="value income loading">Caricamento...</p>
-        </div>
-        <div class="summary-card">
-          <h3 class="title">Uscite</h3>
-          <p id="total-expenses" class="value expense loading">Caricamento...</p>
-        </div>
-        <div class="summary-card">
-          <h3 class="title">Saldo Rimanente</h3>
-          <p id="remaining-budget" class="value loading">Caricamento...</p>
-        </div>
+        <div class="summary-card"><h3 class="title">Entrate</h3><p id="total-income" class="value income loading">Caricamento...</p></div>
+        <div class="summary-card"><h3 class="title">Uscite</h3><p id="total-expenses" class="value expense loading">Caricamento...</p></div>
+        <div class="summary-card"><h3 class="title">Saldo Rimanente</h3><p id="remaining-budget" class="value loading">Caricamento...</p></div>
       </div>
     </section>
 
-    </main>
+    <section class="content-section">
+        <h2>Spese Mensili (Ultimi 12 mesi)</h2>
+        <div>
+            <canvas id="monthlyExpensesChart"></canvas>
+        </div>
+    </section>
+
+  </main>
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // Seleziona gli elementi HTML dove mostreremo i dati
+    // Selettori elementi
     const incomeEl = document.getElementById('total-income');
     const expensesEl = document.getElementById('total-expenses');
     const budgetEl = document.getElementById('remaining-budget');
     const logoutBtn = document.getElementById('logout-btn');
+    const chartCanvas = document.getElementById('monthlyExpensesChart');
 
-    /**
-     * Formatta un numero come valuta in Euro.
-     * @param {number} value Il numero da formattare.
-     */
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 
-    /**
-     * Funzione principale che inizializza la pagina.
-     */
+    // Funzione per disegnare il grafico
+    function renderMonthlyExpensesChart(data) {
+        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' }));
+        const values = data.map(row => row.total_expenses);
+
+        new Chart(chartCanvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Spese Mensili',
+                    data: values,
+                    backgroundColor: 'rgba(108, 92, 231, 0.8)',
+                    borderColor: 'rgba(108, 92, 231, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        location.replace("/it/login.html");
-        return;
-      }
+      if (!session) { location.replace("/it/login.html"); return; }
 
-      // Chiama la nostra funzione SQL tramite RPC
-      const { data, error } = await supabase.rpc('get_monthly_summary');
-
-      if (error) {
-        console.error("Errore nel recuperare il riepilogo:", error);
-        incomeEl.textContent = "Errore";
-        expensesEl.textContent = "Errore";
-        budgetEl.textContent = "Errore";
-        incomeEl.classList.remove('loading');
-        expensesEl.classList.remove('loading');
-        budgetEl.classList.remove('loading');
-        return;
+      // --- 1. Carica dati per il riepilogo mensile ---
+      const { data: summaryData, error: summaryError } = await supabase.rpc('get_monthly_summary');
+      if (summaryError) {
+        console.error("Errore riepilogo:", summaryError);
+      } else {
+        // CORREZIONE BUG: usa totalIncome (camelCase)
+        incomeEl.textContent = formatCurrency(summaryData.totalIncome);
+        expensesEl.textContent = formatCurrency(summaryData.totalExpenses);
+        budgetEl.textContent = formatCurrency(summaryData.remainingBudget);
       }
-      
-      // Aggiorna l'interfaccia con i dati ricevuti
-      incomeEl.textContent = formatCurrency(data.totalincome);
-      expensesEl.textContent = formatCurrency(data.totalexpenses);
-      budgetEl.textContent = formatCurrency(data.remainingbudget);
-      
       incomeEl.classList.remove('loading');
       expensesEl.classList.remove('loading');
       budgetEl.classList.remove('loading');
 
-      // Aggiungi la logica per il logout
+      // --- 2. Carica dati per il grafico a barre ---
+      const { data: chartData, error: chartError } = await supabase.rpc('get_monthly_expenses_timeseries');
+      if (chartError) {
+        console.error("Errore dati grafico:", chartError);
+      } else {
+        renderMonthlyExpensesChart(chartData);
+      }
+
+      // --- 3. Logica Logout ---
       logoutBtn.addEventListener('click', async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
