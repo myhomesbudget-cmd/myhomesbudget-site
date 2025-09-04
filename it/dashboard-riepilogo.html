@@ -3,186 +3,109 @@
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Riepilogo — MyHomesBudget</title><link rel="icon" href="/favicon.ico"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;}
+    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
     body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
     .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;display:flex;align-items:center;justify-content:space-between;}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:8px;align-items:center}
     .top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
     main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}
     h2 { color: #111; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; margin-top: 0;}
     .dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}.dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}.dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}
     .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
-    .grid-container { display: grid; grid-template-columns: repeat(1, 1fr); gap: 16px; }
-    @media(min-width: 900px) { .grid-container { grid-template-columns: 1fr 2fr; } }
-    .loading-text { color: #999; font-size: 1rem; }
-    /* Nuovi stili per il riepilogo grafico */
-    .summary-widget { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-    .chart-container { position: relative; width: 180px; height: 180px; margin: 0 auto; }
-    .chart-container canvas { position: absolute; top: 0; left: 0; }
-    .chart-center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    .chart-percentage { font-size: 2.2rem; font-weight: 800; color: var(--fg); }
-    .chart-subtext { font-size: 0.9rem; color: #555; }
-    .summary-details { margin-top: 16px; }
-    .summary-details p { margin: 4px 0; }
-    .summary-details .label { color: #555; font-size: 0.9rem;}
-    .summary-details .amount { font-weight: 700; font-size: 1.5rem; color: var(--danger-color); }
-    .summary-details .amount.remaining { color: var(--success-color); }
-    /* Stili per i KPI */
-    .kpi-grid { display: flex; flex-direction: column; gap: 12px; }
-    .kpi-item { display: flex; align-items: center; gap: 12px; background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .kpi-icon { font-size: 1.8rem; }
-    .kpi-details { flex-grow: 1; }
-    .kpi-details .name { font-weight: 700; font-size: 1rem; }
-    .kpi-details .subtext { font-size: 0.85rem; color: #555; }
-    .kpi-percentage { font-size: 1.2rem; font-weight: 800; }
+    .summary-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;}
+    .summary-card {background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+    .summary-card .title {font-weight: 600; color: #555; margin: 0 0 8px 0; font-size: 0.9rem;}
+    .summary-card .value {font-size: 1.8rem; font-weight: 700; color: #111; line-height: 1.1;}
+    .value.income {color: #2e7d32;}
+    .value.expense {color: #d32f2f;}
+    .value.budget {color: var(--primary-color);}
+    .value.loading {color: #999; font-size: 1.2rem;}
   </style>
 </head>
 <body>
   <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image" style="height:32px; border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-actions"><a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a><a href="#" id="logout-btn" class="top-link">Esci</a></div>
+    <a href="/it/" class="logo-link" style="text-decoration:none;"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
+    <div class="top-actions" style="display:flex;gap:8px;align-items:center;"><a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a><a href="#" id="logout-btn" class="top-link">Esci</a></div>
   </nav>
 
   <main class="panel">
     <nav class="dash-nav"><a href="/it/dashboard.html">Operazioni</a><a href="/it/dashboard-riepilogo.html" class="is-active">Riepilogo</a></nav>
-    
-    <div class="grid-container">
-        <div class="grid-left">
-            <section class="content-section">
-                <h2>Riepilogo del Mese</h2>
-                <div id="summary-widget" class="summary-widget">
-                    <div class="chart-container">
-                        <canvas id="summaryDonutChart"></canvas>
-                        <div class="chart-center-text">
-                            <div id="summary-percentage" class="chart-percentage loading-text">...</div>
-                            <div class="chart-subtext">Speso</div>
-                        </div>
-                    </div>
-                    <div class="summary-details">
-                        <p class="label">Spese Attuali</p>
-                        <p id="summary-spent" class="amount loading-text">...</p>
-                        <p class="label">Budget Rimanente</p>
-                        <p id="summary-remaining" class="amount remaining loading-text">...</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-        <div class="grid-right">
-            <section class="content-section">
-                <h2>Suddivisione Budget</h2>
-                <div id="kpi-grid" class="kpi-grid">
-                    <p class="loading-text">Caricamento...</p>
-                </div>
-            </section>
-        </div>
-    </div>
-    
-    <section class="content-section">
-        <h2>Andamento Spese (Ultimi 12 mesi)</h2>
-        <div style="height: 300px;"><canvas id="monthlyExpensesChart"></canvas></div>
-    </section>
 
-  </main>
+    <section class="content-section">
+      <h2>Riepilogo del Mese Corrente</h2>
+      <div class="summary-grid">
+        <div class="summary-card"><h3 class="title">Entrate</h3><p id="total-income" class="value income loading">...</p></div>
+        <div class="summary-card"><h3 class="title">Risparmio Impostato</h3><p id="total-savings" class="value loading">...</p></div>
+        <div class="summary-card"><h3 class="title">Budget di Spesa</h3><p id="spending-budget" class="value budget loading">...</p></div>
+        <div class="summary-card"><h3 class="title">Spese Effettive</h3><p id="total-expenses" class="value expense loading">...</p></div>
+      </div>
+    </section>
+    
+    </main>
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
+    const incomeEl = document.getElementById('total-income');
+    const savingsEl = document.getElementById('total-savings');
+    const spendingBudgetEl = document.getElementById('spending-budget');
+    const expensesEl = document.getElementById('total-expenses');
+    const logoutBtn = document.getElementById('logout-btn');
+
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
-
-    function renderSummaryDonutChart(spent, totalBudget) {
-        const remaining = totalBudget - spent;
-        const percentage = totalBudget > 0 ? (spent / totalBudget) * 100 : 0;
-        
-        document.getElementById('summary-percentage').textContent = `${percentage.toFixed(1)}%`;
-        document.getElementById('summary-spent').textContent = formatCurrency(spent);
-        document.getElementById('summary-remaining').textContent = formatCurrency(remaining);
-
-        new Chart(document.getElementById('summaryDonutChart'), {
-            type: 'doughnut',
-            data: {
-                datasets: [{
-                    data: [spent, remaining > 0 ? remaining : 0],
-                    backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'],
-                    borderWidth: 0,
-                    borderRadius: 5
-                }]
-            },
-            options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
-        });
-    }
-
-    function renderMacroCategoryKPIs(data) {
-        const container = document.getElementById('kpi-grid');
-        container.innerHTML = '';
-        const icons = { 'Bisogni': '❤️', 'Desideri': '🛍️', 'Risparmi': '💰', 'Debiti': '💳', 'Altro': '📦' };
-
-        data.forEach(item => {
-            const percentage = item.budget_amount > 0 ? (item.total_spent / item.budget_amount) * 100 : 0;
-            const el = document.createElement('div');
-            el.className = 'kpi-item';
-            el.innerHTML = `
-                <div class="kpi-icon">${icons[item.macro_category] || '❓'}</div>
-                <div class="kpi-details">
-                    <div class="kpi-name">${item.macro_category}</div>
-                    <div class="kpi-subtext">${formatCurrency(item.total_spent)} su ${formatCurrency(item.budget_amount)}</div>
-                </div>
-                <div class="kpi-percentage">${percentage.toFixed(0)}%</div>
-            `;
-            container.appendChild(el);
-        });
-    }
-
-    function renderMonthlyExpensesChart(data) {
-        // ... (funzione invariata)
-    }
 
     async function initializePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { location.replace("/it/login.html"); return; }
-      
-      const [summaryRes, chartRes, macroRes] = await Promise.all([
-          supabase.rpc('get_monthly_summary', { user_id_param: user.id }),
-          supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
-          supabase.rpc('get_expenses_by_macro_category', { user_id_param: user.id })
-      ]);
-      
-      // Riepilogo a ciambella + dettagli
-      if (summaryRes.error) {
-          console.error("Errore riepilogo:", summaryRes.error);
-      } else {
-          const totalBudget = summaryRes.data.totalIncome; // Usiamo il totale entrate come budget
-          const totalSpent = summaryRes.data.totalExpenses;
-          renderSummaryDonutChart(totalSpent, totalBudget);
-      }
-      
-      // KPI per macro-categoria
-      if (macroRes.error) {
-          console.error("Errore macro-categorie:", macroRes.error);
-      } else {
-          renderMacroCategoryKPIs(macroRes.data);
-      }
 
-      // Grafico a barre
-      if (chartRes.error) {
-          console.error("Errore dati grafico:", chartRes.error);
-      } else {
-          // Ricicliamo la funzione di prima, ma il codice completo dovrebbe essere qui
-          const chartCanvas = document.getElementById('monthlyExpensesChart');
-          const labels = chartRes.data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' }));
-          const values = chartRes.data.map(row => row.total_expenses);
-          new Chart(chartCanvas, { type: 'bar', data: { labels, datasets: [{ label: 'Spese Mensili', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}, plugins: { legend: { display: false } } } });
-      }
+      // 1. Recupera i totali di entrate e uscite del mese
+      const { data: summaryData, error: summaryError } = await supabase.rpc('get_monthly_summary', { user_id_param: user.id });
+      
+      // 2. Recupera il budget di risparmio impostato dall'utente
+      const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+      const { data: budgetData, error: budgetError } = await supabase
+        .from('budgets')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('month', currentMonth)
+        .eq('macro_category', 'Risparmi')
+        .maybeSingle();
 
-      // Logout
-      document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+      if (summaryError || budgetError) {
+        console.error(summaryError || budgetError);
+        // Gestisci errore UI
+        return;
+      }
+      
+      const totalIncome = summaryData.totalIncome;
+      const totalExpenses = summaryData.totalExpenses;
+      const savingsGoal = budgetData ? budgetData.amount : 0; // Se non c'è budget, il risparmio è 0
+
+      // 3. ESEGUI IL CALCOLO AUTOMATICO
+      const spendingBudget = totalIncome - savingsGoal;
+
+      // 4. Mostra i dati nell'interfaccia
+      incomeEl.textContent = formatCurrency(totalIncome);
+      savingsEl.textContent = formatCurrency(savingsGoal);
+      spendingBudgetEl.textContent = formatCurrency(spendingBudget);
+      expensesEl.textContent = formatCurrency(totalExpenses);
+
+      // Rimuovi lo stato di caricamento
+      document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+
+      // Logica Logout
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        location.replace("/it/");
+      });
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
+
 </body>
 </html>
