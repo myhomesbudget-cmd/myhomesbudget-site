@@ -60,7 +60,7 @@
 
     <section class="content-section">
         <h2>Spese Mensili (Ultimi 12 mesi)</h2>
-        <div>
+        <div style="height: 300px;">
             <canvas id="monthlyExpensesChart"></canvas>
         </div>
     </section>
@@ -70,7 +70,6 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // Selettori elementi
     const incomeEl = document.getElementById('total-income');
     const expensesEl = document.getElementById('total-expenses');
     const budgetEl = document.getElementById('remaining-budget');
@@ -79,7 +78,6 @@
 
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
 
-    // Funzione per disegnare il grafico
     function renderMonthlyExpensesChart(data) {
         const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' }));
         const values = data.map(row => row.total_expenses);
@@ -105,15 +103,15 @@
     }
 
     async function initializePage() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { location.replace("/it/login.html"); return; }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { location.replace("/it/login.html"); return; }
 
       // --- 1. Carica dati per il riepilogo mensile ---
-      const { data: summaryData, error: summaryError } = await supabase.rpc('get_monthly_summary');
+      // MODIFICA: La funzione ora accetta l'ID utente
+      const { data: summaryData, error: summaryError } = await supabase.rpc('get_monthly_summary', { user_id_param: user.id });
       if (summaryError) {
         console.error("Errore riepilogo:", summaryError);
       } else {
-        // CORREZIONE BUG: usa totalIncome (camelCase)
         incomeEl.textContent = formatCurrency(summaryData.totalIncome);
         expensesEl.textContent = formatCurrency(summaryData.totalExpenses);
         budgetEl.textContent = formatCurrency(summaryData.remainingBudget);
@@ -123,10 +121,11 @@
       budgetEl.classList.remove('loading');
 
       // --- 2. Carica dati per il grafico a barre ---
-      const { data: chartData, error: chartError } = await supabase.rpc('get_monthly_expenses_timeseries');
+      // MODIFICA: Passiamo l'ID utente alla funzione
+      const { data: chartData, error: chartError } = await supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id });
       if (chartError) {
         console.error("Errore dati grafico:", chartError);
-      } else {
+      } else if (chartData) {
         renderMonthlyExpensesChart(chartData);
       }
 
