@@ -8,13 +8,13 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
 
-  <!-- CSP -->
+  <!-- CSP (aggiunto dominio funzioni Supabase in connect-src) -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
                  script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 connect-src 'self' https://upcusjlumfeadgbhziwq.supabase.co https://www.google-analytics.com https://region1.google-analytics.com;
                  font-src 'self' https: data:;
                  frame-ancestors 'none';
                  base-uri 'self';
@@ -217,24 +217,27 @@
     })();
   </script>
 
-  <!-- ✅ AGGIUNTA MINIMA: reindirizzo a Stripe Checkout via Edge Function -->
+  <!-- ✅ AGGIUNTA MINIMA: redirect a Stripe Checkout via Edge Function -->
   <script type="module">
-    // Mappa dei prezzi Stripe (forniti da te)
+    // Endpoint pubblico della tua Edge Function
+    const ENDPOINT = "https://upcusjlumfeadgbhziwq.supabase.co/functions/v1/create-checkout-session";
+
+    // Mappa dei prezzi Stripe
     const PRICES = {
       monthly:  { priceId: "price_1S46IVDB9gH9Ve2rhOcxHGDZ", mode: "subscription" },
       lifetime: { priceId: "price_1S46TQDB9gH9Ve2r5KHZVoTA", mode: "payment" }
     };
 
-    // Intercetta solo i bottoni "Paga con Stripe" (lascia intatti i link PayPal)
+    // Intercetta solo i link Stripe (lascia intatti i link PayPal)
     document.querySelectorAll('a[data-method="stripe"][data-plan]').forEach(link => {
       link.addEventListener('click', async (ev) => {
-        ev.preventDefault(); // evita la navigazione al vecchio /checkout/stripe?...
+        ev.preventDefault(); // evita il vecchio /checkout/stripe?...
         const plan = link.dataset.plan;
         const cfg  = PRICES[plan];
         if (!cfg) { alert("Piano non valido."); return; }
 
         try {
-          const res = await fetch('/functions/v1/create-checkout-session', {
+          const res = await fetch(ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ priceId: cfg.priceId, mode: cfg.mode })
