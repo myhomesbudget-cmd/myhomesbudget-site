@@ -216,5 +216,38 @@
       requestAnimationFrame(()=> ordered.forEach(el=> el.classList.add('in')));
     })();
   </script>
+
+  <!-- ✅ AGGIUNTA MINIMA: reindirizzo a Stripe Checkout via Edge Function -->
+  <script type="module">
+    // Mappa dei prezzi Stripe (forniti da te)
+    const PRICES = {
+      monthly:  { priceId: "price_1S46IVDB9gH9Ve2rhOcxHGDZ", mode: "subscription" },
+      lifetime: { priceId: "price_1S46TQDB9gH9Ve2r5KHZVoTA", mode: "payment" }
+    };
+
+    // Intercetta solo i bottoni "Paga con Stripe" (lascia intatti i link PayPal)
+    document.querySelectorAll('a[data-method="stripe"][data-plan]').forEach(link => {
+      link.addEventListener('click', async (ev) => {
+        ev.preventDefault(); // evita la navigazione al vecchio /checkout/stripe?...
+        const plan = link.dataset.plan;
+        const cfg  = PRICES[plan];
+        if (!cfg) { alert("Piano non valido."); return; }
+
+        try {
+          const res = await fetch('/functions/v1/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ priceId: cfg.priceId, mode: cfg.mode })
+          });
+
+          const { url, error } = await res.json();
+          if (error || !url) { alert("Errore pagamento: " + (error || "URL mancante")); return; }
+          window.location = url; // redirect alla pagina sicura di Stripe
+        } catch (e) {
+          alert("Impossibile avviare il pagamento. Riprova.");
+        }
+      });
+    });
+  </script>
 </body>
 </html>
