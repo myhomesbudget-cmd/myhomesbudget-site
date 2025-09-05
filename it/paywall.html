@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
 
-  <!-- CSP (aggiunto dominio funzioni Supabase in connect-src) -->
+  <!-- CSP (include Supabase Functions in connect-src) -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -50,7 +50,6 @@
     }
     body::before{content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1}
 
-    /* Topbar allineata alla larghezza del pannello */
     .topbar{
       position:fixed; top:16px; left:50%; transform:translateX(-50%);
       width:min(920px, calc(100% - 40px)); z-index:20; pointer-events:none;
@@ -126,7 +125,7 @@
 </head>
 <body>
 
-  <!-- Logo allineato al pannello -->
+  <!-- Logo -->
   <nav class="topbar" aria-label="Logo">
     <a href="/it/" class="logo-link" title="myHomesBudget">
       <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
@@ -191,7 +190,7 @@
   </main>
 
   <script>
-    // salva lingua corrente per i prossimi redirect
+    // salva lingua corrente
     try { localStorage.setItem('mhb_lang','it'); } catch(e) {}
 
     // GA4
@@ -217,21 +216,18 @@
     })();
   </script>
 
-  <!-- ✅ AGGIUNTA MINIMA: redirect a Stripe Checkout via Edge Function -->
+  <!-- Redirect a Stripe Checkout via Edge Function + log diagnostico -->
   <script type="module">
-    // Endpoint pubblico della tua Edge Function
     const ENDPOINT = "https://upcusjlumfeadgbhziwq.supabase.co/functions/v1/create-checkout-session";
 
-    // Mappa dei prezzi Stripe
     const PRICES = {
       monthly:  { priceId: "price_1S46IVDB9gH9Ve2rhOcxHGDZ", mode: "subscription" },
       lifetime: { priceId: "price_1S46TQDB9gH9Ve2r5KHZVoTA", mode: "payment" }
     };
 
-    // Intercetta solo i link Stripe (lascia intatti i link PayPal)
     document.querySelectorAll('a[data-method="stripe"][data-plan]').forEach(link => {
       link.addEventListener('click', async (ev) => {
-        ev.preventDefault(); // evita il vecchio /checkout/stripe?...
+        ev.preventDefault();
         const plan = link.dataset.plan;
         const cfg  = PRICES[plan];
         if (!cfg) { alert("Piano non valido."); return; }
@@ -243,11 +239,22 @@
             body: JSON.stringify({ priceId: cfg.priceId, mode: cfg.mode })
           });
 
-          const { url, error } = await res.json();
-          if (error || !url) { alert("Errore pagamento: " + (error || "URL mancante")); return; }
-          window.location = url; // redirect alla pagina sicura di Stripe
+          // Log diagnostico: status + body testo
+          const text = await res.text();
+          console.log("Supabase response:", res.status, text);
+
+          let json = {};
+          try { json = JSON.parse(text); } catch(e) {}
+          const { url, error } = json;
+
+          if (error || !url) {
+            alert("Errore pagamento: " + (error || "URL mancante"));
+            return;
+          }
+          window.location = url;
         } catch (e) {
-          alert("Impossibile avviare il pagamento. Riprova.");
+          console.error("Errore chiamata Supabase:", e);
+          alert("Impossibile avviare il pagamento. Controlla console.");
         }
       });
     });
