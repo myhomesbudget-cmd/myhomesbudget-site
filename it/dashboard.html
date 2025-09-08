@@ -8,62 +8,112 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.ico">
   <style>
-    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
+    :root{
+      --fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;
+    }
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
+      outline:2px solid #00cec9; outline-offset:2px; border-radius:8px
+    }
+    body{
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;
+    }
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
-    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;align-items:center;justify-content:space-between;}
-    .logo-link,.top-actions{pointer-events:auto}
+
+    /* Topbar “glass” come dashboard-riepilogo */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1120px,calc(100% - 40px));z-index:20;
+      background:var(--glass);backdrop-filter:saturate(1.4) blur(6px);
+      border:1px solid rgba(0,0,0,.08);box-shadow:var(--shadow);border-radius:14px;
+      display:grid;grid-template-columns: 1fr auto 1fr;align-items:center;
+      gap:10px;padding:10px 12px;
+    }
+    .tb-left,.tb-center,.tb-right{display:flex;align-items:center}
+    .tb-left{justify-content:flex-start}
+    .tb-center{justify-content:center}
+    .tb-right{justify-content:flex-end;gap:8px}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:32px;border-radius:6px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .top-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
-    .top-link:hover{background:rgba(0,0,0,.38)}
-    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;}
+    .logo-text{font-weight:600;color:#111;font-size:1.05rem}
+    .month-picker{
+      display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--card-border);
+      padding:8px 10px;border-radius:10px;color:#111
+    }
+    .month-picker label{font-weight:700;font-size:.9rem}
+    .month-picker input[type="month"]{
+      border:0;background:transparent;outline:none;color:#111;font-weight:600
+    }
+    .top-link{
+      color:#111;text-decoration:none;padding:8px 12px;border-radius:10px;background:#fff;
+      border:1px solid var(--card-border);font-size:.9rem;font-weight:700
+    }
+    .top-link:hover{filter:brightness(0.96)}
+
+    main.panel{
+      margin-top:96px;width:min(1120px,calc(100% - 40px));
+      background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:20px;
+    }
     h1, h2, h3 { color: #111; }
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition: all .2s ease;}
+
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:all .2s ease;}
     .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .dash-nav {display: flex;gap: 8px;border-bottom: 1px solid rgba(0,0,0,0.1);padding-bottom: 12px;}
-    .dash-nav a {text-decoration: none;color: #333;padding: 8px 16px;border-radius: 10px;font-weight: 600;}
-    .dash-nav a.is-active {background-color: #fff;color: var(--primary-color);box-shadow: 0 4px 12px rgba(0,0,0,0.08);}
-    .content-section {background: rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
-    .transaction-form {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;align-items: flex-end;}
-    @media (min-width: 820px) {.transaction-form {grid-template-columns: repeat(3, 1fr) auto;}}
-    .form-group { display: flex; flex-direction: column; }
-    .form-group.full-width { grid-column: 1 / -1; }
-    .form-group label { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-    .form-group input, .form-group select {width: 100%;padding: 10px;border-radius: 8px;border: 1px solid #ccc;background: #fff;font-size: 1rem;}
-    .transaction-list .item {display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center; padding: 12px 4px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .item-icon { font-size: 1.5rem; flex-shrink: 0; }
-    .item-details { display: flex; flex-direction: column; min-width: 0; }
-    .item-details .note { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-details .category { font-size: 0.9rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-amount { text-align: right; white-space: nowrap; flex-shrink: 0; }
-    .item-amount.expense { color: #d32f2f; font-weight: 700; }
-    .item-amount.income { color: #2e7d32; font-weight: 700; }
-    .item-actions { display: flex; gap: 4px; flex-shrink: 0; }
-    .action-btn { background-color: rgba(0,0,0,0.05); color: #555; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 6px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; white-space: nowrap; }
-    .action-btn:hover { background-color: var(--primary-color); color: #fff; border-color: var(--primary-color); }
-    .action-btn.delete { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
-    .action-btn.delete:hover { background-color: #dc3545; color: #fff; border-color: #dc3545; }
-    .empty-state { text-align: center; padding: 40px; color: #555; }
+
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px}
+    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
+    .dash-nav a.is-active{background-color:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+
+    .content-section{background:rgba(255,255,255,.55);border-radius:12px;padding:16px;border:1px solid var(--card-border);}
+    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
+    @media (min-width: 920px){.transaction-form{grid-template-columns: repeat(3, 1fr) auto;}}
+    .form-group{display:flex;flex-direction:column}
+    .form-group.full-width{grid-column:1 / -1}
+    .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
+
+    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,0.05)}
+    .item-icon{font-size:1.5rem;flex-shrink:0}
+    .item-details{display:flex;flex-direction:column;min-width:0}
+    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
+    .item-amount.expense{color:#d32f2f;font-weight:700}
+    .item-amount.income{color:#2e7d32;font-weight:700}
+    .item-actions{display:flex;gap:4px;flex-shrink:0}
+    .action-btn{background-color:rgba(0,0,0,0.05);color:#555;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:background-color .2s ease, color .2s ease;white-space:nowrap}
+    .action-btn:hover{background-color:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+    .action-btn.delete{background-color:#f8d7da;color:#842029;border-color:#f5c2c7}
+    .action-btn.delete:hover{background-color:#dc3545;color:#fff;border-color:#dc3545}
+    .empty-state{text-align:center;padding:40px;color:#555}
   </style>
 </head>
 <body>
-  <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-actions">
+  <!-- Topbar allineata alla “riepilogo” -->
+  <header class="topbar" role="banner">
+    <div class="tb-left">
+      <a href="/it/" class="logo-link" title="MyHomesBudget">
+        <img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span>
+      </a>
+    </div>
+    <div class="tb-center">
+      <div class="month-picker">
+        <label for="month">Mese</label>
+        <input type="month" id="month" name="month" aria-label="Selettore mese">
+      </div>
+    </div>
+    <nav class="tb-right" aria-label="Azioni">
       <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
       <a href="#" id="logout-btn" class="top-link">Esci</a>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
   <main class="panel">
-    <!-- Banner piano/trial (mostrato da /js/plan.js se disponibile) -->
+    <!-- Banner piano/trial -->
     <div id="plan-banner" role="status" aria-live="polite"></div>
 
     <nav id="dash-nav" class="dash-nav">
@@ -122,6 +172,7 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
+    const monthInput = document.getElementById('month');
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -134,12 +185,30 @@
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
-    // modulo dei piani (caricato dopo il login, con fallback)
-    let Plan = null;
+    let Plan = null; // modulo piani (import lazy)
+    let selectedMonth = null; // "YYYY-MM"
 
-    function safeToNumber(v) {
-      const n = (typeof v === 'number') ? v : parseFloat(v);
-      return Number.isFinite(n) ? n : 0;
+    function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v); return Number.isFinite(n)?n:0; }
+
+    // Helpers mese → inizio/fine (ISO)
+    function monthBounds(ym){
+      const [y,m] = ym.split('-').map(Number);
+      const start = new Date(Date.UTC(y, m-1, 1));
+      const end   = new Date(Date.UTC(y, m, 1)); // esclusivo
+      return {start: start.toISOString(), end: end.toISOString()};
+    }
+    function setDefaultMonth(){
+      const urlM = new URLSearchParams(location.search).get('m');
+      const today = new Date();
+      const ym = urlM && /^\d{4}-\d{2}$/.test(urlM) ? urlM
+                : `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+      monthInput.value = ym;
+      selectedMonth = ym;
+    }
+    function updateUrlMonth(){
+      const p = new URLSearchParams(location.search);
+      p.set('m', selectedMonth);
+      history.replaceState(null, '', `${location.pathname}?${p.toString()}`);
     }
 
     async function loadInitialData() {
@@ -188,17 +257,18 @@
     }
 
     async function loadTransactions() {
+      const { start, end } = monthBounds(selectedMonth);
       const { data, error } = await supabase.from('transactions')
         .select(`*, categories(name, icon), subcategories(name, icon)`)
         .eq('created_by', user.id)
-        .order('occurred_at', { ascending: false })
-        .limit(15);
+        .gte('occurred_at', start).lt('occurred_at', end)
+        .order('occurred_at', { ascending: false });
       if (error) { console.error("Errore caricamento transazioni:", error); return; }
 
       allTransactions = data || [];
       transactionList.innerHTML = '';
       if (allTransactions.length === 0) {
-        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione per il mese selezionato.</p></div>`;
         return;
       }
 
@@ -245,9 +315,7 @@
     }
 
     async function handleDelete(id) {
-      // Gating: attivo solo se il modulo Plan è caricato; altrimenti lascio passare (ci pensa il trigger in DB)
       if (Plan && !(await Plan.assertCanWrite("delete-transaction"))) return;
-
       if (!confirm("Sei sicuro di voler eliminare questa transazione?")) return;
       const { error } = await supabase.from('transactions').delete().eq('id', id);
       if (error) { 
@@ -260,22 +328,22 @@
     
     async function handleFormSubmit(event) {
       event.preventDefault();
-
-      // Gating: attivo solo se il modulo Plan è caricato; altrimenti fallback
       if (Plan && !(await Plan.assertCanWrite("add-or-update-transaction"))) return;
 
       const formData = new FormData(transactionForm);
       const id = formData.get('transaction-id');
       const subcategory_id = formData.get('subcategory_id') || null;
+
       const payload = {
         kind: formData.get('kind'),
         note: formData.get('note'),
         amount: formData.get('amount'),
         occurred_at: formData.get('occurred_at'),
         category_id: formData.get('category_id'),
-        subcategory_id: subcategory_id,
+        subcategory_id,
         created_by: user.id
       };
+
       const { error } = id 
         ? await supabase.from('transactions').update(payload).eq('id', id)
         : await supabase.from('transactions').insert(payload);
@@ -294,56 +362,57 @@
     }
 
     async function initializePage() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { location.replace("/it/login.html"); return; }
+      user = session.user;
+
+      // Import del modulo piani + banner
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { location.replace("/it/login.html"); return; }
-        user = session.user;
-
-        // Carico /js/plan.js dopo il login, in modo tollerante
-        try {
-          Plan = await import("/js/plan.js");
-          await Plan.mountPlanBanner();       // mostra banner se Starter
-        } catch (e) {
-          console.warn("plan.js non caricato (continua senza gating/banner):", e);
-          Plan = null;
-        }
-
-        // Onboarding (lasciato come prima)
-        const { data: profile, error: pErr } =
-          await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
-        if (pErr) console.warn('profiles.onboarded non disponibile:', pErr?.message);
-        if (profile && !profile.onboarded) {
-          if (new URLSearchParams(window.location.search).get('edit') !== '1') {
-            location.replace("/it/onboarding.html");
-            return;
-          }
-        }
-        
-        document.getElementById('occurred_at').valueAsDate = new Date();
-        await loadInitialData();
-        updateCategoryDropdown();
-        await loadTransactions();
-        
-        kindSelect.addEventListener('change', updateCategoryDropdown);
-        categorySelect.addEventListener('change', () => updateSubcategories());
-        transactionForm.addEventListener('submit', handleFormSubmit);
-        logoutBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          await supabase.auth.signOut();
-          location.replace("/it/");
-        });
-        
-        transactionList.addEventListener('click', (event) => {
-          const target = event.target.closest('.action-btn');
-          if (!target) return;
-          const id = target.dataset.id;
-          if (target.classList.contains('edit-btn')) handleEdit(id);
-          else if (target.classList.contains('delete-btn')) handleDelete(id);
-        });
-      } catch (err) {
-        console.error('Errore inizializzazione pagina:', err);
-        alert('Errore inatteso in dashboard. Ricarica la pagina.');
+        Plan = await import("/js/plan.js");
+        await Plan.mountPlanBanner();
+      } catch (e) {
+        console.warn("plan.js non caricato:", e);
+        Plan = null;
       }
+
+      // Onboarding (invariato)
+      const { data: profile, error: pErr } =
+        await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+      if (!pErr && profile && !profile.onboarded) {
+        if (new URLSearchParams(window.location.search).get('edit') !== '1') {
+          location.replace("/it/onboarding.html");
+          return;
+        }
+      }
+
+      // Mese di default (da URL ?m=YYYY-MM o mese corrente)
+      setDefaultMonth();
+      updateUrlMonth();
+
+      document.getElementById('occurred_at').valueAsDate = new Date();
+      await loadInitialData();
+      updateCategoryDropdown();
+      await loadTransactions();
+      
+      // Eventi UI
+      kindSelect.addEventListener('change', updateCategoryDropdown);
+      categorySelect.addEventListener('change', () => updateSubcategories());
+      transactionForm.addEventListener('submit', handleFormSubmit);
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/");
+      });
+      transactionList.addEventListener('click', (event) => {
+        const target = event.target.closest('.action-btn');
+        if (!target) return;
+        const id = target.dataset.id;
+        if (target.classList.contains('edit-btn')) handleEdit(id);
+        else if (target.classList.contains('delete-btn')) handleDelete(id);
+      });
+      monthInput.addEventListener('change', async () => {
+        selectedMonth = monthInput.value;
+        updateUrlMonth();
+        await loadTransactions();
+      });
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
