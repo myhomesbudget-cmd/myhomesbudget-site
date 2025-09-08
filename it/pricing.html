@@ -3,20 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Piani e Prezzi — MyHomesBudget</title>
-  <meta name="description" content="Scegli il piano MyHomesBudget più adatto a te. Funzionalità complete, prezzo trasparente. Inizia la tua prova gratuita.">
+  <title>Piani e Prezzi · MyHomesBudget</title>
+  <meta name="description" content="Scegli il piano più adatto a te. Controlla spese, budget e obiettivi in pochi minuti al giorno.">
+  <meta name="robots" content="index,follow">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
 
-  <!-- CSP -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
+  <!-- CSP (solo GA4) -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' https: data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+    connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+    font-src 'self' https: data:;
+    frame-ancestors 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
 
   <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
@@ -27,510 +31,277 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- Canonical + hreflang -->
-  <link rel="canonical" href="https://www.myhomesbudget.com/it/pricing.html" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/it/pricing.html" hreflang="it" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/en/pricing.html" hreflang="en" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/es/pricing.html" hreflang="es" />
-  <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default" />
-
-  <!-- Social -->
-  <meta property="og:title" content="Piani e Prezzi — MyHomesBudget" />
-  <meta property="og:description" content="Scegli il piano MyHomesBudget più adatto a te. Funzionalità complete, prezzo trasparente. Inizia la tua prova gratuita." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.myhomesbudget.com/it/pricing.html" />
-  <meta property="og:image" content="https://www.myhomesbudget.com/social.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Piani e Prezzi — MyHomesBudget" />
-  <meta name="twitter:description" content="Scegli il piano MyHomesBudget più adatto a te. Funzionalità complete, prezzo trasparente. Inizia la tua prova gratuita." />
-  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png" />
-
-  <!-- Performance -->
-  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
-  <link rel="preconnect" href="https://region1.google-analytics.com" crossorigin>
   <link rel="icon" href="/favicon.ico">
-  <meta name="theme-color" content="#0f0f10">
-  <meta name="color-scheme" content="light dark">
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
-    /* === STILI BASE E COMUNI === */
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.62);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --muted:#2a2a2a;
+      --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
+    }
     *{box-sizing:border-box}
-    a:focus-visible, button:focus-visible, [tabindex="0"]:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
 
     body{
-      margin:0;padding:0;color:#fff;
-      background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
 
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    h1,h2,h3,h4{text-shadow:0 1px 3px rgba(0,0,0,.4)}
-    
-    /* === NAVIGAZIONE === */
-    .nav{display:flex;justify-content:space-between;align-items:center}
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.lang-selector{pointer-events:auto}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:40px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
-    .right-bar{display:flex;gap:16px;align-items:center}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
-    .login-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .login-link:hover{background:rgba(255,255,255,.12)}
+    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
 
-    /* === HERO === */
-    .hero{text-align:center;padding:2vh 20px 4vh;}
-    .hero h1{font-size:clamp(2rem,5vw,2.8rem);line-height:1.2;margin:0;}
-    .hero p{max-width:720px;margin:8px auto 0;font-size:clamp(1rem,2vw,1.2rem);color:#eaeaea;}
-
-    /* === LAYOUT E CARD === */
-    .content-grid{display:grid;gap:24px;}
-    .panel{
-      background:rgba(255,255,255,0.55);
-      backdrop-filter:saturate(1.1) blur(6px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:#111;border-radius:16px;padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-    }
-    .panel-title{margin:0 0 20px;text-align:center;color:#111;}
-
-    /* === PIANI E PREZZI === */
-    .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr}
-    @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
-    .price-card{
-      background:rgba(255,255,255,.3);
-      border:1px solid rgba(255,255,255,0.4);
-      padding:18px;border-radius:12px;
-      display:flex;flex-direction:column;gap:10px;text-align:center;
-    }
-    .price-card .plan-title{
-      margin: 0; display: flex; gap: .5rem; flex-wrap: wrap; align-items: baseline; justify-content: center;
-      font-size: 1.12rem;
-    }
-    .price-card .plan-title .plan-name{ font-weight: 700; }
-    .price-card .plan-title .sep{ opacity: .45; }
-    .price-card .plan-title .price-inline{font-weight: 800; font-size: 1.25rem; line-height: 1;}
-    .price-card .plan-title .price-inline small{font-weight: 600; font-size: .9rem; color: #333;}
-    .price-card .features{margin: 6px 0 10px; color:#333; font-size:.95rem; line-height:1.45;}
-    .btn-secondary{
-      display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
-      color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
-      box-shadow:0 8px 22px rgba(0,0,0,.15);
-      align-self:center; transition: transform .15s ease, filter .15s ease;
-    }
-    .btn-secondary:hover{filter:brightness(1.08); transform: translateY(-1px);}
-
-    /* === BENEFICI === */
-    .benefits-list{
-      list-style:none; padding:0; margin:0; display:grid; gap:16px;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-    .benefit-item{display:flex; align-items:flex-start; gap:12px;}
-    .benefit-icon{flex-shrink:0; font-size:1.4rem; margin-top:2px;}
-    .benefit-item h4{margin:0 0 4px;font-size:1.05rem;}
-    .benefit-item p{margin:0;color:#444;font-size:.95rem;}
-
-    /* === FAQ ACCORDION === */
-    .faq-item{border-bottom:1px solid rgba(0,0,0,0.1);}
-    .faq-item:last-child{border-bottom:none;}
-    .faq-question{
-      display:flex; justify-content:space-between; align-items:center;
-      width:100%; padding:16px 0; background:none; border:none;
-      font-size:1.05rem; font-family:inherit; color:#111; font-weight:600;
-      cursor:pointer; text-align:left;
-    }
-    .faq-question:hover .faq-icon{transform:scale(1.15);}
-    .faq-icon{
-      transition:transform .3s cubic-bezier(.22,1,.36,1);
-      flex-shrink: 0; margin-left: 16px;
-    }
-    .faq-item.is-open .faq-icon{transform:rotate(45deg);}
-    .faq-answer{
-      color:#333; font-size:.95rem; line-height:1.5;
-      max-height:0; overflow:hidden;
-      transition: max-height .4s ease, padding .4s ease, opacity .3s ease;
-      opacity:0;
-    }
-    .faq-item.is-open .faq-answer{
-      max-height:300px;
-      padding-bottom:18px;
-      opacity:1;
-    }
-    
-    /* === TESTIMONIANZE === */
-    .testimonials-grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));}
-    .testimonial-card{
-      background:rgba(0,0,0,.1); padding:16px; border-radius:12px;
-      font-style:italic; color: #e0e0e0;
-    }
-    .testimonial-card footer{margin-top:10px; font-style:normal; font-weight:600; color: #fff;}
-
-    /* === CTA FINALE === */
-    .final-cta{
-      text-align:center; padding: 20px;
-      background:rgba(0,0,0,.2); border-radius:16px;
-    }
-    .final-cta h2{margin:0 0 8px; font-size:1.8rem;}
-    .final-cta p{margin:0 0 20px; color:#e0e0e0;}
-    .cta{
-      display:inline-block;background:#111;color:#fff;
-      padding:14px 22px;border-radius:12px;font-weight:700;text-decoration:none;
-      box-shadow:0 10px 24px rgba(0,0,0,.15);
-      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
-    .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
-    
-    /* === FOOTER === */
-    .footer{margin:40px 0 20px;text-align:center;color:#e6e6e6;font-size:.9rem}
-    .footer a{color:#fff}
-
-    /* === ANIMAZIONI REVEAL ON SCROLL === */
-    .reveal{
-      --d: 0s;
-      opacity: 0; transform: translateY(16px) scale(.995);
-      transform-origin: 50% 100%; filter: saturate(.98);
-      transition: opacity .85s ease, transform .85s cubic-bezier(.22,1,.36,1), filter .85s ease;
-      will-change: opacity, transform;
-    }
-    .reveal.in{ opacity:1; transform:none; filter:none; }
-    @media (prefers-reduced-motion: reduce){
-      .reveal, .reveal.in{ transition:none; opacity:1; transform:none; filter:none; }
+    .wrap{
+      width:min(1100px,calc(100% - 40px));
+      margin:110px auto 64px auto;
     }
 
-    /* === RESPONSIVE & COMPATTAZIONE DESKTOP === */
-    @media (min-width: 900px) {
-      .wrap{ padding:16px; }
-      .logo-image{ height:32px; }
-      .hero{ padding:1vh 20px 3vh; }
-      .content-grid{gap:16px;}
-      .panel{padding:20px;}
-      .panel-title{margin-bottom:16px;}
-      .footer{ margin:24px 0 8px; }
+    .hero{
+      text-align:center;margin-bottom:18px;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
     }
-    
-    /* iOS Safari: evita jank con background fixed */
-    @supports (-webkit-touch-callout: none) {
-      body { background-attachment: scroll; }
+    .hero h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .hero p{margin:6px auto 0;color:#222;max-width:760px}
+
+    .billing{
+      display:flex;gap:10px;align-items:center;justify-content:center;margin:16px 0 8px 0;
+      color:#111;
     }
+    .switch{
+      --w:52px; --h:30px; --dot:22px;
+      position:relative;width:var(--w);height:var(--h);border-radius:999px;
+      background:#ddd; cursor:pointer; transition:filter .15s ease; box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
+    }
+    .switch input{display:none}
+    .knob{
+      position:absolute;top:50%;left:4px;transform:translateY(-50%);
+      width:var(--dot);height:var(--dot);border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.15);
+      transition:left .18s cubic-bezier(.22,1,.36,1);
+    }
+    .switch:has(input:checked) .knob{ left:calc(var(--w) - var(--dot) - 4px); }
+    .save{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--okbg);color:#064e66;font-weight:600}
+
+    .grid{
+      display:grid; gap:16px; margin-top:14px;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+    }
+    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
+      display:flex; flex-direction:column; min-height:100%;
+    }
+    .card.popular{ outline:3px solid #6c5ce7; position:relative; }
+    .badge{
+      position:absolute; top:14px; right:14px; font-size:.85rem;
+      background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
+      box-shadow:0 6px 18px rgba(108,92,231,.35);
+    }
+
+    .title{font-weight:800;font-size:1.2rem;margin:0 0 6px 0}
+    .subtitle{margin:0 0 10px 0;color:#333}
+    .price{display:flex;align-items:baseline;gap:6px;margin:6px 0 10px 0}
+    .price .num{font-weight:900;font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .per{color:#333}
+
+    .feat{margin:10px 0 14px 0;padding:0;list-style:none;color:#111}
+    .feat li{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+    .tick{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--okbg);color:#0c4a6e;font-weight:700}
+
+    .cta{margin-top:auto}
+    .btn{
+      cursor:pointer;border:none;border-radius:12px;padding:12px 16px;
+      background:var(--grad);color:#fff;font-weight:800;font-size:1rem;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease, filter .15s ease;
+      width:100%;
+    }
+    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+    .small{margin-top:10px;color:#333;font-size:.95rem}
+
+    .faq{
+      margin-top:18px;background:var(--glass);color:#111;border-radius:var(--radius-lg);
+      padding:18px;box-shadow:var(--shadow);
+    }
+    details{border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.84);margin:8px 0}
+    summary{cursor:pointer;font-weight:700;color:#111}
+    details p{margin:8px 0 0 0;color:#2b2b2b}
+
+    .footnotes{color:#222;text-align:center;margin-top:10px}
+    .footnotes small{display:block;margin:4px 0}
   </style>
-
-  <!-- JSON-LD per la pagina FAQ -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [{
-      "@type": "Question",
-      "name": "Devo inserire la mia carta di credito per la prova gratuita?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No, non è richiesta nessuna carta di credito per iniziare la prova di 30 giorni. Potrai decidere di abbonarti solo se il servizio ti avrà soddisfatto."
-      }
-    }, {
-      "@type": "Question",
-      "name": "I miei dati sono al sicuro?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Assolutamente sì. La sicurezza e la privacy sono la nostra massima priorità. I tuoi dati sono crittografati e conservati in server europei, nel pieno rispetto del GDPR."
-      }
-    }, {
-      "@type": "Question",
-      "name": "Posso usare MyHomesBudget su più dispositivi?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Certo. Il tuo account si sincronizza automaticamente su tutti i tuoi dispositivi, che siano smartphone, tablet o computer. Presto sarà anche installabile come PWA (Progressive Web App) per un accesso ancora più rapido."
-      }
-    }, {
-      "@type": "Question",
-      "name": "Cosa succede se cancello il mio abbonamento?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Se cancelli il tuo abbonamento, potrai continuare ad accedere a tutte le funzionalità fino alla fine del periodo di fatturazione già pagato. Per il piano 'Una Tantum', l'accesso è garantito per sempre."
-      }
-    }, {
-      "@type": "Question",
-      "name": "Il piano 'Una Tantum' include tutti gli aggiornamenti futuri?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Il piano 'Una Tantum' ti dà accesso illimitato a tutte le funzionalità principali presenti al momento dell'acquisto e a tutti gli aggiornamenti di manutenzione e sicurezza. Le nuove funzionalità 'premium' maggiori potrebbero richiedere un upgrade o essere esclusive del piano mensile."
-      }
-    }, {
-      "@type": "Question",
-      "name": "Offrite rimborsi?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Data la natura del servizio e la prova gratuita di 30 giorni che ti permette di valutare a fondo il prodotto, generalmente non offriamo rimborsi. Tuttavia, per qualsiasi problema, contatta il nostro supporto e troveremo una soluzione."
-      }
-    }]
-  }
-  </script>
-
 </head>
 <body>
-  <div class="wrap">
-    <!-- NAV -->
-    <nav class="nav" aria-label="Navigazione principale">
-      <a href="/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image" loading="lazy">
-        <span class="logo-text">MyHomesBudget</span>
-      </a>
-      <div class="right-bar">
-        <a class="login-link" href="login.html" aria-label="Accedi">Accedi</a>
-        <span class="lang-selector" aria-label="Selettore lingue">
-          <a href="/it/pricing.html" title="Italiano" lang="it">🇮🇹</a>
-          <a href="/en/pricing.html" title="English" lang="en">🇬🇧</a>
-          <a href="/es/pricing.html" title="Español" lang="es">🇪🇸</a>
-        </span>
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <span class="lang-selector" aria-label="Selettore lingue">
+      <a href="/it/pricing.html" lang="it" aria-current="page">🇮🇹</a>
+      <a href="/en/pricing.html" lang="en">🇬🇧</a>
+      <a href="/es/pricing.html" lang="es">🇪🇸</a>
+    </span>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Tieni sotto controllo il budget in pochi minuti al giorno</h1>
+      <p>Strumenti semplici per gestire spese, budget e obiettivi di risparmio. Scegli il piano e parti subito — puoi cambiare idea quando vuoi.</p>
+
+      <div class="billing" role="group" aria-label="Seleziona fatturazione">
+        <span>Mensile</span>
+        <label class="switch" title="Attiva fatturazione annuale (risparmia)">
+          <input id="billToggle" type="checkbox" aria-label="Fatturazione annuale">
+          <span class="knob"></span>
+        </label>
+        <span>Annuale</span>
+        <span class="save" id="saveBadge" style="display:none">2 mesi gratis</span>
       </div>
-    </nav>
+    </section>
 
-    <main class="content-grid">
-      <!-- HERO -->
-      <section class="hero" aria-labelledby="page-title">
-        <h1 id="page-title">Un prezzo semplice e trasparente.</h1>
-        <p>Scegli il piano perfetto per te e inizia a gestire le tue finanze senza stress.</p>
-      </section>
-
-      <!-- PIANI E PREZZI -->
-      <section class="panel" aria-labelledby="pricing-title">
-        <h2 id="pricing-title" class="panel-title reveal">Scegli il tuo piano</h2>
-        <div class="pricing-grid">
-          <!-- Mensile -->
-          <div class="price-card reveal">
-            <h3 class="plan-title">
-              <span class="plan-name">Piano Mensile</span>
-              <span class="sep">—</span>
-              <span class="price-inline">2,99€ <small>/ mese</small></span>
-            </h3>
-            <div class="features">Accesso completo, aggiornamenti continui e priorità alle nuove funzionalità.</div>
-            <a class="btn-secondary"
-               href="signup.html?plan=monthly"
-               data-plan="monthly"
-               aria-label="Scegli Piano Mensile a 2,99 euro al mese">
-              Scegli mensile
-            </a>
-          </div>
-
-          <!-- Lifetime -->
-          <div class="price-card reveal">
-            <h3 class="plan-title">
-              <span class="plan-name">Una Tantum</span>
-              <span class="sep">—</span>
-              <span class="price-inline">19,99€ <small>/ per sempre</small></span>
-            </h3>
-            <div class="features">Paghi una sola volta. Uso illimitato e accesso a tutte le funzionalità principali.</div>
-            <a class="btn-secondary"
-               href="signup.html?plan=lifetime"
-               data-plan="lifetime"
-               aria-label="Acquista piano Una Tantum 19,99 euro, accesso per sempre">
-              Acquisto una tantum
-            </a>
-          </div>
+    <section class="grid" id="plans">
+      <!-- Starter -->
+      <article class="card">
+        <h2 class="title">Starter</h2>
+        <p class="subtitle">Per iniziare senza pensieri</p>
+        <div class="price">
+          <span class="num" data-month="€0" data-year="€0">€0</span>
+          <span class="per">/ mese</span>
         </div>
-      </section>
-
-      <!-- BENEFICI -->
-      <section class="panel" aria-labelledby="benefits-title">
-        <h2 id="benefits-title" class="panel-title reveal">Tutto quello di cui hai bisogno</h2>
-        <ul class="benefits-list">
-          <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">📊</span>
-            <div><h4>Dashboard Intuitiva</h4><p>Visualizza entrate, uscite e bilancio mensile in un'unica schermata chiara e semplice.</p></div>
-          </li>
-          <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">🔄</span>
-            <div><h4>Sincronizzazione Multi-dispositivo</h4><p>Accedi ai tuoi dati da smartphone, tablet e computer. Tutto è sempre aggiornato.</p></div>
-          </li>
-          <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">🏷️</span>
-            <div><h4>Categorie Personalizzate</h4><p>Crea le tue categorie di spesa per un'analisi dettagliata e su misura per le tue abitudini.</p></div>
-          </li>
-          <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">🔒</span>
-            <div><h4>Privacy e Sicurezza</h4><p>Dati crittografati e server in Europa. La tua privacy è la nostra priorità.</p></div>
-          </li>
-           <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">📈</span>
-            <div><h4>Report Avanzati</h4><p>Analizza le tue abitudini di spesa con grafici semplici da capire e report esportabili.</p></div>
-          </li>
-           <li class="benefit-item reveal">
-            <span class="benefit-icon" aria-hidden="true">💡</span>
-            <div><h4>Supporto Dedicato</h4><p>Hai un dubbio o una domanda? Il nostro team di supporto è pronto ad aiutarti.</p></div>
-          </li>
+        <ul class="feat">
+          <li><span class="tick">✓</span> Budget e obiettivi personali</li>
+          <li><span class="tick">✓</span> Categorie e sottocategorie personalizzate</li>
+          <li><span class="tick">✓</span> Report base mensili</li>
         </ul>
-      </section>
-
-      <!-- FAQ -->
-      <section class="panel" aria-labelledby="faq-title">
-        <h2 id="faq-title" class="panel-title reveal">Domande Frequenti</h2>
-        <div class="faq-list">
-          <!-- Q1 -->
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_1" id="faq_q_1">
-              <span>Devo inserire la mia carta di credito per la prova gratuita?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_1" id="faq_1">
-              <p>No, non è richiesta nessuna carta di credito per iniziare la prova di 30 giorni. Potrai decidere di abbonarti solo se il servizio ti avrà soddisfatto.</p>
-            </div>
-          </div>
-          <!-- Q2 -->
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_2" id="faq_q_2">
-              <span>I miei dati sono al sicuro?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_2" id="faq_2">
-              <p>Assolutamente sì. La sicurezza e la privacy sono la nostra massima priorità. I tuoi dati sono crittografati e conservati in server europei, nel pieno rispetto del GDPR.</p>
-            </div>
-          </div>
-          <!-- Q3 -->
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_3" id="faq_q_3">
-              <span>Posso usare MyHomesBudget su più dispositivi?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_3" id="faq_3">
-              <p>Certo. Il tuo account si sincronizza automaticamente su tutti i tuoi dispositivi, che siano smartphone, tablet o computer. Presto sarà anche installabile come PWA (Progressive Web App) per un accesso ancora più rapido.</p>
-            </div>
-          </div>
-          <!-- Q4 -->
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_4" id="faq_q_4">
-              <span>Cosa succede se cancello il mio abbonamento?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_4" id="faq_4">
-              <p>Se cancelli il tuo abbonamento, potrai continuare ad accedere a tutte le funzionalità fino alla fine del periodo di fatturazione già pagato. Per il piano 'Una Tantum', l'accesso è garantito per sempre.</p>
-            </div>
-          </div>
-           <!-- Q5 -->
-           <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_5" id="faq_q_5">
-              <span>Il piano 'Una Tantum' include tutti gli aggiornamenti futuri?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_5" id="faq_5">
-              <p>Il piano 'Una Tantum' ti dà accesso illimitato a tutte le funzionalità principali presenti al momento dell'acquisto e a tutti gli aggiornamenti di manutenzione e sicurezza. Le nuove funzionalità 'premium' maggiori potrebbero richiedere un upgrade o essere esclusive del piano mensile.</p>
-            </div>
-          </div>
-          <!-- Q6 -->
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_6" id="faq_q_6">
-              <span>Offrite rimborsi?</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_6" id="faq_6">
-              <p>Data la natura del servizio e la prova gratuita di 30 giorni che ti permette di valutare a fondo il prodotto, generalmente non offriamo rimborsi. Tuttavia, per qualsiasi problema, contatta il nostro supporto e troveremo una soluzione.</p>
-            </div>
-          </div>
+        <div class="cta">
+          <a class="btn" href="/it/signup.html?plan=starter" data-plan="starter">Inizia gratis</a>
+          <p class="small">Nessuna carta richiesta</p>
         </div>
-      </section>
+      </article>
 
-      <!-- TESTIMONIANZE -->
-      <section aria-labelledby="testimonials-title">
-        <h2 id="testimonials-title" class="panel-title reveal" style="color: #fff;">Cosa dicono i nostri utenti</h2>
-        <div class="testimonials-grid">
-          <div class="testimonial-card reveal">
-            <blockquote>"Finalmente un'app semplice che fa quello che promette. Mi ha aiutato a capire dove finiscono i miei soldi ogni mese."</blockquote>
-            <footer>— Marco R.</footer>
-          </div>
-          <div class="testimonial-card reveal">
-            <blockquote>"La uso ogni giorno dal telefono. Inserire una spesa richiede letteralmente 5 secondi. Fantastica!"</blockquote>
-            <footer>— Giulia V.</footer>
-          </div>
-          <div class="testimonial-card reveal">
-            <blockquote>"Avevo provato di tutto, dai fogli Excel ad app complicatissime. MyHomesBudget è la soluzione che cercavo."</blockquote>
-            <footer>— Alessandro M.</footer>
-          </div>
+      <!-- Plus (popular) -->
+      <article class="card popular">
+        <div class="badge">Più scelto</div>
+        <h2 class="title">Plus</h2>
+        <p class="subtitle">Per una gestione completa e costante</p>
+        <div class="price">
+          <span class="num" data-month="€3,99" data-year="€39" data-save="2 mesi gratis">€3,99</span>
+          <span class="per">/ mese</span>
         </div>
-      </section>
-      
-      <!-- CTA FINALE -->
-      <section class="final-cta reveal" aria-label="Invito all'azione finale">
-        <h2>Pronto per iniziare?</h2>
-        <p>30 giorni di prova gratuita. Nessuna carta richiesta.</p>
-        <a class="cta" href="signup.html">Inizia gratis – 30 giorni</a>
-      </section>
+        <ul class="feat">
+          <li><span class="tick">✓</span> Tutto di Starter</li>
+          <li><span class="tick">✓</span> Report dettagliati e filtri avanzati</li>
+          <li><span class="tick">✓</span> Supporto prioritario via email</li>
+        </ul>
+        <div class="cta">
+          <a class="btn" href="/it/signup.html?plan=plus" data-plan="plus">Passa a Plus</a>
+          <p class="small">Disdici quando vuoi</p>
+        </div>
+      </article>
 
-    </main>
-    
-    <!-- FOOTER -->
-    <footer class="footer">
-      © MyHomesBudget —
-      <a href="https://www.myhomesbudget.com/it/privacy.html" rel="noopener">Privacy</a> ·
-      <a href="https://www.myhomesbudget.com/it/terms.html" rel="noopener">Termini</a>
-    </footer>
-  </div>
+      <!-- Pro -->
+      <article class="card">
+        <h2 class="title">Pro</h2>
+        <p class="subtitle">Per esigenze avanzate e famiglie</p>
+        <div class="price">
+          <span class="num" data-month="€6,99" data-year="€69" data-save="2 mesi gratis">€6,99</span>
+          <span class="per">/ mese</span>
+        </div>
+        <ul class="feat">
+          <li><span class="tick">✓</span> Tutto di Plus</li>
+          <li><span class="tick">✓</span> Obiettivi multipli e monitor su periodi custom</li>
+          <li><span class="tick">✓</span> Accesso multi-dispositivo senza limiti</li>
+        </ul>
+        <div class="cta">
+          <a class="btn" href="/it/signup.html?plan=pro" data-plan="pro">Attiva Pro</a>
+          <p class="small">Fatturazione flessibile</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="faq" aria-label="Domande frequenti">
+      <h2 style="margin:0 0 8px 0">Domande frequenti</h2>
+
+      <details>
+        <summary>Posso annullare quando voglio?</summary>
+        <p>Sì. La disdetta è immediata e non verranno addebitati rinnovi futuri.</p>
+      </details>
+
+      <details>
+        <summary>Cosa cambia tra Mensile e Annuale?</summary>
+        <p>Con l’annuale risparmi l’equivalente di 2 mesi rispetto al mensile. L’accesso resta identico.</p>
+      </details>
+
+      <details>
+        <summary>Serve la carta per il piano Starter?</summary>
+        <p>No. Puoi iniziare gratis e passare a Plus/Pro in qualsiasi momento.</p>
+      </details>
+    </section>
+
+    <div class="footnotes">
+      <small>IVA inclusa ove applicabile. Prezzi in EUR.</small>
+      <small>Le funzionalità elencate potrebbero evolvere: aggiorniamo costantemente il prodotto.</small>
+    </div>
+  </main>
 
   <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // === GA4: PAGE VIEW ===
-  gtag('event', 'view_pricing');
+    // GA4
+    gtag('event','pricing_viewed',{lang:'it'});
 
-  // === FAQ ACCORDION ===
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const button = item.querySelector('.faq-question');
-    button.addEventListener('click', () => {
-      const isOpened = button.getAttribute('aria-expanded') === 'true';
-      button.setAttribute('aria-expanded', String(!isOpened));
-      item.classList.toggle('is-open', !isOpened);
-      if (!isOpened) gtag('event', 'faq_expand', { question_id: button.id });
-    });
-  });
+    // Toggle fatturazione
+    const toggle = document.getElementById('billToggle');
+    const saveBadge = document.getElementById('saveBadge');
+    const priceEls = document.querySelectorAll('.price .num');
+    const perEls = document.querySelectorAll('.price .per');
 
-  // === GA4: SELEZIONE PIANO (pricing grid) ===
-  document.querySelectorAll('a[data-plan]').forEach(link => {
-    link.addEventListener('click', () => {
-      gtag('event', 'select_pricing', {
-        plan: link.dataset.plan,
-        placement: 'pricing_grid'
+    function applyBillingMode(){
+      const annual = toggle.checked;
+      priceEls.forEach(el=>{
+        const val = annual ? el.dataset.year : el.dataset.month;
+        el.textContent = val || '';
+      });
+      perEls.forEach(el=> el.textContent = annual ? '/ anno' : '/ mese');
+      // badge risparmio (se definito sul piano)
+      const anySave = [...priceEls].some(el => (el.dataset.save && toggle.checked));
+      saveBadge.style.display = anySave ? 'inline-block' : 'none';
+      if (anySave) saveBadge.textContent = priceEls[1]?.dataset.save || 'Risparmia';
+      gtag('event','pricing_toggle',{mode: annual ? 'annual' : 'monthly', lang:'it'});
+    }
+    toggle.addEventListener('change', applyBillingMode);
+    applyBillingMode();
+
+    // Tracciamento click CTA
+    document.querySelectorAll('.btn[data-plan]').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const plan = btn.dataset.plan;
+        const mode = toggle.checked ? 'annual' : 'monthly';
+        gtag('event','pricing_cta_click',{plan, mode, lang:'it'});
       });
     });
-  });
 
-  // === GA4: CTA finale → signup ===
-  const finalCta = document.querySelector('.final-cta .cta');
-  if (finalCta) {
-    finalCta.addEventListener('click', () => {
-      gtag('event','cta_click',{ placement:'pricing_final', lang:'it' });
-      gtag('event','signup_start',{ source:'pricing_final' });
+    // Tracciamento FAQ
+    document.querySelectorAll('.faq details').forEach(d=>{
+      d.addEventListener('toggle', ()=>{
+        gtag('event','faq_toggle',{q: d.querySelector('summary')?.textContent?.trim(), open: d.open, lang:'it'});
+      });
     });
-  }
-
-  // === REVEAL ON SCROLL (soft, top→bottom) ===
-  const targets = document.querySelectorAll('.reveal');
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    targets.forEach(el => el.classList.add('in'));
-    return;
-  }
-  const sortedTargets = [...targets]
-    .map(el => ({ el, rect: el.getBoundingClientRect() }))
-    .sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left))
-    .map(x => x.el);
-  sortedTargets.forEach((el, i) => {
-    el.style.setProperty('--d', (0.12 * i) + 's');
-  });
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        el.style.transitionDelay = getComputedStyle(el).getPropertyValue('--d') || '0s';
-        el.classList.add('in');
-        obs.unobserve(el);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
-  targets.forEach(el => observer.observe(el));
-});
-</script>
-
+  </script>
 </body>
 </html>
