@@ -179,10 +179,16 @@
 
     <div class="divider" aria-hidden="true"></div>
 
-    <!-- Google (GIS) -->
+    <!-- Google (GSI) + fallback -->
     <section class="row-google reveal" aria-label="Accesso con Google">
       <label>Oppure continua con Google</label>
       <div id="gsi-btn"></div>
+      <!-- Fallback OAuth (visibile solo se GSI non parte) -->
+      <div id="gsi-fallback" class="row-google" style="display:none">
+        <button id="oauth-fallback" class="btn" type="button">
+          Continua con Google (modalità alternativa)
+        </button>
+      </div>
     </section>
 
     <p class="foot reveal">© MyHomesBudget — <a href="/it/privacy.html">Privacy</a> · <a href="/it/terms.html">Termini</a></p>
@@ -231,7 +237,7 @@
       postAuthRedirect();
     });
 
-    // Magic Link
+    // Magic Link (redirect esplicito)
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -245,16 +251,34 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    // ——— GSI: bottone ufficiale con init a prova di race-condition ———
+    // -------- GSI + Fallback ----------
     const gsiContainer  = document.getElementById("gsi-btn");
+    const fallbackWrap  = document.getElementById("gsi-fallback");
+    const fallbackBtn   = document.getElementById("oauth-fallback");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
+
+    function showFallback() {
+      if (!fallbackWrap || !fallbackBtn) return;
+      fallbackBtn.onclick = async () => {
+        try {
+          await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: `${ORIGIN}${langPrefix}auth/callback.html` }
+          });
+        } catch (e) {
+          alert('Impossibile avviare il login con Google: ' + (e?.message || e));
+        }
+      };
+      fallbackWrap.style.display = 'grid';
+    }
 
     function initGSI(){
       if (!window.google?.accounts?.id || !gsiContainer) return;
       try {
         google.accounts.id.initialize({
           client_id: GSI_CLIENT_ID,
-          callback: handleGoogleCredential
+          callback: handleGoogleCredential,
+          locale: lang
         });
         if (!gsiContainer.dataset.mounted) {
           google.accounts.id.renderButton(
@@ -265,6 +289,7 @@
         }
       } catch (e) {
         console.warn('GIS init error:', e);
+        showFallback();
       }
     }
 
@@ -273,11 +298,10 @@
     document.addEventListener('readystatechange', () => {
       if (document.readyState === 'complete') initGSI();
     });
-    // Poll di sicurezza (max ~3s)
-    let tries = 0;
-    const iv = setInterval(() => {
+    // Poll di sicurezza: se GSI non arriva, mostra fallback
+    let tries = 0; const iv = setInterval(() => {
       if (window.google?.accounts?.id) { clearInterval(iv); initGSI(); }
-      else if (++tries > 30) clearInterval(iv);
+      else if (++tries > 30) { clearInterval(iv); showFallback(); }
     }, 100);
 
     async function handleGoogleCredential(response){
