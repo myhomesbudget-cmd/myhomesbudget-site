@@ -63,7 +63,7 @@
   </nav>
 
   <main class="panel">
-    <!-- ✅ Banner piano/trial -->
+    <!-- Banner piano/trial (mostrato da /js/plan.js se disponibile) -->
     <div id="plan-banner" role="status" aria-live="polite"></div>
 
     <nav id="dash-nav" class="dash-nav">
@@ -121,8 +121,6 @@
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
-    /* ✅ import gating & banner */
-    import { assertCanWrite, mountPlanBanner } from "/js/plan.js";
 
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
@@ -136,19 +134,26 @@
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
+    // modulo dei piani (caricato dopo il login, con fallback)
+    let Plan = null;
+
+    function safeToNumber(v) {
+      const n = (typeof v === 'number') ? v : parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    }
 
     async function loadInitialData() {
       const { data: categories, error: cError } =
         await supabase.from('categories').select('*').eq('created_by', user.id);
       if (cError) { console.error("Errore caricamento categorie:", cError); return; }
-      allCategories = categories;
+      allCategories = categories || [];
 
       if (allCategories.length > 0) {
         const categoryIds = allCategories.map(c => c.id);
         const { data: subcategories, error: sError } =
           await supabase.from('subcategories').select('*').in('category_id', categoryIds);
         if (sError) { console.error("Errore caricamento sottocategorie:", sError); return; }
-        allSubcategories = subcategories;
+        allSubcategories = subcategories || [];
       }
     }
 
@@ -190,29 +195,30 @@
         .limit(15);
       if (error) { console.error("Errore caricamento transazioni:", error); return; }
 
-      allTransactions = data;
+      allTransactions = data || [];
       transactionList.innerHTML = '';
-      if (data.length === 0) {
+      if (allTransactions.length === 0) {
         transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
         return;
       }
 
-      data.forEach(tx => {
+      allTransactions.forEach(tx => {
         const item = document.createElement('div');
         item.className = 'item';
         const cat = tx.categories;
         const sub = tx.subcategories;
         const icon = sub?.icon || cat?.icon || '💸';
         const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        const amountNum = safeToNumber(tx.amount);
         
         item.innerHTML = `
           <div class="item-icon">${icon}</div>
           <div class="item-details">
-            <span class="note">${tx.note}</span>
+            <span class="note">${tx.note ?? ''}</span>
             <span class="category">${categoryText}</span>
           </div>
           <div class="item-amount ${tx.kind}">
-            ${tx.kind === 'expense' ? '-' : ''}${tx.amount.toFixed(2)} €
+            ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
           </div>
           <div class="item-actions">
             <button class="action-btn edit-btn" data-id="${tx.id}" title="Modifica">Modifica</button>
@@ -224,23 +230,23 @@
     }
     
     function handleEdit(id) {
-      const tx = allTransactions.find(t => t.id === id);
+      const tx = allTransactions.find(t => String(t.id) === String(id));
       if (!tx) return;
       formTitle.textContent = "Modifica Transazione";
       transactionIdInput.value = tx.id;
       document.getElementById('kind').value = tx.kind;
-      document.getElementById('note').value = tx.note;
-      document.getElementById('amount').value = tx.amount;
-      document.getElementById('occurred_at').value = tx.occurred_at.split('T')[0];
+      document.getElementById('note').value = tx.note ?? '';
+      document.getElementById('amount').value = safeToNumber(tx.amount);
+      document.getElementById('occurred_at').value = (tx.occurred_at || '').split('T')[0] || '';
       updateCategoryDropdown();
-      categorySelect.value = tx.category_id;
-      updateSubcategories(tx.subcategory_id);
+      categorySelect.value = tx.category_id ?? '';
+      updateSubcategories(tx.subcategory_id ?? null);
       window.scrollTo(0, 0);
     }
 
     async function handleDelete(id) {
-      /* ✅ gating prima di cancellare */
-      if (!await assertCanWrite("delete-transaction")) return;
+      // Gating: attivo solo se il modulo Plan è caricato; altrimenti lascio passare (ci pensa il trigger in DB)
+      if (Plan && !(await Plan.assertCanWrite("delete-transaction"))) return;
 
       if (!confirm("Sei sicuro di voler eliminare questa transazione?")) return;
       const { error } = await supabase.from('transactions').delete().eq('id', id);
@@ -255,8 +261,8 @@
     async function handleFormSubmit(event) {
       event.preventDefault();
 
-      /* ✅ gating prima di inserire/aggiornare */
-      if (!await assertCanWrite("add-or-update-transaction")) return;
+      // Gating: attivo solo se il modulo Plan è caricato; altrimenti fallback
+      if (Plan && !(await Plan.assertCanWrite("add-or-update-transaction"))) return;
 
       const formData = new FormData(transactionForm);
       const id = formData.get('transaction-id');
@@ -270,7 +276,7 @@
         subcategory_id: subcategory_id,
         created_by: user.id
       };
-      let { error } = id 
+      const { error } = id 
         ? await supabase.from('transactions').update(payload).eq('id', id)
         : await supabase.from('transactions').insert(payload);
       
@@ -288,43 +294,56 @@
     }
 
     async function initializePage() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { location.replace("/it/login.html"); return; }
-      user = session.user;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace("/it/login.html"); return; }
+        user = session.user;
 
-      /* ✅ monta il banner (mostra trial/days/expired) */
-      mountPlanBanner();
-
-      const { data: profile } =
-        await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
-      if (profile && !profile.onboarded) {
-        if (new URLSearchParams(window.location.search).get('edit') !== '1') {
-          location.replace("/it/onboarding.html");
-          return;
+        // Carico /js/plan.js dopo il login, in modo tollerante
+        try {
+          Plan = await import("/js/plan.js");
+          Plan?.mountPlanBanner?.();
+        } catch (e) {
+          console.warn("plan.js non caricato (continua senza gating/banner):", e);
+          Plan = null;
         }
+
+        // Onboarding (lasciato come prima)
+        const { data: profile, error: pErr } =
+          await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+        if (pErr) console.warn('profiles.onboarded non disponibile:', pErr?.message);
+        if (profile && !profile.onboarded) {
+          if (new URLSearchParams(window.location.search).get('edit') !== '1') {
+            location.replace("/it/onboarding.html");
+            return;
+          }
+        }
+        
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        await loadInitialData();
+        updateCategoryDropdown();
+        await loadTransactions();
+        
+        kindSelect.addEventListener('change', updateCategoryDropdown);
+        categorySelect.addEventListener('change', () => updateSubcategories());
+        transactionForm.addEventListener('submit', handleFormSubmit);
+        logoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          location.replace("/it/");
+        });
+        
+        transactionList.addEventListener('click', (event) => {
+          const target = event.target.closest('.action-btn');
+          if (!target) return;
+          const id = target.dataset.id;
+          if (target.classList.contains('edit-btn')) handleEdit(id);
+          else if (target.classList.contains('delete-btn')) handleDelete(id);
+        });
+      } catch (err) {
+        console.error('Errore inizializzazione pagina:', err);
+        alert('Errore inatteso in dashboard. Ricarica la pagina.');
       }
-      
-      document.getElementById('occurred_at').valueAsDate = new Date();
-      await loadInitialData();
-      updateCategoryDropdown();
-      await loadTransactions();
-      
-      kindSelect.addEventListener('change', updateCategoryDropdown);
-      categorySelect.addEventListener('change', () => updateSubcategories());
-      transactionForm.addEventListener('submit', handleFormSubmit);
-      logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        location.replace("/it/");
-      });
-      
-      transactionList.addEventListener('click', (event) => {
-        const target = event.target.closest('.action-btn');
-        if (!target) return;
-        const id = target.dataset.id;
-        if (target.classList.contains('edit-btn')) handleEdit(id);
-        else if (target.classList.contains('delete-btn')) handleDelete(id);
-      });
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
