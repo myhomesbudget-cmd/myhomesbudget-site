@@ -156,21 +156,24 @@
 
     <div class="divider" aria-hidden="true"></div>
 
-    <!-- Google (GSI) -->
+    <!-- Google (GSI) + fallback -->
     <section class="row-google reveal" aria-label="Entrar con Google">
       <label>O continúa con Google</label>
       <div id="gsi-btn"></div>
+      <div id="gsi-fallback" class="row-google" style="display:none">
+        <button id="oauth-fallback" class="btn" type="button">
+          Continuar con Google (alternativa)
+        </button>
+      </div>
     </section>
 
     <p class="foot reveal">© MyHomesBudget — <a href="/es/privacy.html">Privacidad</a> · <a href="/es/terms.html">Términos</a></p>
   </main>
 
-  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- Lógica (Supabase + GSI) -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js"; // cambia in ../supabase-client.js se lo duplichi in /es/
+    import { supabase } from "/it/supabase-client.js"; /* se lo duplichi in /es/, usa ../supabase-client.js */
 
     try { localStorage.setItem('mhb_lang','es'); } catch(e){}
     const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'es').toLowerCase();
@@ -196,7 +199,6 @@
     const { data:{ session } } = await supabase.auth.getSession();
     if (session?.user) postAuthRedirect();
 
-    // Email+Password
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -207,7 +209,6 @@
       postAuthRedirect();
     });
 
-    // Magic Link
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -221,9 +222,27 @@
       alert('Te hemos enviado un enlace de acceso.');
     });
 
-    // Botón GSI (a prueba de race condition)
+    // GSI + fallback
     const gsiContainer  = document.getElementById("gsi-btn");
+    const fallbackWrap  = document.getElementById("gsi-fallback");
+    const fallbackBtn   = document.getElementById("oauth-fallback");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
+
+    function showFallback() {
+      if (!fallbackWrap || !fallbackBtn) return;
+      fallbackBtn.textContent = 'Continuar con Google (alternativa)';
+      fallbackBtn.onclick = async () => {
+        try {
+          await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: `${ORIGIN}${langPrefix}auth/callback.html` }
+          });
+        } catch (e) {
+          alert('No se puede iniciar el acceso con Google: ' + (e?.message || e));
+        }
+      };
+      fallbackWrap.style.display = 'grid';
+    }
 
     function initGSI(){
       if (!window.google?.accounts?.id || !gsiContainer) return;
@@ -240,8 +259,12 @@
           );
           gsiContainer.dataset.mounted = "1";
         }
-      } catch (e) { console.warn('GIS init error:', e); }
+      } catch (e) {
+        console.warn('GIS init error:', e);
+        showFallback();
+      }
     }
+
     if (window.google?.accounts?.id) initGSI();
     window.addEventListener('load', initGSI);
     document.addEventListener('readystatechange', () => {
@@ -249,7 +272,7 @@
     });
     let tries = 0; const iv = setInterval(() => {
       if (window.google?.accounts?.id) { clearInterval(iv); initGSI(); }
-      else if (++tries > 30) clearInterval(iv);
+      else if (++tries > 30) { clearInterval(iv); showFallback(); }
     }, 100);
 
     async function handleGoogleCredential(response){
@@ -265,7 +288,6 @@
       } catch (err) { alert("Error inesperado: " + (err?.message || err)); }
     }
 
-    // Efecto reveal
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
