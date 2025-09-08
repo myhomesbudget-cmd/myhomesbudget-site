@@ -1,50 +1,76 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Conferma account — MyHomesBudget</title>
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://esm.sh;
-                 connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Accesso in corso…</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- CSP minima per lo scambio codice→sessione -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' https: data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' https://esm.sh;
+    connect-src 'self' https://*.supabase.co https://*.supabase.in;
+    font-src 'self' https: data:;
+    frame-ancestors 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+
   <style>
-    body{margin:0;font-family:-apple-system,system-ui,Roboto,sans-serif;display:grid;place-items:center;height:100svh;background:#f6f7fb;color:#111}
-    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.06);max-width:520px}
-    .muted{color:#666}
+    html,body{height:100%;margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,sans-serif}
+    .wrap{min-height:100%;display:grid;place-items:center;background:#f6f7fb}
+    .card{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+          padding:24px 28px;text-align:center;max-width:560px}
+    .sp{width:48px;height:48px;border-radius:50%;
+        border:4px solid #e6e8f0;border-top-color:#6c5ce7;animation:spin 1s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .muted{color:#555}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Conferma in corso…</h1>
-    <p class="muted" id="stato">Stiamo attivando il tuo account.</p>
+  <div class="wrap">
+    <div class="card">
+      <div class="sp"></div>
+      <h1>Accesso in corso…</h1>
+      <p class="muted">Stiamo verificando le credenziali. Attendi qualche secondo.</p>
+    </div>
   </div>
 
   <script type="module">
-    import { supabase } from '/it/supabase-client.js';
-    (async () => {
-      try {
-        // gestisce code/otp → sessione, se presente
-        await supabase.auth.exchangeCodeForSession().catch(()=>{});
-        const { data:{ session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          try{ localStorage.setItem('onboarding_completed','0'); }catch{}
-          document.getElementById('stato').textContent = 'Account confermato. Reindirizzamento…';
-          setTimeout(()=> location.replace('/it/onboarding.html'), 500);
+    import { supabase } from "../supabase-client.js";
+
+    // lingua da path (/it/, /en/, /es/)
+    const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'it').toLowerCase();
+    const prefix = `/${lang}/`;
+
+    function goNext(){
+      try{
+        if (localStorage.getItem('onboarding_completed') === '1') {
+          location.replace(prefix + "dashboard.html");
         } else {
-          document.getElementById('stato').textContent = 'Sessione non trovata. Prova ad accedere.';
-          setTimeout(()=> location.replace('/it/login.html'), 1200);
+          location.replace(prefix + "onboarding.html");
         }
-      } catch(e){
-        document.getElementById('stato').textContent = 'Errore di attivazione. Prova ad accedere.';
-        setTimeout(()=> location.replace('/it/login.html'), 1500);
+      }catch(_){
+        location.replace(prefix + "onboarding.html");
       }
+    }
+
+    (async () => {
+      // Gestisce sia Magic Link sia OAuth classico (se mai usato):
+      const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+      if (error) {
+        console.error("exchangeCodeForSession:", error);
+        // Se non c'è 'code' (arrivo diretto), prova a vedere se c'è già sessione
+        const { data:{ session } } = await supabase.auth.getSession();
+        if (session?.user) return goNext();
+        alert("Accesso non riuscito. Riprova dal login.");
+        location.replace(prefix + "login.html");
+        return;
+      }
+      goNext();
     })();
   </script>
 </body>
