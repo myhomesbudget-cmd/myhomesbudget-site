@@ -9,7 +9,7 @@
   <meta name="color-scheme" content="light dark">
   <script>document.documentElement.classList.add('js');</script>
 
-  <!-- CSP (abilita GSI + Supabase + GA4) -->
+  <!-- CSP (GSI + Supabase + GA4) -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     img-src 'self' https: data:;
@@ -38,7 +38,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -118,7 +118,7 @@
     #gsi-btn > div{margin:8px auto !important}
 
     .foot{text-align:center;margin-top:12px;color:#333}
-    .foot a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip;text;color:transparent}
+    .foot a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
     .foot a:hover{text-decoration:underline}
 
     .reveal{opacity:1;transform:none;transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1)}
@@ -189,26 +189,17 @@
   </main>
 
   <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer onload="window.dispatchEvent(new Event('gsi-loaded'))"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Logica (Supabase + GIS) -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
-
-    // Lingua dall'URL (/it/, /en/, /es/)
-    const langFromPath = () => {
-      const m = location.pathname.match(/^\/(it|en|es)(\/|$)/i);
-      return m ? m[1].toLowerCase() : 'it';
-    };
-    const lang   = langFromPath();
+    const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'it').toLowerCase();
     const ORIGIN = window.location.origin;
-
-    // Prefisso lingua (per redirect locali)
     const langPrefix = `/${lang}/`;
 
-    // Redirect post-auth: onboarding se non completato, altrimenti dashboard
     function postAuthRedirect(){
       try {
         if (localStorage.getItem('onboarding_completed') === '1') {
@@ -218,7 +209,7 @@
           gtag('event','auth_success_redirect',{dest:'onboarding',lang});
           location.replace(langPrefix + 'onboarding.html');
         }
-      } catch(e){
+      } catch(_) {
         location.replace(langPrefix + 'onboarding.html');
       }
     }
@@ -227,7 +218,7 @@
 
     // Se già autenticato → salta al post-auth
     const { data:{ session } } = await supabase.auth.getSession();
-    if (session?.user){ postAuthRedirect(); }
+    if (session?.user) postAuthRedirect();
 
     // Email+Password
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
@@ -240,7 +231,7 @@
       postAuthRedirect();
     });
 
-    // Magic Link (redirect esplicito su hosting statico)
+    // Magic Link
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
@@ -254,25 +245,40 @@
       alert('Ti abbiamo inviato un link di accesso.');
     });
 
-    // Google GIS (bottone ufficiale)
+    // ——— GSI: bottone ufficiale con init a prova di race-condition ———
     const gsiContainer  = document.getElementById("gsi-btn");
     const GSI_CLIENT_ID = "1038988672866-1cf34pr3suibtfd1eo246ktu790htnf1.apps.googleusercontent.com";
 
-    window.addEventListener('gsi-loaded', () => {
+    function initGSI(){
+      if (!window.google?.accounts?.id || !gsiContainer) return;
       try {
-        if (!window.google?.accounts?.id) return;
         google.accounts.id.initialize({
           client_id: GSI_CLIENT_ID,
           callback: handleGoogleCredential
         });
-        google.accounts.id.renderButton(
-          gsiContainer,
-          { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
-        );
+        if (!gsiContainer.dataset.mounted) {
+          google.accounts.id.renderButton(
+            gsiContainer,
+            { theme: "filled_blue", size: "large", shape: "pill", text: "continue_with" }
+          );
+          gsiContainer.dataset.mounted = "1";
+        }
       } catch (e) {
         console.warn('GIS init error:', e);
       }
+    }
+
+    if (window.google?.accounts?.id) initGSI();
+    window.addEventListener('load', initGSI);
+    document.addEventListener('readystatechange', () => {
+      if (document.readyState === 'complete') initGSI();
     });
+    // Poll di sicurezza (max ~3s)
+    let tries = 0;
+    const iv = setInterval(() => {
+      if (window.google?.accounts?.id) { clearInterval(iv); initGSI(); }
+      else if (++tries > 30) clearInterval(iv);
+    }, 100);
 
     async function handleGoogleCredential(response){
       try{
@@ -284,7 +290,7 @@
         if (error) { alert("Accesso con Google non riuscito: " + error.message); return; }
         gtag('event','oauth_success',{provider:'google',lang,mode:'idtoken'});
         postAuthRedirect();
-      }catch(err){
+      } catch (err) {
         alert("Errore inatteso: " + (err?.message || err));
       }
     }
