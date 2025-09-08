@@ -302,7 +302,7 @@
         // Carico /js/plan.js dopo il login, in modo tollerante
         try {
           Plan = await import("/js/plan.js");
-          Plan?.mountPlanBanner?.();
+          await Plan.mountPlanBanner();       // mostra banner se Starter
         } catch (e) {
           console.warn("plan.js non caricato (continua senza gating/banner):", e);
           Plan = null;
