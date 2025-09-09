@@ -1,79 +1,301 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Termini di servizio • MyHomesBudget</title>
-  <meta name="description" content="Termini di utilizzo del servizio MyHomesBudget.">
-  <link rel="canonical" href="https://www.myhomesbudget.com/it/terms.html"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/it/terms.html" hreflang="it"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/en/terms.html" hreflang="en"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/es/terms.html" hreflang="es"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Termini & Condizioni · MyHomesBudget</title>
+  <meta name="description" content="Condizioni generali di contratto per l’uso della web-app MyHomesBudget. Prezzi, piani, pagamenti, recesso, responsabilità e foro.">
+  <meta name="robots" content="index,follow">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- CSP (come privacy/pricing) -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' https: data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+    connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+    font-src 'self' https: data:;
+    frame-ancestors 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;gap:12px;justify-content:flex-end}
-    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(255,255,255,.12)}
-    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:4px 0 12px}
-    h2{margin:22px 0 8px;font-size:1.1rem}
-    a{color:#0b5fff}
-    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.62);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --muted:#2a2a2a; --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+
+    body{
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
+
+    /* Topbar identica a pricing/privacy */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.lang-selector{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
+    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
+
+    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 64px auto;}
+
+    /* Hero */
+    .hero{
+      text-align:center;margin-bottom:18px;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
+    }
+    .hero h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .hero p{margin:6px auto 0;color:#222;max-width:760px}
+
+    /* Layout contenuto */
+    .two-col{display:grid; grid-template-columns: 1fr; gap:16px;}
+    @media (min-width: 900px){ .two-col{ grid-template-columns: 320px 1fr; } }
+
+    .card{
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
+    }
+
+    /* TOC */
+    .toc{background:rgba(255,255,255,.85); border:1px solid var(--card-border); border-radius:12px; padding:14px}
+    .toc h2{margin:0 0 8px 0; font-size:1.05rem}
+    .toc a{display:block; color:#111; text-decoration:none; padding:4px 0;}
+    .toc a:hover{text-decoration:underline;}
+
+    /* Testo */
+    h2{margin:10px 0 8px 0; font-size:1.12rem}
+    h3{margin:12px 0 6px 0; font-size:1rem}
+    p{color:#222}
+    ul{color:#222; padding-left:18px}
+    .muted{color:#555;font-size:.95rem}
+    .note{background:#fff7e6; border:1px solid #ffe6b3; padding:10px 12px; border-radius:10px; color:#2b2b2b}
+    .kvp{display:grid; grid-template-columns: 210px 1fr; gap:8px 16px}
+    @media (max-width: 640px){ .kvp{grid-template-columns: 1fr} }
+    .kvp div strong{display:block}
+
+    /* — Giustifica testo nel corpo — */
+    .two-col > article.card p,
+    .two-col > article.card li {
+      text-align: justify;
+      text-justify: inter-word;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      -ms-hyphens: auto;
+    }
+    .hero p { text-align: center; }
+    .two-col > article.card a { overflow-wrap: anywhere; }
+    @supports (text-wrap: balance) {
+      .hero h1,
+      .two-col > article.card h2 { text-wrap: balance; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav class="nav" aria-label="Lingue">
-      <a href="/it/" lang="it">🇮🇹</a>
+  <!-- Topbar -->
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <span class="lang-selector" aria-label="Selettore lingue">
+      <a href="/it/terms.html" lang="it" aria-current="page">🇮🇹</a>
       <a href="/en/terms.html" lang="en">🇬🇧</a>
       <a href="/es/terms.html" lang="es">🇪🇸</a>
-    </nav>
+    </span>
+  </nav>
 
-    <div class="card">
-      <h1>Termini di servizio</h1>
-      <p><strong>Ultimo aggiornamento:</strong> 30 agosto 2025</p>
+  <main class="wrap">
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Termini & Condizioni d’Uso</h1>
+      <p>Aggiornati al <strong>9 settembre 2025</strong>. Contratto di licenza d’uso della web-app <strong>MyHomesBudget</strong>.</p>
+    </section>
 
-      <h2>1. Servizio</h2>
-      <p>MyHomesBudget è un’app web che aiuta a gestire entrate e spese domestiche in modo semplice. Le funzionalità possono evolvere nel tempo.</p>
+    <section class="two-col">
+      <!-- TOC -->
+      <aside class="card toc" aria-label="Sommario">
+        <h2>Indice</h2>
+        <a href="#titolare">1. Titolare e contatti</a>
+        <a href="#oggetto">2. Oggetto del contratto</a>
+        <a href="#requisiti">3. Requisiti d’uso (18+), account</a>
+        <a href="#piani">4. Piani, prezzi e territori</a>
+        <a href="#trial">5. Prova gratuita (Starter 30 gg)</a>
+        <a href="#pagamenti">6. Pagamenti, rinnovi e fatturazione</a>
+        <a href="#recesso">7. Recesso consumatore & disdetta</a>
+        <a href="#upgrade">8. Upgrade, downgrade e variazioni</a>
+        <a href="#limitazioni">9. Limitazioni tecniche & sospensioni</a>
+        <a href="#uso-lecito">10. Uso lecito e contenuti</a>
+        <a href="#ip">11. Proprietà intellettuale</a>
+        <a href="#dati">12. Dati personali & privacy</a>
+        <a href="#responsabilita">13. Responsabilità e garanzie</a>
+        <a href="#forza-maggiore">14. Forza maggiore</a>
+        <a href="#modifiche">15. Modifiche a Termini & prezzi</a>
+        <a href="#legge-foro">16. Legge applicabile e foro</a>
+        <a href="#varie">17. Varie</a>
+        <a href="#contatti">18. Contatti</a>
+      </aside>
 
-      <h2>2. Account</h2>
-      <p>Per utilizzare il servizio è necessario un account. Sei responsabile delle credenziali e dell’attività svolta con il tuo account.</p>
+      <!-- Testo -->
+      <article class="card">
+        <h2 id="titolare">1) Titolare e contatti</h2>
+        <div class="kvp">
+          <div><strong>Titolare del servizio</strong></div><div>Marco Lombardo</div>
+          <div><strong>Sede</strong></div><div>Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italia</div>
+          <div><strong>P.IVA / CF</strong></div><div>03090650130 — LMBMRC86A13L319I</div>
+          <div><strong>Email legale</strong></div><div><a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></div>
+          <div><strong>Dominio</strong></div><div>myhomesbudget.com</div>
+        </div>
 
-      <h2>3. Uso consentito</h2>
-      <p>È vietato utilizzare il servizio per attività illegali, tentativi di intrusione, scraping o violazioni di proprietà intellettuale.</p>
+        <h2 id="oggetto">2) Oggetto del contratto</h2>
+        <p>Il presente contratto disciplina l’uso della web-app <strong>MyHomesBudget</strong> (di seguito, “Servizio”) per la gestione del bilancio personale/familiare. L’utente ottiene una licenza d’uso non esclusiva, non trasferibile, revocabile, limitata ai fini personali e non commerciali.</p>
 
-      <h2>4. Dati e privacy</h2>
-      <p>Il trattamento dei dati personali è descritto nella nostra <a href="/it/privacy.html">Informativa Privacy</a>.</p>
+        <h2 id="requisiti">3) Requisiti d’uso (18+), registrazione e account</h2>
+        <ul>
+          <li><strong>Età minima:</strong> 18 anni compiuti.</li>
+          <li><strong>Registrazione:</strong> accesso tramite email/password, magic link o Google (GIS). L’utente deve fornire dati esatti e mantenerli aggiornati.</li>
+          <li><strong>Credenziali:</strong> l’utente è responsabile della custodia delle credenziali e delle attività svolte con il proprio account.</li>
+          <li><strong>Uso personale:</strong> il Servizio è destinato a consumatori; gli acquisti B2B non sono al momento disponibili.</li>
+        </ul>
 
-      <h2>5. Proprietà intellettuale</h2>
-      <p>Marchi, logo, codice e contenuti di MyHomesBudget sono protetti. L’utente mantiene i diritti sui propri dati caricati.</p>
+        <h2 id="piani">4) Piani, prezzi e territori</h2>
+        <ul>
+          <li><strong>Territori:</strong> vendita <em>worldwide</em>.</li>
+          <li><strong>Valute e listini:</strong> EUR, USD e GBP con prezzi locali fissi:
+            <ul>
+              <li><em>EUR</em> — Plus €2,99/m · €29,90/y · Pro €4,99/m · €49,90/y</li>
+              <li><em>USD</em> — Plus $2.99/m · $29.90/y · Pro $4.99/m · $49.90/y</li>
+              <li><em>GBP</em> — Plus £2.99/m · £29.90/y · Pro £4.99/m · £49.90/y</li>
+            </ul>
+            I prezzi sono al netto/ivato in base alle imposte applicabili calcolate al checkout con <strong>Stripe Tax</strong>.
+          </li>
+          <li><strong>Variazioni di prezzo:</strong> eventuali aumenti sono comunicati con <strong>60 giorni</strong> di preavviso via email e sul sito; l’utente può disdire prima dell’entrata in vigore.</li>
+        </ul>
 
-      <h2>6. Disponibilità e modifiche</h2>
-      <p>Il servizio è fornito “così com’è”. Potremmo modificare o interrompere funzionalità con preavviso ragionevole quando possibile.</p>
+        <h2 id="trial">5) Prova gratuita (Starter 30 giorni)</h2>
+        <ul>
+          <li><strong>Starter:</strong> accesso gratuito di 30 giorni, funzioni complete, <strong>senza carta</strong>.</li>
+          <li><strong>Alla scadenza:</strong> l’account resta in <strong>sola lettura</strong> con <em>paywall</em> per l’upgrade.</li>
+          <li><strong>Conservazione dati:</strong> in caso di mancato upgrade, dati conservati fino a 12 mesi (vedi Privacy), poi cancellazione.</li>
+        </ul>
 
-      <h2>7. Limitazione di responsabilità</h2>
-      <p>Nella misura consentita dalla legge, non rispondiamo di danni indiretti o perdita di dati/ricavi derivanti dall’uso del servizio.</p>
+        <h2 id="pagamenti">6) Pagamenti, rinnovi e fatturazione</h2>
+        <ul>
+          <li><strong>Metodi:</strong> checkout principale tramite <strong>Stripe Checkout</strong> (con Apple Pay/Google Pay); alternativa <strong>PayPal Subscriptions</strong>.</li>
+          <li><strong>Rinnovo automatico:</strong> per piani Plus/Pro mensili o annuali fino a disdetta.</li>
+          <li><strong>Dunning (pagamento fallito):</strong> tentativi automatici; <strong>grace period 1 giorno</strong>. Decorso il termine, l’accesso può essere limitato/sospeso.</li>
+          <li><strong>Fatturazione e imposte:</strong> <strong>Stripe Tax</strong> determina le imposte applicabili in base al Paese. Il pagamento genera una <em>ricevuta</em> piattaforma; la <strong>fattura fiscale</strong> è emessa dal Titolare con il proprio software ed inviata via email entro <strong>10 giorni lavorativi</strong> dall’incasso.</li>
+          <li><strong>Descrittore estratto conto:</strong> “<code>myhomesbudget.com</code>”.</li>
+          <li><strong>Dati cliente:</strong> acquisti destinati a <strong>consumatori</strong>; è disponibile il campo <strong>Codice Fiscale</strong>. Le vendite B2B (con P.IVA) non sono al momento abilitate.</li>
+          <li><strong>Valuta:</strong> l’addebito avviene nella valuta del piano selezionato (EUR/USD/GBP).</li>
+        </ul>
 
-      <h2>8. Chiusura account</h2>
-      <p>Puoi richiedere la cancellazione del tuo account in qualsiasi momento. Possiamo sospendere o chiudere l’account in caso di violazioni.</p>
+        <h2 id="recesso">7) Recesso consumatore & disdetta</h2>
+        <ul>
+          <li><strong>Diritto di recesso (14 giorni):</strong> per i contratti a distanza, il consumatore può recedere entro 14 giorni. Se l’esecuzione è già iniziata, è dovuto un <strong>pro-rata</strong> per la parte fruita; l’eventuale rimborso copre le quote non godute.</li>
+          <li><strong>Disdetta (Plus/Pro):</strong> ha effetto <strong>a fine periodo</strong> in corso; non sono previsti rimborsi della frazione non goduta.</li>
+          <li><strong>Chargeback/contestazioni:</strong> in caso di contestazione del pagamento l’account può essere <strong>sospeso immediatamente</strong> (accesso in sola lettura) fino alla definizione della controversia.</li>
+        </ul>
 
-      <h2>9. Legge applicabile</h2>
-      <p>Questi termini sono regolati dalla legge italiana. Foro competente: Italia, salvo norme inderogabili a tutela del consumatore.</p>
+        <h2 id="upgrade">8) Upgrade, downgrade e variazioni</h2>
+        <ul>
+          <li><strong>Upgrade:</strong> il passaggio a un piano superiore ha effetto immediato secondo le regole del provider di pagamento; eventuali conguagli possono essere applicati dal provider.</li>
+          <li><strong>Downgrade (Pro→Plus):</strong> ha effetto <strong>a fine periodo</strong>.</li>
+          <li><strong>Cambio fatturazione (mensile/annuale):</strong> applicato al termine del ciclo in corso, salvo diversa indicazione nel flusso di checkout.</li>
+        </ul>
 
-      <h2>10. Contatti</h2>
-      <p><a href="mailto:support@myhomesbudget.com">support@myhomesbudget.com</a></p>
+        <h2 id="limitazioni">9) Limitazioni tecniche, sospensioni e cessazione</h2>
+        <ul>
+          <li><strong>Limitazioni:</strong> in assenza di piano attivo o per fine trial, l’account può essere limitato alla sola lettura.</li>
+          <li><strong>Sospensione:</strong> in caso di violazioni contrattuali, abuso, frode o rischi per la sicurezza/terzi, il Titolare può sospendere l’account (totale o parziale) e richiedere chiarimenti.</li>
+          <li><strong>Cessazione:</strong> il Titolare può risolvere il contratto per giusta causa, ivi inclusa reiterata morosità o violazioni gravi.</li>
+        </ul>
 
-      <p style="margin-top:18px"><a href="/it/">← Torna alla home</a> · <a href="/it/privacy.html">Privacy</a></p>
-    </div>
+        <h2 id="uso-lecito">10) Uso lecito e contenuti</h2>
+        <ul>
+          <li>È vietato usare il Servizio in modo illecito, diffamatorio, fraudolento o lesivo di diritti altrui.</li>
+          <li>L’utente garantisce che le informazioni inserite sono lecite e non contengono dati particolari superflui (es. salute, credo religioso/politico). Vedi Privacy per dettagli.</li>
+          <li>È vietata l’estrazione massiva di dati e il reverse engineering salvo quanto consentito da norme inderogabili.</li>
+        </ul>
 
-    <div class="footer">
-      © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
-    </div>
-  </div>
+        <h2 id="ip">11) Proprietà intellettuale</h2>
+        <p>Il software, i marchi, i loghi, il design e le interfacce della web-app sono protetti. L’utente non acquisisce alcun diritto di proprietà intellettuale; è concessa una licenza d’uso limitata ai fini personali e non commerciali.</p>
+
+        <h2 id="dati">12) Dati personali & privacy</h2>
+        <p>Il trattamento dei dati personali avviene secondo l’Informativa <a href="/it/privacy.html">Privacy & Cookie Policy</a>. Tra l’altro: autenticazione (Supabase/GIS), misure di sicurezza, RLS, backup, conservazione post-chiusura fino a 12 mesi, diritti dell’interessato e informazioni su cookie/analytics.</p>
+
+        <h2 id="responsabilita">13) Responsabilità e garanzie</h2>
+        <ul>
+          <li><strong>Servizio “as is”/best effort:</strong> nessuna garanzia di risultato o continuità; possibili interruzioni per manutenzione, guasti di terzi o aggiornamenti.</li>
+          <li><strong>Esclusioni:</strong> nella massima misura consentita, esclusi danni indiretti o consequenziali (lucro cessante, perdita di chance, reputazione, perdita di dati non attribuibile a dolo/colpa grave del Titolare).</li>
+          <li><strong>Cap alla responsabilità:</strong> la responsabilità complessiva del Titolare verso l’utente è limitata all’importo corrisposto dall’utente per il Servizio nell’<strong>ultimo mese</strong> di abbonamento. Per utenti free: cap €0.</li>
+          <li><strong>Carve-out:</strong> nessuna limitazione per responsabilità che non possono essere escluse per legge (es. morte/lesioni personali, dolo o colpa grave, frode, diritti inderogabili del consumatore).</li>
+        </ul>
+
+        <h2 id="forza-maggiore">14) Forza maggiore</h2>
+        <p>Il Titolare non risponde del mancato adempimento dovuto a eventi fuori dal suo ragionevole controllo (es. disastri naturali, blackout, atti dell’Autorità, guerre, attacchi informatici su infrastrutture di terzi, guasti di provider come hosting/CDN/identity/payment). In tali casi, l’esecuzione è sospesa per la durata dell’evento.</p>
+
+        <h2 id="modifiche">15) Modifiche a Termini & prezzi</h2>
+        <ul>
+          <li><strong>Termini:</strong> eventuali modifiche sono comunicate con preavviso ragionevole (di norma 30 giorni) e pubblicate su questa pagina. L’uso continuato dopo l’entrata in vigore implica accettazione.</li>
+          <li><strong>Prezzi:</strong> variazioni con <strong>60 giorni</strong> di preavviso; l’utente può disdire prima dell’efficacia.</li>
+        </ul>
+
+        <h2 id="legge-foro">16) Legge applicabile e foro</h2>
+        <p>Il presente contratto è regolato dalla legge italiana. Per controversie tra <strong>professionisti (B2B)</strong> si conviene il <strong>foro esclusivo di Como</strong>. Resta ferma, per i <strong>consumatori (B2C)</strong>, la <strong>competenza inderogabile del giudice del luogo di residenza o domicilio del consumatore</strong>.</p>
+
+        <h2 id="varie">17) Varie</h2>
+        <ul>
+          <li><strong>Invalidità parziale:</strong> l’eventuale nullità di singole clausole non pregiudica la validità del resto del contratto.</li>
+          <li><strong>Cessione:</strong> l’utente non può cedere il contratto senza consenso scritto; il Titolare può cedere il contratto in caso di riorganizzazioni societarie, fermo il rispetto della Privacy.</li>
+          <li><strong>Lingue:</strong> possono essere fornite traduzioni; in caso di difformità prevale la versione italiana.</li>
+          <li><strong>Conservazione dati post-chiusura:</strong> come da Privacy, fino a 12 mesi per backup/log, salvo obblighi legali diversi.</li>
+          <li><strong>Esportazione dati:</strong> l’utente può richiedere l’export (es. CSV) prima della chiusura.</li>
+        </ul>
+
+        <h2 id="contatti">18) Contatti</h2>
+        <div class="kvp">
+          <div><strong>Titolare</strong></div><div>Marco Lombardo</div>
+          <div><strong>Email legale</strong></div><div><a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></div>
+          <div><strong>Indirizzo</strong></div><div>Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italia</div>
+          <div><strong>Dominio</strong></div><div>myhomesbudget.com</div>
+        </div>
+        <p class="muted">Per aspetti sulla protezione dei dati personali si veda la <a href="/it/privacy.html">Privacy & Cookie Policy</a>.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    gtag('event','terms_viewed',{lang:'it'});
+  </script>
 </body>
 </html>
