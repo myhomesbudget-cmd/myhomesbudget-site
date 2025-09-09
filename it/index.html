@@ -27,7 +27,7 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <!-- 🔹 LINK EMAIL VERIFICATA → redirect onboarding/dashboard -->
+  <!-- 🔹 Redirect post-verifica email -->
   <script>
     (function(){
       function itPrefix(){
@@ -94,106 +94,107 @@
   <meta name="color-scheme" content="light dark">
 
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    :root{
+      font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --fg:#111; --glass:rgba(255,255,255,.62);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+    }
     *{box-sizing:border-box}
     a:focus-visible, button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
 
     /* Sfondo */
     body{
       margin:0;padding:0;color:#fff;
-      background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;
+      background:url("/bg.webp") no-repeat center/cover fixed;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
 
-    /* Layout + Nav */
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;justify-content:space-between;align-items:center}
+    /* Topbar identica a pricing/privacy */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));
+      z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.lang-selector,.right-bar{pointer-events:auto}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:40px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.2rem}
-    .right-bar{display:flex;gap:12px;align-items:center}
-    .login-link,.nav .nav-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .login-link:hover,.nav .nav-link:hover{background:rgba(255,255,255,.12)}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
+    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
+    .right-bar{display:flex;gap:12px;align-items:center}
+    .nav-link,.login-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600;}
+    .nav-link:hover,.login-link:hover{background:rgba(0,0,0,.38)}
 
-    /* Hero */
+    /* Wrapper dei contenuti */
+    .wrap{
+      width:min(1100px,calc(100% - 40px));
+      margin:110px auto 64px auto;
+    }
+
+    /* Hero “card” come pricing */
     .hero{
-      min-height:42vh;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:12px;padding:0 20px;margin:0;
+      text-align:center;margin-bottom:18px;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
     }
     .hero h1{
-      font-size:clamp(2rem,5vw,3rem);line-height:1.2;margin:0;
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards;
-      text-shadow:0 1px 3px rgba(0,0,0,.4);
+      margin:0 0 6px 0;color:#111;
+      font-size:clamp(1.8rem,4vw,2.2rem);
+      text-shadow:0 1px 3px rgba(0,0,0,.35)
     }
-    .hero p{
-      max-width:720px;margin:8px 0 4px;font-size:clamp(1rem,2vw,1.25rem);
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .4s;
-      text-shadow:0 1px 3px rgba(0,0,0,.4);
-    }
+    .hero p{margin:6px auto 0;color:#222;max-width:760px}
     .cta{
       display:inline-block;background:#111;color:#fff;
       padding:12px 18px;border-radius:12px;font-weight:700;text-decoration:none;
       box-shadow:0 10px 24px rgba(0,0,0,.15);
-      opacity:0;transform:translateY(30px);animation:fadeInUp .8s ease forwards .8s;
       transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      margin-top:10px;
     }
     .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.2)}
     .cta-ghost{
-      background:transparent; border:1px solid rgba(255,255,255,.6); margin-left:8px;
+      background:transparent; border:1px solid rgba(0,0,0,.25); color:#111; margin-left:8px;
     }
-    .cta-ghost:hover{filter:none; transform:translateY(-1px); background:rgba(0,0,0,.15)}
-    .microcopy{font-size:.95rem;color:#eaeaea;opacity:.95}
-    @keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
-    @media (prefers-reduced-motion:reduce){.hero h1,.hero p,.cta{animation:none;opacity:1;transform:none}}
     @media(max-width:560px){ .cta-ghost{display:block; margin:8px auto 0} }
+    .microcopy{font-size:.95rem;color:#333;opacity:.95;margin-top:6px}
 
-    /* Card / Grid */
-    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:20px}
+    /* Cards / Grid (coerenti con pricing) */
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:14px}
     @media(max-width:800px){.grid{grid-template-columns:1fr}}
     .card{
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;padding:18px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:18px; box-shadow:var(--shadow); border:1px solid var(--card-border);
       display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
     }
     .card h3{margin:0 0 6px}
     .card p{margin:0}
 
     /* Steps */
-    .steps{margin-top:24px}
-    .steps h3{margin:0 0 20px;text-align:center}
-    .steps-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
+    .steps{margin-top:18px}
+    .steps h3{margin:0 0 12px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .steps-grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr}
     @media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
-    .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .step{display:flex;gap:12px;align-items:flex-start;background:var(--glass);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);color:#111}
     .nbr{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(108,92,231,.7);color:#fff;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.08)}
-    .step h4{margin:0 0 4px;font-size:1.05rem}
-    .step p{margin:0;color:#444;font-size:.95rem}
+    .step h4{margin:0 0 4px;font-size:1.05rem;color:#111}
+    .step p{margin:0;color:#333;font-size:.95rem}
 
-    /* Pricing (panel + cards) */
-    .pricing{margin-top:28px}
+    /* Pricing teaser (stile pricing) */
+    .pricing{margin-top:18px}
     .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
     @media(max-width:800px){.pricing-grid{grid-template-columns:1fr}}
     .price-card{
       position:relative;
-      background:rgba(255,255,255,.55);
-      backdrop-filter:saturate(1.1) blur(6px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
-      display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:center;
-      min-height:160px;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:18px; box-shadow:var(--shadow); border:1px solid var(--card-border);
+      display:flex;flex-direction:column;gap:10px;text-align:center; min-height:160px;
     }
-    .badge{position:absolute;top:10px;right:10px;background:#6c5ce7;color:#fff;
-      border-radius:999px;padding:4px 10px;font-size:.75rem;font-weight:800;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+    .badge{position:absolute;top:10px;right:10px;background:#6c5ce7;color:#fff;border-radius:999px;padding:4px 10px;font-size:.75rem;font-weight:800;box-shadow:0 6px 16px rgba(0,0,0,.12)}
     .pricing-panel{align-items:stretch;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
     .pricing-panel h3{margin:0 0 12px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
-
     .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem}
     .plan-title .plan-name{font-weight:800}
     .plan-title .sep{opacity:.45}
@@ -203,9 +204,8 @@
     .features ul{margin:0;padding:0;list-style:none}
     .features li{display:flex;gap:8px;align-items:flex-start;justify-content:center}
     .features li::before{content:"✓"; color:#2e7d32; font-weight:900}
-
     .btn-secondary{
-      display:inline-block;background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      display:inline-block;background:var(--grad);
       color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:10px 14px;
       box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;
       transition:transform .15s ease, filter .15s ease;
@@ -225,21 +225,7 @@
     /* Compattazione desktop */
     @media (min-width:900px){
       .wrap{padding:16px}
-      .logo-image{height:32px}
-      .hero{min-height:30vh;gap:8px}
-      .hero h1{font-size:clamp(1.8rem,3.8vw,2.4rem);margin:0}
-      .hero p{margin:2px 0 0}
-      .cta{padding:10px 16px}
-      .microcopy{font-size:.9rem}
-      .grid{margin-top:8px;gap:8px}
-      .card{padding:14px}
-      .steps{margin-top:12px}
-      .steps h3{margin:0 0 8px}
       .steps-grid{gap:10px}
-      .step{padding:10px}
-      .nbr{flex:0 0 32px;height:32px}
-      .pricing{margin-top:12px}
-      .pricing-grid{gap:10px}
       .price-card{padding:14px;min-height:140px}
       .footer{margin:12px 0 8px}
     }
@@ -249,42 +235,36 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- NAV -->
-    <nav class="nav" aria-label="Navigazione principale">
-      <a href="/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image" loading="lazy">
-        <span class="logo-text">MyHomesBudget</span>
-      </a>
+  <!-- TOPBAR “a fascia” -->
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" title="MyHomesBudget" class="logo-link">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
 
-      <div class="right-bar">
-        <a class="login-link" href="login.html" aria-label="Accedi">Accedi</a>
+    <div class="right-bar">
+      <a class="login-link" href="/it/login.html" aria-label="Accedi">Accedi</a>
+      <a class="nav-link" href="/it/pricing.html" onclick="gtag('event','cta_click',{placement:'nav_pricing',lang:'it'});">Prezzi</a>
+      <span class="lang-selector" aria-label="Selettore lingue">
+        <a href="/it/" title="Italiano" lang="it" aria-current="page">🇮🇹</a>
+        <a href="/en/" title="English" lang="en">🇬🇧</a>
+        <a href="/es/" title="Español" lang="es">🇪🇸</a>
+      </span>
+    </div>
+  </nav>
 
-        <a class="nav-link pricing-link"
-           href="/it/pricing.html"
-           onclick="gtag('event','cta_click',{placement:'nav_pricing',lang:'it'});">
-          Prezzi
-        </a>
-
-        <span class="lang-selector" aria-label="Selettore lingue">
-          <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-          <a href="/en/" title="English" lang="en">🇬🇧</a>
-          <a href="/es/" title="Español" lang="es">🇪🇸</a>
-        </span>
-      </div>
-    </nav>
-
-    <!-- HERO -->
+  <!-- CONTENUTI -->
+  <main class="wrap">
+    <!-- HERO in card -->
     <section class="hero">
       <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
       <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
 
       <div>
-        <a class="cta" href="signup.html?plan=starter"
+        <a class="cta" href="/it/signup.html?plan=starter"
            onclick="gtag('event','cta_click',{lang:'it',placement:'hero_trial'});">
           Prova gratis per 30 giorni
         </a>
-
         <a class="cta cta-ghost" href="/it/pricing.html"
            onclick="gtag('event','cta_click',{placement:'hero_secondary',lang:'it'});">
           Scopri i piani
@@ -329,10 +309,9 @@
       </div>
     </section>
 
-    <!-- PIANI E PREZZI — NUOVO (Starter / Plus / Pro) -->
+    <!-- Piani (teaser) -->
     <section class="card pricing pricing-panel" aria-label="Piani e prezzi">
       <h3 class="reveal">Scegli il tuo piano</h3>
-
       <div class="pricing-grid">
         <!-- STARTER -->
         <div class="price-card reveal">
@@ -349,13 +328,13 @@
             </ul>
           </div>
           <a class="btn-secondary"
-             href="signup.html?plan=starter"
+             href="/it/signup.html?plan=starter"
              onclick="gtag('event','select_pricing',{plan:'starter',placement:'pricing_grid'});">
             Avvia la prova
           </a>
         </div>
 
-        <!-- PLUS (Più scelto) -->
+        <!-- PLUS -->
         <div class="price-card reveal">
           <div class="badge" aria-hidden="true">Più scelto</div>
           <h4 class="plan-title">
@@ -409,7 +388,7 @@
       <a href="/it/privacy.html" rel="noopener">Privacy</a> ·
       <a href="/it/terms.html" rel="noopener">Termini</a>
     </footer>
-  </div>
+  </main>
 
   <!-- Reveal + GA base -->
   <script>
