@@ -1,94 +1,151 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Privacy • MyHomesBudget</title>
-  <meta name="description" content="Informativa privacy di MyHomesBudget: quali dati raccogliamo, perché e come vengono protetti.">
-  <link rel="canonical" href="https://www.myhomesbudget.com/it/privacy.html"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/it/privacy.html" hreflang="it"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/en/privacy.html" hreflang="en"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/es/privacy.html" hreflang="es"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy & Cookie Policy — MyHomesBudget</title>
+  <meta name="robots" content="index,follow">
+  <link rel="icon" href="/favicon.ico">
+  <meta name="color-scheme" content="light dark">
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;gap:12px;justify-content:flex-end}
-    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(255,255,255,.12)}
-    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:4px 0 12px}
-    h2{margin:22px 0 8px;font-size:1.1rem}
-    a{color:#0b5fff}
-    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+    :root{
+      --fg:#111; --bg:#f4f7fa; --glass:rgba(255,255,255,.6);
+      --border:rgba(0,0,0,.08); --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:16px; --font:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --pad:clamp(16px,4vw,24px);
+    }
+    *{box-sizing:border-box}
+    html,body{font-family:var(--font); margin:0; color:var(--fg); background:#fff}
+    body{background:url("/bg.webp") no-repeat center/cover fixed}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
+
+    /* Topbar */
+    .topbar{position:sticky; top:0; display:flex; align-items:center; gap:10px;
+      height:60px; padding:0 var(--pad); background:var(--glass); backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--border); z-index:10}
+    .logo-link{display:flex; align-items:center; gap:8px; text-decoration:none}
+    .logo-link img{height:32px; border-radius:6px}
+    .logo-text{font-weight:700; color:#111}
+
+    main{width:min(920px,100%); margin:24px auto; padding:0 18px}
+    .paper{background:rgba(255,255,255,.92); border:1px solid var(--border);
+      border-radius:var(--radius); box-shadow:var(--shadow); padding:var(--pad)}
+    h1{margin:0 0 8px}
+    .meta{color:#555; font-size:.95rem; margin-bottom:18px}
+    nav.toc{background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px; margin:12px 0 22px}
+    nav.toc a{display:block; color:#111; text-decoration:none; padding:4px 0}
+    nav.toc a:hover{text-decoration:underline}
+    h2{margin-top:24px}
+    h3{margin-top:18px}
+    ul{padding-left:20px}
+    code.badge{font-family:inherit; background:#eef3ff; border:1px solid #dbe3ff; padding:2px 8px; border-radius:999px}
+    .note{background:#fff7e6; border:1px solid #ffe6b3; padding:10px 12px; border-radius:10px}
+    footer{color:#666; font-size:.9rem; margin-top:18px}
+    a{color:#111}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav class="nav" aria-label="Lingue">
-      <a href="/it/" lang="it">🇮🇹</a>
-      <a href="/en/privacy.html" lang="en">🇬🇧</a>
-      <a href="/es/privacy.html" lang="es">🇪🇸</a>
-    </nav>
+  <nav class="topbar" aria-label="Barra superiore">
+    <a class="logo-link" href="/it/">
+      <img src="/homes.png" alt="MyHomesBudget"><span class="logo-text">MyHomesBudget</span>
+    </a>
+  </nav>
 
-    <div class="card">
-      <h1>Informativa Privacy</h1>
-      <p><strong>Ultimo aggiornamento:</strong> 30 agosto 2025</p>
+  <main>
+    <article class="paper">
+      <h1>Privacy & Cookie Policy</h1>
+      <div class="meta">Ultimo aggiornamento: 9 settembre 2025</div>
 
-      <p>Questa informativa descrive come <strong>MyHomesBudget</strong> tratta i dati personali degli utenti che utilizzano il sito e l’app web disponibili su <strong>myhomesbudget.com</strong>.</p>
+      <p>Questa informativa descrive come <strong>MyHomesBudget</strong> tratta i dati personali in conformità al
+        <strong>Regolamento (UE) 2016/679 (GDPR)</strong> e alla normativa italiana applicabile.</p>
 
-      <h2>1. Titolare del trattamento</h2>
-      <p>MyHomesBudget — Email di contatto: <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
+      <nav class="toc" aria-label="Indice">
+        <a href="#titolare">1. Titolare del trattamento e contatti</a>
+        <a href="#tipologie">2. Tipologie di dati trattati</a>
+        <a href="#finalita-basi">3. Finalità e basi giuridiche</a>
+        <a href="#conservazione">4. Tempi di conservazione</a>
+        <a href="#destinatari">5. Destinatari e trasferimenti</a>
+        <a href="#sicurezza">6. Misure di sicurezza</a>
+        <a href="#cookie">7. Cookie e tecnologie simili</a>
+        <a href="#diritti">8. Diritti degli interessati</a>
+        <a href="#minori">9. Minori</a>
+        <a href="#modifiche">10. Modifiche all’informativa</a>
+        <a href="#contatti">11. Contatti</a>
+      </nav>
 
-      <h2>2. Dati che trattiamo</h2>
+      <h2 id="titolare">1) Titolare del trattamento e contatti</h2>
+      <p><strong>Titolare:</strong> Marco Lombardo<br>
+         <strong>Sede:</strong> Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italia<br>
+         <strong>P.IVA:</strong> 03090650130 — <strong>Cod. Fisc.:</strong> LMBMRC86A13L319I<br>
+         <strong>Email privacy:</strong> <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
+
+      <h2 id="tipologie">2) Tipologie di dati trattati</h2>
       <ul>
-        <li><strong>Email</strong> (necessaria per creare l’account e per l’autenticazione, anche tramite Magic Link o Google).</li>
-        <li><strong>Nome</strong> (facoltativo ma consigliato, per personalizzare l’esperienza es. “Benvenuto, Tizio”).</li>
-        <li>Dati tecnici minimi (log anonimi, eventi di sicurezza, metriche di performance).</li>
+        <li><strong>Dati di account</strong>: email, identificativi tecnici (Supabase/Google).</li>
+        <li><strong>Dati profilo/app</strong>: preferenze, lingua, <code class="badge">plan_type</code>, <code class="badge">trial_end</code>, stato onboarding.</li>
+        <li><strong>Dati inseriti dall’utente</strong>: transazioni, categorie/sottocategorie, budget, obiettivi, note.</li>
+        <li><strong>Dati tecnici</strong>: log, indirizzo IP (GA4 con anonimizzazione), user agent, impostazioni dispositivo.</li>
+        <li><strong>Cookie/analytics</strong>: vedi §7.</li>
+      </ul>
+      <p class="note"><strong>Nota:</strong> l’app non richiede <em>dati particolari</em> ex art. 9 GDPR (c.d. “sensibili”).
+      Ti chiediamo di <strong>non inserire</strong> nelle note informazioni sanitarie, convinzioni religiose/politiche, dati biometrici o giudiziari.</p>
+
+      <h2 id="finalita-basi">3) Finalità e basi giuridiche</h2>
+      <ul>
+        <li><strong>Erogazione del servizio</strong> (creazione account, login, salvataggio e visualizzazione dati). <em>Base:</em> contratto (art. 6.1.b).</li>
+        <li><strong>Gestione piani</strong> (Starter 30gg, Plus, Pro), calcolo termine prova e gating funzionalità. <em>Base:</em> contratto (6.1.b) e legittimo interesse (6.1.f) per sicurezza/antifrode.</li>
+        <li><strong>Assistenza</strong> e comunicazioni di servizio. <em>Base:</em> contratto (6.1.b).</li>
+        <li><strong>Analytics</strong> (GA4 con IP anonimizzato) per migliorare il prodotto. <em>Base:</em> consenso (6.1.a) ove richiesto tramite banner cookie.</li>
+        <li><strong>Adempimenti legali</strong> (fiscali, sicurezza, compliance). <em>Base:</em> obbligo di legge (6.1.c).</li>
       </ul>
 
-      <h2>3. Finalità e basi giuridiche</h2>
+      <h2 id="conservazione">4) Tempi di conservazione</h2>
       <ul>
-        <li><strong>Autenticazione</strong> e gestione account (contratto art. 6.1.b GDPR).</li>
-        <li><strong>Assistenza</strong> e comunicazioni tecniche (legittimo interesse/contratto).</li>
-        <li><strong>Analytics</strong> aggregati e sicurezza (legittimo interesse art. 6.1.f, con minimizzazione).</li>
+        <li>Dati di account e contenuti: per la durata dell’account e fino a <strong>12 mesi</strong> dalla chiusura per backup/log, salvo obblighi legali maggiori.</li>
+        <li>Log tecnici: <strong>180 giorni</strong>.</li>
+        <li>Dati di fatturazione (se applicabile): secondo i termini fiscali vigenti.</li>
       </ul>
 
-      <h2>4. Fornitori e trasferimenti</h2>
-      <p>Usiamo fornitori con data center UE o conformi:</p>
+      <h2 id="destinatari">5) Destinatari e trasferimenti</h2>
+      <p>Utilizziamo fornitori in qualità di <strong>Responsabili esterni</strong> (art. 28 GDPR):</p>
       <ul>
-        <li><strong>Supabase</strong> (EU) per autenticazione e database.</li>
-        <li><strong>Vercel</strong> come piattaforma di hosting.</li>
-        <li><strong>Google</strong> (Google Identity Services/Analytics) per login e statistiche anonime.</li>
+        <li><strong>Supabase</strong> (database, autenticazione). Regione UE selezionata; dati protetti con TLS e <em>Row Level Security</em>.</li>
+        <li><strong>Google</strong> (Google Identity Services per login; Google Analytics/Tag Manager per analytics). GA4 configurato con IP anonimizzato; raccolta subordinata al consenso dove richiesto.</li>
+        <li><strong>Hosting statico/CDN</strong> del sito (se applicabile).</li>
       </ul>
-      <p>Potrebbero verificarsi trasferimenti extra-UE nel rispetto delle Clausole Contrattuali Standard.</p>
+      <p>Eventuali trasferimenti extra-UE (es. servizi Google) avvengono sulla base di <strong>Clausole Contrattuali Standard</strong> o altri meccanismi di adeguatezza.</p>
 
-      <h2>5. Conservazione</h2>
-      <p>Conserviamo i dati dell’account finché l’utente utilizza il servizio. In caso di richiesta di cancellazione, i dati sono eliminati o anonimizzati entro 30 giorni salvo obblighi di legge.</p>
+      <h2 id="sicurezza">6) Misure di sicurezza</h2>
+      <ul>
+        <li>Connessioni cifrate (HTTPS/TLS); cifratura at-rest presso il provider.</li>
+        <li>Controlli di accesso applicativi e <strong>RLS</strong> sul database.</li>
+        <li>Backup e ripristino (piano Pro di Supabase attivo).</li>
+        <li>Principi di minimizzazione e segregazione dei dati.</li>
+      </ul>
 
-      <h2>6. Diritti degli interessati</h2>
-      <p>Puoi chiedere accesso, rettifica, cancellazione, limitazione, opposizione e portabilità scrivendo a
-        <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. Puoi anche proporre reclamo all’Autorità Garante competente.</p>
+      <h2 id="cookie">7) Cookie e tecnologie simili</h2>
+      <p>Usiamo cookie tecnici essenziali per il funzionamento dell’app e, previo consenso, tecnologie di terze parti per <strong>analytics</strong> (Google Analytics 4) a fini statistici aggregati. Le preferenze possono essere gestite dal banner (se presente) o dal browser.</p>
+      <ul>
+        <li><strong>Tecnici</strong>: necessari per autenticazione/sicurezza; non richiedono consenso.</li>
+        <li><strong>Analytics (GA4)</strong>: IP anonimizzato; raccolta subordinata alle impostazioni di consenso ove richiesto.</li>
+      </ul>
 
-      <h2>7. Cookie</h2>
-      <p>Usiamo cookie tecnici necessari e, in forma aggregata, strumenti di analisi del traffico.
-        Puoi gestire le preferenze dal tuo browser.</p>
+      <h2 id="diritti">8) Diritti degli interessati</h2>
+      <p>Puoi esercitare i diritti di accesso, rettifica, cancellazione, limitazione, portabilità e opposizione (artt. 15-22 GDPR). Puoi revocare in ogni momento il consenso (es. analytics). Per richieste: <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. Hai diritto di proporre reclamo al Garante per la protezione dei dati personali.</p>
 
-      <h2>8. Sicurezza</h2>
-      <p>Applichiamo misure tecniche e organizzative adeguate (crittografia in transito e a riposo, controllo accessi, backup).</p>
+      <h2 id="minori">9) Minori</h2>
+      <p>Il servizio è rivolto a maggiorenni. Non raccogliamo consapevolmente dati di minori di 16 anni.</p>
 
-      <h2>9. Modifiche</h2>
-      <p>Possiamo aggiornare questa informativa. Ti informeremo in caso di modifiche rilevanti.</p>
+      <h2 id="modifiche">10) Modifiche all’informativa</h2>
+      <p>Potremmo aggiornare questa informativa per adeguarla a evoluzioni normative o del servizio. La versione corrente è sempre pubblicata su questa pagina.</p>
 
-      <p style="margin-top:18px"><a href="/it/">← Torna alla home</a> · <a href="/it/terms.html">Termini di servizio</a></p>
-    </div>
+      <h2 id="contatti">11) Contatti</h2>
+      <p><strong>Titolare:</strong> Marco Lombardo — Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italia<br>
+         <strong>P.IVA:</strong> 03090650130 — <strong>Cod. Fisc.:</strong> LMBMRC86A13L319I<br>
+         <strong>Email privacy:</strong> <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
 
-    <div class="footer">
-      © MyHomesBudget — <a href="/it/privacy.html" style="color:#fff">Privacy</a> · <a href="/it/terms.html" style="color:#fff">Termini</a>
-    </div>
-  </div>
+      <footer>Documento informativo a scopo operativo (non sostituisce consulenza legale).</footer>
+    </article>
+  </main>
 </body>
 </html>
