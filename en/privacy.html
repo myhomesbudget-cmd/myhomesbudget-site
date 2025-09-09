@@ -1,93 +1,299 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Privacy • MyHomesBudget</title>
-  <meta name="description" content="MyHomesBudget Privacy Notice: what we collect and why.">
-  <link rel="canonical" href="https://www.myhomesbudget.com/en/privacy.html"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/it/privacy.html" hreflang="it"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/en/privacy.html" hreflang="en"/>
-  <link rel="alternate" href="https://www.myhomesbudget.com/es/privacy.html" hreflang="es"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy & Cookie Policy · MyHomesBudget</title>
+  <meta name="description" content="Privacy notice on the processing of personal data and use of cookies, compliant with the GDPR.">
+  <meta name="robots" content="index,follow">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- CSP (same as pricing) -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' https: data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+    connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+    font-src 'self' https: data:;
+    frame-ancestors 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
+
   <style>
-    :root{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    body{margin:0;background:url("/bg.webp") no-repeat center/cover fixed;color:#fff}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
-    .wrap{max-width:960px;margin:0 auto;padding:24px}
-    .nav{display:flex;gap:12px;justify-content:flex-end}
-    .nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(255,255,255,.12)}
-    .card{background:rgba(255,255,255,.50);backdrop-filter:saturate(1.1) blur(5px);
-      -webkit-backdrop-filter:saturate(1.1) blur(2px);color:#111;padding:24px;border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:4px 0 12px}
-    h2{margin:22px 0 8px;font-size:1.1rem}
-    a{color:#0b5fff}
-    .footer{margin-top:18px;color:#e6e6e6;font-size:.9rem;text-align:center}
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.62);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --muted:#2a2a2a; --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+
+    body{
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
+
+    /* Topbar identical to pricing */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.lang-selector{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
+    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
+
+    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 64px auto;}
+
+    /* Hero */
+    .hero{
+      text-align:center;margin-bottom:18px;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
+    }
+    .hero h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .hero p{margin:6px auto 0;color:#222;max-width:760px}
+
+    /* Content layout */
+    .two-col{display:grid; grid-template-columns: 1fr; gap:16px;}
+    @media (min-width: 900px){ .two-col{ grid-template-columns: 320px 1fr; } }
+
+    .card{
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
+    }
+
+    /* TOC */
+    .toc{background:rgba(255,255,255,.85); border:1px solid var(--card-border); border-radius:12px; padding:14px}
+    .toc h2{margin:0 0 8px 0; font-size:1.05rem}
+    .toc a{display:block; color:#111; text-decoration:none; padding:4px 0;}
+    .toc a:hover{text-decoration:underline;}
+
+    /* Text */
+    h2{margin:10px 0 8px 0; font-size:1.12rem}
+    h3{margin:12px 0 6px 0; font-size:1rem}
+    p{color:#222}
+    ul{color:#222; padding-left:18px}
+    .muted{color:#555;font-size:.95rem}
+    .note{background:#fff7e6; border:1px solid #ffe6b3; padding:10px 12px; border-radius:10px; color:#2b2b2b}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(108,92,231,.12);color:#3b3b3b;border:1px solid rgba(108,92,231,.25);font-weight:600}
+    .kvp{display:grid; grid-template-columns: 210px 1fr; gap:8px 16px}
+    @media (max-width: 640px){ .kvp{grid-template-columns: 1fr} }
+    .kvp div strong{display:block}
+
+    /* ——— Full justification like “Word” ——— */
+    .two-col > article.card p,
+    .two-col > article.card li {
+      text-align: justify;
+      text-justify: inter-word;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      -ms-hyphens: auto;
+    }
+    .hero p { text-align: center; }
+    .two-col > article.card a { overflow-wrap: anywhere; }
+    @supports (text-wrap: balance) {
+      .hero h1,
+      .two-col > article.card h2 { text-wrap: balance; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <nav class="nav" aria-label="Languages">
+  <!-- Topbar -->
+  <nav class="topbar" aria-label="Top bar">
+    <a href="/en/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <span class="lang-selector" aria-label="Language selector">
       <a href="/it/privacy.html" lang="it">🇮🇹</a>
-      <a href="/en/" lang="en">🇬🇧</a>
+      <a href="/en/privacy.html" lang="en" aria-current="page">🇬🇧</a>
       <a href="/es/privacy.html" lang="es">🇪🇸</a>
-    </nav>
+    </span>
+  </nav>
 
-    <div class="card">
-      <h1>Privacy Notice</h1>
-      <p><strong>Last update:</strong> 30 August 2025</p>
+  <main class="wrap">
+    <!-- Hero -->
+    <section class="hero">
+      <h1>Privacy & Cookie Policy</h1>
+      <p>Updated on <strong>September 9, 2025</strong>. Notice provided under Articles 13–14 of Regulation (EU) 2016/679 (“GDPR”) and applicable Italian law.</p>
+    </section>
 
-      <p>This notice explains how <strong>MyHomesBudget</strong> processes personal data for users of the web app at <strong>myhomesbudget.com</strong>.</p>
+    <!-- Content -->
+    <section class="two-col">
+      <!-- TOC -->
+      <aside class="card toc" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <a href="#scope">1. Scope of this notice</a>
+        <a href="#controller">2. Controller & contacts</a>
+        <a href="#definitions">3. Key definitions</a>
+        <a href="#data-categories">4. Categories of data</a>
+        <a href="#sources">5. Sources of data</a>
+        <a href="#purposes-legal">6. Purposes & legal bases</a>
+        <a href="#mandatory">7. Mandatory or optional nature</a>
+        <a href="#processing-security">8. Processing & security</a>
+        <a href="#profiling">9. Profiling / automated decisions</a>
+        <a href="#retention">10. Data retention</a>
+        <a href="#recipients">11. Recipients & processors</a>
+        <a href="#transfers">12. International transfers</a>
+        <a href="#cookies">13. Cookies & similar tech</a>
+        <a href="#rights">14. Data subjects’ rights</a>
+        <a href="#minors">15. Children</a>
+        <a href="#breach">16. Personal data breaches</a>
+        <a href="#changes">17. Changes to this notice</a>
+        <a href="#contacts">18. Contacts</a>
+      </aside>
 
-      <h2>1. Controller</h2>
-      <p>MyHomesBudget — Contact: <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></p>
+      <!-- Body -->
+      <article class="card">
+        <h2 id="scope">1) Scope of this notice</h2>
+        <p>This notice applies to the website and web app <strong>MyHomesBudget</strong> and describes how we process personal data of users who access or use the service.</p>
 
-      <h2>2. Data we process</h2>
-      <ul>
-        <li><strong>Email</strong> (needed to create the account and authenticate, including Magic Link or Google).</li>
-        <li><strong>First name</strong> (optional but recommended to personalize the experience).</li>
-        <li>Minimal technical logs and security events.</li>
-      </ul>
+        <h2 id="controller">2) Controller & contacts</h2>
+        <div class="kvp">
+          <div><strong>Controller</strong></div><div>Marco Lombardo</div>
+          <div><strong>Address</strong></div><div>Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italy</div>
+          <div><strong>VAT / Tax ID</strong></div><div>VAT 03090650130 — Tax ID LMBMRC86A13L319I</div>
+          <div><strong>Privacy email</strong></div><div><a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></div>
+          <div><strong>DPO</strong></div><div>Not appointed. Please use the contacts above for any request.</div>
+        </div>
 
-      <h2>3. Purposes & legal bases</h2>
-      <ul>
-        <li><strong>Authentication & account</strong> management (contract).</li>
-        <li><strong>Support</strong> and technical communications (legitimate interest/contract).</li>
-        <li><strong>Aggregated analytics</strong> and security (legitimate interest, data minimization).</li>
-      </ul>
+        <h2 id="definitions">3) Key definitions</h2>
+        <ul>
+          <li><strong>Personal data</strong>: any information relating to an identified or identifiable person (Art. 4(1) GDPR).</li>
+          <li><strong>Processing</strong>: any operation performed on personal data (Art. 4(2) GDPR).</li>
+          <li><strong>Processor</strong>: a person or entity processing personal data on behalf of the Controller (Art. 28 GDPR).</li>
+          <li><strong>Special categories of data</strong>: data under Art. 9 GDPR (e.g., health, religious/political beliefs, sexual orientation).</li>
+        </ul>
 
-      <h2>4. Vendors & transfers</h2>
-      <p>We rely on trusted vendors:</p>
-      <ul>
-        <li><strong>Supabase</strong> (EU) for auth/database.</li>
-        <li><strong>Vercel</strong> for hosting.</li>
-        <li><strong>Google</strong> (Identity Services/Analytics) for login and aggregated stats.</li>
-      </ul>
-      <p>International transfers may occur under Standard Contractual Clauses.</p>
+        <h2 id="data-categories">4) Categories of data</h2>
+        <ul>
+          <li><strong>Account data</strong>: email; technical identifiers for auth (Supabase, Google GIS).</li>
+          <li><strong>Profile/app data</strong>: language, preferences, onboarding status, <span class="badge">plan_type</span>, <span class="badge">trial_end</span>.</li>
+          <li><strong>Financial data entered by the user</strong>: transactions, categories/subcategories, budgets, goals, notes (content decided by the user).</li>
+          <li><strong>Technical data</strong>: logs, IP (anonymized in GA4), user agent, device params, usage events (e.g., page views, CTAs).</li>
+          <li><strong>Billing data</strong> (if/when purchases are enabled): data required for invoicing and payment processing.</li>
+        </ul>
+        <p class="note"><strong>No special categories:</strong> the app does not require Art. 9 GDPR data. Please <strong>do not enter</strong> health data, religious/political beliefs, biometric or judicial data in notes or elsewhere.</p>
 
-      <h2>5. Retention</h2>
-      <p>We keep account data while the service is in use and delete/anonymize within 30 days of account removal unless required otherwise by law.</p>
+        <h2 id="sources">5) Sources of data</h2>
+        <ul>
+          <li><strong>Directly from you</strong> (e.g., registration, entries, preferences).</li>
+          <li><strong>Automatically</strong> via the web app (technical logs) and, subject to consent where required, via <strong>Google Analytics 4</strong>.</li>
+          <li><strong>Third parties</strong>: only the technical providers indicated in this notice (auth and analytics).</li>
+        </ul>
 
-      <h2>6. Your rights</h2>
-      <p>Access, rectification, erasure, restriction, portability and objection at
-        <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. You may lodge a complaint with your Supervisory Authority.</p>
+        <h2 id="purposes-legal">6) Purposes & legal bases (Art. 6 GDPR)</h2>
+        <ul>
+          <li><strong>Service delivery</strong>: create/manage account; login (email/password, Google GIS); store, display and organize user data; dashboards, summaries, charts. <em>Legal basis:</em> contract (Art. 6(1)(b)).</li>
+          <li><strong>Plan management</strong> (Starter 30 days, Plus, Pro): compute and verify trial period; enable/limit features; anti-fraud and security controls. <em>Legal basis:</em> contract (6(1)(b)) and legitimate interests (6(1)(f)).</li>
+          <li><strong>Support</strong> and service communications (e.g., technical notices). <em>Legal basis:</em> contract (6(1)(b)).</li>
+          <li><strong>Legal compliance</strong> (e.g., tax/accounting, security, regulatory). <em>Legal basis:</em> legal obligation (6(1)(c)).</li>
+          <li><strong>Analytics</strong> with GA4 (IP anonymized) to improve performance and usability. <em>Legal basis:</em> consent (6(1)(a)) where required via banner; without consent, analytics is off.</li>
+          <li><strong>Promotional communications</strong> (if enabled): product news and updates. <em>Legal basis:</em> consent (6(1)(a)); can be withdrawn anytime.</li>
+        </ul>
 
-      <h2>7. Cookies</h2>
-      <p>We use strictly necessary cookies and aggregated analytics. Manage preferences via your browser.</p>
+        <h2 id="mandatory">7) Mandatory or optional nature</h2>
+        <p>Data marked as necessary (e.g., email for account) are essential to provide the service: without them, the account cannot be created or used. Non-essential data (e.g., some preferences) can be omitted without impacting core features.</p>
 
-      <h2>8. Security</h2>
-      <p>We implement appropriate measures (encryption in transit/at rest, access controls, backups).</p>
+        <h2 id="processing-security">8) Processing & security</h2>
+        <ul>
+          <li>Electronic processing with appropriate technical/organizational measures (Art. 32 GDPR).</li>
+          <li>Encrypted connections (HTTPS/TLS); at-rest encryption at provider level; infrastructure hardening.</li>
+          <li><strong>Row Level Security</strong> (RLS) on user-scoped tables; access controls and environment segregation.</li>
+          <li>Backups and restore capabilities aligned with the <strong>Supabase Pro</strong> plan.</li>
+          <li>Administrative access restricted to authorized personnel; logging of relevant operations.</li>
+        </ul>
 
-      <h2>9. Changes</h2>
-      <p>We may update this notice and will inform you of material changes.</p>
+        <h2 id="profiling">9) Profiling / automated decisions</h2>
+        <p>No profiling producing legal or similarly significant effects under Art. 22 GDPR. Only technical service features (e.g., in-app hints, summaries) and aggregated GA4 stats, with no individual effects.</p>
 
-      <p style="margin-top:18px"><a href="/en/">← Back to home</a> · <a href="/en/terms.html">Terms of Service</a></p>
-    </div>
+        <h2 id="retention">10) Data retention</h2>
+        <ul>
+          <li><strong>Account & content</strong>: for the life of the account and, after closure, up to <strong>12 months</strong> for backup/log purposes, unless longer terms are legally required.</li>
+          <li><strong>Technical logs</strong>: up to <strong>180 days</strong>, unless security needs justify longer.</li>
+          <li><strong>Billing</strong> (if enabled): as required by Italian law for fiscal retention.</li>
+        </ul>
 
-    <div class="footer">
-      © MyHomesBudget — <a href="/en/privacy.html" style="color:#fff">Privacy</a> · <a href="/en/terms.html" style="color:#fff">Terms</a>
-    </div>
-  </div>
+        <h2 id="recipients">11) Recipients & processors (Art. 28 GDPR)</h2>
+        <ul>
+          <li><strong>Supabase</strong> (DB, authentication) — EU region selected; TLS and RLS in place.</li>
+          <li><strong>Google</strong> — Google Identity Services (login), Google Analytics 4 / Tag Manager (analytics, subject to consent where required).</li>
+          <li><strong>Static hosting/CDN</strong> for the site (if used).</li>
+          <li><strong>Advisors/providers</strong> (e.g., accounting/legal/IT), acting as processors or independent controllers depending on the case.</li>
+          <li><strong>Authorities</strong> or public bodies, within legal limits.</li>
+        </ul>
+
+        <h2 id="transfers">12) International transfers</h2>
+        <p>Where some providers (e.g., Google) process data outside the EEA, transfers rely on GDPR Chapter V safeguards (e.g., <em>Standard Contractual Clauses</em>, supplementary measures). For analytics, <strong>IP anonymization</strong> is enabled and collection is subject to consent where required.</p>
+
+        <h2 id="cookies">13) Cookies & similar technologies</h2>
+        <h3>13.1 Types</h3>
+        <ul>
+          <li><strong>Strictly necessary</strong>: essential for operation (authentication, security). Do not require consent.</li>
+          <li><strong>Analytics</strong> (GA4): aggregated metrics to improve the service. Active only with consent, where required.</li>
+        </ul>
+        <h3>13.2 Preferences & control</h3>
+        <p>Where present, a banner allows you to grant or withdraw choices at any time. You can also manage cookies from your browser (deletion, restrictions).</p>
+        <h3>13.3 Local storage</h3>
+        <p>The web app may use local storage (e.g., <code>localStorage</code>) for non-sensitive preferences (e.g., language <code>mhb_lang</code>, onboarding/verification flags).</p>
+
+        <h2 id="rights">14) Data subjects’ rights (Arts. 15–22 GDPR)</h2>
+        <ul>
+          <li><strong>Access</strong> to data and information on processing.</li>
+          <li><strong>Rectification</strong> of inaccurate data and <strong>erasure</strong> (“right to be forgotten”) where applicable.</li>
+          <li><strong>Restriction</strong> and <strong>objection</strong> to processing within legal limits.</li>
+          <li><strong>Portability</strong> of provided data in a structured format.</li>
+          <li><strong>Withdrawal of consent</strong> (e.g., analytics) without affecting prior lawfulness.</li>
+        </ul>
+        <p>To exercise rights: write to <a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a>. We usually respond within <strong>1 month</strong> (Art. 12 GDPR), after verifying your identity. You may lodge a complaint with the <strong>Italian Data Protection Authority (Garante)</strong> (<em>www.garanteprivacy.it</em>).</p>
+
+        <h2 id="minors">15) Children</h2>
+        <p>The service is intended for adults. We do not knowingly process data of children under 16; any such content will be deleted where technically feasible.</p>
+
+        <h2 id="breach">16) Personal data breaches</h2>
+        <p>In case of a breach, we assess the event under Arts. 33–34 GDPR and, where required, notify the supervisory authority and communicate with affected users, adopting corrective and preventive measures.</p>
+
+        <h2 id="changes">17) Changes to this notice</h2>
+        <p>This notice may be updated to comply with law or service evolution. The current version is published on this page with the update date.</p>
+
+        <h2 id="contacts">18) Contacts</h2>
+        <div class="kvp">
+          <div><strong>Controller</strong></div><div>Marco Lombardo</div>
+          <div><strong>Privacy email</strong></div><div><a href="mailto:privacy@myhomesbudget.com">privacy@myhomesbudget.com</a></div>
+          <div><strong>Address</strong></div><div>Via Sant’Antonio n.5 – 22070 – Locate Varesino (Como), Italy</div>
+          <div><strong>VAT / Tax ID</strong></div><div>VAT 03090650130 — Tax ID LMBMRC86A13L319I</div>
+        </div>
+        <p class="muted">For disputes, please refer to our <a href="/en/terms.html">Terms & Conditions</a> (competent court: Como, Italy).</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    gtag('event','privacy_viewed',{lang:'en'});
+  </script>
 </body>
 </html>
