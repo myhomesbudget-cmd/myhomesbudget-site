@@ -103,6 +103,30 @@
     .kvp{display:grid; grid-template-columns: 210px 1fr; gap:8px 16px}
     @media (max-width: 640px){ .kvp{grid-template-columns: 1fr} }
     .kvp div strong{display:block}
+
+/* ——— Giustifica testo stile “Word” nel corpo dell’articolo ——— */
+.two-col > article.card p,
+.two-col > article.card li {
+  text-align: justify;
+  text-justify: inter-word;     /* per i browser che lo supportano */
+  hyphens: auto;                /* sillabazione */
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+/* Mantieni l’hero centrato (già così) e non giustificare la TOC */
+.hero p { text-align: center; }
+
+/* Evita overflow su link/email lunghi nel corpo */
+.two-col > article.card a {
+  overflow-wrap: anywhere;
+}
+
+/* (Opzionale, non invasivo) bilancia i titoli dove supportato */
+@supports (text-wrap: balance) {
+  .hero h1,
+  .two-col > article.card h2 { text-wrap: balance; }
+}  
   </style>
 </head>
 <body>
