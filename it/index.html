@@ -84,69 +84,70 @@
       --grad: linear-gradient(135deg,#6c5ce7,#00cec9);
     }
     *{box-sizing:border-box}
-    a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:6px}
+    a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
 
     /* Sfondo */
     body{
       margin:0;padding:0;color:#fff;
-      background:url("/bg.webp") no-repeat center center fixed;
-      background-size:cover;
+      background:url("/bg.webp") no-repeat center/cover fixed;
     }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.05);z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
-    /* Layout + Nav (larghezze come pricing) */
-    .wrap{width:min(1100px,calc(100% - 40px));margin:0 auto;padding:12px 20px 24px;}
-    .nav{display:flex;justify-content:space-between;align-items:center}
+    /* ——— TOPBAR (identica a pricing/terms/privacy) ——— */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.top-actions{pointer-events:auto}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px}
+    .logo-image{height:32px} /* stesso valore delle altre pagine */
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .right-bar{display:flex;gap:12px;align-items:center}
-    .nav .nav-link, .login-link{
-      text-decoration:none;padding:6px 10px;border-radius:10px;font-weight:800;
-      background: transparent;
-      /* testo GRADIENTE */
-      background-image: var(--grad);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow:none;
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{
+      text-decoration:none;padding:6px 12px;border-radius:10px;font-weight:800;
+      background-image:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
     }
-    .nav .nav-link:hover, .login-link:hover{background:rgba(255,255,255,.12);}
-
+    .top-link:hover{background:rgba(255,255,255,.14)}
     .lang-selector{font-size:22px;display:flex;gap:8px}
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
 
-    /* HERO */
+    /* WRAP come pricing */
+    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 24px auto;}
+
+    /* HERO — con transizioni iniziali ripristinate */
     .hero{
-      min-height:34vh; /* leggermente su */
       display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;gap:12px;padding:6px 20px 0;margin:0;
+      text-align:center;gap:12px;padding:0 20px;margin:0;
     }
     .hero h1{
-      font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin:0 0 4px 0;
-      text-shadow:0 2px 6px rgba(0,0,0,.35);
-      color:#fff; /* niente box sotto */
+      font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin:0 0 2px 0;
+      color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35);
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .05s;
     }
     .hero p{
       max-width:760px;margin:4px 0 0;font-size:clamp(1rem,2vw,1.15rem);
       text-shadow:0 1px 3px rgba(0,0,0,.35);
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .25s;
     }
-
-    /* CTA con GRADIENTE */
+    .hero .cta-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
     .cta{
-      display:inline-block;
-      padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none;
-      background: var(--grad); color:#fff;
-      box-shadow:0 10px 24px rgba(0,0,0,.18);
+      display:inline-block;padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none;
+      background:var(--grad);color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18);
       transition:transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .45s;
     }
     .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.22)}
-    .cta-ghost{ margin-left:8px; } /* anche la ghost è a gradiente ora */
+    .microcopy{font-size:.95rem;color:#f0f0f0;opacity:.95; margin-top:2px;
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .55s;}
 
-    .microcopy{font-size:.95rem;color:#f0f0f0;opacity:.95}
+    @keyframes fadeInUp { to { opacity:1; transform:none; } }
+    @media (prefers-reduced-motion:reduce){
+      .hero h1,.hero p,.cta,.microcopy{animation:none;opacity:1;transform:none}
+    }
 
-    /* Card / Grid */
+    /* Cards / grid */
     .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:18px}
     @media(max-width:900px){.grid{grid-template-columns:1fr}}
     .card{
@@ -168,10 +169,8 @@
     .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
     .nbr{
       flex:0 0 38px;height:38px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;color:#fff;
-      background: var(--grad); /* badge numerati a gradiente */
-      box-shadow:0 6px 16px rgba(0,0,0,.15);
+      display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;
+      background:var(--grad);box-shadow:0 6px 16px rgba(0,0,0,.15);
     }
     .step h4{margin:0 0 4px;font-size:1.05rem}
     .step p{margin:0;color:#444;font-size:.95rem}
@@ -181,25 +180,21 @@
     .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
     @media(max-width:900px){.pricing-grid{grid-template-columns:1fr}}
     .price-card{
-      position:relative;
-      background:rgba(255,255,255,.55);
-      backdrop-filter:saturate(1.1) blur(6px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      position:relative;background:rgba(255,255,255,.55);
+      backdrop-filter:saturate(1.1) blur(6px);-webkit-backdrop-filter:saturate(1.1) blur(3px);
       color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
       display:flex;flex-direction:column;gap:10px;text-align:center;min-height:160px;
     }
     .badge{
       position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:999px;
-      font-size:.75rem;font-weight:900;color:#fff;
-      background: var(--grad); /* badge Più scelto a gradiente */
-      box-shadow:0 8px 18px rgba(0,0,0,.20);
+      font-size:.75rem;font-weight:900;color:#fff;background:var(--grad);box-shadow:0 8px 18px rgba(0,0,0,.20);
     }
     .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem}
     .plan-title .plan-name{font-weight:800}
     .plan-title .sep{opacity:.45}
     .plan-title .price-inline{
       font-weight:900;font-size:1.25rem;line-height:1;
-      background: var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; /* prezzo a gradiente */
+      background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
     }
     .plan-title .price-inline small{font-weight:600;font-size:.9rem;color:#333}
     .features{margin:4px 0 6px;color:#333;font-size:.95rem;line-height:1.45}
@@ -208,10 +203,8 @@
     .features li::before{content:"✓"; color:#2e7d32; font-weight:900}
 
     .btn-secondary{
-      display:inline-block;background: var(--grad);
-      color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:10px 14px;
-      box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;
-      transition:transform .15s ease, filter .15s ease;
+      display:inline-block;background:var(--grad);color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:10px 14px;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;transition:transform .15s ease, filter .15s ease;
     }
     .btn-secondary:hover{filter:brightness(1.08);transform:translateY(-1px)}
 
@@ -219,59 +212,51 @@
     .footer{margin:22px 0 10px;text-align:center;color:#e6e6e6;font-size:.9rem}
     .footer a{color:#fff}
 
-    /* Reveal */
+    /* Reveal (per card/steps) */
     .reveal{--d:0s;opacity:0;transform:translateY(16px) scale(.995);transform-origin:50% 100%;filter:saturate(.98);
       transition:opacity .85s ease,transform .85s cubic-bezier(.22,1,.36,1),filter .85s ease;will-change:opacity,transform}
     .reveal.in{opacity:1;transform:none;filter:none}
     @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none;filter:none}}
-
-    /* Compattazione desktop coerente con pricing */
-    @media (min-width:900px){
-      .card{padding:14px}
-      .grid{gap:10px;margin-top:12px}
-      .steps{margin-top:12px}
-      .pricing{margin-top:12px}
-      .price-card{padding:14px;min-height:140px}
-    }
 
     /* iOS: evita jank con background fixed */
     @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- NAV -->
-    <nav class="nav" aria-label="Navigazione principale">
-      <a href="/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="myhomesbudget Logo" class="logo-image" loading="lazy">
-        <span class="logo-text">MyHomesBudget</span>
-      </a>
+  <!-- TOPBAR -->
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-actions">
+      <a class="top-link" href="/it/login.html">Accedi</a>
+      <a class="top-link" href="/it/pricing.html">Prezzi</a>
+      <span class="lang-selector" aria-label="Selettore lingue">
+        <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
+        <a href="/en/" title="English" lang="en">🇬🇧</a>
+        <a href="/es/" title="Español" lang="es">🇪🇸</a>
+      </span>
+    </div>
+  </nav>
 
-      <div class="right-bar">
-        <a class="login-link" href="login.html" aria-label="Accedi">Accedi</a>
-        <a class="nav-link" href="/it/pricing.html" onclick="gtag('event','cta_click',{placement:'nav_pricing',lang:'it'});">Prezzi</a>
-        <span class="lang-selector" aria-label="Selettore lingue">
-          <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
-          <a href="/en/" title="English" lang="en">🇬🇧</a>
-          <a href="/es/" title="Español" lang="es">🇪🇸</a>
-        </span>
-      </div>
-    </nav>
-
+  <main class="wrap">
     <!-- HERO -->
     <section class="hero">
       <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
       <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
-      <div>
+
+      <div class="cta-row">
         <a class="cta" href="signup.html?plan=starter"
            onclick="gtag('event','cta_click',{lang:'it',placement:'hero_trial'});">
           Prova gratis per 30 giorni
         </a>
-        <a class="cta cta-ghost" href="/it/pricing.html"
+        <a class="cta" href="/it/pricing.html"
            onclick="gtag('event','cta_click',{placement:'hero_secondary',lang:'it'});">
           Scopri i piani
         </a>
       </div>
+
       <div class="microcopy" aria-hidden="true">Nessuna carta di credito richiesta. Cancella quando vuoi.</div>
     </section>
 
@@ -375,9 +360,9 @@
       <a href="/it/privacy.html" rel="noopener">Privacy</a> ·
       <a href="/it/terms.html" rel="noopener">Termini</a>
     </footer>
-  </div>
+  </main>
 
-  <!-- Reveal -->
+  <!-- Reveal (cards/steps) -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       gtag('event','view_landing',{ lang:'it' });
