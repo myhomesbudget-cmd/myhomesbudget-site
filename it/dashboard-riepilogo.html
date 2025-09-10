@@ -3,434 +3,167 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard — MyHomesBudget</title>
-  <meta name="description" content="Riepilogo mensile di entrate, uscite, risparmi e avanzamento obiettivi.">
+  <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
-  <script>document.documentElement.classList.add('js');</script>
 
-  <!-- CSP (allineata alla tua app) -->
   <meta http-equiv="Content-Security-Policy"
-        content="
-          default-src 'self';
-          img-src 'self' https: data:;
-          style-src 'self' 'unsafe-inline';
-          script-src 'self' 'unsafe-inline' https://esm.sh https://www.googletagmanager.com https://www.google-analytics.com;
-          connect-src 'self' https://*.supabase.co https://www.google-analytics.com;
-          font-src 'self' data:;
-        ">
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
+                 connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
+                 frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp"/>
+  <link rel="icon" href="/favicon.ico">
 
   <style>
-    :root{
-      /* Palette app (coerente con il tuo stile) */
-      --bg: #eef3fa;
-      --panel: #ffffffcc;         /* glass */
-      --panel-solid: #ffffff;
-      --border: rgba(0,0,0,.08);
-      --ink: #112236;
-      --ink-soft:#5b6b7c;
-      --brand:#6c7cff;            /* viola/indigo entrate */
-      --danger:#ff5b5b;           /* rosso uscite */
-      --success:#29c281;          /* verde residuo */
-      --accent:#a983ff;           /* anelli/decor */
-      --blur: 16px;
-      --radius: 16px;
-      --shadow: 0 8px 24px rgba(10, 30, 60, .08);
-    }
+    :root{ font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif; --grad:linear-gradient(135deg,#6c5ce7,#00cec9); --card-border:rgba(0,0,0,.06); }
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 400px at 20% 10%, rgba(108,124,255,.08), transparent 60%),
-        radial-gradient(1200px 400px at 80% 20%, rgba(169,131,255,.08), transparent 60%),
-        linear-gradient(0deg, #f7faff, #eaf1fb 40%, #e7effc);
-      background-attachment: fixed;
-    }
+    body{ margin:0; padding:0; color:#111; background:url("/bg.webp") no-repeat center/cover fixed; }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
-    /* Topbar glass */
     .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(var(--blur));
-      background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.35));
-      border-bottom:1px solid var(--border);
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:50;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
     }
-    .topbar .row{
-      max-width: 1280px;
-      margin: 0 auto;
-      display:flex; align-items:center; gap:16px;
-      padding: 12px 20px;
+    .logo-link,.top-actions{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    .top-chip{
+      background:rgba(255,255,255,.65); backdrop-filter:saturate(1.1) blur(6px);
+      -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      border:1px solid var(--card-border); color:#111; padding:8px 12px; border-radius:12px; font-weight:800;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
     }
-    .logo{display:flex; align-items:center; gap:10px; font-weight:700}
-    .logo-badge{
-      width:28px; height:28px; border-radius:8px;
-      background: linear-gradient(135deg, var(--brand), var(--accent));
-      box-shadow: inset 0 0 0 2px #fff9;
-    }
-    .top-center{
-      flex:1; display:flex; justify-content:center; align-items:center;
-      color:var(--ink-soft); font-weight:600; letter-spacing:.2px;
-    }
-    .top-actions{
-      display:flex; align-items:center; gap:8px;
-    }
-    .btn, .select{
-      border:1px solid var(--border); background: var(--panel-solid);
-      border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow);
-    }
-    .btn{ cursor:pointer; font-weight:600 }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(10,30,60,.12) }
-    .select{ padding:8px 10px; }
-
-    /* Layout */
-    .wrap{ max-width:1280px; margin:20px auto; padding:0 20px; display:grid; grid-template-columns: 240px 1fr 320px; gap:20px; }
-    @media (max-width: 1200px){ .wrap{ grid-template-columns:220px 1fr; } .aside-right{ grid-column: 1 / -1; order: 3; } }
-    @media (max-width: 880px){ .wrap{ grid-template-columns:1fr; } .aside-left{ order:1 } .main{ order:2 } .aside-right{ order:3 } }
-
-    /* Sidebar */
-    .aside-left{
-      border-radius: var(--radius);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      border:1px solid var(--border);
-      padding:18px;
-    }
-    .avatar{
-      width:110px; height:110px; border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #b6a7ff 0%, #8fa0ff 40%, #8f7bff 100%);
-      margin: 6px auto 12px;
-      box-shadow: inset 0 0 0 6px #fff6;
-    }
-    .menu{ display:flex; flex-direction:column; gap:8px; }
-    .menu a{
-      display:block; padding:10px 12px; border-radius:10px; text-decoration:none;
-      color:var(--ink); border:1px solid var(--border); background:#fff;
-      font-weight:600;
-    }
-    .menu a:hover{ background:#f7f9ff }
-
-    /* Main grid */
-    .main{ display:grid; gap:20px; }
-    .cards3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; }
-    @media (max-width: 1024px){ .cards3{ grid-template-columns: 1fr; } }
-
+    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 22px auto;}
     .card{
-      border-radius: var(--radius);
-      background: var(--panel);
-      border:1px solid var(--border);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+      background:rgba(255,255,255,0.50);
+      backdrop-filter:saturate(1.1) blur(5px); -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111; padding:16px; border-radius:16px; border:1px solid var(--card-border);
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
     }
-    .card-hd{
-      padding:12px 16px; border-bottom:1px solid var(--border); font-weight:800; text-align:center;
-      background: linear-gradient(180deg, #fff, rgba(255,255,255,.6));
-    }
-    .card-bd{ padding:16px; }
-    .kpi-center{ text-align:center; font-weight:800; font-size:36px; margin-top:6px; }
-    .kpi-sub{ text-align:center; color:var(--ink-soft); font-weight:700; letter-spacing:.3px; }
-
-    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-    @media (max-width: 880px){ .grid2{ grid-template-columns:1fr; } }
-
-    /* Tables */
-    table{ width:100%; border-collapse:collapse; }
-    th, td{ padding:10px 12px; border-bottom:1px solid var(--border); text-align:left; }
-    th{ font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); }
-
-    /* Aside right */
-    .aside-right .battery{
-      display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border);
-      background:#fff; border-radius:12px; margin-bottom:10px;
-    }
-    .cell{
-      width:26px; height:16px; border:2px solid #1b1d21; border-radius:3px; position:relative; overflow:hidden;
-    }
-    .cell::after{
-      content:""; position:absolute; right:-6px; top:4px; width:4px; height:8px; background:#1b1d21; border-radius:1px;
-    }
-    .fill{ height:100%; width:60%; background: linear-gradient(90deg, #9bffb4, #29c281); }
-    .fill.mid{ width:35%; background: linear-gradient(90deg, #ffd36e, #ff9f43); }
-    .fill.low{ width:15%; background: linear-gradient(90deg, #ff8a8a, #ff5b5b); }
-
-    .metric{ display:flex; justify-content:space-between; padding:6px 2px; color:var(--ink-soft); }
-    .metric b{ color:var(--ink); }
-
-    /* Chart canvases uniform */
-    .chart-box{ height:280px; display:flex; align-items:center; justify-content:center; }
-    canvas{ max-width:100%; max-height:100%; }
-    .muted{ color:var(--ink-soft); font-size:12px; text-align:center; margin-top:8px; }
+    .grid{display:grid; gap:14px; grid-template-columns:1fr 1fr}
+    @media(max-width:1000px){ .grid{grid-template-columns:1fr} }
+    .chart-box{height:340px; display:flex; align-items:center; justify-content:center}
+    canvas{max-width:100%; max-height:100%}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .kpi{font-weight:900;font-size:1.6rem}
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.06); text-align:left}
+    th{font-size:.8rem; text-transform:uppercase; letter-spacing:.4px; color:#333}
   </style>
 </head>
 <body>
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="row">
-      <div class="logo">
-        <span class="logo-badge" aria-hidden="true"></span>
-        <span>myhomes<strong>budget</strong></span>
-      </div>
-
-      <div class="top-center" id="trial-banner" aria-live="polite">
-        Tipologia di abbonamento: <b style="margin-left:6px">FREE (30 giorni)</b>
-      </div>
-
-      <div class="top-actions">
-        <select class="select" id="monthPicker" aria-label="Seleziona mese">
-          <option value="2025-09">Set 2025</option>
-          <option value="2025-08">Ago 2025</option>
-          <option value="2025-07">Lug 2025</option>
-        </select>
-        <button class="btn" onclick="go('/it/operazioni.html')">Operazioni</button>
-        <button class="btn" onclick="go('/it/riepilogo.html')">Riepilogo</button>
-        <button class="btn" onclick="go('/it/impostazioni.html')">Impostazioni</button>
-        <button class="btn" onclick="logout()">Esci</button>
-      </div>
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-actions">
+      <select class="top-chip" id="periodo" aria-label="Periodo">
+        <option value="1m">Mensile</option>
+        <option value="3m">Ultimi 3 mesi</option>
+        <option value="6m">Ultimi 6 mesi</option>
+        <option value="12m" selected>Ultimi 12 mesi</option>
+        <option value="ytd">Anno in corso</option>
+      </select>
+      <a class="top-chip" href="/it/dashboard.html">Dashboard</a>
+      <a class="top-chip" href="/it/operazioni.html">Operazioni</a>
+      <a class="top-chip" href="/it/impostazioni.html">Impostazioni</a>
+      <a class="top-chip" href="/it/logout.html">Esci</a>
     </div>
-  </header>
+  </nav>
 
-  <div class="wrap">
-    <!-- SIDEBAR LEFT -->
-    <aside class="aside-left">
-      <div class="avatar" aria-hidden="true"></div>
-      <h3 style="text-align:center;margin:6px 0 14px;">Benvenuto</h3>
-      <nav class="menu" aria-label="Sezioni">
-        <a href="/it/obiettivo.html">Conf. Obiettivo</a>
-        <a href="/it/operazioni.html">Operazioni</a>
-        <a href="/it/report.html">Report</a>
-        <a href="/it/export-csv.html">Export CSV</a>
-        <a href="/it/export-pdf.html">Export PDF</a>
-      </nav>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main">
-      <!-- Tripla card grafici -->
-      <section class="cards3">
-        <!-- BUDGET RESIDUO -->
-        <article class="card">
-          <div class="card-hd">BUDGET — (Σ Entrate) − (Σ Spese + Quota Risparmio)</div>
-          <div class="card-bd">
-            <div class="chart-box">
-              <canvas id="chartResiduo" width="320" height="280" aria-label="Grafico residuo"></canvas>
-            </div>
-            <div class="kpi-center"><span id="residuoPerc">36%</span></div>
-            <div class="kpi-sub">Residuo</div>
-            <p class="muted" id="legendResiduo">Entrate: €0 • Spese: €0 • Risparmio: €0</p>
-          </div>
-        </article>
-
-        <!-- ENTRATE -->
-        <article class="card">
-          <div class="card-hd">ENTRATE — Σ Somma mensile</div>
-          <div class="card-bd">
-            <div class="chart-box">
-              <canvas id="chartEntrate" width="320" height="280" aria-label="Grafico entrate"></canvas>
-            </div>
-            <div class="kpi-sub" style="text-align:center;font-size:16px;font-weight:800;margin-top:4px;">Entrate: <span id="entrateTot">€0</span></div>
-          </div>
-        </article>
-
-        <!-- USCITE -->
-        <article class="card">
-          <div class="card-hd">USCITE — Σ Somma mensile</div>
-          <div class="card-bd">
-            <div class="chart-box">
-              <canvas id="chartUscite" width="320" height="280" aria-label="Grafico uscite"></canvas>
-            </div>
-            <div class="kpi-sub" style="text-align:center;font-size:16px;font-weight:800;margin-top:4px;">Uscite: <span id="usciteTot">€0</span></div>
-          </div>
-        </article>
-      </section>
-
-      <!-- Dettagli sotto grafici -->
-      <section class="grid2">
-        <article class="card">
-          <div class="card-hd">Entrate</div>
-          <div class="card-bd" style="max-height:260px; overflow:auto;">
-            <table aria-label="Riepilogo entrate per categoria">
-              <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
-              <tbody id="tblEntrate">
-                <!-- righe dinamiche -->
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-hd">Uscite</div>
-          <div class="card-bd" style="max-height:260px; overflow:auto;">
-            <table aria-label="Riepilogo uscite per categoria">
-              <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
-              <tbody id="tblUscite">
-                <!-- righe dinamiche -->
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
-    </main>
-
-    <!-- ASIDE RIGHT: OBIETTIVO -->
-    <aside class="aside-right">
+  <main class="wrap">
+    <!-- Trend 12 mesi + ripartizione per categorie -->
+    <section class="grid">
       <article class="card">
-        <div class="card-hd">Il tuo obiettivo</div>
-        <div class="card-bd">
-          <div class="battery"><div class="cell"><div class="fill"></div></div><b>Alto</b></div>
-          <div class="battery"><div class="cell"><div class="fill mid"></div></div><b>Medio</b></div>
-          <div class="battery"><div class="cell"><div class="fill low"></div></div><b>Basso</b></div>
+        <h3>Andamento uscite — ultimi 12 mesi</h3>
+        <div class="chart-box"><canvas id="trendUscite"></canvas></div>
+        <div class="kpi">Totale periodo: <span id="uscitePeriodo">€0</span></div>
+      </article>
 
-          <div class="card" style="margin-top:12px;">
-            <div class="card-hd">Importo raggiunto</div>
-            <div class="card-bd">
-              <div class="kpi-center" id="obiettivoRaggiunto">€0</div>
-              <div class="kpi-sub">Restante al raggiungimento</div>
-              <div class="metric"><span>Restante (€)</span><b id="obiettivoMancanteEuro">—</b></div>
-              <div class="metric"><span>Restante (%)</span><b id="obiettivoMancantePerc">—</b></div>
-            </div>
-          </div>
+      <article class="card">
+        <h3>Ripartizione uscite — periodo selezionato</h3>
+        <div class="chart-box"><canvas id="donutUscite"></canvas></div>
+        <div class="kpi">Categorie: <span id="numCat">0</span></div>
+      </article>
+    </section>
+
+    <!-- Tabelle sintetiche -->
+    <section class="grid" style="margin-top:14px">
+      <article class="card">
+        <h3>Top 10 categorie per spesa</h3>
+        <div style="max-height:280px;overflow:auto">
+          <table><thead><tr><th>Categoria</th><th>Importo</th></tr></thead><tbody id="tblTopCat"></tbody></table>
         </div>
       </article>
-    </aside>
-  </div>
 
-  <!-- Scripts -->
+      <article class="card">
+        <h3>Mensilità (uscite)</h3>
+        <div style="max-height:280px;overflow:auto">
+          <table><thead><tr><th>Mese</th><th>Importo</th></tr></thead><tbody id="tblMensilita"></tbody></table>
+        </div>
+      </article>
+    </section>
+  </main>
+
   <script type="module">
-    import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from "https://esm.sh/chart.js@4";
-    Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
+    import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, DoughnutController, ArcElement, Tooltip, Legend } from "https://esm.sh/chart.js@4";
+    Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, DoughnutController, ArcElement, Tooltip, Legend);
 
-    const fmt = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR', maximumFractionDigits:0 });
+    const fmt = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0});
 
-    // === Dati di esempio (sostituirai con fetch Supabase) ===
-    const state = {
-      mese: "2025-09",
-      entrate: [
-        { categoria: "Stipendio", importo: 2100 },
-        { categoria: "Extra", importo: 250 },
-        { categoria: "Affitti", importo: 450 },
-      ],
-      uscite: [
-        { categoria: "Casa", importo: 820 },
-        { categoria: "Alimentari", importo: 380 },
-        { categoria: "Trasporti", importo: 160 },
-        { categoria: "Svago", importo: 210 },
-        { categoria: "Utenze", importo: 240 },
-      ],
-      quotaRisparmio: 300,
-      obiettivo: { target: 5000, raggiunto: 2150 }
-    };
+    // ===== Dati demo 12 mesi; sostituisci con query Supabase/materialized view =====
+    const mesi = ["Ott","Nov","Dic","Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set"];
+    const uscite12 = [820,760,890,840,910,860,920,950,880,910,870,940];
+    const ripCat = [
+      {cat:"Casa",v:920},{cat:"Alimentari",v:480},{cat:"Trasporti",v:210},{cat:"Utenze",v:260},{cat:"Svago",v:230},{cat:"Altro",v:180}
+    ];
 
-    // === Calcoli ===
-    const sum = arr => arr.reduce((a,b)=> a + b.importo, 0);
-    const totEntrate = sum(state.entrate);
-    const totUscite  = sum(state.uscite);
-    const residuoVal = Math.max(totEntrate - (totUscite + state.quotaRisparmio), 0);
-    const residuoPerc = Math.round((residuoVal / Math.max(totEntrate, 1)) * 100);
+    // KPI
+    const totPeriodo = uscite12.reduce((a,b)=>a+b,0);
+    document.getElementById('uscitePeriodo').textContent = fmt.format(totPeriodo);
+    document.getElementById('numCat').textContent = String(ripCat.length);
 
-    // === Bind KPI ===
-    document.getElementById('entrateTot').textContent = fmt.format(totEntrate);
-    document.getElementById('usciteTot').textContent  = fmt.format(totUscite);
-    document.getElementById('residuoPerc').textContent = residuoPerc + "%";
-    document.getElementById('legendResiduo').textContent =
-      `Entrate: ${fmt.format(totEntrate)} • Spese: ${fmt.format(totUscite)} • Risparmio: ${fmt.format(state.quotaRisparmio)}`;
+    // Tabelle
+    document.getElementById('tblTopCat').innerHTML =
+      ripCat.sort((a,b)=>b.v-a.v).slice(0,10).map(r=>`<tr><td>${r.cat}</td><td><b>${fmt.format(r.v)}</b></td></tr>`).join('');
 
-    // Obiettivo
-    const { target, raggiunto } = state.obiettivo;
-    const mancante = Math.max(target - raggiunto, 0);
-    const mancantePerc = Math.round((mancante / Math.max(target,1)) * 100);
+    document.getElementById('tblMensilita').innerHTML =
+      mesi.map((m,i)=>`<tr><td>${m}</td><td><b>${fmt.format(uscite12[i])}</b></td></tr>`).join('');
 
-    document.getElementById('obiettivoRaggiunto').textContent = fmt.format(raggiunto);
-    document.getElementById('obiettivoMancanteEuro').textContent = fmt.format(mancante);
-    document.getElementById('obiettivoMancantePerc').textContent = mancantePerc + "%";
-
-    // === Tabelle ===
-    const fillTable = (tbodyId, rows) => {
-      const tb = document.getElementById(tbodyId);
-      tb.innerHTML = rows.map(r => `<tr><td>${r.categoria}</td><td><b>${fmt.format(r.importo)}</b></td></tr>`).join('');
-    };
-    fillTable('tblEntrate', state.entrate);
-    fillTable('tblUscite', state.uscite);
-
-    // === Grafici ===
-    const donut = (el, data, colors, centerText) => {
-      const ctx = document.getElementById(el);
-      const chart = new Chart(ctx, {
-        type: 'doughnut',
-        data,
-        options: {
-          responsive: true,
-          cutout: '65%',
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks:{ label: (ctx)=> `${ctx.label}: ${fmt.format(ctx.parsed)}` } }
-          }
-        }
-      });
-      // testo centrale (semplice overlay)
-      if (centerText){
-        const div = document.createElement('div');
-        div.style.position='absolute';
-        div.style.pointerEvents='none';
-        div.style.font = '800 32px system-ui, sans-serif';
-        div.style.color = '#112236';
-        div.style.transform='translate(-50%, -50%)';
-        div.style.left = (ctx.getBoundingClientRect().left + ctx.width/2) + 'px';
-        div.style.top  = (ctx.getBoundingClientRect().top  + ctx.height/2) + 'px';
-        div.textContent = centerText;
-        document.body.appendChild(div);
-        // Re-posizionamento su resize
-        const ro = new ResizeObserver(()=> {
-          const r = ctx.getBoundingClientRect();
-          div.style.left = (r.left + ctx.width/2) + 'px';
-          div.style.top  = (r.top  + ctx.height/2) + 'px';
-        });
-        ro.observe(ctx);
+    // Linea 12 mesi (uscite)
+    new Chart(document.getElementById('trendUscite'), {
+      type:'line',
+      data:{
+        labels: mesi,
+        datasets:[{ label:'Uscite', data:uscite12, fill:false, tension:.25, pointRadius:3, borderWidth:2 }]
+      },
+      options:{
+        responsive:true,
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{ label:c=> fmt.format(c.parsed.y)}} },
+        scales:{ y:{ ticks:{ callback: v=> fmt.format(v).replace('€','€ ') } } }
       }
-      return chart;
-    };
+    });
 
-    // Residuo (2 spicchi: speso+risparmio vs residuo)
-    donut('chartResiduo',
-      {
-        labels: ['Impegnato', 'Residuo'],
-        datasets: [{
-          data: [ Math.max(totEntrate - residuoVal, 0), residuoVal ],
-          backgroundColor: ['#e8eef9', 'var(--success)'],
-          borderWidth: 0
+    // Donut categorie
+    new Chart(document.getElementById('donutUscite'), {
+      type:'doughnut',
+      data:{
+        labels: ripCat.map(r=>r.cat),
+        datasets:[{ data:ripCat.map(r=>r.v), borderWidth:0,
+          backgroundColor:['#ff5b5b','#ff7f7f','#ff9a9a','#ffb3b3','#ffd1d1','#ffe3e3']
         }]
       },
-      null,
-      residuoPerc + '%'
-    );
-
-    // Entrate per categoria
-    donut('chartEntrate',
-      {
-        labels: state.entrate.map(e=> e.categoria),
-        datasets: [{
-          data: state.entrate.map(e=> e.importo),
-          backgroundColor: ['#6c7cff','#8a97ff','#a5afff','#c2caff','#dee2ff'],
-          borderWidth: 0
-        }]
-      }
-    );
-
-    // Uscite per categoria
-    donut('chartUscite',
-      {
-        labels: state.uscite.map(e=> e.categoria),
-        datasets: [{
-          data: state.uscite.map(e=> e.importo),
-          backgroundColor: ['#ff5b5b','#ff7f7f','#ff9a9a','#ffb3b3','#ffd1d1'],
-          borderWidth: 0
-        }]
-      }
-    );
-
-    // Router helpers
-    window.go = (href)=> location.href = href;
-    window.logout = ()=> { /* hook supabase.auth.signOut() */ alert('Logout (stub).'); };
+      options:{ responsive:true, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=> `${c.label}: ${fmt.format(c.parsed)}`}} } }
+    });
   </script>
 </body>
 </html>
