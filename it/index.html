@@ -82,6 +82,7 @@
     :root{
       font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad: linear-gradient(135deg,#6c5ce7,#00cec9);
+      --card-border: rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
     a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
@@ -93,7 +94,7 @@
     }
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
 
-    /* ——— TOPBAR (identica a pricing/terms/privacy) ——— */
+    /* ——— TOPBAR (come privacy/terms/pricing) ——— */
     .topbar{
       position:fixed;top:16px;left:50%;transform:translateX(-50%);
       width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
@@ -101,7 +102,7 @@
     }
     .logo-link,.top-actions{pointer-events:auto}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px} /* stesso valore delle altre pagine */
+    .logo-image{height:32px}
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:12px;align-items:center}
     .top-link{
@@ -113,10 +114,10 @@
     .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
 
-    /* WRAP come pricing */
+    /* WRAP */
     .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 24px auto;}
 
-    /* HERO — con transizioni iniziali ripristinate */
+    /* HERO */
     .hero{
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       text-align:center;gap:12px;padding:0 20px;margin:0;
@@ -175,6 +176,65 @@
     .step h4{margin:0 0 4px;font-size:1.05rem}
     .step p{margin:0;color:#444;font-size:.95rem}
 
+    /* HOWTO (3 step) */
+    .howto { padding: 18px; }
+    .howto-title{
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .howto-grid{
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+    @media (max-width: 900px){ .howto-grid{ grid-template-columns: 1fr; } }
+
+    .howto-item{
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .howto-item:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.12);
+      background: rgba(255,255,255,.92);
+    }
+    .howto-icon{
+      margin: 4px auto 8px;
+      width: 48px; height: 48px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.12));
+    }
+    .howto-item h4{
+      margin: 6px 0 4px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #111;
+    }
+    .howto-item p{
+      margin: 0;
+      color: #2b2b2b;
+      font-size: .95rem;
+      line-height: 1.35;
+    }
+
+    /* STACCHI tra sezioni */
+    .grid + .howto { margin-top: 18px; }
+    .howto + .pricing { margin-top: 18px; }
+    @media (min-width:1100px){
+      .grid + .howto,
+      .howto + .pricing { margin-top: 22px; }
+    }
+
     /* Pricing teaser */
     .pricing{margin-top:20px}
     .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
@@ -182,13 +242,28 @@
     .price-card{
       position:relative;background:rgba(255,255,255,.55);
       backdrop-filter:saturate(1.1) blur(6px);-webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:#111;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08);
+      color:#111;border-radius:16px;padding:28px 18px 18px; /* leggermente più top padding */
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
       display:flex;flex-direction:column;gap:10px;text-align:center;min-height:160px;
     }
-    .badge{
-      position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:999px;
-      font-size:.75rem;font-weight:900;color:#fff;background:var(--grad);box-shadow:0 8px 18px rgba(0,0,0,.20);
+    .price-card.popular{ padding-top:42px; } /* abbasso di più la card Plus */
+
+    /* Badge centrato sopra la card (solo per pricing) */
+    .price-card .badge{
+      position:absolute;
+      top:-14px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:900;
+      color:#fff;
+      background:var(--grad);
+      box-shadow:0 10px 22px rgba(0,0,0,.20);
+      z-index:2;
     }
+
     .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem}
     .plan-title .plan-name{font-weight:800}
     .plan-title .sep{opacity:.45}
@@ -220,57 +295,6 @@
 
     /* iOS: evita jank con background fixed */
     @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
-
-/* Sezione "Come funziona" (howto) */
-.howto { padding: 18px; }
-.howto-title{
-  margin: 0 0 12px;
-  text-align: center;
-  font-size: 1.35rem;
-  font-weight: 800;
-  background: linear-gradient(135deg,#6c5ce7,#00cec9);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.howto-grid{
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-}
-@media (max-width: 900px){ .howto-grid{ grid-template-columns: 1fr; } }
-
-.howto-item{
-  background: rgba(255,255,255,.86);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0,0,0,.08);
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-}
-.howto-item:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(0,0,0,.12);
-  background: rgba(255,255,255,.92);
-}
-.howto-icon{
-  margin: 4px auto 8px;
-  width: 48px; height: 48px;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,.12));
-}
-.howto-item h4{
-  margin: 6px 0 4px;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #111;
-}
-.howto-item p{
-  margin: 0;
-  color: #2b2b2b;
-  font-size: .95rem;
-  line-height: 1.35;
-}
   </style>
 </head>
 <body>
@@ -318,69 +342,66 @@
       <div class="card reveal"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
     </section>
 
-    <!-- COME FUNZIONA (nuovo) -->
-<section class="card howto" aria-label="Inizia in 3 semplici passi">
-  <h3 class="reveal howto-title">Inizia in 3 semplici passi</h3>
+    <!-- COME FUNZIONA (3 passi) -->
+    <section class="card howto" aria-label="Inizia in 3 semplici passi">
+      <h3 class="reveal howto-title">Inizia in 3 semplici passi</h3>
 
-  <div class="howto-grid">
-    <!-- Passo 1 -->
-    <article class="howto-item reveal">
-      <div class="howto-icon" aria-hidden="true">
-        <!-- Icona Utente -->
-        <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
-          <defs>
-            <linearGradient id="grad-user" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6c5ce7"/>
-              <stop offset="1" stop-color="#00cec9"/>
-            </linearGradient>
-          </defs>
-          <circle cx="12" cy="8" r="4" fill="url(#grad-user)"></circle>
-          <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="url(#grad-user)" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h4>Crea il tuo account</h4>
-      <p>Registrati gratis in 30 secondi con la tua email o account Google.</p>
-    </article>
+      <div class="howto-grid">
+        <!-- Passo 1 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-user" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <circle cx="12" cy="8" r="4" fill="url(#grad-user)"></circle>
+              <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="url(#grad-user)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h4>Crea il tuo account</h4>
+          <p>Registrati gratis in 30 secondi con la tua email o account Google.</p>
+        </article>
 
-    <!-- Passo 2 -->
-    <article class="howto-item reveal">
-      <div class="howto-icon" aria-hidden="true">
-        <!-- Icona Plus -->
-        <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
-          <defs>
-            <linearGradient id="grad-plus" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6c5ce7"/>
-              <stop offset="1" stop-color="#00cec9"/>
-            </linearGradient>
-          </defs>
-          <path d="M12 5v14M5 12h14" stroke="url(#grad-plus)" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h4>Aggiungi le operazioni</h4>
-      <p>Inserisci entrate e uscite con categorie personalizzate in pochi click.</p>
-    </article>
+        <!-- Passo 2 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-plus" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <path d="M12 5v14M5 12h14" stroke="url(#grad-plus)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h4>Aggiungi le operazioni</h4>
+          <p>Inserisci entrate e uscite con categorie personalizzate in pochi click.</p>
+        </article>
 
-    <!-- Passo 3 -->
-    <article class="howto-item reveal">
-      <div class="howto-icon" aria-hidden="true">
-        <!-- Icona Carrello -->
-        <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
-          <defs>
-            <linearGradient id="grad-cart" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6c5ce7"/>
-              <stop offset="1" stop-color="#00cec9"/>
-            </linearGradient>
-          </defs>
-          <path d="M3 5h2l2.5 12h11l2-8H7" fill="none" stroke="url(#grad-cart)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="9" cy="20" r="1.6" fill="url(#grad-cart)"/>
-          <circle cx="18" cy="20" r="1.6" fill="url(#grad-cart)"/>
-        </svg>
+        <!-- Passo 3 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-cart" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <path d="M3 5h2l2.5 12h11l2-8H7" fill="none" stroke="url(#grad-cart)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="20" r="1.6" fill="url(#grad-cart)"/>
+              <circle cx="18" cy="20" r="1.6" fill="url(#grad-cart)"/>
+            </svg>
+          </div>
+          <h4>Raggiungi i tuoi obiettivi</h4>
+          <p>Monitora i progressi con grafici intuitivi e resta sempre nel tuo budget.</p>
+        </article>
       </div>
-      <h4>Raggiungi i tuoi obiettivi</h4>
-      <p>Monitora i progressi con grafici intuitivi e resta sempre nel tuo budget.</p>
-    </article>
-  </div>
-</section>
+    </section>
 
     <!-- PIANI E PREZZI — teaser -->
     <section class="card pricing pricing-panel" aria-label="Piani e prezzi">
@@ -403,7 +424,8 @@
              onclick="gtag('event','select_pricing',{plan:'starter',placement:'pricing_grid'});">Avvia la prova</a>
         </div>
 
-        <div class="price-card reveal">
+        <!-- PLUS con badge centrato -->
+        <div class="price-card popular reveal">
           <div class="badge" aria-hidden="true">Più scelto</div>
           <h4 class="plan-title">
             <span class="plan-name">Plus</span>
