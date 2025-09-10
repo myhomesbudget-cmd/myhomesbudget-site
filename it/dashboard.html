@@ -1,271 +1,376 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard — MyHomesBudget</title>
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="color-scheme" content="light dark">
-  <meta name="description" content="Riepilogo mensile di entrate, uscite, risparmio e avanzamento obiettivi.">
-
-  <!-- CSP: coerente con index + permessi per Chart.js e Supabase -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
-                 connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com;
-                 font-src 'self' https: data:;
-                 frame-ancestors 'none';
-                 base-uri 'self';
-                 form-action 'self'">
-
-  <!-- (opzionale) GA4 come nella index -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
-  </script>
-
-  <!-- Preload background come index -->
-  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp"/>
-  <link rel="icon" href="/favicon.ico">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.ico" />
 
   <style>
     :root{
-      font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      --grad: linear-gradient(135deg,#6c5ce7,#00cec9);
-      --card-border: rgba(0,0,0,.06);
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
     }
     *{box-sizing:border-box}
-    a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-    body{
-      margin:0;padding:0;color:#111;
-      background:url("/bg.webp") no-repeat center/cover fixed;
-    }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
 
-    /* TOPBAR (riuso stile index) */
-    .topbar{
-      position:fixed;top:16px;left:50%;transform:translateX(-50%);
-      width:min(1100px,calc(100% - 40px));z-index:50;pointer-events:none;
+    /* ====== TOPBAR identica al riepilogo ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
       display:flex;align-items:center;justify-content:space-between;
-    }
-    .logo-link,.top-actions{pointer-events:auto}
+      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--card-border);z-index:100}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .top-chip{
-      background:rgba(255,255,255,.65); backdrop-filter:saturate(1.1) blur(6px);
-      -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      border:1px solid var(--card-border); color:#111; padding:8px 12px; border-radius:12px; font-weight:800;
-      box-shadow:0 8px 24px rgba(0,0,0,.08);
-    }
-    .btn{ cursor:pointer; text-decoration:none }
-    .btn:hover{ filter:brightness(1.06) }
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;
+      background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600}
+    .top-link:hover{background:rgba(0,0,0,.38)}
+    #month-selector{background:rgba(255,255,255,.8);border-radius:8px;border:1px solid rgba(0,0,0,.1);padding:4px 8px;font-weight:600}
 
-    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 22px auto;}
-    .grid{display:grid; gap:14px; grid-template-columns: 240px 1fr 320px;}
-    @media(max-width:1024px){ .grid{grid-template-columns:1fr} }
+    /* Centro topbar per banner */
+    .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
 
-    /* Card glass come index */
-    .card{
-      background:rgba(255,255,255,0.50);
-      backdrop-filter:saturate(1.1) blur(5px); -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111; padding:16px; border-radius:16px; border:1px solid var(--card-border);
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-    }
-    .card h3{margin:0 0 8px}
-    .muted{color:#444; opacity:.9; font-size:.95rem}
-    .kpi{font-weight:900; font-size:1.6rem}
+    /* Banner prova (ora dentro topbar, centrato) */
+    #trial-banner{display:none;align-items:center;gap:10px;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;
+      padding:8px 12px;border-radius:999px;font-weight:700;
+      box-shadow:0 6px 16px rgba(0,0,0,.15)}
+    #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;
+      padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
+    #trial-banner a:hover{filter:brightness(.98)}
 
-    /* Sidebar sinistra */
-    .menu{display:flex;flex-direction:column;gap:8px}
-    .menu a{
-      text-decoration:none; padding:10px 12px; border-radius:12px;
-      background:rgba(255,255,255,.85); border:1px solid var(--card-border); color:#111; font-weight:800;
-    }
-    .menu a:hover{background:rgba(255,255,255,.95)}
+    /* ====== Contenuto ====== */
+    main.container{padding:84px 24px 24px;max-width:980px;margin:0 auto;width:100%}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:16px}
+    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
+    .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 
-    /* Colonna centrale */
-    .grid-main{display:grid; gap:14px}
-    .cards3{display:grid; gap:14px; grid-template-columns: repeat(3, minmax(0,1fr));}
-    @media(max-width:1024px){ .cards3{grid-template-columns:1fr} }
-    .chart-box{height:280px; display:flex; align-items:center; justify-content:center}
-    canvas{max-width:100%; max-height:100%}
-
-    .grid2{display:grid; gap:14px; grid-template-columns:1fr 1fr}
-    @media(max-width:1024px){ .grid2{grid-template-columns:1fr} }
-    table{width:100%; border-collapse:collapse}
-    th,td{padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.06); text-align:left}
-    th{font-size:.8rem; text-transform:uppercase; letter-spacing:.4px; color:#333}
-
-    /* Colonna destra obiettivo */
-    .battery{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    .cell{width:26px;height:16px;border:2px solid #1b1d21;border-radius:3px;position:relative;overflow:hidden}
-    .cell::after{content:"";position:absolute;right:-6px;top:4px;width:4px;height:8px;background:#1b1d21;border-radius:1px}
-    .fill{height:100%;width:60%;background:linear-gradient(90deg,#9bffb4,#29c281)}
-    .fill.mid{width:35%;background:linear-gradient(90deg,#ffd36e,#ff9f43)}
-    .fill.low{width:15%;background:linear-gradient(90deg,#ff8a8a,#ff5b5b)}
+    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);
+      padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:.2s}
+    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
+    @media(min-width:820px){.transaction-form{grid-template-columns:repeat(3,1fr) auto}}
+    .form-group{display:flex;flex-direction:column}
+    .form-group.full-width{grid-column:1 / -1}
+    .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
+    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
+    .item-icon{font-size:1.5rem;flex-shrink:0}
+    .item-details{display:flex;flex-direction:column;min-width:0}
+    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
+    .item-amount.expense{color:var(--danger-color);font-weight:700}
+    .item-amount.income{color:var(--success-color);font-weight:700}
+    .item-actions{display:flex;gap:4px;flex-shrink:0}
+    .action-btn{background:rgba(0,0,0,.05);color:#555;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer}
+    .action-btn:hover{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+    .action-btn.delete{background:#f8d7da;color:#842029;border-color:#f5c2c7}
+    .action-btn.delete:hover{background:#dc3545;color:#fff;border-color:#dc3545}
+    .empty-state{text-align:center;padding:40px;color:#555}
   </style>
 </head>
 <body>
-  <!-- TOPBAR -->
-  <nav class="topbar" aria-label="Barra superiore">
-    <a href="/it/" class="logo-link" title="MyHomesBudget">
-      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+  <!-- Topbar a tutta larghezza, come riepilogo -->
+  <nav class="topbar">
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
     </a>
+
+    <!-- centro: banner prova, centrato rispetto alla pagina -->
+    <div class="top-center">
+      <div id="trial-banner">
+        <span id="trial-days-left"></span>
+        <a href="/it/paywall.html">Aggiorna piano</a>
+      </div>
+    </div>
+
+    <!-- destra: azioni (come riepilogo) -->
     <div class="top-actions">
-      <span class="top-chip" id="trial-banner">FREE · 30 giorni</span>
-      <select class="top-chip" id="monthPicker" aria-label="Seleziona mese">
-        <option value="2025-09">Set 2025</option><option value="2025-08">Ago 2025</option><option value="2025-07">Lug 2025</option>
-      </select>
-      <a class="top-chip btn" href="/it/operazioni.html">Operazioni</a>
-      <a class="top-chip btn" href="/it/riepilogo.html">Riepilogo</a>
-      <a class="top-chip btn" href="/it/impostazioni.html">Impostazioni</a>
-      <a class="top-chip btn" href="/it/logout.html" id="logout-btn">Esci</a>
+      <!-- se vuoi puoi tenerlo anche qui per coerenza visiva, non interferisce -->
+      <select id="month-selector" aria-label="Seleziona mese"></select>
+      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
     </div>
   </nav>
 
-  <main class="wrap">
-    <div class="grid">
-      <!-- SIDEBAR -->
-      <aside class="card">
-        <h3>Benvenuto</h3>
-        <div class="menu" aria-label="Menu">
-          <a href="/it/obiettivo.html">Conf. Obiettivo</a>
-          <a href="/it/operazioni.html">Operazioni</a>
-          <a href="/it/report.html">Report</a>
-          <a href="/it/export-csv.html">Export CSV</a>
-          <a href="/it/export-pdf.html">Export PDF</a>
+  <main class="container">
+    <nav id="dash-nav" class="dash-nav">
+      <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
+      <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
+    </nav>
+
+    <section class="content-section">
+      <h2 id="form-title" style="margin:0 0 12px">Nuova Transazione</h2>
+      <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
+        <div class="form-group full-width">
+          <label for="kind">Tipo</label>
+          <select id="kind" name="kind" required>
+            <option value="expense">Uscita</option>
+            <option value="income">Entrata</option>
+            <option value="transfer">Trasferimento</option>
+          </select>
         </div>
-      </aside>
-
-      <!-- MAIN -->
-      <section class="grid-main">
-        <!-- 3 grafici principali -->
-        <div class="cards3">
-          <article class="card">
-            <h3>BUDGET — (Σ Entrate) − (Σ Spese + Quota Risparmio)</h3>
-            <div class="chart-box"><canvas id="chartResiduo" width="320" height="280"></canvas></div>
-            <div class="muted" id="legendResiduo">Entrate: €0 • Spese: €0 • Risparmio: €0</div>
-          </article>
-
-          <article class="card">
-            <h3>ENTRATE — Σ somma mensile</h3>
-            <div class="chart-box"><canvas id="chartEntrate" width="320" height="280"></canvas></div>
-            <div class="kpi">Entrate: <span id="entrateTot">€0</span></div>
-          </article>
-
-          <article class="card">
-            <h3>USCITE — Σ somma mensile</h3>
-            <div class="chart-box"><canvas id="chartUscite" width="320" height="280"></canvas></div>
-            <div class="kpi">Uscite: <span id="usciteTot">€0</span></div>
-          </article>
+        <div class="form-group full-width">
+          <label for="note">Nota</label>
+          <input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required>
         </div>
-
-        <!-- Tabelle -->
-        <div class="grid2">
-          <article class="card">
-            <h3>Entrate — per categoria</h3>
-            <div style="max-height:260px;overflow:auto">
-              <table aria-label="Riepilogo entrate per categoria">
-                <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
-                <tbody id="tblEntrate"></tbody>
-              </table>
-            </div>
-          </article>
-
-          <article class="card">
-            <h3>Uscite — per categoria</h3>
-            <div style="max-height:260px;overflow:auto">
-              <table aria-label="Riepilogo uscite per categoria">
-                <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
-                <tbody id="tblUscite"></tbody>
-              </table>
-            </div>
-          </article>
+        <div class="form-group">
+          <label for="amount">Importo (€)</label>
+          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
         </div>
-      </section>
-
-      <!-- OBIETTIVO -->
-      <aside class="card">
-        <h3>Il tuo obiettivo</h3>
-        <div class="battery"><div class="cell"><div class="fill"></div></div><b>Alto</b></div>
-        <div class="battery"><div class="cell"><div class="fill mid"></div></div><b>Medio</b></div>
-        <div class="battery"><div class="cell"><div class="fill low"></div></div><b>Basso</b></div>
-
-        <div class="card" style="margin-top:12px">
-          <h3>Importo raggiunto</h3>
-          <div class="kpi" id="obiettivoRaggiunto">€0</div>
-          <div class="muted">Restante al raggiungimento</div>
-          <div class="muted">Restante (€): <b id="obiettivoMancanteEuro">—</b></div>
-          <div class="muted">Restante (%): <b id="obiettivoMancantePerc">—</b></div>
+        <div class="form-group">
+          <label for="occurred_at">Data</label>
+          <input type="date" id="occurred_at" name="occurred_at" required>
         </div>
-      </aside>
-    </div>
+        <div class="form-group">
+          <label for="category_id">Categoria</label>
+          <select id="category_id" name="category_id" required>
+            <option value="">Scegli...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="subcategory_id">Sottocategoria</label>
+          <select id="subcategory_id" name="subcategory_id">
+            <option value="">Scegli...</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="grid-column:1 / -1;margin-top:10px">Aggiungi</button>
+      </form>
+    </section>
+
+    <section class="content-section" style="margin-top:16px">
+      <h2 style="margin:0 0 12px">Movimenti Recenti</h2>
+      <div id="transaction-list" class="transaction-list">
+        <div class="empty-state"><p>Nessuna transazione registrata.</p></div>
+      </div>
+    </section>
   </main>
 
-  <!-- Chart.js -->
   <script type="module">
-    import { Chart, DoughnutController, LineController, ArcElement, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from "https://esm.sh/chart.js@4";
-    Chart.register(DoughnutController, LineController, ArcElement, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
+    import { supabase } from "/it/supabase-client.js";
 
-    const fmt = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR', maximumFractionDigits:0 });
-    // ===== Dati demo (sostituisci con fetch da Supabase) =====
-    const state = {
-      mese: "2025-09",
-      entrate: [{categoria:"Stipendio",importo:2100},{categoria:"Extra",importo:250},{categoria:"Affitti",importo:450}],
-      uscite:  [{categoria:"Casa",importo:820},{categoria:"Alimentari",importo:380},{categoria:"Trasporti",importo:160},{categoria:"Svago",importo:210},{categoria:"Utenze",importo:240}],
-      quotaRisparmio: 300,
-      obiettivo:{target:5000,raggiunto:2150}
-    };
-    const sum = a => a.reduce((t,x)=>t+x.importo,0);
-    const totEntrate = sum(state.entrate), totUscite = sum(state.uscite);
-    const residuo = Math.max(totEntrate - (totUscite + state.quotaRisparmio), 0);
-    document.getElementById('entrateTot').textContent = fmt.format(totEntrate);
-    document.getElementById('usciteTot').textContent  = fmt.format(totUscite);
-    document.getElementById('legendResiduo').textContent =
-      `Entrate: ${fmt.format(totEntrate)} • Spese: ${fmt.format(totUscite)} • Risparmio: ${fmt.format(state.quotaRisparmio)}`;
+    const transactionForm = document.getElementById('transaction-form');
+    const kindSelect = document.getElementById('kind');
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+    const transactionIdInput = document.getElementById('transaction-id');
+    const formTitle = document.getElementById('form-title');
+    const transactionList = document.getElementById('transaction-list');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    // Tabelle
-    const renderRows = (id, rows)=> {
-      document.getElementById(id).innerHTML = rows.map(r=>`<tr><td>${r.categoria}</td><td><b>${fmt.format(r.importo)}</b></td></tr>`).join('');
-    };
-    renderRows('tblEntrate', state.entrate);
-    renderRows('tblUscite', state.uscite);
+    let user = null;
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
 
-    // Obiettivo
-    const {target,raggiunto} = state.obiettivo;
-    const mancante = Math.max(target - raggiunto, 0);
-    const manPerc  = Math.round((mancante / Math.max(target,1))*100);
-    document.getElementById('obiettivoRaggiunto').textContent = fmt.format(raggiunto);
-    document.getElementById('obiettivoMancanteEuro').textContent = fmt.format(mancante);
-    document.getElementById('obiettivoMancantePerc').textContent = manPerc + "%";
+    /* ==== Banner prova (stessa logica del riepilogo) ==== */
+    function handleTrialStatus(profile){
+      const banner = document.getElementById('trial-banner');
+      const text = document.getElementById('trial-days-left');
+      if (!profile || profile.plan_type !== 'trial' || !profile.trial_end){ banner.style.display='none'; return; }
 
-    // Chart helper
-    const donut = (el, labels, data, colors) => new Chart(document.getElementById(el), {
-      type:'doughnut',
-      data:{ labels, datasets:[{ data, backgroundColor: colors, borderWidth:0 }] },
-      options:{ responsive:true, cutout:'65%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label: c=> `${c.label}: ${fmt.format(c.parsed)}`}} } }
-    });
+      const trialEnd = new Date(profile.trial_end);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diffDays = Math.ceil((trialEnd.getTime() - today.getTime()) / 86400000);
 
-    // Residuo (impegnato vs residuo)
-    donut('chartResiduo',
-      ['Impegnato','Residuo'],
-      [ Math.max(totEntrate - residuo,0), residuo ],
-      ['#e8eef9','#29c281']
-    );
+      if (diffDays >= 0){
+        banner.style.display = 'flex';
+        text.textContent =
+          diffDays === 0 ? "Ultimo giorno di prova!"
+          : diffDays === 1 ? "Manca 1 giorno alla fine della prova."
+          : `Mancano ${diffDays} giorni alla fine della prova.`;
+      }else{
+        // prova scaduta: lascio che i trigger blocchino le scritture, ma avviso e reindirizzo
+        alert("La tua prova è terminata. Scegli un piano per continuare.");
+        location.replace("/it/paywall.html");
+      }
+    }
 
-    // Entrate/Uscite per categoria
-    donut('chartEntrate', state.entrate.map(x=>x.categoria), state.entrate.map(x=>x.importo),
-      ['#6c5ce7','#8a97ff','#a5afff','#c2caff','#dee2ff']);
-    donut('chartUscite', state.uscite.map(x=>x.categoria), state.uscite.map(x=>x.importo),
-      ['#ff5b5b','#ff7f7f','#ff9a9a','#ffb3b3','#ffd1d1']);
+    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
+
+    async function loadInitialData(){
+      const { data: categories, error: cError } =
+        await supabase.from('categories').select('*').eq('created_by', user.id);
+      if (cError){ console.error("Errore categorie:", cError); return; }
+      allCategories = categories || [];
+
+      if (allCategories.length){
+        const ids = allCategories.map(c => c.id);
+        const { data: subcategories, error: sError } =
+          await supabase.from('subcategories').select('*').in('category_id', ids);
+        if (sError){ console.error("Errore sottocategorie:", sError); return; }
+        allSubcategories = subcategories || [];
+      }
+    }
+
+    function updateCategoryDropdown(){
+      const selectedKind = kindSelect.value;
+      const filtered = allCategories.filter(cat => cat.kind === selectedKind);
+      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
+      updateSubcategories();
+    }
+
+    function updateSubcategories(selectedSubcategoryId = null){
+      const categoryId = categorySelect.value;
+      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+      subcategorySelect.disabled = true;
+      if (!categoryId) return;
+
+      const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+      if (relevant.length){
+        subcategorySelect.disabled = false;
+        relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
+        if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
+      }
+    }
+
+    async function loadTransactions(){
+      const { data, error } = await supabase.from('transactions')
+        .select(`*, categories(name, icon), subcategories(name, icon)`)
+        .eq('created_by', user.id)
+        .order('occurred_at', { ascending: false })
+        .limit(15);
+      if (error){ console.error("Errore transazioni:", error); return; }
+
+      allTransactions = data || [];
+      transactionList.innerHTML = '';
+      if (!allTransactions.length){
+        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+        return;
+      }
+
+      allTransactions.forEach(tx => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        const cat = tx.categories; const sub = tx.subcategories;
+        const icon = sub?.icon || cat?.icon || '💸';
+        const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        const amountNum = safeToNumber(tx.amount);
+        item.innerHTML = `
+          <div class="item-icon">${icon}</div>
+          <div class="item-details">
+            <span class="note">${tx.note ?? ''}</span>
+            <span class="category">${categoryText}</span>
+          </div>
+          <div class="item-amount ${tx.kind}">
+            ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
+            <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
+          </div>
+        `;
+        transactionList.appendChild(item);
+      });
+    }
+
+    function handleEdit(id){
+      const tx = allTransactions.find(t => String(t.id) === String(id));
+      if (!tx) return;
+      formTitle.textContent = "Modifica Transazione";
+      transactionIdInput.value = tx.id;
+      document.getElementById('kind').value = tx.kind;
+      document.getElementById('note').value = tx.note ?? '';
+      document.getElementById('amount').value = safeToNumber(tx.amount);
+      document.getElementById('occurred_at').value = (tx.occurred_at || '').split('T')[0] || '';
+      updateCategoryDropdown();
+      categorySelect.value = tx.category_id ?? '';
+      updateSubcategories(tx.subcategory_id ?? null);
+      window.scrollTo(0,0);
+    }
+
+    async function handleDelete(id){
+      if (!confirm("Eliminare questa transazione?")) return;
+      const { error } = await supabase.from('transactions').delete().eq('id', id);
+      if (error){ console.error("Errore eliminazione:", error); alert("Impossibile eliminare."); }
+      else{ loadTransactions(); }
+    }
+
+    async function handleFormSubmit(e){
+      e.preventDefault();
+      const formData = new FormData(transactionForm);
+      const id = formData.get('transaction-id');
+      const payload = {
+        kind: formData.get('kind'),
+        note: formData.get('note'),
+        amount: formData.get('amount'),
+        occurred_at: formData.get('occurred_at'),
+        category_id: formData.get('category_id'),
+        subcategory_id: formData.get('subcategory_id') || null,
+        created_by: user.id
+      };
+      const { error } = id
+        ? await supabase.from('transactions').update(payload).eq('id', id)
+        : await supabase.from('transactions').insert(payload);
+      if (error){ console.error("Errore salvataggio:", error); alert("Errore. Riprova."); }
+      else{
+        transactionForm.reset();
+        formTitle.textContent = "Nuova Transazione";
+        transactionIdInput.value = "";
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        updateCategoryDropdown();
+        loadTransactions();
+      }
+    }
+
+    async function initializePage(){
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session){ location.replace("/it/login.html"); return; }
+      user = session.user;
+
+      // profilo per onboarding + banner prova
+      const { data: profile, error: pErr } =
+        await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
+      if (pErr) console.warn("lettura profilo:", pErr?.message);
+      handleTrialStatus(profile);
+
+      if (profile && !profile.onboarded){
+        if (new URLSearchParams(location.search).get('edit') !== '1'){
+          location.replace("/it/onboarding.html");
+          return;
+        }
+      }
+
+      // mese selector (solo estetico, come sul riepilogo)
+      const monthSelector = document.getElementById('month-selector');
+      for (let i = 0; i < 12; i++){
+        const d = new Date(); d.setMonth(d.getMonth()-i);
+        const value = d.toISOString().slice(0,7) + '-01';
+        const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+        monthSelector.add(new Option(label, value));
+      }
+
+      document.getElementById('occurred_at').valueAsDate = new Date();
+      await loadInitialData();
+      updateCategoryDropdown();
+      await loadTransactions();
+
+      kindSelect.addEventListener('change', updateCategoryDropdown);
+      categorySelect.addEventListener('change', () => updateSubcategories());
+      transactionForm.addEventListener('submit', handleFormSubmit);
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+
+      transactionList.addEventListener('click', (ev)=>{
+        const t = ev.target.closest('.action-btn'); if (!t) return;
+        const id = t.dataset.id;
+        if (t.classList.contains('edit-btn')) handleEdit(id);
+        else if (t.classList.contains('delete-btn')) handleDelete(id);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initializePage);
   </script>
 </body>
 </html>
