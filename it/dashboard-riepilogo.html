@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it" data-app="myhomesbudget">
+<html lang="it" data-theme="dark" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,61 +8,83 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root{
-      --fg:#111; --bg:#f4f7fa; --glass:rgba(255,255,255,.6); --card-border:rgba(0,0,0,.08);
-      --shadow:0 10px 30px rgba(0,0,0,.08); --radius-lg:16px; --primary-color:#6c5ce7;
-      --danger-color:#d32f2f; --success-color:#2e7d32; --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --bg-dark: #1e202e; --sidebar-bg: #27293d; --card-bg: #2c2e43;
+      --fg-light: #edf2f7; --fg-muted: #a0aec0; --fg-dark: #1a202c;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --shadow: 0 10px 30px rgba(0,0,0,.2);
+      --radius-lg: 12px; --primary-color: #8a78f8; --accent-color: #f76e8c;
+      --danger-color: #f472b6; --success-color: #34d399;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad: linear-gradient(135deg, var(--primary-color), var(--accent-color));
     }
     *{box-sizing:border-box}
-    html{font-family:var(--font-sans); background-color: var(--bg);}
-    body{margin:0;color:var(--fg);position: relative; overflow-y: scroll;}
+    html{font-family:var(--font-sans); background-color: var(--bg-dark);}
+    body{margin:0;color:var(--fg-light); background-color: var(--bg-dark); font-size: 14px; overflow-y: scroll;}
     
-    /* Sfondo animato */
-    body::before{
-      content:""; position:fixed; inset:0; z-index:-2;
-      background:url("/bg.webp") no-repeat center/cover fixed;
+    .app-layout { display: flex; min-height: 100vh; }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      width: 240px; background-color: var(--sidebar-bg);
+      display: flex; flex-direction: column; padding: 24px;
+      border-right: 1px solid var(--border-color);
+      position: fixed; height: 100%; z-index: 10;
     }
-    body::after {
-        content: ""; position: fixed; inset: 0; z-index: -1;
-        background: linear-gradient(45deg, rgba(108, 92, 231, 0.1), rgba(0, 206, 201, 0.1), rgba(253, 121, 168, 0.1));
-        background-size: 400% 400%;
-        animation: gradient-animation 20s ease infinite;
+    .logo-link { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 40px; }
+    .logo-link img { height: 36px; border-radius: 8px; }
+    .logo-text { font-weight: 700; color: var(--fg-light); font-size: 1.2rem; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 8px; text-decoration: none;
+      color: var(--fg-muted); font-weight: 600;
+      transition: background-color 0.2s, color 0.2s;
     }
-    @keyframes gradient-animation {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+    .nav-link.active, .nav-link:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .nav-link svg { width: 20px; height: 20px; }
+    .sidebar .user-profile { margin-top: auto; }
+    .user-profile a { background: rgba(0,0,0,0.2); }
+
+    /* --- Main Content --- */
+    .main-content {
+      margin-left: 240px; width: calc(100% - 240px);
+      padding: 24px;
+    }
+    .content-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .header-title { font-size: 1.8rem; font-weight: 800; margin: 0; }
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+    #month-selector {
+      background-color: var(--card-bg); color: var(--fg-light);
+      border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 8px 12px; font-weight: 600;
+    }
+    .top-link{
+      color: var(--fg-light); text-decoration:none; padding: 8px 12px;
+      border-radius: 8px; background:var(--card-bg); border: 1px solid var(--border-color);
+      font-weight: 600;
     }
 
-    /* Header */
-    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100;}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-text{font-weight:600;color:#111;font-size:1.1rem;}
-    .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{color:var(--fg);text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.05); border:1px solid rgba(0,0,0,.08);font-size: 0.9rem; font-weight: 600;}
-    .top-link:hover{background:rgba(0,0,0,.1)}
-    #month-selector { background: rgba(255,255,255,0.8); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; font-weight: 600;}
-    
-    main.container{padding:84px 24px 24px; max-width:1400px; margin:0 auto; width:100%;}
-    
     /* Layout griglia */
     .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
-    .card{background:rgba(255,255,255,0.85);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
-    .card-header{display: flex; align-items: center; gap: 8px; margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
-    .card-header svg { width: 20px; height: 20px; stroke: #555; }
+    .card{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border-color);}
+    .card-header{display: flex; align-items: center; gap: 8px; margin:0 0 16px;font-size:1.1rem;color:var(--fg-light);border-bottom:1px solid var(--border-color);padding-bottom:12px;}
+    .card-header svg { width: 18px; height: 18px; stroke: var(--fg-muted); }
 
     /* Skeleton Loader */
+    @keyframes skeleton-loading { 0% { background-color: rgba(255,255,255,0.05); } 100% { background-color: rgba(255,255,255,0.1); } }
     .skeleton { animation: skeleton-loading 1.5s linear infinite alternate; }
-    @keyframes skeleton-loading { 0% { background-color: #e0e0e0; } 100% { background-color: #f0f0f0; } }
     .skeleton-text { width: 100%; height: 20px; border-radius: 4px; margin-bottom: 8px; }
-    .skeleton-text:last-child { margin-bottom: 0; }
-    .skeleton-text-short { width: 60%; }
     .skeleton-chart { border-radius: 50%; width: 140px; height: 140px; margin: 0 auto; }
     
     /* Assegnazione colonne widget */
     .widget-ai-assistant, .widget-budget-overview, .widget-summary, .widget-goal, .widget-main-chart, .widget-top-expenses, .widget-recent-transactions { grid-column: span 12; }
-
-    @media (min-width:1024px){
+    @media (min-width:1200px){
         .widget-ai-assistant { grid-column: span 12; order: -2; }
         .widget-budget-overview, .widget-summary, .widget-goal { grid-column: span 4; order: -1; }
         .widget-main-chart { grid-column: span 7; }
@@ -70,263 +92,295 @@
     }
 
     /* Stili Widget */
-    .summary-widget, .stat-card { text-align:center; }
-    .chart-container{position:relative;width:160px;height:160px;margin:0 auto;}
-    .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-    .chart-percentage{font-size:2.2rem;font-weight:800;color:var(--fg);}
-    .chart-subtext{font-size:0.8rem;color:#555;}
-    .summary-breakdown { margin-top: 20px; text-align: left; font-size: 0.9rem; }
-    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; border-bottom: 1px solid #eee; }
-    .summary-row .label { color: #555; }
-    .summary-row .amount { font-weight: 700; font-size: 1.1rem; }
+    .chart-container{position:relative;width:140px;height:140px;margin:10px auto;}
+    .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); text-align: center;}
+    .chart-percentage{font-size:2rem;font-weight:800;color:var(--fg-light);}
+    .chart-subtext{font-size:0.8rem;color:var(--fg-muted);}
+    .summary-breakdown { margin-top: 16px; font-size: 0.9rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .label { color: var(--fg-muted); }
+    .summary-row .amount { font-weight: 700; }
     .summary-row .amount.expense { color: var(--danger-color); }
     .summary-row .amount.income { color: var(--success-color); }
-    .summary-equation { font-size: 0.85rem; color: #444; text-align: center; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 8px; flex-wrap: wrap; justify-content: center; }
-
-    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:99px;height:12px;overflow:hidden;}
+    
+    .bar-background{background-color:rgba(0,0,0,0.2);border-radius:99px;height:10px;overflow:hidden;}
     .bar-foreground{height:100%;background:var(--grad);width:0%;transition:width 0.5s ease-out;border-radius:99px;}
     
-    .stat-card .label { font-size: 0.9rem; color: #555; margin-bottom: 4px; }
-    .stat-card .amount { font-size: 1.5rem; font-weight: 700; }
-    .stat-card .amount.income { color: var(--success-color); }
-    .stat-card .amount.budget { color: var(--primary-color); }
-    .stat-card .amount.savings { color: #f57c00; }
-
-    #budget-overview-content { display: flex; flex-direction: column; gap: 12px; }
-    .budget-equation { display: flex; align-items: center; justify-content: space-around; gap: 12px; width: 100%; }
-    .budget-explanation { text-align: center; font-size: 0.85rem; color: #555; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 8px; }
-
-    .transaction-list { list-style: none; padding: 0; margin: 0; }
-    .transaction-list li { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #eee; }
+    .transaction-list {list-style: none; padding: 0; margin:0;}
+    .transaction-list li { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--border-color); }
+    .transaction-list li:last-child { border-bottom: none; }
     .transaction-icon { font-size: 1.2rem; }
-    .transaction-details { flex-grow: 1; }
-    .transaction-details .name { font-weight: 600; }
-    .transaction-details .date { font-size: 0.8rem; color: #777; }
+    .transaction-details { flex-grow: 1; min-width: 0; }
+    .transaction-details .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .transaction-details .category { font-size: 0.8rem; color: var(--fg-muted); }
     .transaction-amount { font-weight: 700; }
     .transaction-amount.income { color: var(--success-color); }
     .transaction-amount.expense { color: var(--danger-color); }
-    
+
     /* Widget Assistente AI */
-    .widget-ai-assistant { background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95)); }
-    #ai-insight-content { min-height: 60px; display: flex; align-items: center; justify-content: center; padding: 10px; margin-bottom: 16px; }
-    #ai-insight-content .ai-placeholder { color: #555; font-style: italic; text-align: center; }
-    #ai-insight-content .ai-result { line-height: 1.6; font-size: 1.05rem; }
-    #analyze-month-btn { width: 100%; background: var(--grad); color: white; border: none; padding: 12px; font-size: 1rem; font-weight: 700; border-radius: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-    #analyze-month-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
-    #analyze-month-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .widget-ai-assistant { background: linear-gradient(135deg, #32344b, #2c2e43); }
+    #ai-insight-content .ai-result { line-height: 1.6; font-size: 1rem; color: var(--fg-light); }
+    #analyze-month-btn { width: auto; padding: 10px 20px; display: inline-block; margin-top: 16px; }
 
     /* Pulsante Aggiungi (+) */
     #add-transaction-btn {
-      position: fixed; bottom: 24px; right: 24px; z-index: 101;
-      width: 56px; height: 56px; border-radius: 50%; border: none;
-      background: var(--grad); color: white;
-      font-size: 28px; line-height: 56px; text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: fixed; bottom: 24px; right: 24px; z-index: 101;
+        width: 56px; height: 56px; border-radius: 50%; border: none;
+        background: var(--grad); color: white;
+        font-size: 28px; line-height: 56px; text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     #add-transaction-btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
     
     /* Modal */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-      display: none; align-items: center; justify-content: center;
-    }
-    .modal-content {
-      background: var(--bg); color: var(--fg);
-      border-radius: var(--radius-lg); padding: 24px;
-      width: min(450px, calc(100% - 40px));
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    }
+    .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 200;}
+    .modal-content { background: var(--card-bg); color: var(--fg-light); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; width: min(450px, calc(100% - 40px)); box-shadow: 0 10px 40px rgba(0,0,0,0.2);}
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .modal-header h2 { margin: 0; padding: 0; border: none; }
-    .modal-header .close-btn { font-size: 24px; cursor: pointer; border: none; background: none; }
+    .modal-header .close-btn { font-size: 24px; cursor: pointer; border: none; background: none; color: var(--fg-muted); }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
     .form-group input, .form-group select {
       width: 100%; padding: 10px; border-radius: 8px;
-      border: 1px solid #ccc; font-size: 1rem;
+      background-color: var(--bg-dark); color: var(--fg-light);
+      border: 1px solid var(--border-color);
     }
     .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
     .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
     .btn-primary { background: var(--primary-color); color: white; }
-    .btn-secondary { background: #e0e0e0; color: #333; }
-
-    /* Notifica Toast */
+    .btn-secondary { background: var(--sidebar-bg); color: var(--fg-light); }
+    
+    /* Toast */
     .toast {
-        position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-        background: #333; color: white; padding: 12px 20px;
-        border-radius: 8px; z-index: 300;
-        opacity: 0; transition: opacity 0.3s, top 0.3s;
+        position: fixed; top: 24px; right: 24px; z-index: 300;
+        background: var(--card-bg); color: var(--fg-light); padding: 12px 20px;
+        border-radius: 8px; border: 1px solid var(--border-color);
+        opacity: 0; transform: translateY(-20px);
+        transition: opacity 0.3s, transform 0.3s;
         display: none;
     }
-    .toast.show { opacity: 1; top: 90px; display: block;}
+    .toast.show { opacity: 1; transform: translateY(0); display: block;}
   </style>
 </head>
 <body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <a href="/it/" class="logo-link">
+        <img src="/homes.png" alt="Logo">
+        <span class="logo-text">MyHomesBudget</span>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+        <a href="#" class="nav-link">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+             Transazioni
+        </a>
+         <a href="#" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+            Report
+        </a>
+        <a href="#" class="nav-link">
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
+             Obiettivi
+        </a>
+      </nav>
+      <div class="user-profile">
+        <a href="#" id="logout-btn" class="nav-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Esci
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <h1 class="header-title">Dashboard</h1>
+        <div class="header-actions">
+          <select id="month-selector" aria-label="Seleziona mese"></select>
+          <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+        </div>
+      </header>
+      
+      <div class="dash-grid">
+        <!-- Contenuto della griglia widget... -->
+        <div class="widget-ai-assistant card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><path d="M20 12v4h-4"></path><path d="M4 12a8 8 0 1 0 16 0Z"></path><path d="M12 12v1.5a2.5 2.5 0 0 0 5 0V12a5 5 0 0 0-10 0v1.5a2.5 2.5 0 0 1 5 0V12"></path></svg>
+                Assistente Finanziario AI
+            </div>
+            <div id="ai-insight-content">
+                <p class="ai-placeholder">Clicca "Analizza" per ricevere un consiglio personalizzato.</p>
+                <div class="ai-result" style="display: none;"></div>
+            </div>
+            <button id="analyze-month-btn" class="btn btn-primary">Analizza il mio mese</button>
+        </div>
+
+        <div class="widget-budget-overview card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                Panoramica Budget
+            </div>
+            <div id="budget-overview-content"><div class="skeleton-text"></div></div>
+        </div>
+            
+        <div class="widget-summary card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 0 0 0-12v12z"></path></svg>
+                Riepilogo Mese
+            </div>
+            <div id="summary-widget-content"><div class="skeleton-chart skeleton"></div></div>
+        </div>
+
+        <div class="widget-goal card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
+                Obiettivo Principale
+            </div>
+            <div id="goal-widget-content"><div class="skeleton-text"></div></div>
+        </div>
+
+        <div class="widget-main-chart card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+                Andamento Spese
+            </div>
+            <div style="height:300px;"><canvas id="monthlyExpensesChart"></canvas></div>
+        </div>
+            
+        <div class="widget-top-expenses card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+                Spese Principali
+            </div>
+            <div id="top-categories-list"><div class="skeleton-text"></div></div>
+        </div>
+            
+        <div class="widget-recent-transactions card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                Ultime Operazioni
+            </div>
+            <div id="recent-transactions-list"><div class="skeleton-text"></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
   <div id="toast-notification" class="toast"></div>
-
-  <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-actions">
-      <select id="month-selector" aria-label="Seleziona mese"></select>
-      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
-      <a href="#" id="logout-btn" class="top-link">Esci</a>
-    </div>
-  </nav>
-
-  <main class="container">
-    <div class="dash-grid">
-      <div class="widget-ai-assistant card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><path d="M20 12v4h-4"></path><path d="M4 12a8 8 0 1 0 16 0Z"></path><path d="M12 12v1.5a2.5 2.5 0 0 0 5 0V12a5 5 0 0 0-10 0v1.5a2.5 2.5 0 0 1 5 0V12"></path></svg>
-            Assistente Finanziario AI
-        </div>
-        <div id="ai-insight-content">
-            <p class="ai-placeholder">Clicca "Analizza" per ricevere un consiglio personalizzato sulle tue finanze.</p>
-            <div class="ai-result" style="display: none;"></div>
-        </div>
-        <button id="analyze-month-btn" class="btn btn-primary">Analizza il mio mese</button>
-      </div>
-
-      <div class="widget-budget-overview card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            Panoramica Budget
-        </div>
-        <div id="budget-overview-content">
-            <div class="skeleton-text"></div><div class="skeleton-text skeleton-text-short"></div>
-        </div>
-      </div>
-        
-      <div class="widget-summary card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 0 0 0-12v12z"></path></svg>
-            Riepilogo Mese
-        </div>
-        <div id="summary-widget-content"><div class="skeleton-chart skeleton"></div></div>
-      </div>
-
-      <div class="widget-goal card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
-            Obiettivo Principale
-        </div>
-        <div id="goal-widget-content"><div class="skeleton-text"></div><div class="skeleton-text skeleton-text-short"></div></div>
-      </div>
-
-      <div class="widget-main-chart card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
-            Andamento Spese
-        </div>
-        <div style="height:300px;"><canvas id="monthlyExpensesChart"></canvas></div>
-      </div>
-        
-      <div class="widget-top-expenses card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
-            Spese Principali
-        </div>
-        <div id="top-categories-list"><div class="skeleton-text"></div><div class="skeleton-text"></div><div class="skeleton-text skeleton-text-short"></div></div>
-      </div>
-        
-      <div class="widget-recent-transactions card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-            Ultime Operazioni
-        </div>
-        <div id="recent-transactions-list"><div class="skeleton-text"></div><div class="skeleton-text"></div><div class="skeleton-text"></div></div>
-      </div>
-    </div>
-  </main>
-  
   <button id="add-transaction-btn" title="Aggiungi operazione">+</button>
-  
   <div id="add-transaction-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Nuova Operazione</h2>
-        <button class="close-btn" id="close-modal-btn">&times;</button>
+      <div class="modal-content">
+          <div class="modal-header">
+              <h2 id="modal-title">Nuova Operazione</h2>
+              <button class="close-btn" id="close-modal-btn">&times;</button>
+          </div>
+          <form id="transaction-form">
+              <input type="hidden" id="transaction-id">
+              <div class="form-group">
+                  <label for="type">Tipo</label>
+                  <select id="type" required>
+                      <option value="expense">Spesa</option>
+                      <option value="income">Entrata</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="description">Descrizione</label>
+                  <input type="text" id="description" placeholder="Es. Caffè al bar" required>
+              </div>
+              <div class="form-group">
+                  <label for="amount">Importo</label>
+                  <input type="number" id="amount" step="0.01" placeholder="0.00" required>
+              </div>
+              <div class="form-group">
+                  <label for="date">Data</label>
+                  <input type="date" id="date" required>
+              </div>
+              <div class="form-group">
+                  <label for="category">Categoria</label>
+                  <select id="category" required></select>
+              </div>
+               <div class="form-group">
+                  <label for="subcategory">Sottocategoria (opzionale)</label>
+                  <select id="subcategory"></select>
+              </div>
+              <div class="form-actions">
+                  <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Annulla</button>
+                  <button type="submit" class="btn btn-primary">Salva</button>
+              </div>
+          </form>
       </div>
-      <form id="transaction-form">
-        <div class="form-group">
-          <label for="amount">Importo</label>
-          <input type="number" id="amount" step="0.01" placeholder="Es. 25,50" required>
-        </div>
-        <div class="form-group">
-          <label for="type">Tipo</label>
-          <select id="type">
-            <option value="expense">Spesa</option>
-            <option value="income">Entrata</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="category">Categoria</label>
-          <select id="category" required></select>
-        </div>
-        <div class="form-group">
-          <label for="date">Data</label>
-          <input type="date" id="date" required>
-        </div>
-        <div class="form-group">
-          <label for="description">Descrizione (opzionale)</label>
-          <input type="text" id="description" placeholder="Es. Caffè al bar">
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Annulla</button>
-          <button type="submit" class="btn btn-primary">Salva</button>
-        </div>
-      </form>
-    </div>
   </div>
   
   <script type="module">
-    import { supabase } from "./supabase-client.js";
+    import { supabase } from "/it/supabase-client.js";
 
-    let currentData = {}; // Cache per i dati del mese
+    let currentData = {};
     let mainChartInstance = null;
     let summaryChartInstance = null;
+    let allCategories = [];
+    let allSubcategories = [];
 
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
     function showToast(message) {
         const toast = document.getElementById('toast-notification');
         toast.textContent = message;
-        toast.style.display = 'block';
-        setTimeout(() => { toast.classList.add('show'); }, 10);
-        setTimeout(() => { 
-            toast.classList.remove('show');
-            setTimeout(() => { toast.style.display = 'none'; }, 300);
-        }, 3000);
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show');}, 3000);
     }
 
-    // --- FUNZIONI DI RENDER ---
+    // --- FUNZIONI DI RENDER (aggiornate)---
+    function renderBarList(containerId, data) {
+        const c = document.getElementById(containerId);
+        c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = `<p style="font-size:0.9rem; color:var(--fg-muted);">Nessun dato per questo mese.</p>`; return; }
+        const maxTotal = Math.max(...data.map(item => item.total));
+        data.forEach(item => {
+            const p = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+            const e = document.createElement('div'); e.className = 'bar-list-item'; e.style.marginBottom = '12px';
+            e.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom: 4px; font-weight: 600;"><span>${item.icon || '💰'} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${p}%;"></div></div>`;
+            c.appendChild(e);
+        });
+    }
+
+    function renderRecentTransactions(data) {
+        const list = document.getElementById('recent-transactions-list');
+        list.innerHTML = ''; if (!data || data.length === 0) { list.innerHTML = `<p style="font-size:0.9rem; color:var(--fg-muted);">Nessuna operazione recente.</p>`; return; }
+        const ul = document.createElement('ul');
+        ul.className = 'transaction-list';
+        data.forEach(tx => {
+            const li = document.createElement('li');
+            const isExpense = tx.type === 'expense';
+            li.innerHTML = `
+                <span class="transaction-icon">${tx.categories?.icon || (isExpense ? '💸' : '💰')}</span>
+                <div class="transaction-details">
+                    <span class="name">${tx.description || tx.categories.name}</span>
+                    <span class="category">${tx.categories.name}${tx.subcategories ? ` / ${tx.subcategories.name}` : ''}</span>
+                </div>
+                <span class="transaction-amount ${isExpense ? 'expense' : 'income'}">${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}</span>`;
+            ul.appendChild(li);
+        });
+        list.appendChild(ul);
+    }
+    
     function renderBudgetOverview(data) {
         const container = document.getElementById('budget-overview-content');
-        if (!data) { container.innerHTML = '<p>Dati budget non disponibili.</p>'; return; }
+        if (!data) { container.innerHTML = '<p>Dati non disponibili.</p>'; return; }
         const budgetAmount = data.totalIncome - data.savingsBudget;
         container.innerHTML = `
-            <div class="budget-equation">
-                <div class="stat-card">
-                    <div class="label">Entrate Totali</div>
-                    <div class="amount income">${formatCurrency(data.totalIncome)}</div>
-                </div>
-                <div class="operator">-</div>
-                <div class="stat-card">
-                    <div class="label">Obiettivo Risparmio</div>
-                    <div class="amount savings">${formatCurrency(data.savingsBudget)}</div>
-                </div>
-                <div class="operator">=</div>
-                <div class="stat-card main-budget">
-                    <div class="label">Budget di Spesa</div>
-                    <div class="amount budget">${formatCurrency(budgetAmount)}</div>
-                </div>
+            <div style="text-align:center;">
+                <div class="label" style="color: var(--fg-muted);">Budget di Spesa</div>
+                <div class="amount" style="font-size: 1.8rem; color: var(--primary-color); font-weight: 700;">${formatCurrency(budgetAmount)}</div>
             </div>
-            <div class="budget-explanation">
-                Questo è l'importo che puoi spendere questo mese per restare in linea con i tuoi obiettivi di risparmio.
-            </div>
-        `;
+            <div style="font-size: 0.8rem; color: var(--fg-muted); text-align: center; margin-top: 8px;">
+                ${formatCurrency(data.totalIncome)} (Entrate) - ${formatCurrency(data.savingsBudget)} (Risparmio)
+            </div>`;
     }
 
     function renderSummaryWidget(data) {
@@ -344,39 +398,17 @@
                 </div>
             </div>
             <div class="summary-breakdown">
-                <div class="summary-row summary-equation">
-                   <span>
-                       ${formatCurrency(data.totalIncome)} (Entrate) - ${formatCurrency(data.savingsBudget)} (Risparmio) = <strong>${formatCurrency(spendingBudget)} (Budget)</strong>
-                   </span>
-                </div>
-                <div class="summary-row">
-                    <span class="label">Somma Spese</span>
-                    <span class="amount expense">${formatCurrency(data.totalExpenses)}</span>
-                </div>
-                <div class="summary-row">
-                    <span class="label">Somma Entrate</span>
-                    <span class="amount income">${formatCurrency(data.totalIncome)}</span>
-                </div>
+                <div class="summary-row"><span class="label">Spese</span><span class="amount expense">${formatCurrency(data.totalExpenses)}</span></div>
+                <div class="summary-row"><span class="label">Budget</span><span class="amount">${formatCurrency(spendingBudget)}</span></div>
             </div>`;
         
         if (summaryChartInstance) summaryChartInstance.destroy();
         summaryChartInstance = new Chart(document.getElementById('summaryDonutChart'), { 
             type: 'doughnut', 
             data: { 
-                labels: ['Spese', 'Rimanente'],
-                datasets: [{ 
-                    data: [data.totalExpenses, remainingBudget > 0 ? remainingBudget : 0], 
-                    backgroundColor: ['var(--danger-color)', 'rgba(0,0,0,0.1)'], 
-                    borderWidth: 0, 
-                    borderRadius: 5 
-                }] 
+                datasets: [{ data: [data.totalExpenses, remainingBudget > 0 ? remainingBudget : 0], backgroundColor: [ 'var(--danger-color)', 'rgba(255,255,255,0.1)' ], borderWidth: 0, borderRadius: 5 }] 
             }, 
-            options: { 
-                cutout: '80%', 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { legend: { display: false }, tooltip: { enabled: false } } 
-            } 
+            options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } } 
         });
     }
     
@@ -385,66 +417,31 @@
         if (mainChartInstance) mainChartInstance.destroy();
         const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
         const values = data.map(row => row.total_expenses);
-        mainChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)', borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
-    }
-
-    function renderBarList(containerId, data) {
-        const c = document.getElementById(containerId);
-        c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>'; return; }
-        const maxTotal = Math.max(...data.map(item => item.total));
-        data.forEach(item => {
-            const p = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
-            const e = document.createElement('div'); e.className = 'bar-list-item';
-            e.innerHTML = `<div class="label"><span>${item.icon || '💰'} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class="bar-background"><div class="bar-foreground expense-bar" style="width: ${p}%;"></div></div>`;
-            c.appendChild(e);
+        mainChartInstance = new Chart(ctx, { 
+            type: 'bar', 
+            data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(138, 120, 248, 0.8)', borderRadius: 5 }] }, 
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } 
         });
     }
     
     function renderGoalWidget(data) {
         const c = document.getElementById('goal-widget-content');
-        if (!data) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun obiettivo impostato.</p>'; return; }
+        if (!data) { c.innerHTML = '<p style="font-size:0.9rem; color:var(--fg-muted);">Nessun obiettivo impostato.</p>'; return; }
         const p = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
-        c.innerHTML = `<div class="goal-name">${data.name}</div><div class="goal-progress"><div class="progress-label"><span class="current">${formatCurrency(data.current_amount)}</span><span class="target">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`;
-    }
-
-    function renderRecentTransactions(data) {
-        const list = document.getElementById('recent-transactions-list');
-        list.innerHTML = ''; if (!data || data.length === 0) { list.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessuna operazione recente.</p>'; return; }
-        const ul = document.createElement('ul');
-        ul.className = 'transaction-list';
-        data.forEach(tx => {
-            const li = document.createElement('li');
-            const isExpense = tx.type === 'expense';
-            li.innerHTML = `
-                <span class="transaction-icon">${tx.category_icon || (isExpense ? '💸' : '💰')}</span>
-                <div class="transaction-details">
-                    <span class="name">${tx.description || tx.category_name}</span>
-                    <span class="date">${new Date(tx.date).toLocaleDateString('it-IT')}</span>
-                </div>
-                <span class="transaction-amount ${isExpense ? 'expense' : 'income'}">
-                    ${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}
-                </span>
-            `;
-            ul.appendChild(li);
-        });
-        list.appendChild(ul);
+        c.innerHTML = `<div style="font-weight: 700;">${data.name}</div><div style="margin-top: 12px;"><div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;"><span style="font-weight: 700; color: var(--primary-color);">${formatCurrency(data.current_amount)}</span><span style="color: var(--fg-muted);">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`;
     }
     
-    // --- Funzione SIMULATA per l'insight AI ---
     async function getAIInsight(data) {
-        console.log("Dati inviati all'AI:", data);
-        const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
         return new Promise(resolve => {
             setTimeout(() => {
-                let insight = "Ottimo lavoro con le entrate questo mese! 👍 ";
+                let insight = "Ottimo lavoro! ";
                 const foodExpense = data.topCategories.find(c => c.name && (c.name.toLowerCase().includes('ristoranti') || c.name.toLowerCase().includes('cibo')));
-                
                 if (foodExpense && foodExpense.total > (data.totalExpenses * 0.2)) {
-                    insight += `Ho notato che una parte significativa delle tue spese è per 'Ristoranti e Bar'. Potresti provare a pianificare 2-3 cene in casa in più la prossima settimana. Potrebbe farti risparmiare fino a ${formatCurrency(foodExpense.total * 0.25)}! 🍝`;
+                    insight += `Una parte significativa delle spese è per 'Ristoranti'. Prova a pianificare 2-3 cene in casa in più la prossima settimana per risparmiare fino a ${formatCurrency(foodExpense.total * 0.25)}! 🍝`;
                 } else if (data.remainingBudget < 0) {
-                    insight += `Sembra che tu abbia superato il budget. Nessun problema, succede! Controlliamo le 'Spese Principali' per vedere dove possiamo ottimizzare il prossimo mese. Forza! 💪`;
+                    insight += `Hai superato il budget. Controlliamo le 'Spese Principali' per vedere dove ottimizzare il prossimo mese. Forza! 💪`;
                 } else {
-                    insight += `Le tue spese sono ben bilanciate e sei in linea con il budget. Fantastico! Per ottimizzare ulteriormente, potresti considerare di investire una piccola parte del budget rimanente. 🚀`;
+                    insight += `Le tue spese sono ben bilanciate. Per ottimizzare, potresti investire una piccola parte del budget rimanente. 🚀`;
                 }
                 resolve(insight);
             }, 1500);
@@ -452,8 +449,7 @@
     }
 
     async function refreshAllData() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const { data: { user } } = await supabase.auth.getUser(); if (!user) return;
         const selectedMonth = document.getElementById('month-selector').value;
         await loadDashboardData(user, selectedMonth);
         const [chartRes, goalRes] = await Promise.all([
@@ -464,19 +460,14 @@
         if (goalRes.data) renderGoalWidget(goalRes.data);
     }
 
-    // --- FUNZIONI DI CARICAMENTO DATI ---
     async function loadDashboardData(user, selectedMonth) {
         const [summaryRes, topCatRes, recentTxRes] = await Promise.all([
             supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
             supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
-            supabase.rpc('get_recent_transactions', { user_id_param: user.id, limit_count: 5 })
+            supabase.from('transactions').select(`*, categories(*), subcategories(*)`).eq('created_by', user.id).order('date', { ascending: false }).limit(5)
         ]);
-        
         if (summaryRes.data) {
-            currentData.totalIncome = summaryRes.data.totalIncome;
-            currentData.totalExpenses = summaryRes.data.totalExpenses;
-            currentData.savingsBudget = summaryRes.data.savingsBudget;
-            currentData.remainingBudget = (summaryRes.data.totalIncome - summaryRes.data.savingsBudget) - summaryRes.data.totalExpenses;
+            currentData = { ...currentData, ...summaryRes.data, remainingBudget: (summaryRes.data.totalIncome - summaryRes.data.savingsBudget) - summaryRes.data.totalExpenses };
             renderSummaryWidget(summaryRes.data);
             renderBudgetOverview(summaryRes.data);
         }
@@ -487,83 +478,114 @@
         if (recentTxRes.data) renderRecentTransactions(recentTxRes.data);
     }
     
-    // --- INIZIALIZZAZIONE PAGINA ---
+    async function loadCategoriesForForm(user) {
+        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
+        if (cError) { console.error("Errore categorie:", cError); return; }
+        allCategories = categories || [];
+
+        if (allCategories.length) {
+            const ids = allCategories.map(c => c.id);
+            const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', ids);
+            if (sError) { console.error("Errore sottocategorie:", sError); return; }
+            allSubcategories = subcategories || [];
+        }
+    }
+    
+    function updateCategoryDropdown() {
+        const type = document.getElementById('type').value;
+        const categorySelect = document.getElementById('category');
+        const filtered = allCategories.filter(cat => cat.kind === type);
+        categorySelect.innerHTML = '<option value="">Scegli...</option>';
+        filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
+        updateSubcategoryDropdown();
+    }
+
+    function updateSubcategoryDropdown() {
+        const categoryId = document.getElementById('category').value;
+        const subcategorySelect = document.getElementById('subcategory');
+        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+        subcategorySelect.disabled = true;
+        if (!categoryId) return;
+        
+        const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+        if (relevant.length) {
+            subcategorySelect.disabled = false;
+            relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
+        }
+    }
+
     async function initializePage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { location.replace("/it/login.html"); return; }
         
+        await loadCategoriesForForm(user);
+        
         const monthSelector = document.getElementById('month-selector');
         for (let i = 0; i < 12; i++) {
-            const date = new Date();
-            date.setMonth(date.getMonth() - i);
+            const date = new Date(); date.setMonth(date.getMonth() - i);
             const value = date.toISOString().slice(0, 7) + '-01';
             const label = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
             monthSelector.add(new Option(label, value));
         }
         
-        const categorySelect = document.getElementById('category');
-        const { data: categories } = await supabase.from('categories').select('id, name').eq('user_id', user.id);
-        if (categories) {
-            categories.forEach(cat => categorySelect.add(new Option(cat.name, cat.id)));
-        }
-
         document.getElementById('date').valueAsDate = new Date();
         await refreshAllData();
 
         monthSelector.addEventListener('change', () => loadDashboardData(user, monthSelector.value));
         document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
     
-        // Gestione Modal
         const modal = document.getElementById('add-transaction-modal');
         const openBtn = document.getElementById('add-transaction-btn');
         const closeBtn = document.getElementById('close-modal-btn');
         const cancelBtn = document.getElementById('cancel-modal-btn');
         const form = document.getElementById('transaction-form');
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('category');
 
-        const openModal = () => modal.style.display = 'flex';
-        const closeModal = () => { modal.style.display = 'none'; form.reset(); document.getElementById('date').valueAsDate = new Date(); };
+        const openModal = () => {
+            document.getElementById('modal-title').textContent = 'Nuova Operazione';
+            form.reset();
+            document.getElementById('transaction-id').value = '';
+            document.getElementById('date').valueAsDate = new Date();
+            updateCategoryDropdown();
+            modal.style.display = 'flex';
+        };
+        const closeModal = () => { modal.style.display = 'none'; };
 
         openBtn.addEventListener('click', openModal);
         closeBtn.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        typeSelect.addEventListener('change', updateCategoryDropdown);
+        categorySelect.addEventListener('change', updateSubcategoryDropdown);
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newTransaction = {
-                user_id: user.id,
+            const payload = {
+                created_by: user.id, // Corretto da user_id
                 amount: parseFloat(document.getElementById('amount').value),
-                type: document.getElementById('type').value,
+                kind: document.getElementById('type').value, // Corretto da type
+                note: document.getElementById('description').value, // Corretto da description
+                occurred_at: document.getElementById('date').value, // Corretto da date
                 category_id: document.getElementById('category').value,
-                date: document.getElementById('date').value,
-                description: document.getElementById('description').value
+                subcategory_id: document.getElementById('subcategory').value || null,
             };
             
-            const { error } = await supabase.from('transactions').insert(newTransaction);
-            if (error) {
-                showToast(`Errore: ${error.message}`);
-            } else {
-                showToast('Operazione salvata con successo!');
-                closeModal();
-                await refreshAllData();
-            }
+            const { error } = await supabase.from('transactions').insert(payload);
+            
+            if (error) { showToast(`Errore: ${error.message}`); console.error(error); } 
+            else { showToast('Operazione salvata!'); closeModal(); await refreshAllData(); }
         });
         
-        // Listener per il pulsante AI
-        const analyzeBtn = document.getElementById('analyze-month-btn');
-        const aiResultContainer = document.querySelector('#ai-insight-content .ai-result');
-        const aiPlaceholder = document.querySelector('#ai-insight-content .ai-placeholder');
-
-        analyzeBtn.addEventListener('click', async () => {
-            analyzeBtn.disabled = true;
-            aiPlaceholder.style.display = 'none';
-            aiResultContainer.innerHTML = '<div class="skeleton-text" style="height: 40px;"></div>';
-            aiResultContainer.style.display = 'block';
-
+        document.getElementById('analyze-month-btn').addEventListener('click', async (e) => {
+            e.target.disabled = true;
+            const resultContainer = document.querySelector('#ai-insight-content .ai-result');
+            document.querySelector('#ai-insight-content .ai-placeholder').style.display = 'none';
+            resultContainer.innerHTML = '<div class="skeleton-text" style="height: 40px;"></div>';
+            resultContainer.style.display = 'block';
             const insight = await getAIInsight(currentData);
-            
-            aiResultContainer.innerHTML = insight;
-            analyzeBtn.disabled = false;
+            resultContainer.innerHTML = insight;
+            e.target.disabled = false;
         });
     }
 
