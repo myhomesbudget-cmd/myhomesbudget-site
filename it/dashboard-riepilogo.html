@@ -1,162 +1,522 @@
 <!doctype html>
 <html lang="it" data-app="myhomesbudget">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Riepilogo — MyHomesBudget</title><link rel="icon" href="/favicon.ico"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard — MyHomesBudget</title>
+  <link rel="icon" href="/favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root{--fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);--radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;--font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;}
+    :root{
+      --fg:#111; --bg:#f4f7fa; --glass:rgba(255,255,255,.6); --card-border:rgba(0,0,0,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.08); --radius-lg:16px; --primary-color:#6c5ce7;
+      --danger-color:#d32f2f; --success-color:#2e7d32; --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+    }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans); background-color: var(--bg);}
-    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed; overflow-y: scroll;}
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,0.05), rgba(0,206,201,0.05));z-index:-1}
+    
+    /* Header */
     .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100;}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .logo-text{font-weight:600;color:#111;font-size:1.1rem;}
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);font-size: 0.9rem; font-weight: 600;}
-    .top-link:hover{background:rgba(0,0,0,.38)}
+    .top-link{color:var(--fg);text-decoration:none;padding:6px 12px;border-radius:10px;background:rgba(0,0,0,.05); border:1px solid rgba(0,0,0,.08);font-size: 0.9rem; font-weight: 600;}
+    .top-link:hover{background:rgba(0,0,0,.1)}
     #month-selector { background: rgba(255,255,255,0.8); border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); padding: 4px 8px; font-weight: 600;}
-    main.container{padding:84px 24px 24px; max-width:1280px; margin:0 auto; width:100%;}
-    /* Stili per il banner della prova */
-    #trial-banner { display: none; background: linear-gradient(135deg, #6c5ce7, #00cec9); color: #fff; padding: 12px 16px; border-radius: 12px; text-align: center; font-weight: 600; justify-content: center; align-items: center; gap: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); margin-bottom: 24px; }
+    
+    main.container{padding:84px 24px 24px; max-width:1400px; margin:0 auto; width:100%;}
+    
+    /* Banner Prova */
+    #trial-banner { display: none; background: var(--grad); color: #fff; padding: 12px 16px; border-radius: 12px; text-align: center; font-weight: 600; justify-content: center; align-items: center; gap: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.2); margin-bottom: 24px; }
     #trial-banner a { background: #fff; color: var(--primary-color); text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     #trial-banner a:hover { transform: scale(1.05); }
+    
+    /* Layout griglia */
     .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
     .card{background:rgba(255,255,255,0.85);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--card-border);}
-    h2{margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
+    .card-header{display: flex; align-items: center; gap: 8px; margin:0 0 16px;font-size:1.1rem;color:#333;border-bottom:1px solid var(--card-border);padding-bottom:12px;}
+    .card-header svg { width: 20px; height: 20px; stroke: #555; }
+    
     .loading-text{color:#999;font-size:1rem;text-align:center;padding:20px;width:100%;}
-    @media (min-width:768px){.widget-summary{grid-column:span 12;}.widget-main-chart{grid-column:span 12;}.widget-goal{grid-column:span 12;}.widget-top-expenses{grid-column:span 12;}}
-    @media (min-width:1024px){.widget-summary{grid-column:span 4;}.widget-main-chart{grid-column:span 8;}.widget-goal{grid-column:span 4;}.widget-top-expenses{grid-column:span 8;}}
+
+    /* Assegnazione colonne widget */
+    .widget-budget-overview, .widget-goal, .widget-summary { grid-column: span 12; }
+    .widget-main-chart, .widget-top-expenses { grid-column: span 12; }
+    .widget-recent-transactions { grid-column: span 12; }
+
+    @media (min-width:768px){
+        .widget-budget-overview, .widget-goal { grid-column: span 6; }
+        .widget-summary { grid-column: span 12; }
+        .widget-main-chart { grid-column: span 7; }
+        .widget-top-expenses { grid-column: span 5; }
+    }
+    @media (min-width:1200px){
+        .widget-budget-overview, .widget-summary, .widget-goal { grid-column: span 4; }
+        .widget-main-chart { grid-column: span 6; }
+        .widget-top-expenses { grid-column: span 6; }
+        .widget-recent-transactions { grid-column: span 12; }
+    }
+
+    /* Stili Widget Riepilogo */
     .summary-widget{text-align:center;}
     .chart-container{position:relative;width:160px;height:160px;margin:0 auto;}
     .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-    .chart-percentage{font-size:2rem;font-weight:800;color:var(--fg);}
+    .chart-percentage{font-size:2.2rem;font-weight:800;color:var(--fg);}
     .chart-subtext{font-size:0.8rem;color:#555;}
-    .summary-details{margin-top:16px;}
-    .summary-details .label{color:#555;font-size:0.9rem;}
-    .summary-details .amount{font-weight:700;font-size:1.3rem;}
-    .summary-details .amount.expense{color:var(--danger-color);}
-    .summary-details .amount.remaining{color:var(--success-color);}
+    .summary-breakdown { margin-top: 20px; text-align: left; font-size: 0.9rem; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .label { color: #555; }
+    .summary-row .amount { font-weight: 700; font-size: 1.1rem; }
+    .summary-row .amount.expense { color: var(--danger-color); }
+    .summary-row .amount.income { color: var(--success-color); }
+    .summary-equation { font-size: 0.85rem; color: #444; text-align: center; background: rgba(0,0,0,0.03); border-radius: 8px; padding: 8px; flex-wrap: wrap; justify-content: center; }
+    .summary-equation span { white-space: nowrap; }
+    
     .goal-widget .goal-name { font-weight: 700; font-size: 1.1rem; }
     .goal-widget .goal-progress { margin-top: 12px; }
     .goal-widget .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px; }
     .goal-widget .current { font-weight: 700; color: var(--primary-color); }
     .goal-widget .target { color: #555; }
-    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:5px;height:12px;overflow:hidden;}
-    .bar-foreground{height:100%;background:linear-gradient(90deg, #8e44ad, #3498db);width:0%;transition:width 0.5s ease-out;border-radius:5px;}
+    .bar-background{background-color:rgba(0,0,0,0.1);border-radius:99px;height:12px;overflow:hidden;}
+    .bar-foreground{height:100%;background:var(--grad);width:0%;transition:width 0.5s ease-out;border-radius:99px;}
+    
     .bar-list-item{margin-bottom:12px;font-size:0.9rem;}
     .bar-list-item .label{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:600;}
-    .bar-foreground.expense-bar { background: var(--primary-color); }
+    .bar-list-item .label span:first-child { display: flex; align-items: center; gap: 8px; }
+    .bar-foreground.expense-bar { background: var(--grad); }
+
+    .stat-card { text-align: center; }
+    .stat-card .label { font-size: 0.9rem; color: #555; margin-bottom: 4px; }
+    .stat-card .amount { font-size: 1.5rem; font-weight: 700; }
+    .stat-card .amount.income { color: var(--success-color); }
+    .stat-card .amount.budget { color: var(--primary-color); }
+    .stat-card .amount.savings { color: #f57c00; }
+
+    /* Stili per la nuova Panoramica Budget */
+    #budget-overview-content { display: flex; flex-direction: column; gap: 12px; }
+    .budget-equation { display: flex; align-items: center; justify-content: space-around; gap: 12px; width: 100%; }
+    .budget-equation .stat-card { flex: 1; }
+    .budget-equation .operator { font-size: 2rem; font-weight: 300; color: #777; }
+    .budget-equation .main-budget .amount { font-size: 1.8rem; }
+    .budget-explanation { text-align: center; font-size: 0.85rem; color: #555; margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.03); border-radius: 8px; }
+
+    .transaction-list { list-style: none; padding: 0; margin: 0; }
+    .transaction-list li { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #eee; }
+    .transaction-list li:last-child { border-bottom: none; }
+    .transaction-icon { font-size: 1.2rem; }
+    .transaction-details { flex-grow: 1; }
+    .transaction-details .name { font-weight: 600; }
+    .transaction-details .date { font-size: 0.8rem; color: #777; }
+    .transaction-amount { font-weight: 700; }
+    .transaction-amount.income { color: var(--success-color); }
+    .transaction-amount.expense { color: var(--danger-color); }
+
+    /* Pulsante Aggiungi (+) */
+    #add-transaction-btn {
+      position: fixed; bottom: 24px; right: 24px; z-index: 101;
+      width: 56px; height: 56px; border-radius: 50%; border: none;
+      background: var(--grad); color: white;
+      font-size: 28px; line-height: 56px; text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    #add-transaction-btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-content {
+      background: var(--bg); color: var(--fg);
+      border-radius: var(--radius-lg); padding: 24px;
+      width: min(450px, calc(100% - 40px));
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; padding: 0; border: none; }
+    .modal-header .close-btn { font-size: 24px; cursor: pointer; border: none; background: none; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 10px; border-radius: 8px;
+      border: 1px solid #ccc; font-size: 1rem;
+    }
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+    .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: var(--primary-color); color: white; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+
+    /* Notifica Toast */
+    .toast {
+        position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+        background: #333; color: white; padding: 12px 20px;
+        border-radius: 8px; z-index: 300;
+        opacity: 0; transition: opacity 0.3s, top 0.3s;
+    }
+    .toast.show { opacity: 1; top: 90px; }
   </style>
 </head>
 <body>
+  <div id="toast-notification" class="toast"></div>
+
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-actions">
       <select id="month-selector" aria-label="Seleziona mese"></select>
-      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
       <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
       <a href="#" id="logout-btn" class="top-link">Esci</a>
     </div>
   </nav>
 
   <main class="container">
-    <!-- Banner per la prova -->
     <div id="trial-banner">
       <span id="trial-days-left"></span>
       <a href="/it/paywall.html">Passa a Pro</a>
     </div>
 
     <div class="dash-grid">
+      <div class="widget-budget-overview card">
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Panoramica Budget
+        </div>
+        <div id="budget-overview-content">
+            <p class="loading-text">Caricamento...</p>
+        </div>
+      </div>
+        
       <div class="widget-summary card">
-        <h2>Riepilogo Mese</h2>
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 0 0 0-12v12z"></path></svg>
+            Riepilogo Mese
+        </div>
         <div id="summary-widget-content"><p class="loading-text">Caricamento...</p></div>
       </div>
-      <div class="widget-main-chart card">
-        <h2>Andamento Spese</h2>
-        <div style="height:250px;"><canvas id="monthlyExpensesChart"></canvas></div>
-      </div>
+
       <div class="widget-goal card">
-        <h2>Obiettivo Principale</h2>
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
+            Obiettivo Principale
+        </div>
         <div id="goal-widget-content"><p class="loading-text">Caricamento...</p></div>
       </div>
+
+      <div class="widget-main-chart card">
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+            Andamento Spese
+        </div>
+        <div style="height:300px;"><canvas id="monthlyExpensesChart"></canvas></div>
+      </div>
+        
       <div class="widget-top-expenses card">
-        <h2>Spese Principali</h2>
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+            Spese Principali
+        </div>
         <div id="top-categories-list"><p class="loading-text">Caricamento...</p></div>
+      </div>
+        
+      <div class="widget-recent-transactions card">
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            Ultime Operazioni
+        </div>
+        <div id="recent-transactions-list"><p class="loading-text">Caricamento...</p></div>
       </div>
     </div>
   </main>
+  
+  <button id="add-transaction-btn" title="Aggiungi operazione">+</button>
+
+  <div id="add-transaction-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Nuova Operazione</h2>
+        <button class="close-btn" id="close-modal-btn">&times;</button>
+      </div>
+      <form id="transaction-form">
+        <div class="form-group">
+          <label for="amount">Importo</label>
+          <input type="number" id="amount" step="0.01" placeholder="Es. 25,50" required>
+        </div>
+        <div class="form-group">
+          <label for="type">Tipo</label>
+          <select id="type">
+            <option value="expense">Spesa</option>
+            <option value="income">Entrata</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="category">Categoria</label>
+          <select id="category" required></select>
+        </div>
+        <div class="form-group">
+          <label for="date">Data</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Descrizione (opzionale)</label>
+          <input type="text" id="description" placeholder="Es. Caffè al bar">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Annulla</button>
+          <button type="submit" class="btn btn-primary">Salva</button>
+        </div>
+      </form>
+    </div>
+  </div>
   
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
     const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
     let mainChartInstance = null;
+    let summaryChartInstance = null;
 
-    // --- FUNZIONE PER GESTIRE LA PROVA ---
-    function handleTrialStatus(profile) {
-      if (!profile || profile.plan_type !== 'trial' || !profile.trial_end) return;
-      const trialEnd = new Date(profile.trial_end);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const diffTime = trialEnd.getTime() - today.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const banner = document.getElementById('trial-banner');
-      const bannerText = document.getElementById('trial-days-left');
-      if (diffDays >= 0) {
-        banner.style.display = 'flex';
-        if (diffDays === 0) { bannerText.textContent = `Oggi è l'ultimo giorno della tua prova!`; }
-        else if (diffDays === 1) { bannerText.textContent = `Manca 1 giorno alla fine della tua prova.`; }
-        else { bannerText.textContent = `Mancano ${diffDays} giorni alla fine della tua prova.`; }
-      } else {
-        alert("La tua prova gratuita è terminata. Scegli un piano per continuare.");
-        window.location.replace("/it/paywall.html");
-      }
+    function showToast(message) {
+        const toast = document.getElementById('toast-notification');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // --- FUNZIONI DI RENDER ---
+    function renderBudgetOverview(data) {
+        const container = document.getElementById('budget-overview-content');
+        if (!data) { container.innerHTML = '<p>Dati budget non disponibili.</p>'; return; }
+        const budgetAmount = data.totalIncome - data.savingsBudget;
+        container.innerHTML = `
+            <div class="budget-equation">
+                <div class="stat-card">
+                    <div class="label">Entrate Totali</div>
+                    <div class="amount income">${formatCurrency(data.totalIncome)}</div>
+                </div>
+                <div class="operator">-</div>
+                <div class="stat-card">
+                    <div class="label">Obiettivo Risparmio</div>
+                    <div class="amount savings">${formatCurrency(data.savingsBudget)}</div>
+                </div>
+                <div class="operator">=</div>
+                <div class="stat-card main-budget">
+                    <div class="label">Budget di Spesa</div>
+                    <div class="amount budget">${formatCurrency(budgetAmount)}</div>
+                </div>
+            </div>
+            <div class="budget-explanation">
+                Questo è l'importo che puoi spendere questo mese per restare in linea con i tuoi obiettivi di risparmio.
+            </div>
+        `;
+    }
+
+    function renderSummaryWidget(data) {
+        const c = document.getElementById('summary-widget-content');
+        const spendingBudget = data.totalIncome - data.savingsBudget;
+        const remainingBudget = spendingBudget - data.totalExpenses;
+        const remainingPercentage = spendingBudget > 0 ? (remainingBudget / spendingBudget) * 100 : 0;
+        
+        c.innerHTML = `
+            <div class="chart-container">
+                <canvas id="summaryDonutChart"></canvas>
+                <div class="chart-center-text">
+                    <div class="chart-percentage">${remainingPercentage.toFixed(0)}%</div>
+                    <div class="chart-subtext">rimanente</div>
+                </div>
+            </div>
+            <div class="summary-breakdown">
+                <div class="summary-row summary-equation">
+                   <span>
+                       ${formatCurrency(data.totalIncome)} (Entrate) - ${formatCurrency(data.savingsBudget)} (Risparmio) = <strong>${formatCurrency(spendingBudget)} (Budget)</strong>
+                   </span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Somma Spese</span>
+                    <span class="amount expense">${formatCurrency(data.totalExpenses)}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Somma Entrate</span>
+                    <span class="amount income">${formatCurrency(data.totalIncome)}</span>
+                </div>
+            </div>`;
+        
+        if (summaryChartInstance) summaryChartInstance.destroy();
+        summaryChartInstance = new Chart(document.getElementById('summaryDonutChart'), { 
+            type: 'doughnut', 
+            data: { 
+                labels: ['Spese', 'Rimanente'],
+                datasets: [{ 
+                    data: [data.totalExpenses, remainingBudget > 0 ? remainingBudget : 0], 
+                    backgroundColor: ['var(--danger-color)', 'rgba(0,0,0,0.1)'], 
+                    borderWidth: 0, 
+                    borderRadius: 5 
+                }] 
+            }, 
+            options: { 
+                cutout: '80%', 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false }, tooltip: { enabled: false } } 
+            } 
+        });
     }
     
-    // --- FUNZIONI DI RENDER (invariate) ---
-    function renderSummaryWidget(data) { const c = document.getElementById('summary-widget-content'); const s = data.totalExpenses; const b = data.totalIncome - data.savingsBudget; const r = b - s; const p = b > 0 ? (s / b) * 100 : 0; c.innerHTML = `<div class=chart-container><canvas id=summaryDonutChart></canvas><div class=chart-center-text><div class=chart-percentage>${p.toFixed(1)}%</div><div class=chart-subtext>del budget</div></div></div><div class=summary-details><p class=label>Spese Attuali</p><p class="amount expense">${formatCurrency(s)}</p><p class=label>Budget Rimanente</p><p class="amount remaining">${formatCurrency(r)}</p></div>`; new Chart(document.getElementById('summaryDonutChart'), { type: 'doughnut', data: { datasets: [{ data: [s, r > 0 ? r : 0], backgroundColor: ['var(--primary-color)', 'rgba(0,0,0,0.1)'], borderWidth: 0, borderRadius: 5 }] }, options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
-    function renderMainChart(data) { const ctx = document.getElementById('monthlyExpensesChart'); if (!ctx) return; if (mainChartInstance) { mainChartInstance.destroy(); } const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' })); const values = data.map(row => row.total_expenses); mainChartInstance = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } }); }
-    function renderBarList(containerId, data) { const c = document.getElementById(containerId); c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>'; return; } const maxTotal = Math.max(...data.map(item => item.total)); data.forEach(item => { const p = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0; const e = document.createElement('div'); e.className = 'bar-list-item'; e.innerHTML = `<div class=label><span>${item.icon || ''} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class=bar-background><div class="bar-foreground expense-bar" style="width: ${p}%;"></div></div>`; c.appendChild(e); }); }
-    function renderGoalWidget(data) { const c = document.getElementById('goal-widget-content'); const p = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0; c.innerHTML = `<div class="goal-name">${data.name}</div><div class="goal-progress"><div class="progress-label"><span class="current">${formatCurrency(data.current_amount)}</span><span class="target">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`; }
+    function renderMainChart(data) { 
+        const ctx = document.getElementById('monthlyExpensesChart'); if (!ctx) return; 
+        if (mainChartInstance) mainChartInstance.destroy();
+        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
+        const values = data.map(row => row.total_expenses);
+        mainChartInstance = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(108, 92, 231, 0.8)', borderRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
+    }
 
+    function renderBarList(containerId, data) {
+        const c = document.getElementById(containerId);
+        c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun dato per questo mese.</p>'; return; }
+        const maxTotal = Math.max(...data.map(item => item.total));
+        data.forEach(item => {
+            const p = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
+            const e = document.createElement('div'); e.className = 'bar-list-item';
+            e.innerHTML = `<div class=label><span>${item.icon || '💰'} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class=bar-background><div class="bar-foreground expense-bar" style="width: ${p}%;"></div></div>`;
+            c.appendChild(e);
+        });
+    }
+    
+    function renderGoalWidget(data) {
+        const c = document.getElementById('goal-widget-content');
+        if (!data) { c.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessun obiettivo impostato.</p>'; return; }
+        const p = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
+        c.innerHTML = `<div class="goal-name">${data.name}</div><div class="goal-progress"><div class="progress-label"><span class="current">${formatCurrency(data.current_amount)}</span><span class="target">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`;
+    }
+
+    function renderRecentTransactions(data) {
+        const list = document.getElementById('recent-transactions-list');
+        list.innerHTML = ''; if (!data || data.length === 0) { list.innerHTML = '<p style="font-size:0.9rem; color:#555;">Nessuna operazione recente.</p>'; return; }
+        const ul = document.createElement('ul');
+        ul.className = 'transaction-list';
+        data.forEach(tx => {
+            const li = document.createElement('li');
+            const isExpense = tx.type === 'expense';
+            li.innerHTML = `
+                <span class="transaction-icon">${tx.category_icon || (isExpense ? '支出' : '収入')}</span>
+                <div class="transaction-details">
+                    <span class="name">${tx.description || tx.category_name}</span>
+                    <span class="date">${new Date(tx.date).toLocaleDateString('it-IT')}</span>
+                </div>
+                <span class="transaction-amount ${isExpense ? 'expense' : 'income'}">
+                    ${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}
+                </span>
+            `;
+            ul.appendChild(li);
+        });
+        list.appendChild(ul);
+    }
+    
+    // --- FUNZIONI DI CARICAMENTO DATI ---
     async function loadDashboardData(user, selectedMonth) {
-      document.getElementById('summary-widget-content').innerHTML = '<p class="loading-text">Caricamento...</p>';
-      document.getElementById('top-categories-list').innerHTML = '<p class="loading-text">Caricamento...</p>';
-      const [summaryRes, topCatRes] = await Promise.all([
-        supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
-        supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
-      ]);
-      if (summaryRes.data) renderSummaryWidget(summaryRes.data);
-      if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
+        document.getElementById('summary-widget-content').innerHTML = '<p class="loading-text">Caricamento...</p>';
+        document.getElementById('top-categories-list').innerHTML = '<p class="loading-text">Caricamento...</p>';
+        document.getElementById('recent-transactions-list').innerHTML = '<p class="loading-text">Caricamento...</p>';
+        
+        const [summaryRes, topCatRes, recentTxRes] = await Promise.all([
+            supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
+            supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
+            supabase.rpc('get_recent_transactions', { user_id_param: user.id, limit_count: 5 })
+        ]);
+        
+        if (summaryRes.data) {
+            renderSummaryWidget(summaryRes.data);
+            renderBudgetOverview(summaryRes.data);
+        }
+        if (topCatRes.data) renderBarList('top-categories-list', topCatRes.data);
+        if (recentTxRes.data) renderRecentTransactions(recentTxRes.data);
     }
     
+    async function refreshAllData() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const selectedMonth = document.getElementById('month-selector').value;
+        await loadDashboardData(user, selectedMonth);
+        // Ricarica anche i dati non dipendenti dal mese
+        const [chartRes, goalRes] = await Promise.all([
+            supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
+            supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
+        ]);
+        if (chartRes.data) renderMainChart(chartRes.data);
+        if (goalRes.data) renderGoalWidget(goalRes.data);
+    }
+    
+    // --- INIZIALIZZAZIONE PAGINA ---
     async function initializePage() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { location.replace("/it/login.html"); return; }
-      
-      const { data: profile } = await supabase.from('profiles').select('plan_type, trial_end').eq('id', user.id).single();
-      handleTrialStatus(profile);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { location.replace("/it/login.html"); return; }
+        
+        const { data: profile } = await supabase.from('profiles').select('plan_type, trial_end').eq('id', user.id).single();
+        // handleTrialStatus(profile); // Funzione di gestione prova
 
-      const monthSelector = document.getElementById('month-selector');
-      for (let i = 0; i < 12; i++) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        const value = date.toISOString().slice(0, 7) + '-01';
-        const label = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-        monthSelector.add(new Option(label, value));
-      }
+        const monthSelector = document.getElementById('month-selector');
+        for (let i = 0; i < 12; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const value = date.toISOString().slice(0, 7) + '-01';
+            const label = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+            monthSelector.add(new Option(label, value));
+        }
+        
+        // Popola categorie nel modal
+        const categorySelect = document.getElementById('category');
+        const { data: categories } = await supabase.from('categories').select('id, name').eq('user_id', user.id);
+        if (categories) {
+            categories.forEach(cat => categorySelect.add(new Option(cat.name, cat.id)));
+        }
 
-      const [chartRes, goalRes] = await Promise.all([
-        supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
-        supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
-      ]);
-      if (chartRes.data) renderMainChart(chartRes.data);
-      if (goalRes.data) renderGoalWidget(goalRes.data);
-      
-      await loadDashboardData(user, monthSelector.value);
+        document.getElementById('date').valueAsDate = new Date();
+        await refreshAllData();
 
-      monthSelector.addEventListener('change', () => loadDashboardData(user, monthSelector.value));
-      document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+        monthSelector.addEventListener('change', () => loadDashboardData(user, monthSelector.value));
+        document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+    
+        // Gestione Modal
+        const modal = document.getElementById('add-transaction-modal');
+        const openBtn = document.getElementById('add-transaction-btn');
+        const closeBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-modal-btn');
+        const form = document.getElementById('transaction-form');
+
+        const openModal = () => modal.style.display = 'flex';
+        const closeModal = () => modal.style.display = 'none';
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newTransaction = {
+                user_id: user.id,
+                amount: parseFloat(document.getElementById('amount').value),
+                type: document.getElementById('type').value,
+                category_id: document.getElementById('category').value,
+                date: document.getElementById('date').value,
+                description: document.getElementById('description').value
+            };
+            
+            const { error } = await supabase.from('transactions').insert(newTransaction);
+            if (error) {
+                showToast(`Errore: ${error.message}`);
+            } else {
+                showToast('Operazione salvata con successo!');
+                form.reset();
+                document.getElementById('date').valueAsDate = new Date();
+                closeModal();
+                await refreshAllData();
+            }
+        });
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
