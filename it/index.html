@@ -295,6 +295,36 @@
 
     /* iOS: evita jank con background fixed */
     @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
+
+    /* ▼ Sposta più in basso la griglia dei piani dentro al box */
+.card.pricing.pricing-panel{
+  padding-top: 38px;       /* più aria sopra */
+  padding-bottom: 26px;    /* e un filo sotto per equilibrio */
+}
+.card.pricing.pricing-panel > h3{
+  margin: 0 0 18px;        /* spazio tra titolo e griglia */
+}
+.card.pricing.pricing-panel .pricing-grid{
+  margin-top: 22px;        /* fa “slittare” giù le card */
+}
+
+/* ▼ “Più scelto” centrato sul Plus, con aria */
+.pricing .price-card:nth-child(2){    /* la card PLUS */
+  padding-top: 22px;                  /* spazio interno per il bollino */
+}
+.pricing .price-card:nth-child(2) .badge{
+  position: absolute;
+  top: -18px;                         /* sollevato ma dentro il box */
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);        /* centrato orizzontalmente */
+}
+
+/* ▼ Schermi stretti: evita sovrapposizioni */
+@media (max-width: 900px){
+  .card.pricing.pricing-panel{ padding-top: 34px; }
+  .pricing .price-card:nth-child(2) .badge{ top: -14px; }
+}
   </style>
 </head>
 <body>
