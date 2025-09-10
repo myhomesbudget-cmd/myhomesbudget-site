@@ -1,595 +1,436 @@
 <!doctype html>
-<html lang="it" data-theme="dark" data-app="myhomesbudget">
+<html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard — MyHomesBudget</title>
-  <link rel="icon" href="/favicon.ico">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="description" content="Riepilogo mensile di entrate, uscite, risparmi e avanzamento obiettivi.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- CSP (allineata alla tua app) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="
+          default-src 'self';
+          img-src 'self' https: data:;
+          style-src 'self' 'unsafe-inline';
+          script-src 'self' 'unsafe-inline' https://esm.sh https://www.googletagmanager.com https://www.google-analytics.com;
+          connect-src 'self' https://*.supabase.co https://www.google-analytics.com;
+          font-src 'self' data:;
+        ">
+
   <style>
     :root{
-      --bg-dark: #1e202e; --sidebar-bg: #27293d; --card-bg: #2c2e43;
-      --fg-light: #edf2f7; --fg-muted: #a0aec0; --fg-dark: #1a202c;
-      --border-color: rgba(255, 255, 255, 0.1);
-      --shadow: 0 10px 30px rgba(0,0,0,.2);
-      --radius-lg: 12px; --primary-color: #8a78f8; --accent-color: #f76e8c;
-      --danger-color: #f472b6; --success-color: #34d399;
-      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      --grad: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      /* Palette app (coerente con il tuo stile) */
+      --bg: #eef3fa;
+      --panel: #ffffffcc;         /* glass */
+      --panel-solid: #ffffff;
+      --border: rgba(0,0,0,.08);
+      --ink: #112236;
+      --ink-soft:#5b6b7c;
+      --brand:#6c7cff;            /* viola/indigo entrate */
+      --danger:#ff5b5b;           /* rosso uscite */
+      --success:#29c281;          /* verde residuo */
+      --accent:#a983ff;           /* anelli/decor */
+      --blur: 16px;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(10, 30, 60, .08);
     }
     *{box-sizing:border-box}
-    html{font-family:var(--font-sans); background-color: var(--bg-dark);}
-    body{margin:0;color:var(--fg-light); background-color: var(--bg-dark); font-size: 14px; overflow-y: scroll;}
-    
-    .app-layout { display: flex; min-height: 100vh; }
-
-    /* --- Sidebar --- */
-    .sidebar {
-      width: 240px; background-color: var(--sidebar-bg);
-      display: flex; flex-direction: column; padding: 24px;
-      border-right: 1px solid var(--border-color);
-      position: fixed; height: 100%; z-index: 10;
-    }
-    .logo-link { display: flex; align-items: center; gap: 10px; text-decoration: none; margin-bottom: 40px; }
-    .logo-link img { height: 36px; border-radius: 8px; }
-    .logo-text { font-weight: 700; color: var(--fg-light); font-size: 1.2rem; }
-    .sidebar-nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
-    .nav-link {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px; border-radius: 8px; text-decoration: none;
-      color: var(--fg-muted); font-weight: 600;
-      transition: background-color 0.2s, color 0.2s;
-    }
-    .nav-link.active, .nav-link:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
-    .nav-link svg { width: 20px; height: 20px; }
-    .sidebar .user-profile { margin-top: auto; }
-    .user-profile a { background: rgba(0,0,0,0.2); }
-
-    /* --- Main Content --- */
-    .main-content {
-      margin-left: 240px; width: calc(100% - 240px);
-      padding: 24px;
-    }
-    .content-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 24px;
-    }
-    .header-title { font-size: 1.8rem; font-weight: 800; margin: 0; }
-    .header-actions { display: flex; align-items: center; gap: 16px; }
-    #month-selector {
-      background-color: var(--card-bg); color: var(--fg-light);
-      border: 1px solid var(--border-color); border-radius: 8px;
-      padding: 8px 12px; font-weight: 600;
-    }
-    .top-link{
-      color: var(--fg-light); text-decoration:none; padding: 8px 12px;
-      border-radius: 8px; background:var(--card-bg); border: 1px solid var(--border-color);
-      font-weight: 600;
+    html,body{height:100%}
+    body{
+      margin:0;
+      font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 400px at 20% 10%, rgba(108,124,255,.08), transparent 60%),
+        radial-gradient(1200px 400px at 80% 20%, rgba(169,131,255,.08), transparent 60%),
+        linear-gradient(0deg, #f7faff, #eaf1fb 40%, #e7effc);
+      background-attachment: fixed;
     }
 
-    /* Layout griglia */
-    .dash-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:24px;}
-    .card{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);border:1px solid var(--border-color);}
-    .card-header{display: flex; align-items: center; gap: 8px; margin:0 0 16px;font-size:1.1rem;color:var(--fg-light);border-bottom:1px solid var(--border-color);padding-bottom:12px;}
-    .card-header svg { width: 18px; height: 18px; stroke: var(--fg-muted); }
-
-    /* Skeleton Loader */
-    @keyframes skeleton-loading { 0% { background-color: rgba(255,255,255,0.05); } 100% { background-color: rgba(255,255,255,0.1); } }
-    .skeleton { animation: skeleton-loading 1.5s linear infinite alternate; }
-    .skeleton-text { width: 100%; height: 20px; border-radius: 4px; margin-bottom: 8px; }
-    .skeleton-chart { border-radius: 50%; width: 140px; height: 140px; margin: 0 auto; }
-    
-    /* Assegnazione colonne widget */
-    .widget-ai-assistant, .widget-budget-overview, .widget-summary, .widget-goal, .widget-main-chart, .widget-top-expenses, .widget-recent-transactions { grid-column: span 12; }
-    @media (min-width:1200px){
-        .widget-ai-assistant { grid-column: span 12; order: -2; }
-        .widget-budget-overview, .widget-summary, .widget-goal { grid-column: span 4; order: -1; }
-        .widget-main-chart { grid-column: span 7; }
-        .widget-top-expenses, .widget-recent-transactions { grid-column: span 5; }
+    /* Topbar glass */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(var(--blur));
+      background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.35));
+      border-bottom:1px solid var(--border);
     }
-
-    /* Stili Widget */
-    .chart-container{position:relative;width:140px;height:140px;margin:10px auto;}
-    .chart-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); text-align: center;}
-    .chart-percentage{font-size:2rem;font-weight:800;color:var(--fg-light);}
-    .chart-subtext{font-size:0.8rem;color:var(--fg-muted);}
-    .summary-breakdown { margin-top: 16px; font-size: 0.9rem; }
-    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
-    .summary-row:last-child { border-bottom: none; }
-    .summary-row .label { color: var(--fg-muted); }
-    .summary-row .amount { font-weight: 700; }
-    .summary-row .amount.expense { color: var(--danger-color); }
-    .summary-row .amount.income { color: var(--success-color); }
-    
-    .bar-background{background-color:rgba(0,0,0,0.2);border-radius:99px;height:10px;overflow:hidden;}
-    .bar-foreground{height:100%;background:var(--grad);width:0%;transition:width 0.5s ease-out;border-radius:99px;}
-    
-    .transaction-list {list-style: none; padding: 0; margin:0;}
-    .transaction-list li { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--border-color); }
-    .transaction-list li:last-child { border-bottom: none; }
-    .transaction-icon { font-size: 1.2rem; }
-    .transaction-details { flex-grow: 1; min-width: 0; }
-    .transaction-details .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .transaction-details .category { font-size: 0.8rem; color: var(--fg-muted); }
-    .transaction-amount { font-weight: 700; }
-    .transaction-amount.income { color: var(--success-color); }
-    .transaction-amount.expense { color: var(--danger-color); }
-
-    /* Widget Assistente AI */
-    .widget-ai-assistant { background: linear-gradient(135deg, #32344b, #2c2e43); }
-    #ai-insight-content .ai-result { line-height: 1.6; font-size: 1rem; color: var(--fg-light); }
-    #analyze-month-btn { width: auto; padding: 10px 20px; display: inline-block; margin-top: 16px; }
-
-    /* Pulsante Aggiungi (+) */
-    #add-transaction-btn {
-        position: fixed; bottom: 24px; right: 24px; z-index: 101;
-        width: 56px; height: 56px; border-radius: 50%; border: none;
-        background: var(--grad); color: white;
-        font-size: 28px; line-height: 56px; text-align: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .topbar .row{
+      max-width: 1280px;
+      margin: 0 auto;
+      display:flex; align-items:center; gap:16px;
+      padding: 12px 20px;
     }
-    #add-transaction-btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
-    
-    /* Modal */
-    .modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 200;}
-    .modal-content { background: var(--card-bg); color: var(--fg-light); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; width: min(450px, calc(100% - 40px)); box-shadow: 0 10px 40px rgba(0,0,0,0.2);}
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h2 { margin: 0; padding: 0; border: none; }
-    .modal-header .close-btn { font-size: 24px; cursor: pointer; border: none; background: none; color: var(--fg-muted); }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-    .form-group input, .form-group select {
-      width: 100%; padding: 10px; border-radius: 8px;
-      background-color: var(--bg-dark); color: var(--fg-light);
-      border: 1px solid var(--border-color);
+    .logo{display:flex; align-items:center; gap:10px; font-weight:700}
+    .logo-badge{
+      width:28px; height:28px; border-radius:8px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      box-shadow: inset 0 0 0 2px #fff9;
     }
-    .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
-    .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
-    .btn-primary { background: var(--primary-color); color: white; }
-    .btn-secondary { background: var(--sidebar-bg); color: var(--fg-light); }
-    
-    /* Toast */
-    .toast {
-        position: fixed; top: 24px; right: 24px; z-index: 300;
-        background: var(--card-bg); color: var(--fg-light); padding: 12px 20px;
-        border-radius: 8px; border: 1px solid var(--border-color);
-        opacity: 0; transform: translateY(-20px);
-        transition: opacity 0.3s, transform 0.3s;
-        display: none;
+    .top-center{
+      flex:1; display:flex; justify-content:center; align-items:center;
+      color:var(--ink-soft); font-weight:600; letter-spacing:.2px;
     }
-    .toast.show { opacity: 1; transform: translateY(0); display: block;}
+    .top-actions{
+      display:flex; align-items:center; gap:8px;
+    }
+    .btn, .select{
+      border:1px solid var(--border); background: var(--panel-solid);
+      border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow);
+    }
+    .btn{ cursor:pointer; font-weight:600 }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(10,30,60,.12) }
+    .select{ padding:8px 10px; }
+
+    /* Layout */
+    .wrap{ max-width:1280px; margin:20px auto; padding:0 20px; display:grid; grid-template-columns: 240px 1fr 320px; gap:20px; }
+    @media (max-width: 1200px){ .wrap{ grid-template-columns:220px 1fr; } .aside-right{ grid-column: 1 / -1; order: 3; } }
+    @media (max-width: 880px){ .wrap{ grid-template-columns:1fr; } .aside-left{ order:1 } .main{ order:2 } .aside-right{ order:3 } }
+
+    /* Sidebar */
+    .aside-left{
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border:1px solid var(--border);
+      padding:18px;
+    }
+    .avatar{
+      width:110px; height:110px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #b6a7ff 0%, #8fa0ff 40%, #8f7bff 100%);
+      margin: 6px auto 12px;
+      box-shadow: inset 0 0 0 6px #fff6;
+    }
+    .menu{ display:flex; flex-direction:column; gap:8px; }
+    .menu a{
+      display:block; padding:10px 12px; border-radius:10px; text-decoration:none;
+      color:var(--ink); border:1px solid var(--border); background:#fff;
+      font-weight:600;
+    }
+    .menu a:hover{ background:#f7f9ff }
+
+    /* Main grid */
+    .main{ display:grid; gap:20px; }
+    .cards3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; }
+    @media (max-width: 1024px){ .cards3{ grid-template-columns: 1fr; } }
+
+    .card{
+      border-radius: var(--radius);
+      background: var(--panel);
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card-hd{
+      padding:12px 16px; border-bottom:1px solid var(--border); font-weight:800; text-align:center;
+      background: linear-gradient(180deg, #fff, rgba(255,255,255,.6));
+    }
+    .card-bd{ padding:16px; }
+    .kpi-center{ text-align:center; font-weight:800; font-size:36px; margin-top:6px; }
+    .kpi-sub{ text-align:center; color:var(--ink-soft); font-weight:700; letter-spacing:.3px; }
+
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media (max-width: 880px){ .grid2{ grid-template-columns:1fr; } }
+
+    /* Tables */
+    table{ width:100%; border-collapse:collapse; }
+    th, td{ padding:10px 12px; border-bottom:1px solid var(--border); text-align:left; }
+    th{ font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-soft); }
+
+    /* Aside right */
+    .aside-right .battery{
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--border);
+      background:#fff; border-radius:12px; margin-bottom:10px;
+    }
+    .cell{
+      width:26px; height:16px; border:2px solid #1b1d21; border-radius:3px; position:relative; overflow:hidden;
+    }
+    .cell::after{
+      content:""; position:absolute; right:-6px; top:4px; width:4px; height:8px; background:#1b1d21; border-radius:1px;
+    }
+    .fill{ height:100%; width:60%; background: linear-gradient(90deg, #9bffb4, #29c281); }
+    .fill.mid{ width:35%; background: linear-gradient(90deg, #ffd36e, #ff9f43); }
+    .fill.low{ width:15%; background: linear-gradient(90deg, #ff8a8a, #ff5b5b); }
+
+    .metric{ display:flex; justify-content:space-between; padding:6px 2px; color:var(--ink-soft); }
+    .metric b{ color:var(--ink); }
+
+    /* Chart canvases uniform */
+    .chart-box{ height:280px; display:flex; align-items:center; justify-content:center; }
+    canvas{ max-width:100%; max-height:100%; }
+    .muted{ color:var(--ink-soft); font-size:12px; text-align:center; margin-top:8px; }
   </style>
 </head>
 <body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <a href="/it/" class="logo-link">
-        <img src="/homes.png" alt="Logo">
-        <span class="logo-text">MyHomesBudget</span>
-      </a>
-      <nav class="sidebar-nav">
-        <a href="#" class="nav-link active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          Dashboard
-        </a>
-        <a href="#" class="nav-link">
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-             Transazioni
-        </a>
-         <a href="#" class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
-            Report
-        </a>
-        <a href="#" class="nav-link">
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
-             Obiettivi
-        </a>
-      </nav>
-      <div class="user-profile">
-        <a href="#" id="logout-btn" class="nav-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Esci
-        </a>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="row">
+      <div class="logo">
+        <span class="logo-badge" aria-hidden="true"></span>
+        <span>myhomes<strong>budget</strong></span>
       </div>
+
+      <div class="top-center" id="trial-banner" aria-live="polite">
+        Tipologia di abbonamento: <b style="margin-left:6px">FREE (30 giorni)</b>
+      </div>
+
+      <div class="top-actions">
+        <select class="select" id="monthPicker" aria-label="Seleziona mese">
+          <option value="2025-09">Set 2025</option>
+          <option value="2025-08">Ago 2025</option>
+          <option value="2025-07">Lug 2025</option>
+        </select>
+        <button class="btn" onclick="go('/it/operazioni.html')">Operazioni</button>
+        <button class="btn" onclick="go('/it/riepilogo.html')">Riepilogo</button>
+        <button class="btn" onclick="go('/it/impostazioni.html')">Impostazioni</button>
+        <button class="btn" onclick="logout()">Esci</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- SIDEBAR LEFT -->
+    <aside class="aside-left">
+      <div class="avatar" aria-hidden="true"></div>
+      <h3 style="text-align:center;margin:6px 0 14px;">Benvenuto</h3>
+      <nav class="menu" aria-label="Sezioni">
+        <a href="/it/obiettivo.html">Conf. Obiettivo</a>
+        <a href="/it/operazioni.html">Operazioni</a>
+        <a href="/it/report.html">Report</a>
+        <a href="/it/export-csv.html">Export CSV</a>
+        <a href="/it/export-pdf.html">Export PDF</a>
+      </nav>
     </aside>
 
-    <main class="main-content">
-      <header class="content-header">
-        <h1 class="header-title">Dashboard</h1>
-        <div class="header-actions">
-          <select id="month-selector" aria-label="Seleziona mese"></select>
-          <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
-        </div>
-      </header>
-      
-      <div class="dash-grid">
-        <!-- Contenuto della griglia widget... -->
-        <div class="widget-ai-assistant card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"></path><path d="M20 12v4h-4"></path><path d="M4 12a8 8 0 1 0 16 0Z"></path><path d="M12 12v1.5a2.5 2.5 0 0 0 5 0V12a5 5 0 0 0-10 0v1.5a2.5 2.5 0 0 1 5 0V12"></path></svg>
-                Assistente Finanziario AI
+    <!-- MAIN -->
+    <main class="main">
+      <!-- Tripla card grafici -->
+      <section class="cards3">
+        <!-- BUDGET RESIDUO -->
+        <article class="card">
+          <div class="card-hd">BUDGET — (Σ Entrate) − (Σ Spese + Quota Risparmio)</div>
+          <div class="card-bd">
+            <div class="chart-box">
+              <canvas id="chartResiduo" width="320" height="280" aria-label="Grafico residuo"></canvas>
             </div>
-            <div id="ai-insight-content">
-                <p class="ai-placeholder">Clicca "Analizza" per ricevere un consiglio personalizzato.</p>
-                <div class="ai-result" style="display: none;"></div>
-            </div>
-            <button id="analyze-month-btn" class="btn btn-primary">Analizza il mio mese</button>
-        </div>
-
-        <div class="widget-budget-overview card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                Panoramica Budget
-            </div>
-            <div id="budget-overview-content"><div class="skeleton-text"></div></div>
-        </div>
-            
-        <div class="widget-summary card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 18a6 6 0 0 0 0-12v12z"></path></svg>
-                Riepilogo Mese
-            </div>
-            <div id="summary-widget-content"><div class="skeleton-chart skeleton"></div></div>
-        </div>
-
-        <div class="widget-goal card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle><line x1="21.17" y1="8" x2="12" y2="8"></line><line x1="3.95" y1="6.06" x2="8.54" y2="14"></line><line x1="10.88" y1="21.94" x2="15.46" y2="14"></line></svg>
-                Obiettivo Principale
-            </div>
-            <div id="goal-widget-content"><div class="skeleton-text"></div></div>
-        </div>
-
-        <div class="widget-main-chart card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
-                Andamento Spese
-            </div>
-            <div style="height:300px;"><canvas id="monthlyExpensesChart"></canvas></div>
-        </div>
-            
-        <div class="widget-top-expenses card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
-                Spese Principali
-            </div>
-            <div id="top-categories-list"><div class="skeleton-text"></div></div>
-        </div>
-            
-        <div class="widget-recent-transactions card">
-            <div class="card-header">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-                Ultime Operazioni
-            </div>
-            <div id="recent-transactions-list"><div class="skeleton-text"></div></div>
-        </div>
-      </div>
-    </main>
-  </div>
-  
-  <div id="toast-notification" class="toast"></div>
-  <button id="add-transaction-btn" title="Aggiungi operazione">+</button>
-  <div id="add-transaction-modal" class="modal-overlay">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h2 id="modal-title">Nuova Operazione</h2>
-              <button class="close-btn" id="close-modal-btn">&times;</button>
+            <div class="kpi-center"><span id="residuoPerc">36%</span></div>
+            <div class="kpi-sub">Residuo</div>
+            <p class="muted" id="legendResiduo">Entrate: €0 • Spese: €0 • Risparmio: €0</p>
           </div>
-          <form id="transaction-form">
-              <input type="hidden" id="transaction-id">
-              <div class="form-group">
-                  <label for="type">Tipo</label>
-                  <select id="type" required>
-                      <option value="expense">Spesa</option>
-                      <option value="income">Entrata</option>
-                  </select>
-              </div>
-              <div class="form-group">
-                  <label for="description">Descrizione</label>
-                  <input type="text" id="description" placeholder="Es. Caffè al bar" required>
-              </div>
-              <div class="form-group">
-                  <label for="amount">Importo</label>
-                  <input type="number" id="amount" step="0.01" placeholder="0.00" required>
-              </div>
-              <div class="form-group">
-                  <label for="date">Data</label>
-                  <input type="date" id="date" required>
-              </div>
-              <div class="form-group">
-                  <label for="category">Categoria</label>
-                  <select id="category" required></select>
-              </div>
-               <div class="form-group">
-                  <label for="subcategory">Sottocategoria (opzionale)</label>
-                  <select id="subcategory"></select>
-              </div>
-              <div class="form-actions">
-                  <button type="button" class="btn btn-secondary" id="cancel-modal-btn">Annulla</button>
-                  <button type="submit" class="btn btn-primary">Salva</button>
-              </div>
-          </form>
-      </div>
+        </article>
+
+        <!-- ENTRATE -->
+        <article class="card">
+          <div class="card-hd">ENTRATE — Σ Somma mensile</div>
+          <div class="card-bd">
+            <div class="chart-box">
+              <canvas id="chartEntrate" width="320" height="280" aria-label="Grafico entrate"></canvas>
+            </div>
+            <div class="kpi-sub" style="text-align:center;font-size:16px;font-weight:800;margin-top:4px;">Entrate: <span id="entrateTot">€0</span></div>
+          </div>
+        </article>
+
+        <!-- USCITE -->
+        <article class="card">
+          <div class="card-hd">USCITE — Σ Somma mensile</div>
+          <div class="card-bd">
+            <div class="chart-box">
+              <canvas id="chartUscite" width="320" height="280" aria-label="Grafico uscite"></canvas>
+            </div>
+            <div class="kpi-sub" style="text-align:center;font-size:16px;font-weight:800;margin-top:4px;">Uscite: <span id="usciteTot">€0</span></div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Dettagli sotto grafici -->
+      <section class="grid2">
+        <article class="card">
+          <div class="card-hd">Entrate</div>
+          <div class="card-bd" style="max-height:260px; overflow:auto;">
+            <table aria-label="Riepilogo entrate per categoria">
+              <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
+              <tbody id="tblEntrate">
+                <!-- righe dinamiche -->
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">Uscite</div>
+          <div class="card-bd" style="max-height:260px; overflow:auto;">
+            <table aria-label="Riepilogo uscite per categoria">
+              <thead><tr><th>Categoria</th><th>Importo</th></tr></thead>
+              <tbody id="tblUscite">
+                <!-- righe dinamiche -->
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- ASIDE RIGHT: OBIETTIVO -->
+    <aside class="aside-right">
+      <article class="card">
+        <div class="card-hd">Il tuo obiettivo</div>
+        <div class="card-bd">
+          <div class="battery"><div class="cell"><div class="fill"></div></div><b>Alto</b></div>
+          <div class="battery"><div class="cell"><div class="fill mid"></div></div><b>Medio</b></div>
+          <div class="battery"><div class="cell"><div class="fill low"></div></div><b>Basso</b></div>
+
+          <div class="card" style="margin-top:12px;">
+            <div class="card-hd">Importo raggiunto</div>
+            <div class="card-bd">
+              <div class="kpi-center" id="obiettivoRaggiunto">€0</div>
+              <div class="kpi-sub">Restante al raggiungimento</div>
+              <div class="metric"><span>Restante (€)</span><b id="obiettivoMancanteEuro">—</b></div>
+              <div class="metric"><span>Restante (%)</span><b id="obiettivoMancantePerc">—</b></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </aside>
   </div>
-  
+
+  <!-- Scripts -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+    import { Chart, DoughnutController, ArcElement, Tooltip, Legend } from "https://esm.sh/chart.js@4";
+    Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
-    let currentData = {};
-    let mainChartInstance = null;
-    let summaryChartInstance = null;
-    let allCategories = [];
-    let allSubcategories = [];
+    const fmt = new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR', maximumFractionDigits:0 });
 
-    const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value);
-    Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+    // === Dati di esempio (sostituirai con fetch Supabase) ===
+    const state = {
+      mese: "2025-09",
+      entrate: [
+        { categoria: "Stipendio", importo: 2100 },
+        { categoria: "Extra", importo: 250 },
+        { categoria: "Affitti", importo: 450 },
+      ],
+      uscite: [
+        { categoria: "Casa", importo: 820 },
+        { categoria: "Alimentari", importo: 380 },
+        { categoria: "Trasporti", importo: 160 },
+        { categoria: "Svago", importo: 210 },
+        { categoria: "Utenze", importo: 240 },
+      ],
+      quotaRisparmio: 300,
+      obiettivo: { target: 5000, raggiunto: 2150 }
+    };
 
-    function showToast(message) {
-        const toast = document.getElementById('toast-notification');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show');}, 3000);
-    }
+    // === Calcoli ===
+    const sum = arr => arr.reduce((a,b)=> a + b.importo, 0);
+    const totEntrate = sum(state.entrate);
+    const totUscite  = sum(state.uscite);
+    const residuoVal = Math.max(totEntrate - (totUscite + state.quotaRisparmio), 0);
+    const residuoPerc = Math.round((residuoVal / Math.max(totEntrate, 1)) * 100);
 
-    // --- FUNZIONI DI RENDER (aggiornate)---
-    function renderBarList(containerId, data) {
-        const c = document.getElementById(containerId);
-        c.innerHTML = ''; if (!data || data.length === 0) { c.innerHTML = `<p style="font-size:0.9rem; color:var(--fg-muted);">Nessun dato per questo mese.</p>`; return; }
-        const maxTotal = Math.max(...data.map(item => item.total));
-        data.forEach(item => {
-            const p = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
-            const e = document.createElement('div'); e.className = 'bar-list-item'; e.style.marginBottom = '12px';
-            e.innerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom: 4px; font-weight: 600;"><span>${item.icon || '💰'} ${item.name}</span><span>${formatCurrency(item.total)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${p}%;"></div></div>`;
-            c.appendChild(e);
-        });
-    }
+    // === Bind KPI ===
+    document.getElementById('entrateTot').textContent = fmt.format(totEntrate);
+    document.getElementById('usciteTot').textContent  = fmt.format(totUscite);
+    document.getElementById('residuoPerc').textContent = residuoPerc + "%";
+    document.getElementById('legendResiduo').textContent =
+      `Entrate: ${fmt.format(totEntrate)} • Spese: ${fmt.format(totUscite)} • Risparmio: ${fmt.format(state.quotaRisparmio)}`;
 
-    function renderRecentTransactions(data) {
-        const list = document.getElementById('recent-transactions-list');
-        list.innerHTML = ''; if (!data || data.length === 0) { list.innerHTML = `<p style="font-size:0.9rem; color:var(--fg-muted);">Nessuna operazione recente.</p>`; return; }
-        const ul = document.createElement('ul');
-        ul.className = 'transaction-list';
-        data.forEach(tx => {
-            const li = document.createElement('li');
-            const isExpense = tx.type === 'expense';
-            li.innerHTML = `
-                <span class="transaction-icon">${tx.categories?.icon || (isExpense ? '💸' : '💰')}</span>
-                <div class="transaction-details">
-                    <span class="name">${tx.description || tx.categories.name}</span>
-                    <span class="category">${tx.categories.name}${tx.subcategories ? ` / ${tx.subcategories.name}` : ''}</span>
-                </div>
-                <span class="transaction-amount ${isExpense ? 'expense' : 'income'}">${isExpense ? '-' : '+'}${formatCurrency(tx.amount)}</span>`;
-            ul.appendChild(li);
-        });
-        list.appendChild(ul);
-    }
-    
-    function renderBudgetOverview(data) {
-        const container = document.getElementById('budget-overview-content');
-        if (!data) { container.innerHTML = '<p>Dati non disponibili.</p>'; return; }
-        const budgetAmount = data.totalIncome - data.savingsBudget;
-        container.innerHTML = `
-            <div style="text-align:center;">
-                <div class="label" style="color: var(--fg-muted);">Budget di Spesa</div>
-                <div class="amount" style="font-size: 1.8rem; color: var(--primary-color); font-weight: 700;">${formatCurrency(budgetAmount)}</div>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--fg-muted); text-align: center; margin-top: 8px;">
-                ${formatCurrency(data.totalIncome)} (Entrate) - ${formatCurrency(data.savingsBudget)} (Risparmio)
-            </div>`;
-    }
+    // Obiettivo
+    const { target, raggiunto } = state.obiettivo;
+    const mancante = Math.max(target - raggiunto, 0);
+    const mancantePerc = Math.round((mancante / Math.max(target,1)) * 100);
 
-    function renderSummaryWidget(data) {
-        const c = document.getElementById('summary-widget-content');
-        const spendingBudget = data.totalIncome - data.savingsBudget;
-        const remainingBudget = spendingBudget - data.totalExpenses;
-        const remainingPercentage = spendingBudget > 0 ? (remainingBudget / spendingBudget) * 100 : 0;
-        
-        c.innerHTML = `
-            <div class="chart-container">
-                <canvas id="summaryDonutChart"></canvas>
-                <div class="chart-center-text">
-                    <div class="chart-percentage">${remainingPercentage.toFixed(0)}%</div>
-                    <div class="chart-subtext">rimanente</div>
-                </div>
-            </div>
-            <div class="summary-breakdown">
-                <div class="summary-row"><span class="label">Spese</span><span class="amount expense">${formatCurrency(data.totalExpenses)}</span></div>
-                <div class="summary-row"><span class="label">Budget</span><span class="amount">${formatCurrency(spendingBudget)}</span></div>
-            </div>`;
-        
-        if (summaryChartInstance) summaryChartInstance.destroy();
-        summaryChartInstance = new Chart(document.getElementById('summaryDonutChart'), { 
-            type: 'doughnut', 
-            data: { 
-                datasets: [{ data: [data.totalExpenses, remainingBudget > 0 ? remainingBudget : 0], backgroundColor: [ 'var(--danger-color)', 'rgba(255,255,255,0.1)' ], borderWidth: 0, borderRadius: 5 }] 
-            }, 
-            options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } } 
-        });
-    }
-    
-    function renderMainChart(data) { 
-        const ctx = document.getElementById('monthlyExpensesChart'); if (!ctx) return; 
-        if (mainChartInstance) mainChartInstance.destroy();
-        const labels = data.map(row => new Date(row.month_start).toLocaleDateString('it-IT', { month: 'short' }));
-        const values = data.map(row => row.total_expenses);
-        mainChartInstance = new Chart(ctx, { 
-            type: 'bar', 
-            data: { labels, datasets: [{ label: 'Spese', data: values, backgroundColor: 'rgba(138, 120, 248, 0.8)', borderRadius: 5 }] }, 
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } 
-        });
-    }
-    
-    function renderGoalWidget(data) {
-        const c = document.getElementById('goal-widget-content');
-        if (!data) { c.innerHTML = '<p style="font-size:0.9rem; color:var(--fg-muted);">Nessun obiettivo impostato.</p>'; return; }
-        const p = data.target_amount > 0 ? (data.current_amount / data.target_amount) * 100 : 0;
-        c.innerHTML = `<div style="font-weight: 700;">${data.name}</div><div style="margin-top: 12px;"><div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;"><span style="font-weight: 700; color: var(--primary-color);">${formatCurrency(data.current_amount)}</span><span style="color: var(--fg-muted);">di ${formatCurrency(data.target_amount)}</span></div><div class="bar-background"><div class="bar-foreground" style="width: ${Math.min(p, 100)}%;"></div></div></div>`;
-    }
-    
-    async function getAIInsight(data) {
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let insight = "Ottimo lavoro! ";
-                const foodExpense = data.topCategories.find(c => c.name && (c.name.toLowerCase().includes('ristoranti') || c.name.toLowerCase().includes('cibo')));
-                if (foodExpense && foodExpense.total > (data.totalExpenses * 0.2)) {
-                    insight += `Una parte significativa delle spese è per 'Ristoranti'. Prova a pianificare 2-3 cene in casa in più la prossima settimana per risparmiare fino a ${formatCurrency(foodExpense.total * 0.25)}! 🍝`;
-                } else if (data.remainingBudget < 0) {
-                    insight += `Hai superato il budget. Controlliamo le 'Spese Principali' per vedere dove ottimizzare il prossimo mese. Forza! 💪`;
-                } else {
-                    insight += `Le tue spese sono ben bilanciate. Per ottimizzare, potresti investire una piccola parte del budget rimanente. 🚀`;
-                }
-                resolve(insight);
-            }, 1500);
-        });
-    }
+    document.getElementById('obiettivoRaggiunto').textContent = fmt.format(raggiunto);
+    document.getElementById('obiettivoMancanteEuro').textContent = fmt.format(mancante);
+    document.getElementById('obiettivoMancantePerc').textContent = mancantePerc + "%";
 
-    async function refreshAllData() {
-        const { data: { user } } = await supabase.auth.getUser(); if (!user) return;
-        const selectedMonth = document.getElementById('month-selector').value;
-        await loadDashboardData(user, selectedMonth);
-        const [chartRes, goalRes] = await Promise.all([
-            supabase.rpc('get_monthly_expenses_timeseries', { user_id_param: user.id }),
-            supabase.rpc('get_main_goal_progress', { user_id_param: user.id })
-        ]);
-        if (chartRes.data) renderMainChart(chartRes.data);
-        if (goalRes.data) renderGoalWidget(goalRes.data);
-    }
+    // === Tabelle ===
+    const fillTable = (tbodyId, rows) => {
+      const tb = document.getElementById(tbodyId);
+      tb.innerHTML = rows.map(r => `<tr><td>${r.categoria}</td><td><b>${fmt.format(r.importo)}</b></td></tr>`).join('');
+    };
+    fillTable('tblEntrate', state.entrate);
+    fillTable('tblUscite', state.uscite);
 
-    async function loadDashboardData(user, selectedMonth) {
-        const [summaryRes, topCatRes, recentTxRes] = await Promise.all([
-            supabase.rpc('get_full_monthly_summary', { user_id_param: user.id, month_param: selectedMonth }),
-            supabase.rpc('get_top_spending_categories', { user_id_param: user.id, month_param: selectedMonth }),
-            supabase.from('transactions').select(`*, categories(*), subcategories(*)`).eq('created_by', user.id).order('date', { ascending: false }).limit(5)
-        ]);
-        if (summaryRes.data) {
-            currentData = { ...currentData, ...summaryRes.data, remainingBudget: (summaryRes.data.totalIncome - summaryRes.data.savingsBudget) - summaryRes.data.totalExpenses };
-            renderSummaryWidget(summaryRes.data);
-            renderBudgetOverview(summaryRes.data);
+    // === Grafici ===
+    const donut = (el, data, colors, centerText) => {
+      const ctx = document.getElementById(el);
+      const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data,
+        options: {
+          responsive: true,
+          cutout: '65%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks:{ label: (ctx)=> `${ctx.label}: ${fmt.format(ctx.parsed)}` } }
+          }
         }
-        if (topCatRes.data) {
-            currentData.topCategories = topCatRes.data;
-            renderBarList('top-categories-list', topCatRes.data);
-        }
-        if (recentTxRes.data) renderRecentTransactions(recentTxRes.data);
-    }
-    
-    async function loadCategoriesForForm(user) {
-        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
-        if (cError) { console.error("Errore categorie:", cError); return; }
-        allCategories = categories || [];
-
-        if (allCategories.length) {
-            const ids = allCategories.map(c => c.id);
-            const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', ids);
-            if (sError) { console.error("Errore sottocategorie:", sError); return; }
-            allSubcategories = subcategories || [];
-        }
-    }
-    
-    function updateCategoryDropdown() {
-        const type = document.getElementById('type').value;
-        const categorySelect = document.getElementById('category');
-        const filtered = allCategories.filter(cat => cat.kind === type);
-        categorySelect.innerHTML = '<option value="">Scegli...</option>';
-        filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
-        updateSubcategoryDropdown();
-    }
-
-    function updateSubcategoryDropdown() {
-        const categoryId = document.getElementById('category').value;
-        const subcategorySelect = document.getElementById('subcategory');
-        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
-        subcategorySelect.disabled = true;
-        if (!categoryId) return;
-        
-        const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
-        if (relevant.length) {
-            subcategorySelect.disabled = false;
-            relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
-        }
-    }
-
-    async function initializePage() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { location.replace("/it/login.html"); return; }
-        
-        await loadCategoriesForForm(user);
-        
-        const monthSelector = document.getElementById('month-selector');
-        for (let i = 0; i < 12; i++) {
-            const date = new Date(); date.setMonth(date.getMonth() - i);
-            const value = date.toISOString().slice(0, 7) + '-01';
-            const label = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-            monthSelector.add(new Option(label, value));
-        }
-        
-        document.getElementById('date').valueAsDate = new Date();
-        await refreshAllData();
-
-        monthSelector.addEventListener('change', () => loadDashboardData(user, monthSelector.value));
-        document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
-    
-        const modal = document.getElementById('add-transaction-modal');
-        const openBtn = document.getElementById('add-transaction-btn');
-        const closeBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-modal-btn');
-        const form = document.getElementById('transaction-form');
-        const typeSelect = document.getElementById('type');
-        const categorySelect = document.getElementById('category');
-
-        const openModal = () => {
-            document.getElementById('modal-title').textContent = 'Nuova Operazione';
-            form.reset();
-            document.getElementById('transaction-id').value = '';
-            document.getElementById('date').valueAsDate = new Date();
-            updateCategoryDropdown();
-            modal.style.display = 'flex';
-        };
-        const closeModal = () => { modal.style.display = 'none'; };
-
-        openBtn.addEventListener('click', openModal);
-        closeBtn.addEventListener('click', closeModal);
-        cancelBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-        typeSelect.addEventListener('change', updateCategoryDropdown);
-        categorySelect.addEventListener('change', updateSubcategoryDropdown);
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                created_by: user.id, // Corretto da user_id
-                amount: parseFloat(document.getElementById('amount').value),
-                kind: document.getElementById('type').value, // Corretto da type
-                note: document.getElementById('description').value, // Corretto da description
-                occurred_at: document.getElementById('date').value, // Corretto da date
-                category_id: document.getElementById('category').value,
-                subcategory_id: document.getElementById('subcategory').value || null,
-            };
-            
-            const { error } = await supabase.from('transactions').insert(payload);
-            
-            if (error) { showToast(`Errore: ${error.message}`); console.error(error); } 
-            else { showToast('Operazione salvata!'); closeModal(); await refreshAllData(); }
+      });
+      // testo centrale (semplice overlay)
+      if (centerText){
+        const div = document.createElement('div');
+        div.style.position='absolute';
+        div.style.pointerEvents='none';
+        div.style.font = '800 32px system-ui, sans-serif';
+        div.style.color = '#112236';
+        div.style.transform='translate(-50%, -50%)';
+        div.style.left = (ctx.getBoundingClientRect().left + ctx.width/2) + 'px';
+        div.style.top  = (ctx.getBoundingClientRect().top  + ctx.height/2) + 'px';
+        div.textContent = centerText;
+        document.body.appendChild(div);
+        // Re-posizionamento su resize
+        const ro = new ResizeObserver(()=> {
+          const r = ctx.getBoundingClientRect();
+          div.style.left = (r.left + ctx.width/2) + 'px';
+          div.style.top  = (r.top  + ctx.height/2) + 'px';
         });
-        
-        document.getElementById('analyze-month-btn').addEventListener('click', async (e) => {
-            e.target.disabled = true;
-            const resultContainer = document.querySelector('#ai-insight-content .ai-result');
-            document.querySelector('#ai-insight-content .ai-placeholder').style.display = 'none';
-            resultContainer.innerHTML = '<div class="skeleton-text" style="height: 40px;"></div>';
-            resultContainer.style.display = 'block';
-            const insight = await getAIInsight(currentData);
-            resultContainer.innerHTML = insight;
-            e.target.disabled = false;
-        });
-    }
+        ro.observe(ctx);
+      }
+      return chart;
+    };
 
-    document.addEventListener('DOMContentLoaded', initializePage);
+    // Residuo (2 spicchi: speso+risparmio vs residuo)
+    donut('chartResiduo',
+      {
+        labels: ['Impegnato', 'Residuo'],
+        datasets: [{
+          data: [ Math.max(totEntrate - residuoVal, 0), residuoVal ],
+          backgroundColor: ['#e8eef9', 'var(--success)'],
+          borderWidth: 0
+        }]
+      },
+      null,
+      residuoPerc + '%'
+    );
+
+    // Entrate per categoria
+    donut('chartEntrate',
+      {
+        labels: state.entrate.map(e=> e.categoria),
+        datasets: [{
+          data: state.entrate.map(e=> e.importo),
+          backgroundColor: ['#6c7cff','#8a97ff','#a5afff','#c2caff','#dee2ff'],
+          borderWidth: 0
+        }]
+      }
+    );
+
+    // Uscite per categoria
+    donut('chartUscite',
+      {
+        labels: state.uscite.map(e=> e.categoria),
+        datasets: [{
+          data: state.uscite.map(e=> e.importo),
+          backgroundColor: ['#ff5b5b','#ff7f7f','#ff9a9a','#ffb3b3','#ffd1d1'],
+          borderWidth: 0
+        }]
+      }
+    );
+
+    // Router helpers
+    window.go = (href)=> location.href = href;
+    window.logout = ()=> { /* hook supabase.auth.signOut() */ alert('Logout (stub).'); };
   </script>
 </body>
 </html>
