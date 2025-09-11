@@ -222,17 +222,9 @@
     const monthSelector = document.getElementById('month-selector');
     const summaryContent = document.getElementById('summary-content');
     let user = null;
-    let userProfile = null;
     let chartInstances = {};
 
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
-
-    async function loadInitialData() {
-        // Questa funzione carica l'obiettivo di risparmio impostato durante l'onboarding.
-        const { data: profile, error } = await supabase.from('profiles').select('monthly_saving_goal').eq('id', user.id).single();
-        if(error) console.error("Errore caricamento profilo:", error);
-        userProfile = profile || { monthly_saving_goal: 0 };
-    }
 
     async function loadSummaryData() {
         monthSelector.disabled = true;
@@ -242,36 +234,53 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon)`)
-            .eq('created_by', user.id)
-            .gte('occurred_at', startDate.toISOString())
-            .lte('occurred_at', endDate.toISOString());
-
+        // Eseguiamo le query in parallelo per la massima efficienza
+        const [transactionsRes, budgetRes] = await Promise.all([
+            supabase.from('transactions')
+                .select(`*, categories(name, icon)`)
+                .eq('created_by', user.id)
+                .gte('occurred_at', startDate.toISOString())
+                .lte('occurred_at', endDate.toISOString()),
+            supabase.from('budgets')
+                .select('amount')
+                .eq('user_id', user.id)
+                .eq('macro_category', 'Risparmi')
+                .eq('month', selectedMonth)
+                .maybeSingle()
+        ]);
+        
         monthSelector.disabled = false;
-        if (error) {
-            console.error("Errore transazioni:", error);
+
+        if (transactionsRes.error || budgetRes.error) {
+            console.error("Errore transazioni:", transactionsRes.error);
+            console.error("Errore budget:", budgetRes.error);
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
             return;
         }
 
-        if (!data || data.length === 0) {
-            summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Nessuna transazione trovata per questo mese.</p></div>';
+        const transactions = transactionsRes.data || [];
+        const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
+        
+        if (transactions.length === 0) {
+             // Anche se non ci sono transazioni, mostriamo lo stato dell'obiettivo
+             renderStrategicSummary([], savingGoal);
+             const grid = summaryContent.querySelector('.summary-grid');
+             if (grid) {
+                grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessuna transazione trovata per questo mese.</p></div>';
+             }
             return;
         }
         
-        renderStrategicSummary(data);
+        renderStrategicSummary(transactions, savingGoal);
     }
     
-    function renderStrategicSummary(transactions) {
+    function renderStrategicSummary(transactions, savingGoal) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const netSaving = totalIncome - totalExpense;
-        // Qui usiamo l'obiettivo caricato da `profiles`.
-        const savingGoal = safeToNumber(userProfile.monthly_saving_goal);
         
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
@@ -353,9 +362,22 @@
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
         }
+        
+        const filteredData = Object.entries(data).filter(([key, value]) => value > 0);
+        const labels = filteredData.map(item => item[0]);
+        const values = filteredData.map(item => item[1]);
 
-        const labels = Object.keys(data);
-        const values = Object.values(data);
+        if (values.length === 0) {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#999';
+            ctx.font = '16px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+            ctx.fillText('Nessun dato', ctx.canvas.width / 2, ctx.canvas.height / 2);
+            ctx.restore();
+            return;
+        }
         
         chartInstances[canvasId] = new Chart(ctx, {
             type: 'doughnut',
@@ -399,7 +421,6 @@
         monthSelector.add(new Option(label, value));
       }
 
-      await loadInitialData();
       await loadSummaryData(); 
       
       monthSelector.addEventListener('change', loadSummaryData);
