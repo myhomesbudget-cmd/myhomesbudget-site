@@ -222,6 +222,16 @@
     <div id="summary-content" class="summary-grid">
       <!-- Le card verranno popolate dinamicamente qui -->
     </div>
+
+    <!-- 🎨 VIBE UPGRADE: Grafico Andamento Annuale 🎨 -->
+    <div id="yearly-trend-card" class="summary-card" style="margin-top: 24px; display: none;">
+        <div class="summary-card-header">
+            <h3>ANDAMENTO ANNUALE</h3>
+        </div>
+        <div class="summary-card-chart" style="height: 350px;">
+            <canvas id="yearlyTrendChart"></canvas>
+        </div>
+    </div>
   </main>
   
   <script type="module">
@@ -241,18 +251,22 @@
         const selectedMonth = monthSelector.value;
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1).toISOString();
+        const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59).toISOString();
 
-        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes] = await Promise.all([
+        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes, yearlyTransactionsRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
             supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
             supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
             supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle(),
-            supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString())
+            supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString()),
+            supabase.from('transactions').select('occurred_at, kind, amount').eq('created_by', user.id).gte('occurred_at', startOfYear).lte('occurred_at', endOfYear)
         ]);
         
         monthSelector.disabled = false;
         
-        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error].filter(Boolean);
+        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error, yearlyTransactionsRes.error].filter(Boolean);
         if (errors.length > 0) {
             errors.forEach(error => console.error("Errore caricamento dati:", error));
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
@@ -263,6 +277,7 @@
         const monthlySavingGoal = latestBudgetRes.data ? safeToNumber(latestBudgetRes.data.amount) : 0;
         const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo';
         const goalTargetAmount = goalRes.data ? safeToNumber(goalRes.data.target_amount) : 0;
+        const yearlyTransactions = yearlyTransactionsRes.data || [];
         
         let cumulativeIdealSaving = 0;
         if (firstTransactionRes.data) {
@@ -277,6 +292,7 @@
         }, 0);
         
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, cumulativeActualSaving);
+        renderYearlyTrendChart(yearlyTransactions, currentYear);
     }
     
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, cumulativeActualSaving) {
@@ -285,7 +301,7 @@
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        const remainingAmount = goalTargetAmount - cumulativeActualSaving;
+        const remainingAmount = goalTargetAmount - cumulativeIdealSaving;
         
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
@@ -465,6 +481,73 @@
 
         segments.forEach((seg, index) => {
             seg.classList.toggle('is-active', index < activeSegmentsCount);
+        });
+    }
+
+    function renderYearlyTrendChart(transactions, year) {
+        const container = document.getElementById('yearly-trend-card');
+        if (!container) return;
+        
+        if (transactions.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+
+        const ctx = document.getElementById('yearlyTrendChart')?.getContext('2d');
+        if (!ctx) return;
+
+        if (chartInstances.yearly) {
+            chartInstances.yearly.destroy();
+        }
+
+        const incomeByMonth = Array(12).fill(0);
+        const expenseByMonth = Array(12).fill(0);
+
+        transactions.forEach(tx => {
+            const month = new Date(tx.occurred_at).getMonth();
+            const amount = safeToNumber(tx.amount);
+            if (tx.kind === 'income') {
+                incomeByMonth[month] += amount;
+            } else if (tx.kind === 'expense') {
+                expenseByMonth[month] += amount;
+            }
+        });
+
+        const monthLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+
+        chartInstances.yearly = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: monthLabels,
+                datasets: [
+                    {
+                        label: 'Entrate',
+                        data: incomeByMonth,
+                        borderColor: 'var(--success-color)',
+                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Uscite',
+                        data: expenseByMonth,
+                        borderColor: 'var(--danger-color)',
+                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: false }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
         });
     }
 
