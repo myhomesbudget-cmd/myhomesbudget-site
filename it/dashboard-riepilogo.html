@@ -189,6 +189,9 @@
     .segment.is-active:nth-child(8) { background: #2ecc71; }
     .segment.is-active:nth-child(9), .segment.is-active:nth-child(10) { background: #00cec9; }
 
+    /* ====== Sismografo Finanziario Annuale ====== */
+    #yearly-trend-card .summary-card-chart { min-height: 350px; }
+
     .empty-state {
       text-align: center; padding: 60px 20px; color: #777;
       grid-column: 1 / -1;
@@ -225,9 +228,9 @@
     
     <div id="yearly-trend-card" class="summary-card" style="margin-top: 24px; display: none;">
         <div class="summary-card-header">
-            <h3>ANDAMENTO ANNUALE</h3>
+            <h3>SISMOGRAFO ANNUALE</h3>
         </div>
-        <div class="summary-card-chart" style="height: 350px;">
+        <div class="summary-card-chart">
             <canvas id="yearlyTrendChart"></canvas>
         </div>
     </div>
@@ -514,6 +517,14 @@
         });
 
         const monthLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        
+        const incomeGradient = ctx.createLinearGradient(0, 0, 0, 350);
+        incomeGradient.addColorStop(0, 'rgba(46, 125, 50, 0.6)');
+        incomeGradient.addColorStop(1, 'rgba(46, 125, 50, 0.1)');
+        
+        const expenseGradient = ctx.createLinearGradient(0, 0, 0, 350);
+        expenseGradient.addColorStop(0, 'rgba(211, 47, 47, 0.6)');
+        expenseGradient.addColorStop(1, 'rgba(211, 47, 47, 0.1)');
 
         chartInstances.yearly = new Chart(ctx, {
             type: 'bar',
@@ -521,28 +532,13 @@
                 labels: monthLabels,
                 datasets: [
                     {
-                        type: 'bar',
-                        label: 'Entrate',
-                        data: incomeByMonth,
-                        backgroundColor: 'rgba(46, 125, 50, 0.7)',
-                        borderColor: 'rgba(46, 125, 50, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        type: 'bar',
-                        label: 'Uscite',
-                        data: expenseByMonth,
-                        backgroundColor: 'rgba(211, 47, 47, 0.7)',
-                        borderColor: 'rgba(211, 47, 47, 1)',
-                        borderWidth: 1
-                    },
-                    {
                         type: 'line',
                         label: 'Andamento Entrate',
                         data: incomeByMonth,
                         borderColor: 'var(--success-color)',
                         tension: 0.4,
-                        fill: false,
+                        fill: true,
+                        backgroundColor: incomeGradient,
                         pointRadius: 4,
                         pointBackgroundColor: 'var(--success-color)'
                     },
@@ -552,7 +548,8 @@
                         data: expenseByMonth,
                         borderColor: 'var(--danger-color)',
                         tension: 0.4,
-                        fill: false,
+                        fill: true,
+                        backgroundColor: expenseGradient,
                         pointRadius: 4,
                         pointBackgroundColor: 'var(--danger-color)'
                     }
@@ -567,7 +564,6 @@
                 },
                 scales: { 
                     y: { beginAtZero: true },
-                    x: { stacked: false }
                 }
             }
         });
