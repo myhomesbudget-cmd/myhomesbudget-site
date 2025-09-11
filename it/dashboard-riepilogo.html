@@ -222,8 +222,7 @@
     <div id="summary-content" class="summary-grid">
       <!-- Le card verranno popolate dinamicamente qui -->
     </div>
-
-    <!-- 🎨 VIBE UPGRADE: Grafico Andamento Annuale 🎨 -->
+    
     <div id="yearly-trend-card" class="summary-card" style="margin-top: 24px; display: none;">
         <div class="summary-card-header">
             <h3>ANDAMENTO ANNUALE</h3>
@@ -254,7 +253,7 @@
         const currentYear = new Date().getFullYear();
         const startOfYear = new Date(currentYear, 0, 1).toISOString();
         const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59).toISOString();
-
+        
         const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes, yearlyTransactionsRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
             supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
@@ -483,7 +482,7 @@
             seg.classList.toggle('is-active', index < activeSegmentsCount);
         });
     }
-
+    
     function renderYearlyTrendChart(transactions, year) {
         const container = document.getElementById('yearly-trend-card');
         if (!container) return;
@@ -517,25 +516,45 @@
         const monthLabels = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
         chartInstances.yearly = new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: monthLabels,
                 datasets: [
                     {
+                        type: 'bar',
                         label: 'Entrate',
                         data: incomeByMonth,
-                        borderColor: 'var(--success-color)',
-                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        backgroundColor: 'rgba(46, 125, 50, 0.7)',
+                        borderColor: 'rgba(46, 125, 50, 1)',
+                        borderWidth: 1
                     },
                     {
+                        type: 'bar',
                         label: 'Uscite',
                         data: expenseByMonth,
+                        backgroundColor: 'rgba(211, 47, 47, 0.7)',
+                        borderColor: 'rgba(211, 47, 47, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        type: 'line',
+                        label: 'Andamento Entrate',
+                        data: incomeByMonth,
+                        borderColor: 'var(--success-color)',
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'var(--success-color)'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Andamento Uscite',
+                        data: expenseByMonth,
                         borderColor: 'var(--danger-color)',
-                        backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'var(--danger-color)'
                     }
                 ]
             },
@@ -546,7 +565,10 @@
                     legend: { position: 'top' },
                     title: { display: false }
                 },
-                scales: { y: { beginAtZero: true } }
+                scales: { 
+                    y: { beginAtZero: true },
+                    x: { stacked: false }
+                }
             }
         });
     }
