@@ -2,7 +2,7 @@
 <html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale-1" />
   <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.ico" />
@@ -231,57 +231,58 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const [transactionsRes, budgetRes, goalRes] = await Promise.all([
-            supabase.from('transactions')
-                .select(`*, categories(name, icon)`)
-                .eq('created_by', user.id)
-                .gte('occurred_at', startDate.toISOString())
-                .lte('occurred_at', endDate.toISOString()),
-            supabase.from('budgets')
-                .select('amount')
-                .eq('user_id', user.id)
-                .eq('macro_category', 'Risparmi')
-                .eq('month', selectedMonth)
-                .maybeSingle(),
-            supabase.from('goals')
-                .select('name')
-                .eq('user_id', user.id)
-                .maybeSingle()
+        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes] = await Promise.all([
+            supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
+            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
+            supabase.from('goals').select('name').eq('user_id', user.id).maybeSingle(),
+            supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle()
         ]);
         
         monthSelector.disabled = false;
 
-        if (transactionsRes.error || budgetRes.error || goalRes.error) {
-            console.error("Errore transazioni:", transactionsRes.error);
-            console.error("Errore budget:", budgetRes.error);
-            console.error("Errore obiettivo:", goalRes.error);
+        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error].filter(Boolean);
+        if (errors.length > 0) {
+            errors.forEach(error => console.error("Errore caricamento dati:", error));
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
             return;
         }
 
         const transactions = transactionsRes.data || [];
-        const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
+        const monthlySavingGoal = latestBudgetRes.data ? safeToNumber(latestBudgetRes.data.amount) : 0;
         const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo impostato';
-        
-        if (transactions.length === 0 && savingGoal === 0) {
-             renderStrategicSummary([], savingGoal, goalName);
-             const grid = summaryContent.querySelector('.summary-grid');
-             if (grid) {
-                grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessun dato trovato per questo mese.</p></div>';
-             }
+
+        if (!firstTransactionRes.data) {
+            renderStrategicSummary([], 0, goalName, 0, 0); // Mostra card obiettivo anche senza transazioni
+            const grid = summaryContent.querySelector('.summary-grid');
+            if(grid) grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessuna transazione trovata.</p></div>';
             return;
         }
-        
-        renderStrategicSummary(transactions, savingGoal, goalName);
+
+        const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
+        const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth()) + 1;
+        const cumulativeGoal = monthlySavingGoal * Math.max(1, monthsElapsed);
+
+        const { data: allTransactions, error: allTxError } = await supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString());
+        if(allTxError) {
+             console.error("Errore caricamento risparmio cumulativo:", allTxError);
+             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
+             return;
+        }
+
+        const cumulativeSaving = (allTransactions || []).reduce((acc, tx) => {
+            const amount = safeToNumber(tx.amount);
+            return tx.kind === 'income' ? acc + amount : acc - amount;
+        }, 0);
+
+        renderStrategicSummary(transactions, monthlySavingGoal, goalName, cumulativeSaving, cumulativeGoal);
     }
     
-    function renderStrategicSummary(transactions, savingGoal, goalName) {
+    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, cumulativeSaving, cumulativeGoal) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        const netSaving = totalIncome - totalExpense;
         
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
@@ -295,83 +296,63 @@
             return acc;
         }, {});
 
-        // 🎨 VIBE UPGRADE: Ordine delle card e HTML aggiornato 🎨
         summaryContent.innerHTML = `
             <div class="summary-card income-card">
-                 <div class="summary-card-header">
-                    <h3>ENTRATE</h3>
-                    <p>(∑ Entrate Mensili)</p>
-                 </div>
+                 <div class="summary-card-header"><h3>ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
-                    <div class="footer-breakdown">
-                       <div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
-                    </div>
+                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card expense-card">
-                 <div class="summary-card-header">
-                    <h3>USCITE</h3>
-                    <p>(∑ Spese Mensili)</p>
-                </div>
+                 <div class="summary-card-header"><h3>USCITE</h3><p>(∑ Spese Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
-                    <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
-                    </div>
+                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card budget-card">
-                <div class="summary-card-header">
-                    <h3>BUDGET</h3>
-                    <p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p>
-                </div>
+                <div class="summary-card-header"><h3>BUDGET</h3><p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p></div>
                 <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
                         <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
                         <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${monthlySavingGoal.toFixed(2)}€</span></div>
                     </div>
                 </div>
             </div>
             <div class="summary-card goal-card">
-                <div class="summary-card-header">
-                    <h3>IL TUO OBIETTIVO</h3>
-                    <p>${goalName}</p>
-                </div>
+                <div class="summary-card-header"><h3>IL TUO OBIETTIVO</h3><p>${goalName}</p></div>
                 <div class="goal-card-content">
-                  <div class="battery">
-                    <div class="battery-segments">
+                  <div class="battery"><div class="battery-segments">
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div>
-                    </div>
-                  </div>
+                  </div></div>
                 </div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO MENSILE</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO ATTUALE</span><span class="breakdown-value income">${netSaving.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO TOTALE</span><span class="breakdown-value net">${cumulativeGoal.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO ACCUMULATO</span><span class="breakdown-value income">${cumulativeSaving.toFixed(2)}€</span></div>
                     </div>
                 </div>
             </div>
         `;
         
-        const availableAmount = Math.max(0, totalIncome - totalExpense - savingGoal);
+        const availableAmount = Math.max(0, totalIncome - totalExpense - monthlySavingGoal);
         const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
         const expensePercentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
-
-        // 🎨 VIBE UPGRADE: Testi centrali aggiornati 🎨
+        
         const budgetCenterText = { amount: `${availableAmount.toFixed(2)}€`, percentage: `${availablePercentage.toFixed(0)}% RESIDUO` };
         const incomeCenterText = { amount: `${totalIncome.toFixed(2)}€`, percentage: `TOTALE ENTRATE` };
         const expenseCenterText = { amount: `${totalExpense.toFixed(2)}€`, percentage: `${expensePercentage.toFixed(0)}% SULLE ENTRATE` };
 
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': monthlySavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
-        renderGoal(netSaving, savingGoal);
+        renderGoal(cumulativeSaving, cumulativeGoal);
     }
 
     const centerTextPlugin = {
@@ -387,14 +368,11 @@
           const chartArea = chart.chartArea;
           const centerX = (chartArea.left + chartArea.right) / 2;
           const centerY = (chartArea.top + chartArea.bottom) / 2;
-          
           ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
           ctx.fillStyle = '#333';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          // Se c'è una seconda riga di testo, sposta la prima un po' in su, altrimenti centrala perfettamente.
           ctx.fillText(amountText, centerX, hasPercentage ? centerY - 12 : centerY);
-
           if(hasPercentage) {
             ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
             ctx.fillStyle = '#555';
@@ -410,10 +388,7 @@
     function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) {
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
-
-        if (chartInstances[canvasId]) {
-            chartInstances[canvasId].destroy();
-        }
+        if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
         
         const filteredData = Object.entries(data).filter(([key, value]) => value > 0);
         const labels = filteredData.map(item => item[0]);
@@ -438,10 +413,7 @@
         
         const chartOptions = {
             type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }]
-            },
+            data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] },
             options: {
                 responsive: true,
                 cutout: '70%',
@@ -451,8 +423,7 @@
                         display: showDataLabels,
                         formatter: (value, ctx) => {
                             const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            const percentage = (value / sum * 100).toFixed(1) + '%';
-                            return percentage;
+                            return (value / sum * 100).toFixed(1) + '%';
                         },
                         color: '#fff',
                         font: { weight: 'bold', size: 14 },
@@ -461,32 +432,21 @@
                 }
             }
         };
-
-        if(centerText) {
-            chartOptions.options.plugins.centerText = centerText;
-        }
-
+        if(centerText) chartOptions.options.plugins.centerText = centerText;
         chartInstances[canvasId] = new Chart(ctx, chartOptions);
     }
 
     function renderGoal(savedAmount, goalAmount) {
         const segments = document.querySelectorAll('.battery-segments .segment');
         if (!segments.length) return;
-
         if (goalAmount <= 0) {
             segments.forEach(seg => seg.classList.remove('is-active'));
             return;
         }
-
         const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100));
         const activeSegmentsCount = Math.ceil(percentage / 10);
-
         segments.forEach((seg, index) => {
-            if (index >= (10 - activeSegmentsCount)) {
-                seg.classList.add('is-active');
-            } else {
-                seg.classList.remove('is-active');
-            }
+            seg.classList.toggle('is-active', index >= (10 - activeSegmentsCount));
         });
     }
 
