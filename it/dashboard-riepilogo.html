@@ -183,7 +183,6 @@
     .segment {
       flex-grow: 1; background: rgba(0,0,0,0.1); border-radius: 3px; transition: background 0.5s ease;
     }
-    /* 🎨 VIBE UPGRADE: Colori batteria invertiti 🎨 */
     .segment.is-active:nth-child(1), .segment.is-active:nth-child(2) { background: #d32f2f; }
     .segment.is-active:nth-child(3), .segment.is-active:nth-child(4) { background: #f39c12; }
     .segment.is-active:nth-child(5), .segment.is-active:nth-child(6), .segment.is-active:nth-child(7) { background: #f1c40f; }
@@ -268,15 +267,15 @@
         let cumulativeIdealSaving = 0;
         if (firstTransactionRes.data) {
             const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
-            const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth()) + 1;
-            cumulativeIdealSaving = monthlySavingGoal * Math.max(0, monthsElapsed);
+            const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth());
+            cumulativeIdealSaving = monthlySavingGoal * (monthsElapsed + 1);
         }
 
         const cumulativeActualSaving = (allPastTransactionsRes.data || []).reduce((acc, tx) => {
              const amount = safeToNumber(tx.amount);
              return tx.kind === 'income' ? acc + amount : acc - amount;
         }, 0);
-
+        
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, cumulativeActualSaving);
     }
     
@@ -345,9 +344,9 @@
                 </div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO PREVISTO</span><span class="breakdown-value net">${cumulativeIdealSaving.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO REALE</span><span class="breakdown-value income">${cumulativeActualSaving.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">AL RAGGIUNGIMENTO</span><span class="breakdown-value expense">${remainingAmount.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO TOT. OBIETTIVO</span><span class="breakdown-value net">${goalTargetAmount.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO MATURATO</span><span class="breakdown-value income">${cumulativeIdealSaving.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">AL RAGGIUNGIMENTO</span><span class="breakdown-value expense">${(goalTargetAmount - cumulativeIdealSaving).toFixed(2)}€</span></div>
                     </div>
                 </div>
             </div>
@@ -364,7 +363,7 @@
         renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': monthlySavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
-        renderGoal(cumulativeActualSaving, goalTargetAmount);
+        renderGoal(cumulativeIdealSaving, goalTargetAmount);
     }
 
     const centerTextPlugin = {
