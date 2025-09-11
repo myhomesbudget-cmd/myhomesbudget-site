@@ -90,18 +90,25 @@
       flex-direction: column;
     }
     
+    /* 🎨 VIBE UPGRADE: Titoli come Bottoni 🎨 */
     .summary-card-header {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 24px; /* Aumentiamo lo spazio */
     }
     .summary-card-header h3 {
+      display: inline-block;
       margin: 0;
-      font-size: 1.2rem;
-      color: #333;
+      padding: 10px 24px;
+      font-size: 1.1rem;
+      color: #fff;
       font-weight: 800;
+      background: var(--grad);
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      min-width: 200px;
     }
     .summary-card-header p {
-      margin: 4px 0 0;
+      margin: 8px 0 0;
       font-size: 0.85rem;
       color: #555;
     }
@@ -254,11 +261,11 @@
         const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
         const goalName = goalRes.data ? goalRes.data.name : 'IL TUO OBIETTIVO';
         
-        if (transactions.length === 0) {
+        if (transactions.length === 0 && savingGoal === 0) {
              renderStrategicSummary([], savingGoal, goalName);
              const grid = summaryContent.querySelector('.summary-grid');
              if (grid) {
-                grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessuna transazione trovata per questo mese.</p></div>';
+                grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessun dato trovato per questo mese.</p></div>';
              }
             return;
         }
@@ -304,7 +311,6 @@
             <div class="summary-card income-card">
                  <div class="summary-card-header">
                     <h3>ENTRATE</h3>
-                    <p>(∑ Entrate Mensili)</p>
                  </div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
@@ -316,7 +322,6 @@
             <div class="summary-card expense-card">
                  <div class="summary-card-header">
                     <h3>USCITE</h3>
-                    <p>(∑ Spese Mensili)</p>
                 </div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
@@ -326,7 +331,7 @@
                  </div>
             </div>
             <div class="summary-card goal-card">
-                <div class="summary-card-header"><h3>${goalName}</h3></div>
+                <div class="summary-card-header"><h3>${goalName.toUpperCase()}</h3></div>
                 <div class="goal-card-content">
                   <div class="battery">
                     <div class="battery-segments">
