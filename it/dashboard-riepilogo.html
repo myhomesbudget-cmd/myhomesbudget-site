@@ -6,8 +6,9 @@
   <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.ico" />
-  <!-- Chart.js per i grafici -->
+  <!-- Chart.js e plugin per le etichette -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <style>
     :root{
@@ -178,7 +179,6 @@
       left: 5px;
       right: 5px;
       border-radius: 5px;
-      /* 🎨 VIBE UPGRADE: Gradiente di energia per la batteria 🎨 */
       background: linear-gradient(to top, #d32f2f, #f39c12, #f1c40f, #2ecc71, #00cec9);
       transition: height 0.5s ease-out;
     }
@@ -355,10 +355,9 @@
             percentage: `${availablePercentage.toFixed(0)}% RESIDUO`
         };
 
-        // 🎨 VIBE UPGRADE: Colori del grafico Budget allineati 🎨
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#d32f2f', '#f39c12', '#2e7d32'], budgetCenterText);
-        renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7']);
-        renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2']);
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#d32f2f', '#f39c12', '#2e7d32'], budgetCenterText, false);
+        renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], null, true);
+        renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], null, true);
         renderGoal(netSaving, savingGoal);
     }
 
@@ -389,9 +388,11 @@
         }
       }
     };
-    Chart.register(centerTextPlugin);
+    
+    // Registra i plugin una sola volta
+    Chart.register(centerTextPlugin, ChartDataLabels);
 
-    function renderDoughnutChart(canvasId, data, colors, centerText = null) {
+    function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) {
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
 
@@ -422,7 +423,21 @@
             options: {
                 responsive: true,
                 cutout: '70%',
-                plugins: { legend: { display: false } }
+                plugins: { 
+                    legend: { display: false },
+                    // 🎨 VIBE UPGRADE: Configurazione delle etichette percentuali 🎨
+                    datalabels: {
+                        display: showDataLabels,
+                        formatter: (value, ctx) => {
+                            const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percentage = (value / sum * 100).toFixed(1) + '%';
+                            return percentage;
+                        },
+                        color: '#fff',
+                        font: { weight: 'bold', size: 14 },
+                        textShadow: '0px 1px 3px rgba(0, 0, 0, 0.5)'
+                    }
+                }
             }
         };
 
