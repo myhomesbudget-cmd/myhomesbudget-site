@@ -49,7 +49,7 @@
     .flow-column.income h2{color:var(--success-color)}
     .flow-column.expense h2{color:var(--danger-color)}
 
-    /* ====== 🎨 VIBE UPGRADE: Riepilogo Grafico con Barre 🎨 ====== */
+    /* ====== Riepilogo Grafico con Barre ====== */
     .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);box-shadow:0 4px 15px rgba(0,0,0,.05);margin-bottom:16px}
     .summary-card h3 { display: flex; justify-content: space-between; align-items: center; margin: 0 0 12px; font-size: 1rem; color: #555; }
     .summary-total-amount { font-weight: 800; font-size: 1.2rem; }
@@ -68,8 +68,16 @@
 
 
     /* ====== Form Compatto ====== */
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:.2s}
-    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition: transform 0.2s ease, box-shadow 0.2s ease;}
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary{
+      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      color:#fff;
+      box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+    }
+    .btn-primary:hover {
+       box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+    }
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
@@ -89,10 +97,27 @@
     .item-amount.expense{color:var(--danger-color);font-weight:700}
     .item-amount.income{color:var(--success-color);font-weight:700}
     .item-actions{display:flex;gap:4px;flex-shrink:0}
-    .action-btn{background:rgba(0,0,0,.05);color:#555;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer}
-    .action-btn:hover{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-    .action-btn.delete{background:#f8d7da;color:#842029;border-color:#f5c2c7}
-    .action-btn.delete:hover{background:#dc3545;color:#fff;border-color:#dc3545}
+    
+    /* 🎨 VIBE UPGRADE: Bottoni con Gradiente 🎨 */
+    .action-btn{
+      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:6px 10px;
+      font-size:.85rem;
+      font-weight:600;
+      cursor:pointer;
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    .action-btn:hover{
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .action-btn.delete{
+       background: linear-gradient(135deg, #d32f2f, #ff7675);
+    }
+
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
   </style>
 </head>
