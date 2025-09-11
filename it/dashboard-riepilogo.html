@@ -2,7 +2,7 @@
 <html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale-1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/favicon.ico" />
@@ -90,10 +90,9 @@
       flex-direction: column;
     }
     
-    /* 🎨 VIBE UPGRADE: Titoli come Bottoni 🎨 */
     .summary-card-header {
       text-align: center;
-      margin-bottom: 24px; /* Aumentiamo lo spazio */
+      margin-bottom: 24px;
     }
     .summary-card-header h3 {
       display: inline-block;
@@ -105,7 +104,7 @@
       background: var(--grad);
       border-radius: 999px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      width: 240px; /* Larghezza fissa per coerenza */
+      width: 240px;
       max-width: 100%;
     }
     .summary-card-header p {
@@ -114,6 +113,14 @@
       color: #555;
       font-weight: 600;
     }
+    /* Stili per Obiettivo */
+    .summary-card-header .goal-name-display {
+        font-size: 1.1rem; font-weight: 700; color: #333; margin: 8px 0 4px;
+    }
+    .summary-card-header .goal-amount-display {
+        font-size: 1.3rem; font-weight: 800; color: var(--primary-color); margin:0;
+    }
+
     .summary-card-chart {
       position: relative;
       flex-grow: 1;
@@ -160,11 +167,16 @@
     }
     .battery {
       width: 100px; height: 200px; border: 5px solid #333; border-radius: 10px;
-      position: relative; padding: 8px; display: flex; flex-direction: column;
+      position: relative; padding: 8px; display: flex; flex-direction: column; justify-content: center;
     }
     .battery::after {
       content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
       width: 40px; height: 5px; background: #333; border-radius: 5px 5px 0 0;
+    }
+    .battery-percentage {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #333; font-size: 1.5rem; font-weight: 900; z-index: 2;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.5);
     }
     .battery-segments {
       width: 100%; height: 100%; display: flex; flex-direction: column-reverse; gap: 4px;
@@ -231,16 +243,16 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes] = await Promise.all([
+        const [transactionsRes, budgetRes, goalRes, allTransactionsRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
-            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
-            supabase.from('goals').select('name').eq('user_id', user.id).maybeSingle(),
-            supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle()
+            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').eq('month', selectedMonth).maybeSingle(),
+            supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
+            supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString())
         ]);
         
         monthSelector.disabled = false;
-
-        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error].filter(Boolean);
+        
+        const errors = [transactionsRes.error, budgetRes.error, goalRes.error, allTransactionsRes.error].filter(Boolean);
         if (errors.length > 0) {
             errors.forEach(error => console.error("Errore caricamento dati:", error));
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
@@ -248,42 +260,26 @@
         }
 
         const transactions = transactionsRes.data || [];
-        const monthlySavingGoal = latestBudgetRes.data ? safeToNumber(latestBudgetRes.data.amount) : 0;
-        const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo impostato';
-
-        if (!firstTransactionRes.data) {
-            renderStrategicSummary([], 0, goalName, 0, 0); // Mostra card obiettivo anche senza transazioni
-            const grid = summaryContent.querySelector('.summary-grid');
-            if(grid) grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessuna transazione trovata.</p></div>';
-            return;
-        }
-
-        const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
-        const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth()) + 1;
-        const cumulativeGoal = monthlySavingGoal * Math.max(1, monthsElapsed);
-
-        const { data: allTransactions, error: allTxError } = await supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString());
-        if(allTxError) {
-             console.error("Errore caricamento risparmio cumulativo:", allTxError);
-             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
-             return;
-        }
-
-        const cumulativeSaving = (allTransactions || []).reduce((acc, tx) => {
+        const monthlySavingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
+        const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo';
+        const goalTargetAmount = goalRes.data ? safeToNumber(goalRes.data.target_amount) : 0;
+        
+        const cumulativeSaving = (allTransactionsRes.data || []).reduce((acc, tx) => {
             const amount = safeToNumber(tx.amount);
             return tx.kind === 'income' ? acc + amount : acc - amount;
         }, 0);
-
-        renderStrategicSummary(transactions, monthlySavingGoal, goalName, cumulativeSaving, cumulativeGoal);
+        
+        renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeSaving);
     }
     
-    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, cumulativeSaving, cumulativeGoal) {
+    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeSaving) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        
+        const remainingAmount = goalTargetAmount - cumulativeSaving;
+
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
             acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
@@ -323,19 +319,27 @@
                 </div>
             </div>
             <div class="summary-card goal-card">
-                <div class="summary-card-header"><h3>IL TUO OBIETTIVO</h3><p>${goalName}</p></div>
+                <div class="summary-card-header">
+                    <h3>IL TUO OBIETTIVO</h3>
+                    <p class="goal-name-display">${goalName}</p>
+                    <p class="goal-amount-display">${goalTargetAmount.toFixed(2)}€</p>
+                </div>
                 <div class="goal-card-content">
-                  <div class="battery"><div class="battery-segments">
+                  <div class="battery">
+                    <div class="battery-percentage">0%</div>
+                    <div class="battery-segments">
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div><div class="segment"></div><div class="segment"></div>
                         <div class="segment"></div>
-                  </div></div>
+                    </div>
+                  </div>
                 </div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO TOTALE</span><span class="breakdown-value net">${cumulativeGoal.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO TOTALE</span><span class="breakdown-value net">${goalTargetAmount.toFixed(2)}€</span></div>
                         <div class="breakdown-item"><span class="breakdown-label">RISPARMIO ACCUMULATO</span><span class="breakdown-value income">${cumulativeSaving.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">AL RAGGIUNGIMENTO</span><span class="breakdown-value expense">${remainingAmount.toFixed(2)}€</span></div>
                     </div>
                 </div>
             </div>
@@ -352,7 +356,7 @@
         renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': monthlySavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
-        renderGoal(cumulativeSaving, cumulativeGoal);
+        renderGoal(cumulativeSaving, goalTargetAmount);
     }
 
     const centerTextPlugin = {
@@ -438,13 +442,20 @@
 
     function renderGoal(savedAmount, goalAmount) {
         const segments = document.querySelectorAll('.battery-segments .segment');
-        if (!segments.length) return;
+        const percentageEl = document.querySelector('.battery-percentage');
+        if (!segments.length || !percentageEl) return;
+        
         if (goalAmount <= 0) {
             segments.forEach(seg => seg.classList.remove('is-active'));
+            percentageEl.textContent = '0%';
             return;
         }
+
         const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100));
         const activeSegmentsCount = Math.ceil(percentage / 10);
+        
+        percentageEl.textContent = `${percentage.toFixed(1)}%`;
+
         segments.forEach((seg, index) => {
             seg.classList.toggle('is-active', index >= (10 - activeSegmentsCount));
         });
