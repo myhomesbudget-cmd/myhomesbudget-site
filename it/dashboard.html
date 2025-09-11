@@ -141,13 +141,25 @@
 </head>
 <body>
   <!-- Topbar -->
- <nav id="dash-nav" class="dash-nav">
-  <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
-  <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
-  <div class="dash-actions">
-    <select id="month-selector" aria-label="Seleziona mese"></select>
-  </div>
-</nav>
+  <nav class="topbar">
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo"><span class="logo-text">MyHomesBudget</span>
+    </a>
+
+    <div class="top-center">
+      <div id="trial-banner">
+        <span id="trial-days-left"></span>
+        <a href="/it/paywall.html">Aggiorna piano</a>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <select id="month-selector" aria-label="Seleziona mese"></select>
+      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
+    </div>
+  </nav>
 
   <main class="container">
     <nav id="dash-nav" class="dash-nav">
