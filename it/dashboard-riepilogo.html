@@ -95,9 +95,14 @@
     }
     .summary-card-header h3 {
       margin: 0;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: #333;
-      font-weight: 700;
+      font-weight: 800;
+    }
+    .summary-card-header p {
+      margin: 4px 0 0;
+      font-size: 0.85rem;
+      color: #555;
     }
     .summary-card-chart {
       flex-grow: 1;
@@ -111,24 +116,32 @@
       max-height: 250px;
     }
     .summary-card-footer {
-      text-align: center;
+      text-align: left;
       margin-top: 16px;
       border-top: 1px solid rgba(0,0,0,0.1);
       padding-top: 16px;
     }
-    .summary-card-footer .total-label {
-      font-weight: 700;
+    .footer-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 0.9rem;
-      color: #555;
     }
-    .summary-card-footer .total-value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin-top: 4px;
+    .breakdown-label {
+      font-weight: 600;
+      color: #333;
     }
-    .summary-card-footer .total-value.income { color: var(--success-color); }
-    .summary-card-footer .total-value.expense { color: var(--danger-color); }
-    .summary-card-footer .total-value.net { color: var(--primary-color); }
+    .breakdown-value {
+      font-weight: 700;
+    }
+    .breakdown-value.income { color: var(--success-color); }
+    .breakdown-value.expense { color: var(--danger-color); }
+    .breakdown-value.net { color: var(--primary-color); }
     
     /* Card Obiettivo */
     .goal-card-content {
@@ -215,6 +228,7 @@
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
 
     async function loadInitialData() {
+        // Questa funzione carica l'obiettivo di risparmio impostato durante l'onboarding.
         const { data: profile, error } = await supabase.from('profiles').select('monthly_saving_goal').eq('id', user.id).single();
         if(error) console.error("Errore caricamento profilo:", error);
         userProfile = profile || { monthly_saving_goal: 0 };
@@ -256,6 +270,7 @@
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const netSaving = totalIncome - totalExpense;
+        // Qui usiamo l'obiettivo caricato da `profiles`.
         const savingGoal = safeToNumber(userProfile.monthly_saving_goal);
         
         const incomeByCategory = incomes.reduce((acc, tx) => {
@@ -273,31 +288,59 @@
         // HTML della nuova griglia
         summaryContent.innerHTML = `
             <div class="summary-card budget-card">
-                <div class="summary-card-header"><h3>BUDGET</h3></div>
+                <div class="summary-card-header">
+                    <h3>BUDGET</h3>
+                    <p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p>
+                </div>
                 <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
-                <div class="summary-card-footer"><div class="total-label">DISPONIBILE</div><div class="total-value net">${(totalIncome - totalExpense - savingGoal).toFixed(2)}€</div></div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
+                    </div>
+                </div>
             </div>
             <div class="summary-card income-card">
-                 <div class="summary-card-header"><h3>ENTRATE</h3></div>
+                 <div class="summary-card-header">
+                    <h3>ENTRATE</h3>
+                    <p>(∑ Entrate Mensili)</p>
+                 </div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
-                 <div class="summary-card-footer"><div class="total-label">TOTALE ENTRATE</div><div class="total-value income">${totalIncome.toFixed(2)}€</div></div>
+                 <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                       <div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
+                    </div>
+                 </div>
             </div>
             <div class="summary-card expense-card">
-                 <div class="summary-card-header"><h3>USCITE</h3></div>
+                 <div class="summary-card-header">
+                    <h3>USCITE</h3>
+                    <p>(∑ Spese Mensili)</p>
+                </div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
-                 <div class="summary-card-footer"><div class="total-label">TOTALE USCITE</div><div class="total-value expense">${totalExpense.toFixed(2)}€</div></div>
+                 <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
+                    </div>
+                 </div>
             </div>
             <div class="summary-card goal-card">
                 <div class="summary-card-header"><h3>IL TUO OBIETTIVO</h3></div>
                 <div class="goal-card-content">
                   <div class="battery"><div id="battery-level" class="battery-level"></div></div>
                 </div>
-                <div class="summary-card-footer"><div class="total-label">IMPORTO RAGGIUNTO</div><div class="total-value net">${netSaving.toFixed(2)}€</div></div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO MENSILE</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO ATTUALE</span><span class="breakdown-value income">${netSaving.toFixed(2)}€</span></div>
+                    </div>
+                </div>
             </div>
         `;
         
         // Render dei 4 componenti
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio': savingGoal, 'Disponibile': Math.max(0, totalIncome - totalExpense - savingGoal) }, ['#ff7675', '#a29bfe', '#00cec9']);
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': Math.max(0, totalIncome - totalExpense - savingGoal) }, ['#ff7675', '#a29bfe', '#00cec9']);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7']);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2']);
         renderGoal(netSaving, savingGoal);
@@ -340,7 +383,7 @@
         }
 
         const percentage = Math.min(100, (savedAmount / goalAmount) * 100);
-        batteryLevelEl.style.height = `${percentage}%`;
+        batteryLevelEl.style.height = `${percentage > 0 ? percentage : 0}%`;
     }
 
     // --- Inizializzazione pagina ---
