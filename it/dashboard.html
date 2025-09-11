@@ -13,7 +13,6 @@
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      /* 🎨 VIBE UPGRADE: Colori estratti dalla Index 🎨 */
       --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
       --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
     }
@@ -30,30 +29,56 @@
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;
-      background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600}
+    .top-link{
+      color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
+      font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
     #month-selector{background:rgba(255,255,255,.8);border-radius:8px;border:1px solid rgba(0,0,0,.1);padding:4px 8px;font-weight:600}
     #month-selector:disabled { opacity: 0.7; }
     .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
-    #trial-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+    #trial-banner{display:none;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.15)}
     #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
 
     /* ====== Contenuto Principale ====== */
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
     .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
-    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
-    .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    .dash-nav a{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition: all 0.2s ease;border: 1px solid transparent;}
+    .dash-nav a:not(.is-active) {background: var(--grad);color: #fff;box-shadow: 0 4px 12px rgba(0,0,0,.1);}
+    .dash-nav a:not(.is-active):hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.15);}
+    .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08);}
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    
+    /* 🎨 VIBE UPGRADE: Pannello Glassmorphism 🎨 */
+    .dashboard-panel {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+    }
+    /* Semplifichiamo gli elementi interni per dare risalto al pannello principale */
+    .dashboard-panel .content-section,
+    .dashboard-panel .summary-card {
+      box-shadow: none;
+      border: none;
+    }
+    .dashboard-panel .content-section {
+       background: rgba(255,255,255,0.7); /* Leggermente più opaco del pannello */
+    }
+
 
     /* ====== Layout Dashboard & Colonne ====== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
     @media(min-width: 1024px){.dashboard-grid{grid-template-columns:repeat(2, 1fr);}.form-section{grid-column:1 / -1}}
-    .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px}
+    .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px; padding: 0 8px;}
     .flow-column.income h2{color:var(--success-color)}
     .flow-column.expense h2{color:var(--danger-color)}
 
     /* ====== Riepilogo Grafico con Barre ====== */
-    .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);box-shadow:0 4px 15px rgba(0,0,0,.05);margin-bottom:16px}
+    .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);margin-bottom:16px}
     .summary-card h3 { display: flex; justify-content: space-between; align-items: center; margin: 0 0 12px; font-size: 1rem; color: #555; }
     .summary-total-amount { font-weight: 800; font-size: 1.2rem; }
     .income .summary-total-amount { color: var(--success-color); }
@@ -73,14 +98,8 @@
     /* ====== Form e Bottoni ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
     .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
-    
-    .btn-primary{
-      background: var(--grad);
-      box-shadow: 0 10px 24px rgba(0,0,0,.18);
-    }
-    .btn-primary:hover {
-       box-shadow: 0 14px 28px rgba(0,0,0,.22);
-    }
+    .btn-primary{background: var(--grad);box-shadow: 0 10px 24px rgba(0,0,0,.18);}
+    .btn-primary:hover {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
@@ -100,26 +119,9 @@
     .item-amount.expense{color:var(--danger-color);font-weight:700}
     .item-amount.income{color:var(--success-color);font-weight:700}
     .item-actions{display:flex;gap:4px;flex-shrink:0}
-    
-    .action-btn{
-      background: var(--grad);
-      color:#fff;
-      border:none;
-      border-radius:8px;
-      padding:6px 10px;
-      font-size:.85rem;
-      font-weight:600;
-      cursor:pointer;
-      transition: filter 0.2s ease, transform 0.2s ease;
-    }
-    .action-btn:hover{
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-    .action-btn.delete{
-       background: var(--grad-danger);
-    }
-
+    .action-btn{background: var(--grad);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;transition: filter 0.2s ease, transform 0.2s ease;}
+    .action-btn:hover{filter: brightness(1.1);transform: translateY(-1px);}
+    .action-btn.delete{background: var(--grad-danger);}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
   </style>
 </head>
@@ -153,10 +155,12 @@
       </form>
     </section>
 
-    <!-- Griglia Dashboard -->
-    <div class="dashboard-grid" style="margin-top: 24px;">
-      <div class="flow-column income"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="content-section transaction-list"></div></div>
-      <div class="flow-column expense"><h2>❌ Uscite Recenti</h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="content-section transaction-list"></div></div>
+    <!-- Pannello Principale Dati -->
+    <div class="dashboard-panel" style="margin-top: 24px;">
+      <div class="dashboard-grid">
+        <div class="flow-column income"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="content-section transaction-list"></div></div>
+        <div class="flow-column expense"><h2>❌ Uscite Recenti</h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="content-section transaction-list"></div></div>
+      </div>
     </div>
   </main>
   
