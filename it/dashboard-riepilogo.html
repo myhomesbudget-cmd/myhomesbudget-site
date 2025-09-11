@@ -105,6 +105,7 @@
       color: #555;
     }
     .summary-card-chart {
+      position: relative; /* Necessario per posizionare il testo al centro */
       flex-grow: 1;
       display: flex;
       align-items: center;
@@ -234,7 +235,6 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        // Eseguiamo le query in parallelo per la massima efficienza
         const [transactionsRes, budgetRes] = await Promise.all([
             supabase.from('transactions')
                 .select(`*, categories(name, icon)`)
@@ -262,7 +262,6 @@
         const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
         
         if (transactions.length === 0) {
-             // Anche se non ci sono transazioni, mostriamo lo stato dell'obiettivo
              renderStrategicSummary([], savingGoal);
              const grid = summaryContent.querySelector('.summary-grid');
              if (grid) {
@@ -294,7 +293,6 @@
             return acc;
         }, {});
 
-        // HTML della nuova griglia
         summaryContent.innerHTML = `
             <div class="summary-card budget-card">
                 <div class="summary-card-header">
@@ -348,14 +346,51 @@
             </div>
         `;
         
-        // Render dei 4 componenti
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': Math.max(0, totalIncome - totalExpense - savingGoal) }, ['#ff7675', '#a29bfe', '#00cec9']);
+        const availableAmount = Math.max(0, totalIncome - totalExpense - savingGoal);
+        const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
+        
+        const budgetCenterText = {
+            amount: `${availableAmount.toFixed(2)}€`,
+            percentage: `${availablePercentage.toFixed(0)}% RESIDUO`
+        };
+
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#ff7675', '#a29bfe', '#00cec9'], budgetCenterText);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7']);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2']);
         renderGoal(netSaving, savingGoal);
     }
 
-    function renderDoughnutChart(canvasId, data, colors) {
+    // 🎨 VIBE UPGRADE: Plugin per il testo al centro del grafico 🎨
+    const centerTextPlugin = {
+      id: 'centerText',
+      beforeDraw: function(chart) {
+        if (chart.options.plugins.centerText) {
+          const ctx = chart.ctx;
+          const centerConfig = chart.options.plugins.centerText;
+          const amountText = centerConfig.amount;
+          const percentageText = centerConfig.percentage;
+
+          ctx.save();
+          const chartArea = chart.chartArea;
+          const centerX = (chartArea.left + chartArea.right) / 2;
+          const centerY = (chartArea.top + chartArea.bottom) / 2;
+          
+          ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+          ctx.fillStyle = '#333';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(amountText, centerX, centerY - 12);
+
+          ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+          ctx.fillStyle = '#555';
+          ctx.fillText(percentageText, centerX, centerY + 18);
+          ctx.restore();
+        }
+      }
+    };
+    Chart.register(centerTextPlugin); // Registra il plugin globalmente
+
+    function renderDoughnutChart(canvasId, data, colors, centerText = null) {
         const ctx = document.getElementById(canvasId)?.getContext('2d');
         if (!ctx) return;
 
@@ -370,16 +405,14 @@
         if (values.length === 0) {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.save();
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#999';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#999';
             ctx.font = '16px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
             ctx.fillText('Nessun dato', ctx.canvas.width / 2, ctx.canvas.height / 2);
             ctx.restore();
             return;
         }
         
-        chartInstances[canvasId] = new Chart(ctx, {
+        const chartOptions = {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -388,11 +421,15 @@
             options: {
                 responsive: true,
                 cutout: '70%',
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
-        });
+        };
+
+        if(centerText) {
+            chartOptions.options.plugins.centerText = centerText;
+        }
+
+        chartInstances[canvasId] = new Chart(ctx, chartOptions);
     }
 
     function renderGoal(savedAmount, goalAmount) {
