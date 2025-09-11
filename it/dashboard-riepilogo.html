@@ -295,21 +295,8 @@
             return acc;
         }, {});
 
+        // 🎨 VIBE UPGRADE: Ordine delle card e HTML aggiornato 🎨
         summaryContent.innerHTML = `
-            <div class="summary-card budget-card">
-                <div class="summary-card-header">
-                    <h3>BUDGET</h3>
-                    <p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p>
-                </div>
-                <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
-                <div class="summary-card-footer">
-                    <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
-                    </div>
-                </div>
-            </div>
             <div class="summary-card income-card">
                  <div class="summary-card-header">
                     <h3>ENTRATE</h3>
@@ -333,6 +320,20 @@
                         <div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
                     </div>
                  </div>
+            </div>
+            <div class="summary-card budget-card">
+                <div class="summary-card-header">
+                    <h3>BUDGET</h3>
+                    <p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p>
+                </div>
+                <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${savingGoal.toFixed(2)}€</span></div>
+                    </div>
+                </div>
             </div>
             <div class="summary-card goal-card">
                 <div class="summary-card-header">
@@ -360,15 +361,16 @@
         
         const availableAmount = Math.max(0, totalIncome - totalExpense - savingGoal);
         const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
-        
-        const budgetCenterText = {
-            amount: `${availableAmount.toFixed(2)}€`,
-            percentage: `${availablePercentage.toFixed(0)}% RESIDUO`
-        };
+        const expensePercentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
+
+        // 🎨 VIBE UPGRADE: Testi centrali aggiornati 🎨
+        const budgetCenterText = { amount: `${availableAmount.toFixed(2)}€`, percentage: `${availablePercentage.toFixed(0)}% RESIDUO` };
+        const incomeCenterText = { amount: `${totalIncome.toFixed(2)}€`, percentage: `TOTALE ENTRATE` };
+        const expenseCenterText = { amount: `${totalExpense.toFixed(2)}€`, percentage: `${expensePercentage.toFixed(0)}% SULLE ENTRATE` };
 
         renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
-        renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], null, true);
-        renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], null, true);
+        renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
+        renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
         renderGoal(netSaving, savingGoal);
     }
 
@@ -380,18 +382,24 @@
           const centerConfig = chart.options.plugins.centerText;
           const amountText = centerConfig.amount;
           const percentageText = centerConfig.percentage;
+          const hasPercentage = percentageText && percentageText.length > 0;
           ctx.save();
           const chartArea = chart.chartArea;
           const centerX = (chartArea.left + chartArea.right) / 2;
           const centerY = (chartArea.top + chartArea.bottom) / 2;
+          
           ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
           ctx.fillStyle = '#333';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(amountText, centerX, centerY - 12);
-          ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
-          ctx.fillStyle = '#555';
-          ctx.fillText(percentageText, centerX, centerY + 18);
+          // Se c'è una seconda riga di testo, sposta la prima un po' in su, altrimenti centrala perfettamente.
+          ctx.fillText(amountText, centerX, hasPercentage ? centerY - 12 : centerY);
+
+          if(hasPercentage) {
+            ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
+            ctx.fillStyle = '#555';
+            ctx.fillText(percentageText, centerX, centerY + 18);
+          }
           ctx.restore();
         }
       }
