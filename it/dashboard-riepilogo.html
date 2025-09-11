@@ -105,12 +105,14 @@
       background: var(--grad);
       border-radius: 999px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      min-width: 200px;
+      width: 240px; /* Larghezza fissa per coerenza */
+      max-width: 100%;
     }
     .summary-card-header p {
       margin: 8px 0 0;
       font-size: 0.85rem;
       color: #555;
+      font-weight: 600;
     }
     .summary-card-chart {
       position: relative;
@@ -259,7 +261,7 @@
 
         const transactions = transactionsRes.data || [];
         const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
-        const goalName = goalRes.data ? goalRes.data.name : 'IL TUO OBIETTIVO';
+        const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo impostato';
         
         if (transactions.length === 0 && savingGoal === 0) {
              renderStrategicSummary([], savingGoal, goalName);
@@ -311,6 +313,7 @@
             <div class="summary-card income-card">
                  <div class="summary-card-header">
                     <h3>ENTRATE</h3>
+                    <p>(∑ Entrate Mensili)</p>
                  </div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
@@ -322,6 +325,7 @@
             <div class="summary-card expense-card">
                  <div class="summary-card-header">
                     <h3>USCITE</h3>
+                    <p>(∑ Spese Mensili)</p>
                 </div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
@@ -331,7 +335,10 @@
                  </div>
             </div>
             <div class="summary-card goal-card">
-                <div class="summary-card-header"><h3>${goalName.toUpperCase()}</h3></div>
+                <div class="summary-card-header">
+                    <h3>IL TUO OBIETTIVO</h3>
+                    <p>${goalName}</p>
+                </div>
                 <div class="goal-card-content">
                   <div class="battery">
                     <div class="battery-segments">
