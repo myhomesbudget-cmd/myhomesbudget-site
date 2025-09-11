@@ -1,382 +1,376 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Riepilogo — MyHomesBudget</title>
-  <meta name="description" content="Riepilogo finanziario fullscreen con grafici a 12 mesi.">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="color-scheme" content="light dark">
-
-  <!-- CSP allineata: aggiungi solo esm.sh e *.supabase.* -->
-  <meta http-equiv="Content-Security-Policy"
-        content="
-          default-src 'self';
-          img-src 'self' https: data:;
-          style-src 'self' 'unsafe-inline';
-          script-src 'self' 'unsafe-inline' https://esm.sh https://www.googletagmanager.com https://www.google-analytics.com;
-          connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://region1.google-analytics.com;
-          font-src 'self' https: data:;
-          frame-ancestors 'none';
-          base-uri 'self';
-          form-action 'self'">
-
-  <!-- (opzionale) GA4, come in index -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date()); gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
-  </script>
-
-  <link rel="preload" href="/bg.webp" as="image">
-  <link rel="icon" href="/favicon.ico">
+  <title>Dashboard — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.ico" />
 
   <style>
     :root{
-      font-family:-apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      --card-border: rgba(0,0,0,.06);
-      --ink:#0f1220; --ink-soft:#4d5566;
-      --glass: rgba(255,255,255,.58);
-      --chip: rgba(255,255,255,.72);
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
     }
-    *{ box-sizing:border-box }
-    body{ margin:0; color:var(--ink); background:url("/bg.webp") no-repeat center/cover fixed; }
-    body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1 }
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
 
-    /* TOPBAR vetro */
-    .topbar{
-      position:fixed; top:16px; left:50%; transform:translateX(-50%);
-      width:min(1200px,calc(100% - 40px)); z-index:50; pointer-events:none;
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .logo-link,.top-actions{ pointer-events:auto }
-    .logo-link{ display:flex; align-items:center; gap:10px; text-decoration:none }
-    .logo-image{ height:32px }
-    .logo-text{ font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.35) }
-    .top-actions{ display:flex; gap:8px; align-items:center }
-    .chip{ background:var(--chip); border:1px solid var(--card-border);
-      backdrop-filter:saturate(1.1) blur(6px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      color:var(--ink); padding:8px 12px; border-radius:12px; font-weight:800; box-shadow:0 8px 24px rgba(0,0,0,.08); }
-    .chip.btn{ cursor:pointer; text-decoration:none }
-    .chip.btn:hover{ filter:brightness(1.04) }
+    /* ====== TOPBAR identica al riepilogo ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--card-border);z-index:100}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;
+      background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600}
+    .top-link:hover{background:rgba(0,0,0,.38)}
+    #month-selector{background:rgba(255,255,255,.8);border-radius:8px;border:1px solid rgba(0,0,0,.1);padding:4px 8px;font-weight:600}
 
-    /* Layout fullscreen */
-    .wrap{ width:min(1200px,calc(100% - 40px)); margin:110px auto 30px auto; display:grid; gap:14px; }
-    .grid{ display:grid; gap:14px; grid-template-columns: 1.3fr .7fr; }
-    @media (max-width: 1100px){ .grid{ grid-template-columns:1fr } }
+    /* Centro topbar per banner */
+    .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
 
-    .card{
-      background:var(--glass);
-      backdrop-filter:saturate(1.1) blur(6px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
-      border:1px solid var(--card-border); border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.08);
-    }
-    .card h2,.card h3{ margin:0 0 8px 0 } .muted{ color:var(--ink-soft) }
+    /* Banner prova (ora dentro topbar, centrato) */
+    #trial-banner{display:none;align-items:center;gap:10px;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;
+      padding:8px 12px;border-radius:999px;font-weight:700;
+      box-shadow:0 6px 16px rgba(0,0,0,.15)}
+    #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;
+      padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
+    #trial-banner a:hover{filter:brightness(.98)}
 
-    /* KPI pills */
-    .kpi{ display:grid; grid-template-columns: repeat(4,1fr); gap:10px }
-    @media (max-width: 1100px){ .kpi{ grid-template-columns: repeat(2,1fr) } }
-    .pill{ background:rgba(255,255,255,.9); border:1px solid var(--card-border); padding:12px 14px; border-radius:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; }
-    .val{ font-variant-numeric: tabular-nums; }
-    .pulse{ animation:pulse .6s ease } @keyframes pulse{0%{transform:scale(1)}45%{transform:scale(1.03)}100%{transform:scale(1)}}
+    /* ====== Contenuto ====== */
+    main.container{padding:84px 24px 24px;max-width:980px;margin:0 auto;width:100%}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:16px}
+    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
+    .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 
-    /* Canvas wrapper: altezza responsiva */
-    .h300{ height:300px } .h360{ height:360px } .h240{ height:240px }
+    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);
+      padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:.2s}
+    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
+    @media(min-width:820px){.transaction-form{grid-template-columns:repeat(3,1fr) auto}}
+    .form-group{display:flex;flex-direction:column}
+    .form-group.full-width{grid-column:1 / -1}
+    .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
+    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
+    .item-icon{font-size:1.5rem;flex-shrink:0}
+    .item-details{display:flex;flex-direction:column;min-width:0}
+    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
+    .item-amount.expense{color:var(--danger-color);font-weight:700}
+    .item-amount.income{color:var(--success-color);font-weight:700}
+    .item-actions{display:flex;gap:4px;flex-shrink:0}
+    .action-btn{background:rgba(0,0,0,.05);color:#555;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer}
+    .action-btn:hover{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
+    .action-btn.delete{background:#f8d7da;color:#842029;border-color:#f5c2c7}
+    .action-btn.delete:hover{background:#dc3545;color:#fff;border-color:#dc3545}
+    .empty-state{text-align:center;padding:40px;color:#555}
   </style>
 </head>
 <body>
-  <!-- TOPBAR -->
+  <!-- Topbar a tutta larghezza, come riepilogo -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
-      <img src="/homes.png" alt="Logo" class="logo-image" loading="lazy"><span class="logo-text">MyHomesBudget</span>
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
+      <span class="logo-text">MyHomesBudget</span>
     </a>
+
+    <!-- centro: banner prova, centrato rispetto alla pagina -->
+    <div class="top-center">
+      <div id="trial-banner">
+        <span id="trial-days-left"></span>
+        <a href="/it/paywall.html">Aggiorna piano</a>
+      </div>
+    </div>
+
+    <!-- destra: azioni (come riepilogo) -->
     <div class="top-actions">
-      <select class="chip" id="monthPicker" aria-label="Mese focus"></select>
-      <a class="chip btn" href="/it/dashboard.html">Operazioni</a>
-      <a class="chip btn" href="/it/dashboard-riepilogo.html">Riepilogo</a>
-      <a class="chip btn" href="/it/logout.html">Esci</a>
+      <!-- se vuoi puoi tenerlo anche qui per coerenza visiva, non interferisce -->
+      <select id="month-selector" aria-label="Seleziona mese"></select>
+      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
+      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
+      <a href="#" id="logout-btn" class="top-link">Esci</a>
     </div>
   </nav>
 
-  <main class="wrap">
-    <!-- KPI -->
-    <section class="card">
-      <h2>Riepilogo 12 mesi</h2>
-      <p class="muted" id="subtitle">Dinamica mensile da <span id="fromYM"></span> a <span id="toYM"></span></p>
-      <div class="kpi" style="margin-top:8px">
-        <div class="pill"><span>Entrate (12m)</span><span class="val" id="kIn">€ 0</span></div>
-        <div class="pill"><span>Uscite (12m)</span><span class="val" id="kOut">€ 0</span></div>
-        <div class="pill"><span>Saldo (12m)</span><span class="val" id="kSaldo">€ 0</span></div>
-        <div class="pill"><span>Media Uscite</span><span class="val" id="kAvgOut">€ 0</span></div>
+  <main class="container">
+    <nav id="dash-nav" class="dash-nav">
+      <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
+      <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
+    </nav>
+
+    <section class="content-section">
+      <h2 id="form-title" style="margin:0 0 12px">Nuova Transazione</h2>
+      <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
+        <div class="form-group full-width">
+          <label for="kind">Tipo</label>
+          <select id="kind" name="kind" required>
+            <option value="expense">Uscita</option>
+            <option value="income">Entrata</option>
+            <option value="transfer">Trasferimento</option>
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label for="note">Nota</label>
+          <input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required>
+        </div>
+        <div class="form-group">
+          <label for="amount">Importo (€)</label>
+          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+        </div>
+        <div class="form-group">
+          <label for="occurred_at">Data</label>
+          <input type="date" id="occurred_at" name="occurred_at" required>
+        </div>
+        <div class="form-group">
+          <label for="category_id">Categoria</label>
+          <select id="category_id" name="category_id" required>
+            <option value="">Scegli...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="subcategory_id">Sottocategoria</label>
+          <select id="subcategory_id" name="subcategory_id">
+            <option value="">Scegli...</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="grid-column:1 / -1;margin-top:10px">Aggiungi</button>
+      </form>
+    </section>
+
+    <section class="content-section" style="margin-top:16px">
+      <h2 style="margin:0 0 12px">Movimenti Recenti</h2>
+      <div id="transaction-list" class="transaction-list">
+        <div class="empty-state"><p>Nessuna transazione registrata.</p></div>
       </div>
-    </section>
-
-    <section class="grid">
-      <!-- col sx -->
-      <section class="card">
-        <h3>Trend Entrate/Uscite (12 mesi)</h3>
-        <div class="h360"><canvas id="chartTrend"></canvas></div>
-      </section>
-
-      <!-- col dx -->
-      <aside class="card">
-        <h3>Composizione mese selezionato</h3>
-        <p class="muted" id="monthTitle">Mese: —</p>
-        <div class="h300"><canvas id="chartDonut"></canvas></div>
-      </aside>
-    </section>
-
-    <section class="grid">
-      <section class="card">
-        <h3>Saldo mensile</h3>
-        <div class="h300"><canvas id="chartSaldo"></canvas></div>
-      </section>
-      <aside class="card">
-        <h3>Top categorie (12 mesi)</h3>
-        <div class="h300"><canvas id="chartTopCat"></canvas></div>
-      </aside>
     </section>
   </main>
 
   <script type="module">
-    /* ============ CONFIG ============ */
-    const CONFIG = {
-      SUPABASE_URL: 'https://upcusjlumfeadgbhziwq.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwY3Vzamx1bWZlYWRnYmh6aXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTAzMTgsImV4cCI6MjA3MTk4NjMxOH0.U3cukTOaAZCPOF9f0mnyO00ghRgrzxwPx6GwqKuZmCM',
-      LOGIN_URL: '/it/login.html',
+    import { supabase } from "/it/supabase-client.js";
 
-      // TABELLE
-      TABLE_TX: 'transactions',
-      TABLE_CATS: 'categories',
+    const transactionForm = document.getElementById('transaction-form');
+    const kindSelect = document.getElementById('kind');
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+    const transactionIdInput = document.getElementById('transaction-id');
+    const formTitle = document.getElementById('form-title');
+    const transactionList = document.getElementById('transaction-list');
+    const logoutBtn = document.getElementById('logout-btn');
 
-      // MAP COLONNE (adattabile ai tuoi nomi)
-      COL: {
-        tx_id: 'id',
-        tx_user: 'user_id',
-        tx_date: ['occurred_at','date','when'],
-        tx_kind: ['kind','type'],         // 'income' | 'expense' (eventuali 'transfer' vengono ignorati)
-        tx_cat: 'category_id',
-        tx_sub: 'subcategory_id',
-        tx_note: ['note','description'],
-        tx_amt: 'amount',
+    let user = null;
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
 
-        cat_id: 'id',
-        cat_user: 'user_id',
-        cat_name: 'name',
-        cat_kind: 'kind'
+    /* ==== Banner prova (stessa logica del riepilogo) ==== */
+    function handleTrialStatus(profile){
+      const banner = document.getElementById('trial-banner');
+      const text = document.getElementById('trial-days-left');
+      if (!profile || profile.plan_type !== 'trial' || !profile.trial_end){ banner.style.display='none'; return; }
+
+      const trialEnd = new Date(profile.trial_end);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diffDays = Math.ceil((trialEnd.getTime() - today.getTime()) / 86400000);
+
+      if (diffDays >= 0){
+        banner.style.display = 'flex';
+        text.textContent =
+          diffDays === 0 ? "Ultimo giorno di prova!"
+          : diffDays === 1 ? "Manca 1 giorno alla fine della prova."
+          : `Mancano ${diffDays} giorni alla fine della prova.`;
+      }else{
+        // prova scaduta: lascio che i trigger blocchino le scritture, ma avviso e reindirizzo
+        alert("La tua prova è terminata. Scegli un piano per continuare.");
+        location.replace("/it/paywall.html");
       }
-    };
-
-    /* ============ Imports ============ */
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    import Chart from "https://esm.sh/chart.js@4.4.4/auto";
-
-    /* ============ Setup & utils ============ */
-    const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-    const $ = s => document.querySelector(s);
-    const fmt = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:2});
-    const monthLabel = (ym)=> new Date(ym+'-01').toLocaleDateString('it-IT',{month:'short',year:'numeric'});
-    const pick = (row, key)=> {
-      const m = CONFIG.COL[key];
-      if (Array.isArray(m)) { for (const k of m) if (row && row[k] !== undefined) return row[k]; return undefined; }
-      return row ? row[m] : undefined;
-    };
-    const todayYM = ()=> new Date().toISOString().slice(0,7);
-    const addMonths = (ym, delta)=> { const d=new Date(ym+'-01'); d.setMonth(d.getMonth()+delta); return d.toISOString().slice(0,7); };
-
-    // Dom refs
-    const el = {
-      mp: $('#monthPicker'), fromYM: $('#fromYM'), toYM: $('#toYM'),
-      kIn: $('#kIn'), kOut: $('#kOut'), kSaldo: $('#kSaldo'), kAvgOut: $('#kAvgOut'),
-      monthTitle: $('#monthTitle')
-    };
-
-    // Auth
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { location.href = CONFIG.LOGIN_URL; throw new Error('Not authenticated'); }
-    const USER_ID = user.id;
-
-    // State
-    const state = {
-      focusYM: (new URLSearchParams(location.search).get('m')) || todayYM(),
-      months: [],   // ultimi 12 YM
-      tx: [],       // transazioni 12m
-      cats: new Map(), // cat_id -> {name,kind}
-      rt: null,
-      charts: {}
-    };
-
-    // Mesi dropdown
-    (function initMonths(){
-      const now = new Date();
-      el.mp.innerHTML = '';
-      for (let i=0;i<18;i++){ // 18 per piacere d'uso
-        const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-        const ym = d.toISOString().slice(0,7);
-        const opt = document.createElement('option'); opt.value=ym; opt.textContent=monthLabel(ym);
-        el.mp.appendChild(opt);
-      }
-      el.mp.value = state.focusYM;
-      const from = addMonths(state.focusYM, -11);
-      state.months = Array.from({length:12}, (_,i)=> addMonths(from, i));
-      el.fromYM.textContent = monthLabel(from);
-      el.toYM.textContent   = monthLabel(state.focusYM);
-      $('#monthTitle').textContent = 'Mese: ' + monthLabel(state.focusYM);
-    })();
-
-    /* ============ Load cataloghi ============ */
-    async function loadCategories(){
-      const { data } = await supabase.from(CONFIG.TABLE_CATS)
-        .select([CONFIG.COL.cat_id,CONFIG.COL.cat_user,CONFIG.COL.cat_name,CONFIG.COL.cat_kind].join(','))
-        .eq(CONFIG.COL.cat_user, USER_ID);
-      state.cats.clear();
-      (data||[]).forEach(c=> state.cats.set(c[CONFIG.COL.cat_id], {name:c[CONFIG.COL.cat_name], kind:(c[CONFIG.COL.cat_kind]||'').toLowerCase()}));
     }
 
-    /* ============ Load transazioni 12m ============ */
-    async function loadTx(){
-      const start = addMonths(state.focusYM, -11) + '-01';
-      const end   = addMonths(state.focusYM, 1) + '-01'; // esclusivo
-      const dateCol = Array.isArray(CONFIG.COL.tx_date)?CONFIG.COL.tx_date[0]:CONFIG.COL.tx_date;
-      const kindCol = Array.isArray(CONFIG.COL.tx_kind)?CONFIG.COL.tx_kind[0]:CONFIG.COL.tx_kind;
+    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
 
-      const sel = [CONFIG.COL.tx_id, CONFIG.COL.tx_user, dateCol, kindCol, CONFIG.COL.tx_cat, CONFIG.COL.tx_amt].join(',');
-      const { data, error } = await supabase
-        .from(CONFIG.TABLE_TX)
-        .select(sel)
-        .eq(CONFIG.COL.tx_user, USER_ID)
-        .gte(dateCol, start).lt(dateCol, end)
-        .order(dateCol, { ascending:true });
-      if (error){ console.error(error); return; }
+    async function loadInitialData(){
+      const { data: categories, error: cError } =
+        await supabase.from('categories').select('*').eq('created_by', user.id);
+      if (cError){ console.error("Errore categorie:", cError); return; }
+      allCategories = categories || [];
 
-      // Normalizza e filtra eventuali 'transfer'
-      state.tx = (data||[])
-        .map(r=>({
-          id: r[CONFIG.COL.tx_id],
-          ym: (r[dateCol]||'').slice(0,7),
-          kind: (r[kindCol]||'').toLowerCase(),
-          cat: r[CONFIG.COL.tx_cat],
-          amt: Number(r[CONFIG.COL.tx_amt]||0)
-        }))
-        .filter(t => t.kind==='income' || t.kind==='expense');
+      if (allCategories.length){
+        const ids = allCategories.map(c => c.id);
+        const { data: subcategories, error: sError } =
+          await supabase.from('subcategories').select('*').in('category_id', ids);
+        if (sError){ console.error("Errore sottocategorie:", sError); return; }
+        allSubcategories = subcategories || [];
+      }
     }
 
-    /* ============ Compute series ============ */
-    function series12m(){
-      const byYM = new Map(state.months.map(m=>[m,{in:0,out:0,cat:new Map()}]));
-      for (const t of state.tx){
-        const b = byYM.get(t.ym); if (!b) continue;
-        if (t.kind==='income') b.in += t.amt; else b.out += t.amt;
-        if (t.kind==='expense'){
-          const nm = state.cats.get(t.cat)?.name || '—';
-          b.cat.set(nm, (b.cat.get(nm)||0) + t.amt);
-        }
+    function updateCategoryDropdown(){
+      const selectedKind = kindSelect.value;
+      const filtered = allCategories.filter(cat => cat.kind === selectedKind);
+      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
+      updateSubcategories();
+    }
+
+    function updateSubcategories(selectedSubcategoryId = null){
+      const categoryId = categorySelect.value;
+      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+      subcategorySelect.disabled = true;
+      if (!categoryId) return;
+
+      const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+      if (relevant.length){
+        subcategorySelect.disabled = false;
+        relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
+        if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
       }
-      const labels = state.months.map(monthLabel);
-      const inc = state.months.map(m=> byYM.get(m).in);
-      const out = state.months.map(m=> byYM.get(m).out);
-      const saldo = state.months.map((_,i)=> inc[i]-out[i]);
+    }
 
-      // Top categorie globali su 12m
-      const aggCat = {};
-      for (const m of state.months){
-        for (const [nm,val] of byYM.get(m).cat.entries()){
-          aggCat[nm]=(aggCat[nm]||0)+val;
-        }
+    async function loadTransactions(){
+      const { data, error } = await supabase.from('transactions')
+        .select(`*, categories(name, icon), subcategories(name, icon)`)
+        .eq('created_by', user.id)
+        .order('occurred_at', { ascending: false })
+        .limit(15);
+      if (error){ console.error("Errore transazioni:", error); return; }
+
+      allTransactions = data || [];
+      transactionList.innerHTML = '';
+      if (!allTransactions.length){
+        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+        return;
       }
-      const top = Object.entries(aggCat).sort((a,b)=>b[1]-a[1]).slice(0,6);
 
-      // Donut mese focus
-      const catMonth = byYM.get(state.focusYM);
-      const donut = catMonth ? Array.from(catMonth.cat.entries()).sort((a,b)=>b[1]-a[1]).slice(0,8) : [];
+      allTransactions.forEach(tx => {
+        const item = document.createElement('div');
+        item.className = 'item';
+        const cat = tx.categories; const sub = tx.subcategories;
+        const icon = sub?.icon || cat?.icon || '💸';
+        const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        const amountNum = safeToNumber(tx.amount);
+        item.innerHTML = `
+          <div class="item-icon">${icon}</div>
+          <div class="item-details">
+            <span class="note">${tx.note ?? ''}</span>
+            <span class="category">${categoryText}</span>
+          </div>
+          <div class="item-amount ${tx.kind}">
+            ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
+          </div>
+          <div class="item-actions">
+            <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
+            <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
+          </div>
+        `;
+        transactionList.appendChild(item);
+      });
+    }
 
-      // KPI
-      const sum = a=> a.reduce((s,x)=>s+x,0);
-      const kpi = {
-        in: sum(inc), out: sum(out), saldo: sum(saldo), avgOut: Math.round((sum(out)/out.length)||0)
+    function handleEdit(id){
+      const tx = allTransactions.find(t => String(t.id) === String(id));
+      if (!tx) return;
+      formTitle.textContent = "Modifica Transazione";
+      transactionIdInput.value = tx.id;
+      document.getElementById('kind').value = tx.kind;
+      document.getElementById('note').value = tx.note ?? '';
+      document.getElementById('amount').value = safeToNumber(tx.amount);
+      document.getElementById('occurred_at').value = (tx.occurred_at || '').split('T')[0] || '';
+      updateCategoryDropdown();
+      categorySelect.value = tx.category_id ?? '';
+      updateSubcategories(tx.subcategory_id ?? null);
+      window.scrollTo(0,0);
+    }
+
+    async function handleDelete(id){
+      if (!confirm("Eliminare questa transazione?")) return;
+      const { error } = await supabase.from('transactions').delete().eq('id', id);
+      if (error){ console.error("Errore eliminazione:", error); alert("Impossibile eliminare."); }
+      else{ loadTransactions(); }
+    }
+
+    async function handleFormSubmit(e){
+      e.preventDefault();
+      const formData = new FormData(transactionForm);
+      const id = formData.get('transaction-id');
+      const payload = {
+        kind: formData.get('kind'),
+        note: formData.get('note'),
+        amount: formData.get('amount'),
+        occurred_at: formData.get('occurred_at'),
+        category_id: formData.get('category_id'),
+        subcategory_id: formData.get('subcategory_id') || null,
+        created_by: user.id
       };
-
-      return { labels, inc, out, saldo, top, donut, kpi };
+      const { error } = id
+        ? await supabase.from('transactions').update(payload).eq('id', id)
+        : await supabase.from('transactions').insert(payload);
+      if (error){ console.error("Errore salvataggio:", error); alert("Errore. Riprova."); }
+      else{
+        transactionForm.reset();
+        formTitle.textContent = "Nuova Transazione";
+        transactionIdInput.value = "";
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        updateCategoryDropdown();
+        loadTransactions();
+      }
     }
 
-    /* ============ Charts ============ */
-    function buildCharts(){
-      const { labels, inc, out, saldo, top, donut, kpi } = series12m();
+    async function initializePage(){
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session){ location.replace("/it/login.html"); return; }
+      user = session.user;
 
-      // KPI
-      el.kIn.textContent    = fmt.format(kpi.in);
-      el.kOut.textContent   = fmt.format(kpi.out);
-      el.kSaldo.textContent = fmt.format(kpi.saldo);
-      el.kAvgOut.textContent= fmt.format(kpi.avgOut);
-      [el.kIn,el.kOut,el.kSaldo,el.kAvgOut].forEach(x=>{ x.classList.remove('pulse'); void x.offsetWidth; x.classList.add('pulse'); });
+      // profilo per onboarding + banner prova
+      const { data: profile, error: pErr } =
+        await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
+      if (pErr) console.warn("lettura profilo:", pErr?.message);
+      handleTrialStatus(profile);
 
-      // Destroy old
-      Object.values(state.charts).forEach(ch=> ch?.destroy());
+      if (profile && !profile.onboarded){
+        if (new URLSearchParams(location.search).get('edit') !== '1'){
+          location.replace("/it/onboarding.html");
+          return;
+        }
+      }
 
-      // Trend Entrate/Uscite
-      state.charts.trend = new Chart($('#chartTrend'), {
-        type:'line',
-        data:{ labels, datasets:[
-          { label:'Entrate', data:inc, tension:.35, fill:false },
-          { label:'Uscite',  data:out, tension:.35, fill:false }
-        ]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
-      });
+      // mese selector (solo estetico, come sul riepilogo)
+      const monthSelector = document.getElementById('month-selector');
+      for (let i = 0; i < 12; i++){
+        const d = new Date(); d.setMonth(d.getMonth()-i);
+        const value = d.toISOString().slice(0,7) + '-01';
+        const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+        monthSelector.add(new Option(label, value));
+      }
 
-      // Saldo mensile
-      state.charts.saldo = new Chart($('#chartSaldo'), {
-        type:'bar',
-        data:{ labels, datasets:[{ label:'Saldo', data:saldo }]},
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-      });
+      document.getElementById('occurred_at').valueAsDate = new Date();
+      await loadInitialData();
+      updateCategoryDropdown();
+      await loadTransactions();
 
-      // Top categorie (12m)
-      state.charts.top = new Chart($('#chartTopCat'), {
-        type:'bar',
-        data:{ labels: top.map(([nm])=>nm), datasets:[{ label:'Uscite', data: top.map(([,v])=>v) }] },
-        options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-      });
+      kindSelect.addEventListener('change', updateCategoryDropdown);
+      categorySelect.addEventListener('change', () => updateSubcategories());
+      transactionForm.addEventListener('submit', handleFormSubmit);
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
 
-      // Donut mese selezionato
-      state.charts.donut = new Chart($('#chartDonut'), {
-        type:'doughnut',
-        data:{ labels: donut.map(([nm])=>nm), datasets:[{ label:'Uscite', data: donut.map(([,v])=>v) }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+      transactionList.addEventListener('click', (ev)=>{
+        const t = ev.target.closest('.action-btn'); if (!t) return;
+        const id = t.dataset.id;
+        if (t.classList.contains('edit-btn')) handleEdit(id);
+        else if (t.classList.contains('delete-btn')) handleDelete(id);
       });
     }
 
-    /* ============ Realtime ============ */
-    function subscribeRT(){
-      if (state.rt){ supabase.removeChannel(state.rt); state.rt=null; }
-      const userCol = CONFIG.COL.tx_user;
-      state.rt = supabase.channel('rt_riepilogo_'+USER_ID)
-        .on('postgres_changes', { event:'*', schema:'public', table:CONFIG.TABLE_TX, filter:`${userCol}=eq.${USER_ID}` }, async (payload)=>{
-          // Ricarica solo se l’evento ricade nella finestra 12m
-          const dateCol = Array.isArray(CONFIG.COL.tx_date)?CONFIG.COL.tx_date[0]:CONFIG.COL.tx_date;
-          const row = payload.new || payload.old; if (!row) return;
-          const ym = (row[dateCol]||'').slice(0,7);
-          if (!state.months.includes(ym)) return;
-          await loadTx(); buildCharts();
-        })
-        .subscribe(()=>{/* ok */});
-    }
-
-    /* ============ Eventi ============ */
-    el.mp.addEventListener('change', async e=>{
-      state.focusYM = e.target.value;
-      const from = addMonths(state.focusYM, -11);
-      state.months = Array.from({length:12}, (_,i)=> addMonths(from, i));
-      el.fromYM.textContent = monthLabel(from);
-      el.toYM.textContent   = monthLabel(state.focusYM);
-      $('#monthTitle').textContent = 'Mese: ' + monthLabel(state.focusYM);
-      await loadTx(); buildCharts();
-    });
-
-    /* ============ Init ============ */
-    await loadCategories();
-    await loadTx();
-    buildCharts();
-    subscribeRT();
+    document.addEventListener('DOMContentLoaded', initializePage);
   </script>
 </body>
 </html>
