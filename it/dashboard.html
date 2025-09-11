@@ -1,376 +1,629 @@
 <!doctype html>
-<html lang="it" data-app="myhomesbudget">
+<html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard — MyHomesBudget</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.ico" />
+  <meta name="description" content="Inserimento operazioni piacevole: quick-add, preferiti, scorciatoie, micro-animazioni.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- CSP: se hai già la tua in index, mantieni la tua e aggiungi SOLO esm.sh e *.supabase.* a connect/script -->
+  <meta http-equiv="Content-Security-Policy"
+        content="
+          default-src 'self';
+          img-src 'self' https: data:;
+          style-src 'self' 'unsafe-inline';
+          script-src 'self' 'unsafe-inline' https://esm.sh https://www.googletagmanager.com https://www.google-analytics.com;
+          connect-src 'self' https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://region1.google-analytics.com;
+          font-src 'self' https: data:;
+          frame-ancestors 'none';
+          base-uri 'self';
+          form-action 'self'">
+
+  <!-- (opzionale) GA4 come index -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date()); gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
+
+  <link rel="preload" href="/bg.webp" as="image">
+  <link rel="icon" href="/favicon.ico">
 
   <style>
     :root{
-      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
-      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
-      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      font-family:-apple-system,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      --card-border: rgba(0,0,0,.06);
+      --ink:#0f1220; --ink-soft:#4d5566;
+      --glass: rgba(255,255,255,.58);
+      --chip: rgba(255,255,255,.72);
     }
-    *{box-sizing:border-box}
-    html{font-family:var(--font-sans);background-color:var(--bg)}
-    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
-    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
+    *{ box-sizing:border-box }
+    body{ margin:0; color:var(--ink); background:url("/bg.webp") no-repeat center/cover fixed; }
+    body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1 }
 
-    /* ====== TOPBAR identica al riepilogo ====== */
-    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
-      display:flex;align-items:center;justify-content:space-between;
-      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--card-border);z-index:100}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;
-      background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600}
-    .top-link:hover{background:rgba(0,0,0,.38)}
-    #month-selector{background:rgba(255,255,255,.8);border-radius:8px;border:1px solid rgba(0,0,0,.1);padding:4px 8px;font-weight:600}
+    /* TOPBAR GLASS */
+    .topbar{
+      position:fixed; top:16px; left:50%; transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px)); z-index:50; pointer-events:none;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .logo-link,.top-actions{ pointer-events:auto }
+    .logo-link{ display:flex; align-items:center; gap:10px; text-decoration:none }
+    .logo-image{ height:32px }
+    .logo-text{ font-weight:700; color:#fff; letter-spacing:.2px; text-shadow:0 1px 2px rgba(0,0,0,.35) }
+    .top-actions{ display:flex; gap:8px; align-items:center }
+    .chip{
+      background:var(--chip); border:1px solid var(--card-border);
+      backdrop-filter:saturate(1.1) blur(6px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      color:var(--ink); padding:8px 12px; border-radius:12px; font-weight:800;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
+      user-select:none;
+    }
+    .chip.btn{ cursor:pointer; text-decoration:none }
+    .chip.btn:hover{ filter:brightness(1.04) }
 
-    /* Centro topbar per banner */
-    .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
+    .wrap{ width:min(1100px,calc(100% - 40px)); margin:110px auto 26px auto; display:grid; gap:14px; }
+    .card{
+      background:var(--glass);
+      backdrop-filter:saturate(1.1) blur(6px); -webkit-backdrop-filter:saturate(1.1) blur(3px);
+      border:1px solid var(--card-border); border-radius:16px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    .card h2,.card h3{ margin:0 0 8px 0 }
+    .muted{ color:var(--ink-soft) }
 
-    /* Banner prova (ora dentro topbar, centrato) */
-    #trial-banner{display:none;align-items:center;gap:10px;
-      background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;
-      padding:8px 12px;border-radius:999px;font-weight:700;
-      box-shadow:0 6px 16px rgba(0,0,0,.15)}
-    #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;
-      padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
-    #trial-banner a:hover{filter:brightness(.98)}
+    .grid{ display:grid; gap:14px; grid-template-columns: 1.25fr .75fr; }
+    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr } }
 
-    /* ====== Contenuto ====== */
-    main.container{padding:84px 24px 24px;max-width:980px;margin:0 auto;width:100%}
-    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:16px}
-    .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
-    .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    /* Quick-Add + Preferiti */
+    .quick{ display:flex; gap:10px; align-items:center; border:1px dashed rgba(0,0,0,.16); border-radius:14px; padding:10px; background:rgba(255,255,255,.75); }
+    .quick input{ flex:1; border:1px solid rgba(0,0,0,.12); border-radius:10px; padding:12px 14px; font-size:1rem; }
+    .quick .btn{ border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:12px 14px; font-weight:900; background:linear-gradient(180deg,#fff,#f4f7fb); cursor:pointer; }
+    .quick .btn:hover{ filter:brightness(1.03) }
+    .fav{ display:flex; flex-wrap:wrap; gap:8px; }
+    .fav .chip{ display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:8px 12px; background:rgba(255,255,255,.88); }
+    .emoji{ font-size:1.1rem }
 
-    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);
-      padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:.2s}
-    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
-    @media(min-width:820px){.transaction-form{grid-template-columns:repeat(3,1fr) auto}}
-    .form-group{display:flex;flex-direction:column}
-    .form-group.full-width{grid-column:1 / -1}
-    .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
-    .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
-    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
-    .item-icon{font-size:1.5rem;flex-shrink:0}
-    .item-details{display:flex;flex-direction:column;min-width:0}
-    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
-    .item-amount.expense{color:var(--danger-color);font-weight:700}
-    .item-amount.income{color:var(--success-color);font-weight:700}
-    .item-actions{display:flex;gap:4px;flex-shrink:0}
-    .action-btn{background:rgba(0,0,0,.05);color:#555;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer}
-    .action-btn:hover{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-    .action-btn.delete{background:#f8d7da;color:#842029;border-color:#f5c2c7}
-    .action-btn.delete:hover{background:#dc3545;color:#fff;border-color:#dc3545}
-    .empty-state{text-align:center;padding:40px;color:#555}
+    /* Form */
+    .form-grid{ display:grid; gap:10px; grid-template-columns: repeat(4, 1fr); }
+    .form-grid .full{ grid-column: 1 / -1 } .form-grid .half{ grid-column: span 2 }
+    @media (max-width: 720px){ .form-grid{ grid-template-columns: 1fr 1fr } .form-grid .half{ grid-column: 1 / -1 } }
+    label{ font-size:.86rem; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:6px }
+    input, select{ width:100%; padding:11px 12px; border:1px solid rgba(0,0,0,.12); border-radius:10px; font-size:1rem; background:#fff; }
+    .actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end }
+    .primary{ background:#111; color:#fff; border:1px solid #000; } .primary:hover{ filter:brightness(1.08) }
+    .ghost{ background:#fff; } .ghost:hover{ filter:brightness(1.03) }
+    select:invalid{ color:#888 }
+
+    /* Tabella */
+    table{ width:100%; border-collapse:collapse; }
+    th, td{ padding:10px 12px; border-bottom:1px solid rgba(0,0,0,.08); text-align:left }
+    th{ font-size:.78rem; text-transform:uppercase; letter-spacing:.4px; color:var(--ink-soft) }
+    .row-enter{ animation: rowIn .35s ease }
+    @keyframes rowIn{ from{opacity:.0; transform:translateY(-4px)} to{opacity:1; transform:translateY(0)} }
+
+    /* KPI */
+    .kpi-bar{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px }
+    .pill{ background:rgba(255,255,255,.9); border:1px solid var(--card-border); padding:10px 12px; border-radius:12px; font-weight:900; display:flex; justify-content:space-between; align-items:center; }
+    .val{ font-variant-numeric: tabular-nums; }
+    .kpi-pulse{ animation:kpiPulse .6s ease }
+    @keyframes kpiPulse{ 0%{transform:scale(1)} 45%{transform:scale(1.03)} 100%{transform:scale(1)} }
+
+    /* Toast */
+    .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:60; display:none }
+    .toast .msg{ background:#111; color:#fff; padding:10px 14px; border-radius:12px; box-shadow:0 10px 24px rgba(0,0,0,.2); font-weight:700; }
+
+    /* Effetti */
+    .form-cleared{ animation:pop .25s ease }
+    @keyframes pop{ from{transform:scale(.98);opacity:.8} to{transform:scale(1);opacity:1} }
   </style>
 </head>
 <body>
-  <!-- Topbar a tutta larghezza, come riepilogo -->
-  <nav class="topbar">
-    <a href="/it/" class="logo-link">
-      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
+  <!-- TOPBAR -->
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
       <span class="logo-text">MyHomesBudget</span>
     </a>
-
-    <!-- centro: banner prova, centrato rispetto alla pagina -->
-    <div class="top-center">
-      <div id="trial-banner">
-        <span id="trial-days-left"></span>
-        <a href="/it/paywall.html">Aggiorna piano</a>
-      </div>
-    </div>
-
-    <!-- destra: azioni (come riepilogo) -->
     <div class="top-actions">
-      <!-- se vuoi puoi tenerlo anche qui per coerenza visiva, non interferisce -->
-      <select id="month-selector" aria-label="Seleziona mese"></select>
-      <a href="/it/dashboard.html" class="top-link">Operazioni</a>
-      <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
-      <a href="#" id="logout-btn" class="top-link">Esci</a>
+      <span class="chip" id="trial-banner">FREE · 30 giorni</span>
+      <select class="chip" id="monthPicker" aria-label="Seleziona mese"></select>
+      <a class="chip btn" href="/it/dashboard.html">Operazioni</a>
+      <a class="chip btn" href="/it/dashboard-riepilogo.html">Riepilogo</a>
+      <a class="chip btn" href="/it/impostazioni.html">Impostazioni</a>
+      <a class="chip btn" href="/it/logout.html" id="logout-btn">Esci</a>
     </div>
   </nav>
 
-  <main class="container">
-    <nav id="dash-nav" class="dash-nav">
-      <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
-      <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
-    </nav>
-
-    <section class="content-section">
-      <h2 id="form-title" style="margin:0 0 12px">Nuova Transazione</h2>
-      <form id="transaction-form" class="transaction-form">
-        <input type="hidden" id="transaction-id" name="transaction-id">
-        <div class="form-group full-width">
-          <label for="kind">Tipo</label>
-          <select id="kind" name="kind" required>
-            <option value="expense">Uscita</option>
-            <option value="income">Entrata</option>
-            <option value="transfer">Trasferimento</option>
-          </select>
-        </div>
-        <div class="form-group full-width">
-          <label for="note">Nota</label>
-          <input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required>
-        </div>
-        <div class="form-group">
-          <label for="amount">Importo (€)</label>
-          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
-        </div>
-        <div class="form-group">
-          <label for="occurred_at">Data</label>
-          <input type="date" id="occurred_at" name="occurred_at" required>
-        </div>
-        <div class="form-group">
-          <label for="category_id">Categoria</label>
-          <select id="category_id" name="category_id" required>
-            <option value="">Scegli...</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="subcategory_id">Sottocategoria</label>
-          <select id="subcategory_id" name="subcategory_id">
-            <option value="">Scegli...</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary" style="grid-column:1 / -1;margin-top:10px">Aggiungi</button>
-      </form>
+  <main class="wrap">
+    <!-- HERO -->
+    <section class="card">
+      <div class="quick" aria-label="Aggiunta veloce">
+        <input id="qa-input" type="text" placeholder="Scrivi naturale: “caffè 2.50 oggi” • “stipendio 2100” • “benzina 60 ieri”">
+        <button id="qa-parse" class="btn" type="button">Aggiungi</button>
+      </div>
+      <div class="fav" id="fav-chips" aria-label="Preferiti"><!-- dinamico --></div>
     </section>
 
-    <section class="content-section" style="margin-top:16px">
-      <h2 style="margin:0 0 12px">Movimenti Recenti</h2>
-      <div id="transaction-list" class="transaction-list">
-        <div class="empty-state"><p>Nessuna transazione registrata.</p></div>
-      </div>
+    <section class="grid">
+      <!-- COLONNA SINISTRA -->
+      <section class="card">
+        <h2>Nuova operazione</h2>
+        <p class="muted" style="margin:2px 0 12px">Scorciatoie: <b>N</b> nuova, <b>Ctrl/⌘+S</b> salva, <b>Esc</b> reset, <b>/</b> Quick-Add.</p>
+
+        <form id="transaction-form" class="form-grid" autocomplete="off">
+          <div class="half">
+            <label for="kind">Tipo</label>
+            <select id="kind" required>
+              <option value="income">Entrata</option>
+              <option value="expense" selected>Uscita</option>
+            </select>
+          </div>
+          <div class="half">
+            <label for="occurred_at">Data</label>
+            <input id="occurred_at" type="date" required>
+          </div>
+
+          <div>
+            <label for="category_id">Categoria</label>
+            <select id="category_id" required>
+              <option value="" disabled selected hidden>Seleziona…</option>
+            </select>
+          </div>
+          <div>
+            <label for="subcategory_id">Sottocategoria</label>
+            <select id="subcategory_id">
+              <option value="">—</option>
+            </select>
+          </div>
+          <div>
+            <label for="amount">Importo</label>
+            <input id="amount" type="number" step="0.01" inputmode="decimal" placeholder="0,00" required>
+          </div>
+          <div>
+            <label for="note">Descrizione breve</label>
+            <input id="note" type="text" placeholder="Es. Spesa supermercato / Stipendio">
+          </div>
+
+          <div class="full actions">
+            <button type="button" id="reset-btn" class="chip ghost">Annulla</button>
+            <button type="submit" class="chip primary">Salva</button>
+          </div>
+        </form>
+
+        <hr style="border:none; height:1px; background:rgba(0,0,0,.08); margin:14px 0">
+
+        <h3>Operazioni del mese</h3>
+        <div style="max-height:340px; overflow:auto">
+          <table aria-label="Operazioni">
+            <thead>
+              <tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Nota</th><th>Importo</th></tr>
+            </thead>
+            <tbody id="ops-table-body"><!-- righe --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COLONNA DESTRA: KPI -->
+      <aside class="card">
+        <h2>Riepilogo mese</h2>
+        <div class="kpi-bar" style="margin-top:6px">
+          <div class="pill"><span>Entrate</span><span class="val" id="entrateTot">€ 0</span></div>
+          <div class="pill"><span>Uscite</span><span class="val" id="usciteTot">€ 0</span></div>
+          <div class="pill"><span>Residuo</span><span class="val" id="residuoTot">€ 0</span></div>
+        </div>
+      </aside>
     </section>
   </main>
 
+  <!-- TOAST -->
+  <div class="toast" id="toast"><div class="msg" id="toast-msg">Fatto</div></div>
+
+  <!-- APP -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+    /* ================= CONFIG (usa i tuoi nomi reali) ================= */
+    const CONFIG = {
+      SUPABASE_URL: 'YOUR_SUPABASE_URL',
+      SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY',
+      LOGIN_URL: '/it/login.html',
 
-    const transactionForm = document.getElementById('transaction-form');
-    const kindSelect = document.getElementById('kind');
-    const categorySelect = document.getElementById('category_id');
-    const subcategorySelect = document.getElementById('subcategory_id');
-    const transactionIdInput = document.getElementById('transaction-id');
-    const formTitle = document.getElementById('form-title');
-    const transactionList = document.getElementById('transaction-list');
-    const logoutBtn = document.getElementById('logout-btn');
+      // TABELLE REALI
+      TABLE_OPS:  'transactions',
+      TABLE_CATS: 'categories',
+      TABLE_SUBS: 'subcategories',
 
-    let user = null;
-    let allCategories = [];
-    let allSubcategories = [];
-    let allTransactions = [];
+      // MAPPING COLONNE (flessibile: se i nomi sono diversi, cambia QUI)
+      COLMAP: {
+        // transactions
+        id: 'id',
+        user_id: 'user_id',
+        date: ['occurred_at','date','when'],   // prende la prima esistente
+        kind: ['kind','type'],                 // 'income' | 'expense'
+        category_id: 'category_id',
+        subcategory_id: 'subcategory_id',
+        note: ['note','description'],
+        amount: 'amount',
 
-    /* ==== Banner prova (stessa logica del riepilogo) ==== */
-    function handleTrialStatus(profile){
-      const banner = document.getElementById('trial-banner');
-      const text = document.getElementById('trial-days-left');
-      if (!profile || profile.plan_type !== 'trial' || !profile.trial_end){ banner.style.display='none'; return; }
+        // categories
+        cat_id: 'id',
+        cat_user_id: 'user_id',
+        cat_name: 'name',
+        cat_kind: 'kind',                      // 'income' | 'expense' (i default possono avere 'transfer' ma qui NON lo usiamo)
 
-      const trialEnd = new Date(profile.trial_end);
-      const today = new Date(); today.setHours(0,0,0,0);
-      const diffDays = Math.ceil((trialEnd.getTime() - today.getTime()) / 86400000);
-
-      if (diffDays >= 0){
-        banner.style.display = 'flex';
-        text.textContent =
-          diffDays === 0 ? "Ultimo giorno di prova!"
-          : diffDays === 1 ? "Manca 1 giorno alla fine della prova."
-          : `Mancano ${diffDays} giorni alla fine della prova.`;
-      }else{
-        // prova scaduta: lascio che i trigger blocchino le scritture, ma avviso e reindirizzo
-        alert("La tua prova è terminata. Scegli un piano per continuare.");
-        location.replace("/it/paywall.html");
+        // subcategories
+        sub_id: 'id',
+        sub_user_id: 'user_id',
+        sub_cat_id: 'category_id',
+        sub_name: 'name',
       }
+    };
+
+    /* ================= Imports & setup ================= */
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    const $ = s => document.querySelector(s);
+    const fmt = new Intl.NumberFormat('it-IT',{ style:'currency', currency:'EUR', maximumFractionDigits:2 });
+    const todayISO = ()=> new Date().toISOString().slice(0,10);
+
+    // Utility mapping (usa COLMAP per leggere/scrivere)
+    function pick(row, key){
+      const m = CONFIG.COLMAP[key];
+      if (Array.isArray(m)) { for (const k of m) if (row && row[k] !== undefined) return row[k]; return undefined; }
+      return row ? row[m] : undefined;
+    }
+    function set(obj, key, val){
+      const m = CONFIG.COLMAP[key];
+      const k = Array.isArray(m) ? m[0] : m;
+      obj[k] = val; return obj;
     }
 
-    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
+    // Riferimenti DOM
+    const el = {
+      monthPicker: $('#monthPicker'),
+      form: $('#transaction-form'),
+      kind: $('#kind'), date: $('#occurred_at'),
+      category: $('#category_id'), subcategory: $('#subcategory_id'),
+      note: $('#note'), amount: $('#amount'),
+      listBody: $('#ops-table-body'),
+      kpiIn: $('#entrateTot'), kpiOut: $('#usciteTot'), kpiRes: $('#residuoTot'),
+      favBox: $('#fav-chips'), qa: $('#qa-input'), qaBtn: $('#qa-parse'),
+      toast: $('#toast'), toastMsg: $('#toast-msg')
+    };
 
-    async function loadInitialData(){
-      const { data: categories, error: cError } =
-        await supabase.from('categories').select('*').eq('created_by', user.id);
-      if (cError){ console.error("Errore categorie:", cError); return; }
-      allCategories = categories || [];
+    /* ================= Auth ================= */
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { location.href = CONFIG.LOGIN_URL; throw new Error('Not authenticated'); }
+    const USER_ID = user.id;
 
-      if (allCategories.length){
-        const ids = allCategories.map(c => c.id);
-        const { data: subcategories, error: sError } =
-          await supabase.from('subcategories').select('*').in('category_id', ids);
-        if (sError){ console.error("Errore sottocategorie:", sError); return; }
-        allSubcategories = subcategories || [];
+    /* ================= Stato ================= */
+    const state = {
+      month: (new URLSearchParams(location.search).get('m')) || new Date().toISOString().slice(0,7),
+      ops: [],
+      catsByKind: { income: [], expense: [] }, // [{id,name}]
+      subsByCat: new Map(),                    // catId -> [{id,name}]
+      rtChannel: null
+    };
+
+    /* ================= UI base ================= */
+    (function fillMonths(){
+      const now = new Date(); el.monthPicker.innerHTML='';
+      for (let i=0;i<12;i++){
+        const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+        const ym = d.toISOString().slice(0,7);
+        const opt = document.createElement('option'); opt.value = ym;
+        opt.textContent = d.toLocaleDateString('it-IT',{ month:'short', year:'numeric' });
+        el.monthPicker.appendChild(opt);
       }
+      el.monthPicker.value = state.month;
+      el.date.value = todayISO();
+    })();
+
+    /* ================= Helpers ================= */
+    function toast(msg='Fatto'){ el.toastMsg.textContent = msg; el.toast.style.display='block'; setTimeout(()=> el.toast.style.display='none', 1400); }
+    function pulseKPI(){ [el.kpiIn, el.kpiOut, el.kpiRes].forEach(x=>{ x.classList.remove('kpi-pulse'); void x.offsetWidth; x.classList.add('kpi-pulse'); }); }
+    function monthBounds(ym){ const start=ym+'-01'; const end = new Date(new Date(start).getFullYear(), new Date(start).getMonth()+1, 1).toISOString().slice(0,10); return {start,end}; }
+
+    /* ================= Cataloghi (SOLO SELECT) ================= */
+    async function loadCataloghi(){
+      const [{ data: cats }, { data: subs }] = await Promise.all([
+        supabase.from(CONFIG.TABLE_CATS)
+          .select([CONFIG.COLMAP.cat_id, CONFIG.COLMAP.cat_user_id, CONFIG.COLMAP.cat_name, CONFIG.COLMAP.cat_kind].join(','))
+          .eq(CONFIG.COLMAP.cat_user_id, USER_ID)
+          .order(CONFIG.COLMAP.cat_name),
+        supabase.from(CONFIG.TABLE_SUBS)
+          .select([CONFIG.COLMAP.sub_id, CONFIG.COLMAP.sub_user_id, CONFIG.COLMAP.sub_cat_id, CONFIG.COLMAP.sub_name].join(','))
+          .eq(CONFIG.COLMAP.sub_user_id, USER_ID)
+          .order(CONFIG.COLMAP.sub_name)
+      ]);
+
+      state.catsByKind = { income: [], expense: [] };
+      (cats||[]).forEach(c=>{
+        const kind = (pick(c,'cat_kind')||'').toLowerCase();
+        const id   = pick(c,'cat_id');
+        const name = pick(c,'cat_name');
+        if (kind && state.catsByKind[kind]) state.catsByKind[kind].push({id,name});
+      });
+
+      state.subsByCat = new Map();
+      (subs||[]).forEach(s=>{
+        const cid  = pick(s,'sub_cat_id');
+        const id   = pick(s,'sub_id');
+        const name = pick(s,'sub_name');
+        const arr = state.subsByCat.get(cid) || [];
+        arr.push({id,name}); state.subsByCat.set(cid, arr);
+      });
+
+      fillCategories(el.kind.value);
     }
 
-    function updateCategoryDropdown(){
-      const selectedKind = kindSelect.value;
-      const filtered = allCategories.filter(cat => cat.kind === selectedKind);
-      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
-      filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
-      updateSubcategories();
+    function fillCategories(kind){
+      const prev = el.category.value;
+      el.category.innerHTML = '<option value="" disabled selected hidden>Seleziona…</option>';
+      (state.catsByKind[kind]||[]).forEach(c=>{
+        const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; el.category.appendChild(o);
+      });
+      if ([...el.category.options].some(o=>o.value===prev)) el.category.value=prev;
+      fillSubcategories(el.category.value);
     }
 
-    function updateSubcategories(selectedSubcategoryId = null){
-      const categoryId = categorySelect.value;
-      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
-      subcategorySelect.disabled = true;
-      if (!categoryId) return;
-
-      const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
-      if (relevant.length){
-        subcategorySelect.disabled = false;
-        relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
-        if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
-      }
-    }
-
-    async function loadTransactions(){
-      const { data, error } = await supabase.from('transactions')
-        .select(`*, categories(name, icon), subcategories(name, icon)`)
-        .eq('created_by', user.id)
-        .order('occurred_at', { ascending: false })
-        .limit(15);
-      if (error){ console.error("Errore transazioni:", error); return; }
-
-      allTransactions = data || [];
-      transactionList.innerHTML = '';
-      if (!allTransactions.length){
-        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
-        return;
-      }
-
-      allTransactions.forEach(tx => {
-        const item = document.createElement('div');
-        item.className = 'item';
-        const cat = tx.categories; const sub = tx.subcategories;
-        const icon = sub?.icon || cat?.icon || '💸';
-        const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
-        const amountNum = safeToNumber(tx.amount);
-        item.innerHTML = `
-          <div class="item-icon">${icon}</div>
-          <div class="item-details">
-            <span class="note">${tx.note ?? ''}</span>
-            <span class="category">${categoryText}</span>
-          </div>
-          <div class="item-amount ${tx.kind}">
-            ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
-            <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
-          </div>
-        `;
-        transactionList.appendChild(item);
+    function fillSubcategories(catId){
+      el.subcategory.innerHTML = '<option value="">—</option>';
+      if (!catId) return;
+      (state.subsByCat.get(catId)||[]).forEach(s=>{
+        const o=document.createElement('option'); o.value=s.id; o.textContent=s.name; el.subcategory.appendChild(o);
       });
     }
 
-    function handleEdit(id){
-      const tx = allTransactions.find(t => String(t.id) === String(id));
-      if (!tx) return;
-      formTitle.textContent = "Modifica Transazione";
-      transactionIdInput.value = tx.id;
-      document.getElementById('kind').value = tx.kind;
-      document.getElementById('note').value = tx.note ?? '';
-      document.getElementById('amount').value = safeToNumber(tx.amount);
-      document.getElementById('occurred_at').value = (tx.occurred_at || '').split('T')[0] || '';
-      updateCategoryDropdown();
-      categorySelect.value = tx.category_id ?? '';
-      updateSubcategories(tx.subcategory_id ?? null);
-      window.scrollTo(0,0);
+    /* ================= Operazioni ================= */
+    async function loadOpsForMonth(){
+      const {start,end} = monthBounds(state.month);
+      const dateCol = Array.isArray(CONFIG.COLMAP.date)?CONFIG.COLMAP.date[0]:CONFIG.COLMAP.date;
+      const kindCol = Array.isArray(CONFIG.COLMAP.kind)?CONFIG.COLMAP.kind[0]:CONFIG.COLMAP.kind;
+      const noteCol = Array.isArray(CONFIG.COLMAP.note)?CONFIG.COLMAP.note[0]:CONFIG.COLMAP.note;
+
+      const sel = [CONFIG.COLMAP.id, CONFIG.COLMAP.user_id, dateCol, kindCol,
+                   CONFIG.COLMAP.category_id, CONFIG.COLMAP.subcategory_id, noteCol, CONFIG.COLMAP.amount].join(',');
+
+      const { data, error } = await supabase
+        .from(CONFIG.TABLE_OPS)
+        .select(sel)
+        .eq(CONFIG.COLMAP.user_id, USER_ID)
+        .gte(dateCol, start).lt(dateCol, end)
+        .order(dateCol, { ascending:false });
+
+      if (error){ console.error(error); return; }
+
+      state.ops = (data||[]).map(r=>{
+        const date = pick(r,'date');
+        const kind = (pick(r,'kind')||'').toString().toLowerCase();
+        const category_id    = pick(r,'category_id');
+        const subcategory_id = pick(r,'subcategory_id');
+        const note   = pick(r,'note');
+        const amount = Number(pick(r,'amount')||0);
+
+        const catName = (state.catsByKind[kind]||[]).find(c=>c.id===category_id)?.name || '';
+        const subName = (state.subsByCat.get(category_id)||[]).find(s=>s.id===subcategory_id)?.name || '';
+
+        return { id: pick(r,'id'), date, kind, category_id, subcategory_id, category_name:catName, subcategory_name:subName, note, amount };
+      });
+
+      renderOps();
+      buildFavorites();
     }
 
-    async function handleDelete(id){
-      if (!confirm("Eliminare questa transazione?")) return;
-      const { error } = await supabase.from('transactions').delete().eq('id', id);
-      if (error){ console.error("Errore eliminazione:", error); alert("Impossibile eliminare."); }
-      else{ loadTransactions(); }
+    function renderOps(){
+      el.listBody.innerHTML='';
+      let totIn=0, totOut=0;
+      state.ops.sort((a,b)=> a.date>b.date?-1:1).forEach(o=>{
+        const tr=document.createElement('tr'); tr.className='row-enter';
+        tr.innerHTML = `<td>${o.date}</td>
+                        <td>${o.kind==='income'?'Entrata':'Uscita'}</td>
+                        <td>${o.category_name||'—'}${o.subcategory_name?(' · '+o.subcategory_name):''}</td>
+                        <td>${o.note||'—'}</td>
+                        <td><b>${fmt.format(o.amount)}</b></td>`;
+        el.listBody.appendChild(tr);
+        if (o.kind==='income') totIn += o.amount; else totOut += o.amount;
+      });
+      el.kpiIn.textContent = fmt.format(totIn);
+      el.kpiOut.textContent = fmt.format(totOut);
+      el.kpiRes.textContent = fmt.format(Math.max(totIn - totOut, 0));
+      pulseKPI();
     }
 
-    async function handleFormSubmit(e){
-      e.preventDefault();
-      const formData = new FormData(transactionForm);
-      const id = formData.get('transaction-id');
-      const payload = {
-        kind: formData.get('kind'),
-        note: formData.get('note'),
-        amount: formData.get('amount'),
-        occurred_at: formData.get('occurred_at'),
-        category_id: formData.get('category_id'),
-        subcategory_id: formData.get('subcategory_id') || null,
-        created_by: user.id
-      };
-      const { error } = id
-        ? await supabase.from('transactions').update(payload).eq('id', id)
-        : await supabase.from('transactions').insert(payload);
-      if (error){ console.error("Errore salvataggio:", error); alert("Errore. Riprova."); }
-      else{
-        transactionForm.reset();
-        formTitle.textContent = "Nuova Transazione";
-        transactionIdInput.value = "";
-        document.getElementById('occurred_at').valueAsDate = new Date();
-        updateCategoryDropdown();
-        loadTransactions();
+    /* ================= Preferiti (Top categorie Uscita del mese) ================= */
+    async function buildFavorites(){
+      el.favBox.innerHTML='';
+      const {start,end} = monthBounds(state.month);
+      const dateCol = Array.isArray(CONFIG.COLMAP.date)?CONFIG.COLMAP.date[0]:CONFIG.COLMAP.date;
+      const kindCol = Array.isArray(CONFIG.COLMAP.kind)?CONFIG.COLMAP.kind[0]:CONFIG.COLMAP.kind;
+
+      const { data, error } = await supabase
+        .from(CONFIG.TABLE_OPS)
+        .select([CONFIG.COLMAP.category_id, CONFIG.COLMAP.amount].join(','))
+        .eq(CONFIG.COLMAP.user_id, USER_ID)
+        .eq(kindCol,'expense')
+        .gte(dateCol, start).lt(dateCol, end);
+
+      let cats=[];
+      if(!error && data?.length){
+        const agg = data.reduce((m,r)=>{ const key=pick(r,'category_id'); m[key]=(m[key]||0)+Number(pick(r,'amount')); return m; },{});
+        cats = Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([id,total])=>{
+          const nm = (state.catsByKind.expense||[]).find(c=>c.id===id)?.name || '—';
+          return {id, name:nm};
+        });
+      } else {
+        cats = (state.catsByKind.expense||[]).slice(0,6);
+      }
+      const emoji = (c)=>({Bar:'☕️',Alimentari:'🛒',Trasporti:'⛽️',Casa:'🏠',Ristoranti:'🍝',Abbonamenti:'🎬'})[c]||'💡';
+      for(const f of cats){
+        const b=document.createElement('button'); b.className='chip'; b.type='button';
+        b.innerHTML=`<span class="emoji">${emoji(f.name)}</span>${f.name}`;
+        b.addEventListener('click', ()=>{
+          el.kind.value='expense'; fillCategories('expense');
+          el.category.value=f.id; fillSubcategories(f.id);
+          el.date.value = todayISO(); el.note.value=f.name; el.amount.focus();
+        });
+        el.favBox.appendChild(b);
       }
     }
 
-    async function initializePage(){
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session){ location.replace("/it/login.html"); return; }
-      user = session.user;
+    /* ================= Quick-Add (NON inventa categorie) ================= */
+    function parseQuick(s){
+      const out={ kind:null, note:'', amount:null, date:null, tokenCat:null };
+      if(!s) return out;
+      const mAmt=s.match(/(\d+[.,]?\d*)/); if(mAmt){ out.amount=parseFloat(mAmt[1].replace(',','.')); s=s.replace(mAmt[0],' ').trim(); }
+      if(/\boggi\b/i.test(s)){ out.date=todayISO(); s=s.replace(/oggi/i,' ').trim(); }
+      else if(/\bieri\b/i.test(s)){ const d=new Date(); d.setDate(d.getDate()-1); out.date=d.toISOString().slice(0,10); s=s.replace(/ieri/i,' ').trim(); }
+      else {
+        const ddm=s.match(/\b(\d{1,2})[\/\-\.](\d{1,2})(?:[\/\-\.](\d{2,4}))?\b/);
+        if(ddm){ const Y=ddm[3]? (ddm[3].length===2?('20'+ddm[3]):ddm[3]) : (new Date()).getFullYear(); const M=ddm[2].padStart(2,'0'); const D=ddm[1].padStart(2,'0'); out.date=`${Y}-${M}-${D}`; s=s.replace(ddm[0],' ').trim(); }
+        const iso=s.match(/\b(20\d{2}-\d{2}-\d{2})\b/); if(iso){ out.date=iso[1]; s=s.replace(iso[0],' ').trim(); }
+      }
+      const words=s.split(/\s+/).filter(Boolean);
+      if (words.length) out.tokenCat = words[words.length-1].toLowerCase();
+      out.note = s.trim();
+      return out;
+    }
 
-      // profilo per onboarding + banner prova
-      const { data: profile, error: pErr } =
-        await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
-      if (pErr) console.warn("lettura profilo:", pErr?.message);
-      handleTrialStatus(profile);
+    function tryResolveCategory(token){
+      if(!token) return null;
+      const find = (list)=> list.find(c=> c.name.toLowerCase()===token || c.name.toLowerCase().includes(token));
+      const exp = find(state.catsByKind.expense||[]);
+      if (exp) return { kind:'expense', id:exp.id, name:exp.name };
+      const inc = find(state.catsByKind.income||[]);
+      if (inc) return { kind:'income', id:inc.id, name:inc.name };
+      return null;
+    }
 
-      if (profile && !profile.onboarded){
-        if (new URLSearchParams(location.search).get('edit') !== '1'){
-          location.replace("/it/onboarding.html");
-          return;
+    function applyQuickAdd(p){
+      if (p.tokenCat){
+        const hit = tryResolveCategory(p.tokenCat);
+        if (hit){
+          el.kind.value = hit.kind; fillCategories(hit.kind);
+          el.category.value = hit.id; fillSubcategories(hit.id);
+          if (!p.note) el.note.value = hit.name;
         }
       }
-
-      // mese selector (solo estetico, come sul riepilogo)
-      const monthSelector = document.getElementById('month-selector');
-      for (let i = 0; i < 12; i++){
-        const d = new Date(); d.setMonth(d.getMonth()-i);
-        const value = d.toISOString().slice(0,7) + '-01';
-        const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
-        monthSelector.add(new Option(label, value));
-      }
-
-      document.getElementById('occurred_at').valueAsDate = new Date();
-      await loadInitialData();
-      updateCategoryDropdown();
-      await loadTransactions();
-
-      kindSelect.addEventListener('change', updateCategoryDropdown);
-      categorySelect.addEventListener('change', () => updateSubcategories());
-      transactionForm.addEventListener('submit', handleFormSubmit);
-      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
-
-      transactionList.addEventListener('click', (ev)=>{
-        const t = ev.target.closest('.action-btn'); if (!t) return;
-        const id = t.dataset.id;
-        if (t.classList.contains('edit-btn')) handleEdit(id);
-        else if (t.classList.contains('delete-btn')) handleDelete(id);
-      });
+      if (p.date) el.date.value = p.date; else el.date.value = todayISO();
+      if (p.amount!=null) el.amount.value = p.amount.toString();
+      if (p.note) el.note.value = p.note;
+      if (!el.category.value) toast('Scegli una categoria valida');
     }
 
-    document.addEventListener('DOMContentLoaded', initializePage);
+    /* ================= Realtime (transactions) ================= */
+    function subscribeRealtime(){
+      if (state.rtChannel){ supabase.removeChannel(state.rtChannel); state.rtChannel=null; }
+      const userCol = CONFIG.COLMAP.user_id;
+      state.rtChannel = supabase.channel('rt_tx_'+USER_ID)
+        .on('postgres_changes', { event:'*', schema:'public', table:CONFIG.TABLE_OPS, filter:`${userCol}=eq.${USER_ID}` }, (payload)=>{
+          const row = payload.new || payload.old; if (!row) return;
+          const dateCol = Array.isArray(CONFIG.COLMAP.date)?CONFIG.COLMAP.date[0]:CONFIG.COLMAP.date;
+          const ym = (row[dateCol]||'').slice(0,7);
+          if (ym !== state.month) return;
+
+          if (payload.eventType==='INSERT'){
+            const kindCol = Array.isArray(CONFIG.COLMAP.kind)?CONFIG.COLMAP.kind[0]:CONFIG.COLMAP.kind;
+            const noteCol = Array.isArray(CONFIG.COLMAP.note)?CONFIG.COLMAP.note[0]:CONFIG.COLMAP.note;
+            const o = {
+              id: row[CONFIG.COLMAP.id],
+              date: row[dateCol],
+              kind: (row[kindCol]||'').toLowerCase(),
+              category_id: row[CONFIG.COLMAP.category_id],
+              subcategory_id: row[CONFIG.COLMAP.subcategory_id],
+              note: row[noteCol],
+              amount: Number(row[CONFIG.COLMAP.amount]||0)
+            };
+            o.category_name = (state.catsByKind[o.kind]||[]).find(c=>c.id===o.category_id)?.name || '';
+            o.subcategory_name = (state.subsByCat.get(o.category_id)||[]).find(s=>s.id===o.subcategory_id)?.name || '';
+            state.ops.unshift(o);
+          } else if (payload.eventType==='UPDATE'){
+            const id = row[CONFIG.COLMAP.id];
+            const i = state.ops.findIndex(x=>x.id===id);
+            if (i>-1){
+              const dateCol = Array.isArray(CONFIG.COLMAP.date)?CONFIG.COLMAP.date[0]:CONFIG.COLMAP.date;
+              const kindCol = Array.isArray(CONFIG.COLMAP.kind)?CONFIG.COLMAP.kind[0]:CONFIG.COLMAP.kind;
+              state.ops[i] = {
+                ...state.ops[i],
+                date: row[dateCol],
+                kind: (row[kindCol]||'').toLowerCase(),
+                category_id: row[CONFIG.COLMAP.category_id],
+                subcategory_id: row[CONFIG.COLMAP.subcategory_id],
+                note: row[Array.isArray(CONFIG.COLMAP.note)?CONFIG.COLMAP.note[0]:CONFIG.COLMAP.note],
+                amount: Number(row[CONFIG.COLMAP.amount]||0)
+              };
+            }
+          } else if (payload.eventType==='DELETE'){
+            const id = row[CONFIG.COLMAP.id];
+            state.ops = state.ops.filter(x=>x.id!==id);
+          }
+          renderOps();
+        })
+        .subscribe(()=>{ /* ready */ });
+    }
+
+    /* ================= Eventi UI ================= */
+    el.kind.addEventListener('change', ()=> fillCategories(el.kind.value));
+    el.category.addEventListener('change', ()=> fillSubcategories(el.category.value));
+
+    el.qaBtn.addEventListener('click', ()=>{ const p=parseQuick(el.qa.value.trim()); applyQuickAdd(p); });
+    el.qa.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); el.qaBtn.click(); } });
+
+    document.addEventListener('keydown', (e)=>{
+      if (e.target.matches('input, textarea, select')) return;
+      if (e.key==='n'||e.key==='N'){ e.preventDefault(); el.note.focus(); }
+      if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); el.form.requestSubmit(); }
+      if (e.key==='Escape'){ e.preventDefault(); const f=el.form; f.reset(); f.classList.add('form-cleared'); setTimeout(()=> f.classList.remove('form-cleared'), 200); el.note.focus(); }
+      if (e.key==='/'){ e.preventDefault(); el.qa.focus(); }
+    });
+
+    el.form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if (!el.category.value){ toast('Seleziona una categoria valida'); return; }
+
+      const payload = {};
+      set(payload, 'user_id', USER_ID);
+      set(payload, 'date', el.date.value || todayISO());
+      set(payload, 'kind', el.kind.value); // 'income' | 'expense'
+      payload[CONFIG.COLMAP.category_id]    = el.category.value;
+      payload[CONFIG.COLMAP.subcategory_id] = el.subcategory.value || null;
+      set(payload, 'note', el.note.value.trim() || null);
+      set(payload, 'amount', parseFloat(el.amount.value || '0'));
+
+      if (!pick(payload,'amount') || !pick(payload,'date')) { toast('Compila i campi obbligatori'); return; }
+
+      // Salvataggio OTTIMISTICO (la RLS in DB blocca eventuali incongruenze)
+      const tempId = crypto.randomUUID();
+      const catName = (state.catsByKind[el.kind.value]||[]).find(c=>c.id===el.category.value)?.name || '';
+      state.ops.unshift({
+        id: tempId, date: pick(payload,'date'), kind: pick(payload,'kind'),
+        category_id: el.category.value, subcategory_id: el.subcategory.value || null,
+        category_name: catName, subcategory_name: (state.subsByCat.get(el.category.value)||[]).find(s=>s.id===el.subcategory.value)?.name || '',
+        note: pick(payload,'note'), amount: Number(pick(payload,'amount')||0)
+      });
+      renderOps();
+
+      const { data, error } = await supabase.from(CONFIG.TABLE_OPS).insert(payload).select([CONFIG.COLMAP.id].join(',')).single();
+      if (error){
+        state.ops = state.ops.filter(r=>r.id!==tempId); renderOps(); toast('Errore salvataggio');
+      } else {
+        const row = state.ops.find(r=>r.id===tempId); if (row) row.id = data[CONFIG.COLMAP.id];
+        toast('Operazione salvata ✔');
+      }
+      el.form.reset(); el.form.classList.add('form-cleared'); setTimeout(()=> el.form.classList.remove('form-cleared'), 200); el.note.focus();
+    });
+
+    el.monthPicker.addEventListener('change', async (e)=>{
+      state.month = e.target.value;
+      const url = new URL(location.href); url.searchParams.set('m', state.month); history.replaceState({}, '', url);
+      await loadOpsForMonth();
+    });
+
+    /* ================= Init ================= */
+    await loadCataloghi();
+    await loadOpsForMonth();
+    subscribeRealtime();
   </script>
 </body>
 </html>
