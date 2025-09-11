@@ -106,7 +106,7 @@
       color: #555;
     }
     .summary-card-chart {
-      position: relative; /* Necessario per posizionare il testo al centro */
+      position: relative;
       flex-grow: 1;
       display: flex;
       align-items: center;
@@ -145,43 +145,29 @@
     .breakdown-value.expense { color: var(--danger-color); }
     .breakdown-value.net { color: var(--primary-color); }
     
-    /* Card Obiettivo */
+    /* ====== Card Obiettivo con Batteria a Tacche ====== */
     .goal-card-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      gap: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px;
     }
     .battery {
-      width: 100px;
-      height: 200px;
-      border: 5px solid #333;
-      border-radius: 10px;
-      position: relative;
-      padding: 5px;
+      width: 100px; height: 200px; border: 5px solid #333; border-radius: 10px;
+      position: relative; padding: 8px; display: flex; flex-direction: column;
     }
     .battery::after {
-      content: '';
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 5px;
-      background: #333;
-      border-radius: 5px 5px 0 0;
+      content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 5px; background: #333; border-radius: 5px 5px 0 0;
     }
-    .battery-level {
-      position: absolute;
-      bottom: 5px;
-      left: 5px;
-      right: 5px;
-      border-radius: 5px;
-      background: linear-gradient(to top, #d32f2f, #f39c12, #f1c40f, #2ecc71, #00cec9);
-      transition: height 0.5s ease-out;
+    .battery-segments {
+      width: 100%; height: 100%; display: flex; flex-direction: column-reverse; gap: 4px;
     }
+    .segment {
+      flex-grow: 1; background: rgba(0,0,0,0.1); border-radius: 3px; transition: background 0.5s ease;
+    }
+    .segment.is-active:nth-child(10), .segment.is-active:nth-child(9) { background: #d32f2f; }
+    .segment.is-active:nth-child(8), .segment.is-active:nth-child(7) { background: #f39c12; }
+    .segment.is-active:nth-child(6), .segment.is-active:nth-child(5), .segment.is-active:nth-child(4) { background: #f1c40f; }
+    .segment.is-active:nth-child(3) { background: #2ecc71; }
+    .segment.is-active:nth-child(2), .segment.is-active:nth-child(1) { background: #00cec9; }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: #777;
@@ -336,7 +322,14 @@
             <div class="summary-card goal-card">
                 <div class="summary-card-header"><h3>IL TUO OBIETTIVO</h3></div>
                 <div class="goal-card-content">
-                  <div class="battery"><div id="battery-level" class="battery-level"></div></div>
+                  <div class="battery">
+                    <div class="battery-segments">
+                        <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                        <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                        <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                        <div class="segment"></div>
+                    </div>
+                  </div>
                 </div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
@@ -355,7 +348,7 @@
             percentage: `${availablePercentage.toFixed(0)}% RESIDUO`
         };
 
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#d32f2f', '#f39c12', '#2e7d32'], budgetCenterText, false);
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], null, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], null, true);
         renderGoal(netSaving, savingGoal);
@@ -369,18 +362,15 @@
           const centerConfig = chart.options.plugins.centerText;
           const amountText = centerConfig.amount;
           const percentageText = centerConfig.percentage;
-
           ctx.save();
           const chartArea = chart.chartArea;
           const centerX = (chartArea.left + chartArea.right) / 2;
           const centerY = (chartArea.top + chartArea.bottom) / 2;
-          
           ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
           ctx.fillStyle = '#333';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(amountText, centerX, centerY - 12);
-
           ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans');
           ctx.fillStyle = '#555';
           ctx.fillText(percentageText, centerX, centerY + 18);
@@ -389,7 +379,6 @@
       }
     };
     
-    // Registra i plugin una sola volta
     Chart.register(centerTextPlugin, ChartDataLabels);
 
     function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) {
@@ -413,6 +402,14 @@
             ctx.restore();
             return;
         }
+
+        // 🎨 VIBE UPGRADE: Gradiente per il grafico Budget 🎨
+        if (canvasId === 'budgetChart') {
+            const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+            gradient.addColorStop(0, '#00cec9');
+            gradient.addColorStop(1, '#6c5ce7');
+            colors = ['#d32f2f', '#f39c12', gradient];
+        }
         
         const chartOptions = {
             type: 'doughnut',
@@ -425,7 +422,6 @@
                 cutout: '70%',
                 plugins: { 
                     legend: { display: false },
-                    // 🎨 VIBE UPGRADE: Configurazione delle etichette percentuali 🎨
                     datalabels: {
                         display: showDataLabels,
                         formatter: (value, ctx) => {
@@ -449,16 +445,25 @@
     }
 
     function renderGoal(savedAmount, goalAmount) {
-        const batteryLevelEl = document.getElementById('battery-level');
-        if (!batteryLevelEl) return;
-        
+        const segments = document.querySelectorAll('.battery-segments .segment');
+        if (!segments.length) return;
+
         if (goalAmount <= 0) {
-            batteryLevelEl.style.height = '0%';
+            segments.forEach(seg => seg.classList.remove('is-active'));
             return;
         }
 
-        const percentage = Math.min(100, (savedAmount / goalAmount) * 100);
-        batteryLevelEl.style.height = `${percentage > 0 ? percentage : 0}%`;
+        const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100));
+        const activeSegmentsCount = Math.ceil(percentage / 10);
+
+        segments.forEach((seg, index) => {
+            // index 0-9 corrisponde a nth-child 1-10
+            if (index >= (10 - activeSegmentsCount)) {
+                seg.classList.add('is-active');
+            } else {
+                seg.classList.remove('is-active');
+            }
+        });
     }
 
     // --- Inizializzazione pagina ---
