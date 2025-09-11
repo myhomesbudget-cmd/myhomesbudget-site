@@ -19,7 +19,7 @@
     body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
 
-    /* ====== TOPBAR identica al riepilogo ====== */
+    /* ====== TOPBAR (Invariata) ====== */
     .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
       display:flex;align-items:center;justify-content:space-between;
       background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
@@ -31,37 +31,86 @@
       background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);font-size:.9rem;font-weight:600}
     .top-link:hover{background:rgba(0,0,0,.38)}
     #month-selector{background:rgba(255,255,255,.8);border-radius:8px;border:1px solid rgba(0,0,0,.1);padding:4px 8px;font-weight:600}
-
-    /* Centro topbar per banner */
     .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
-
-    /* Banner prova (ora dentro topbar, centrato) */
     #trial-banner{display:none;align-items:center;gap:10px;
       background:linear-gradient(135deg,#6c5ce7,#00cec9);color:#fff;
       padding:8px 12px;border-radius:999px;font-weight:700;
       box-shadow:0 6px 16px rgba(0,0,0,.15)}
     #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;
       padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
-    #trial-banner a:hover{filter:brightness(.98)}
 
-    /* ====== Contenuto ====== */
-    main.container{padding:84px 24px 24px;max-width:980px;margin:0 auto;width:100%}
-    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:16px}
+    /* ====== Contenuto Principale ====== */
+    main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
     .dash-nav a{text-decoration:none;color:#333;padding:8px 16px;border-radius:10px;font-weight:600}
     .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08)}
 
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);
-      padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+      padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+
+    /* ====== Layout Dashboard a Griglia ====== */
+    .dashboard-grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media(min-width: 1024px){
+      .dashboard-grid{ grid-template-columns: repeat(2, 1fr); }
+      .form-section{ grid-column: 1 / -1; } /* Il form occupa tutta la larghezza */
+    }
+
+    .flow-column h2{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      margin: 0 0 16px;
+    }
+    .flow-column.income h2{ color: var(--success-color); }
+    .flow-column.expense h2{ color: var(--danger-color); }
+
+    /* ====== Card di Riepilogo Categorie ====== */
+    .summary-card{
+      background: #fff;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 15px rgba(0,0,0,.05);
+      margin-bottom: 16px;
+    }
+    .summary-card h3{ margin: 0 0 12px; font-size: 1rem; color: #555; }
+    .category-summary{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .category-tag{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,.05);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .category-tag .icon{ font-size: 1.1rem; }
+    .category-tag .name{ font-weight: 600; color: #333; }
+    .category-tag .total{ font-weight: 700; }
+    .income .category-tag .total{ color: var(--success-color); }
+    .expense .category-tag .total{ color: var(--danger-color); }
+
+    /* ====== Stili Form (Leggermente adattati) ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition:.2s}
     .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
+    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:flex-end}
     @media(min-width:820px){.transaction-form{grid-template-columns:repeat(3,1fr) auto}}
     .form-group{display:flex;flex-direction:column}
     .form-group.full-width{grid-column:1 / -1}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
     .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
+
+    /* ====== Stili Lista Transazioni (Invariati) ====== */
     .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
+    .item:last-child{ border-bottom: none; }
     .item-icon{font-size:1.5rem;flex-shrink:0}
     .item-details{display:flex;flex-direction:column;min-width:0}
     .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -74,28 +123,22 @@
     .action-btn:hover{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
     .action-btn.delete{background:#f8d7da;color:#842029;border-color:#f5c2c7}
     .action-btn.delete:hover{background:#dc3545;color:#fff;border-color:#dc3545}
-    .empty-state{text-align:center;padding:40px;color:#555}
+    .empty-state{text-align:center;padding:40px 20px;color:#777; background: rgba(0,0,0,0.02); border-radius: 12px;}
   </style>
 </head>
 <body>
-  <!-- Topbar a tutta larghezza, come riepilogo -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
     </a>
-
-    <!-- centro: banner prova, centrato rispetto alla pagina -->
     <div class="top-center">
       <div id="trial-banner">
         <span id="trial-days-left"></span>
         <a href="/it/paywall.html">Aggiorna piano</a>
       </div>
     </div>
-
-    <!-- destra: azioni (come riepilogo) -->
     <div class="top-actions">
-      <!-- se vuoi puoi tenerlo anche qui per coerenza visiva, non interferisce -->
       <select id="month-selector" aria-label="Seleziona mese"></select>
       <a href="/it/dashboard.html" class="top-link">Operazioni</a>
       <a href="/it/onboarding.html?edit=1" class="top-link">Impostazioni</a>
@@ -109,8 +152,8 @@
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
     </nav>
 
-    <section class="content-section">
-      <h2 id="form-title" style="margin:0 0 12px">Nuova Transazione</h2>
+    <section class="content-section form-section">
+      <h2 id="form-title" style="margin:0 0 16px">Nuova Transazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group full-width">
@@ -135,55 +178,65 @@
         </div>
         <div class="form-group">
           <label for="category_id">Categoria</label>
-          <select id="category_id" name="category_id" required>
-            <option value="">Scegli...</option>
-          </select>
+          <select id="category_id" name="category_id" required></select>
         </div>
         <div class="form-group">
           <label for="subcategory_id">Sottocategoria</label>
-          <select id="subcategory_id" name="subcategory_id">
-            <option value="">Scegli...</option>
-          </select>
+          <select id="subcategory_id" name="subcategory_id"></select>
         </div>
         <button type="submit" class="btn btn-primary" style="grid-column:1 / -1;margin-top:10px">Aggiungi</button>
       </form>
     </section>
 
-    <section class="content-section" style="margin-top:16px">
-      <h2 style="margin:0 0 12px">Movimenti Recenti</h2>
-      <div id="transaction-list" class="transaction-list">
-        <div class="empty-state"><p>Nessuna transazione registrata.</p></div>
+    <div class="dashboard-grid" style="margin-top: 24px;">
+
+      <div class="flow-column income">
+        <h2>✅ Entrate Recenti</h2>
+        <div id="income-summary" class="summary-card"></div>
+        <div id="income-list" class="content-section transaction-list"></div>
       </div>
-    </section>
+
+      <div class="flow-column expense">
+        <h2>❌ Uscite Recenti</h2>
+        <div id="expense-summary" class="summary-card"></div>
+        <div id="expense-list" class="content-section transaction-list"></div>
+      </div>
+
+    </div>
   </main>
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
+    // ... (tutte le tue dichiarazioni di costanti DOM iniziali rimangono uguali)
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
     const subcategorySelect = document.getElementById('subcategory_id');
     const transactionIdInput = document.getElementById('transaction-id');
     const formTitle = document.getElementById('form-title');
-    const transactionList = document.getElementById('transaction-list');
     const logoutBtn = document.getElementById('logout-btn');
+    
+    // NUOVI elementi DOM per le nuove sezioni
+    const incomeList = document.getElementById('income-list');
+    const expenseList = document.getElementById('expense-list');
+    const incomeSummary = document.getElementById('income-summary');
+    const expenseSummary = document.getElementById('expense-summary');
+
 
     let user = null;
     let allCategories = [];
     let allSubcategories = [];
-    let allTransactions = [];
+    let allTransactions = []; // La usiamo ancora come cache principale
 
-    /* ==== Banner prova (stessa logica del riepilogo) ==== */
+    // ... (La funzione handleTrialStatus rimane IDENTICA)
     function handleTrialStatus(profile){
       const banner = document.getElementById('trial-banner');
       const text = document.getElementById('trial-days-left');
       if (!profile || profile.plan_type !== 'trial' || !profile.trial_end){ banner.style.display='none'; return; }
-
       const trialEnd = new Date(profile.trial_end);
       const today = new Date(); today.setHours(0,0,0,0);
       const diffDays = Math.ceil((trialEnd.getTime() - today.getTime()) / 86400000);
-
       if (diffDays >= 0){
         banner.style.display = 'flex';
         text.textContent =
@@ -191,20 +244,20 @@
           : diffDays === 1 ? "Manca 1 giorno alla fine della prova."
           : `Mancano ${diffDays} giorni alla fine della prova.`;
       }else{
-        // prova scaduta: lascio che i trigger blocchino le scritture, ma avviso e reindirizzo
         alert("La tua prova è terminata. Scegli un piano per continuare.");
         location.replace("/it/paywall.html");
       }
     }
 
+    // ... (La funzione safeToNumber rimane IDENTICA)
     function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
 
+    // ... (Le funzioni loadInitialData, updateCategoryDropdown, updateSubcategories rimangono IDENTICHE)
     async function loadInitialData(){
       const { data: categories, error: cError } =
         await supabase.from('categories').select('*').eq('created_by', user.id);
       if (cError){ console.error("Errore categorie:", cError); return; }
       allCategories = categories || [];
-
       if (allCategories.length){
         const ids = allCategories.map(c => c.id);
         const { data: subcategories, error: sError } =
@@ -213,7 +266,6 @@
         allSubcategories = subcategories || [];
       }
     }
-
     function updateCategoryDropdown(){
       const selectedKind = kindSelect.value;
       const filtered = allCategories.filter(cat => cat.kind === selectedKind);
@@ -221,13 +273,11 @@
       filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
       updateSubcategories();
     }
-
     function updateSubcategories(selectedSubcategoryId = null){
       const categoryId = categorySelect.value;
       subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
       subcategorySelect.disabled = true;
       if (!categoryId) return;
-
       const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
       if (relevant.length){
         subcategorySelect.disabled = false;
@@ -235,47 +285,117 @@
         if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
       }
     }
+    
+    // 🎨 --- NUOVA LOGICA DI RENDERING --- 🎨
+    // Questa è la magia. Separiamo i dati, calcoliamo i totali e disegniamo tutto.
 
-    async function loadTransactions(){
+    function renderDashboard(transactions) {
+        const incomes = transactions.filter(tx => tx.kind === 'income');
+        const expenses = transactions.filter(tx => tx.kind === 'expense');
+
+        renderSummary(incomes, incomeSummary, 'income');
+        renderList(incomes, incomeList);
+        
+        renderSummary(expenses, expenseSummary, 'expense');
+        renderList(expenses, expenseList);
+    }
+
+    function renderSummary(items, container, kind) {
+        container.innerHTML = ''; // Pulisci
+        if (!items.length) {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'block';
+
+        const summary = items.reduce((acc, tx) => {
+            const catId = tx.category_id;
+            const cat = tx.categories;
+            if (!cat) return acc;
+
+            if (!acc[catId]) {
+                acc[catId] = { 
+                    name: cat.name, 
+                    icon: cat.icon || '💰',
+                    total: 0 
+                };
+            }
+            acc[catId].total += safeToNumber(tx.amount);
+            return acc;
+        }, {});
+
+        const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        
+        const summaryTitle = kind === 'income' ? 'Riepilogo Entrate' : 'Riepilogo Uscite';
+        
+        let tagsHTML = Object.values(summary)
+            .sort((a,b) => b.total - a.total)
+            .map(cat => `
+                <div class="category-tag">
+                    <span class="icon">${cat.icon}</span>
+                    <span class="name">${cat.name}</span>
+                    <span class="total">${cat.total.toFixed(2)}€</span>
+                </div>
+            `).join('');
+
+        container.innerHTML = `
+            <h3>${summaryTitle} (Totale: ${totalAmount.toFixed(2)}€)</h3>
+            <div class="category-summary">${tagsHTML}</div>
+        `;
+    }
+
+    function renderList(items, container) {
+        container.innerHTML = ''; // Pulisci
+        if (!items.length) {
+            container.innerHTML = `<div class="empty-state"><p>Nessun movimento qui.</p></div>`;
+            return;
+        }
+        
+        items.forEach(tx => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            const cat = tx.categories; const sub = tx.subcategories;
+            const icon = sub?.icon || cat?.icon || '💸';
+            const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+            const amountNum = safeToNumber(tx.amount);
+            
+            item.innerHTML = `
+                <div class="item-icon">${icon}</div>
+                <div class="item-details">
+                    <span class="note">${tx.note ?? ''}</span>
+                    <span class="category">${categoryText}</span>
+                </div>
+                <div class="item-amount ${tx.kind}">
+                    ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
+                    <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+    }
+
+    // --- FINE NUOVA LOGICA DI RENDERING ---
+
+    // La funzione loadTransactions ora è più snella: prende i dati e li passa al nuovo renderer.
+    async function loadTransactions() {
       const { data, error } = await supabase.from('transactions')
         .select(`*, categories(name, icon), subcategories(name, icon)`)
         .eq('created_by', user.id)
         .order('occurred_at', { ascending: false })
-        .limit(15);
-      if (error){ console.error("Errore transazioni:", error); return; }
-
-      allTransactions = data || [];
-      transactionList.innerHTML = '';
-      if (!allTransactions.length){
-        transactionList.innerHTML = `<div class="empty-state"><p>Nessuna transazione registrata.</p></div>`;
+        .limit(30); // Aumentiamo un po' il limite per popolare entrambe le liste
+      
+      if (error) {
+        console.error("Errore transazioni:", error);
         return;
       }
-
-      allTransactions.forEach(tx => {
-        const item = document.createElement('div');
-        item.className = 'item';
-        const cat = tx.categories; const sub = tx.subcategories;
-        const icon = sub?.icon || cat?.icon || '💸';
-        const categoryText = `${cat?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
-        const amountNum = safeToNumber(tx.amount);
-        item.innerHTML = `
-          <div class="item-icon">${icon}</div>
-          <div class="item-details">
-            <span class="note">${tx.note ?? ''}</span>
-            <span class="category">${categoryText}</span>
-          </div>
-          <div class="item-amount ${tx.kind}">
-            ${tx.kind === 'expense' ? '-' : ''}${amountNum.toFixed(2)} €
-          </div>
-          <div class="item-actions">
-            <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
-            <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
-          </div>
-        `;
-        transactionList.appendChild(item);
-      });
+      allTransactions = data || [];
+      renderDashboard(allTransactions); // BAM! Una funzione per governarli tutti.
     }
 
+    // ... (handleEdit e handleDelete rimangono IDENTICHE, perché agiscono sull'array `allTransactions` e poi ricaricano)
     function handleEdit(id){
       const tx = allTransactions.find(t => String(t.id) === String(id));
       if (!tx) return;
@@ -288,16 +408,17 @@
       updateCategoryDropdown();
       categorySelect.value = tx.category_id ?? '';
       updateSubcategories(tx.subcategory_id ?? null);
-      window.scrollTo(0,0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function handleDelete(id){
       if (!confirm("Eliminare questa transazione?")) return;
       const { error } = await supabase.from('transactions').delete().eq('id', id);
       if (error){ console.error("Errore eliminazione:", error); alert("Impossibile eliminare."); }
-      else{ loadTransactions(); }
+      else{ loadTransactions(); } // Ricarica e ridisegna tutto
     }
 
+    // ... (handleFormSubmit rimane IDENTICA, perché alla fine ricarica tutto)
     async function handleFormSubmit(e){
       e.preventDefault();
       const formData = new FormData(transactionForm);
@@ -314,6 +435,7 @@
       const { error } = id
         ? await supabase.from('transactions').update(payload).eq('id', id)
         : await supabase.from('transactions').insert(payload);
+
       if (error){ console.error("Errore salvataggio:", error); alert("Errore. Riprova."); }
       else{
         transactionForm.reset();
@@ -321,16 +443,16 @@
         transactionIdInput.value = "";
         document.getElementById('occurred_at').valueAsDate = new Date();
         updateCategoryDropdown();
-        loadTransactions();
+        loadTransactions(); // Ricarica e ridisegna tutto
       }
     }
-
-    async function initializePage(){
+    
+    // ... (initializePage rimane quasi identica, cambia solo l'event listener finale)
+    async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session){ location.replace("/it/login.html"); return; }
       user = session.user;
 
-      // profilo per onboarding + banner prova
       const { data: profile, error: pErr } =
         await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
       if (pErr) console.warn("lettura profilo:", pErr?.message);
@@ -343,7 +465,6 @@
         }
       }
 
-      // mese selector (solo estetico, come sul riepilogo)
       const monthSelector = document.getElementById('month-selector');
       for (let i = 0; i < 12; i++){
         const d = new Date(); d.setMonth(d.getMonth()-i);
@@ -362,7 +483,8 @@
       transactionForm.addEventListener('submit', handleFormSubmit);
       logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
 
-      transactionList.addEventListener('click', (ev)=>{
+      // UNICO event listener sulla griglia per gestire tutti i click! Più cool, più efficiente.
+      document.querySelector('.dashboard-grid').addEventListener('click', (ev)=>{
         const t = ev.target.closest('.action-btn'); if (!t) return;
         const id = t.dataset.id;
         if (t.classList.contains('edit-btn')) handleEdit(id);
