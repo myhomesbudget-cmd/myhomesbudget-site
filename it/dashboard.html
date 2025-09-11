@@ -77,6 +77,64 @@
     #trial-banner{display:none;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.15)}
     #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
 
+    /* 🎨 VIBE UPGRADE: Menu Mobile Adattivo 🎨 */
+    .mobile-menu-toggle {
+      display: none;
+      background: var(--grad);
+      border: none;
+      border-radius: 10px;
+      width: 40px;
+      height: 38px;
+      cursor: pointer;
+      padding: 0;
+      z-index: 101;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+    .mobile-menu-toggle svg {
+      width: 24px;
+      height: 24px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {
+        display: block;
+      }
+      .top-actions {
+        position: absolute;
+        top: 70px; /* Sotto la topbar */
+        right: 16px;
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 16px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+        width: 220px;
+        transform: translateY(-20px) scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+        z-index: 100;
+        border: 1px solid var(--card-border);
+      }
+      .top-actions.is-open {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .top-actions .top-link,
+      .top-actions .select-wrapper {
+        width: 100%;
+        text-align: center;
+      }
+    }
+
     /* ====== Contenuto Principale ====== */
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
     .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
@@ -193,12 +251,19 @@
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-center"><div id="trial-banner"><span id="trial-days-left"></span><a href="/it/paywall.html">Aggiorna piano</a></div></div>
-    <div class="top-actions">
-      <div class="select-wrapper">
-        <select id="month-selector" aria-label="Seleziona mese"></select>
+    
+    <!-- Contenitore Azioni Destra (per logica mobile) -->
+    <div class="top-nav-right">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="top-actions">
+        <div class="select-wrapper">
+          <select id="month-selector" aria-label="Seleziona mese"></select>
+        </div>
+        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Modifica Obiettivo</a>
+        <a href="#" id="logout-btn" class="top-link">Esci</a>
       </div>
-      <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Modifica Obiettivo</a>
-      <a href="#" id="logout-btn" class="top-link">Esci</a>
     </div>
   </nav>
 
@@ -429,6 +494,21 @@
         refreshButton.addEventListener('click', (e) => {
           e.preventDefault();
           loadTransactions();
+        });
+      }
+
+      // 🚀 Logica Menu Mobile 🚀
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const topActions = document.querySelector('.top-actions');
+      if(mobileMenuBtn && topActions) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          topActions.classList.toggle('is-open');
+        });
+        document.addEventListener('click', (e) => {
+          if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            topActions.classList.remove('is-open');
+          }
         });
       }
     }
