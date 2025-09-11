@@ -113,7 +113,6 @@
       color: #555;
       font-weight: 600;
     }
-    /* Stili per Obiettivo */
     .summary-card-header .goal-name-display {
         font-size: 1.1rem; font-weight: 700; color: #333; margin: 8px 0 4px;
     }
@@ -184,11 +183,12 @@
     .segment {
       flex-grow: 1; background: rgba(0,0,0,0.1); border-radius: 3px; transition: background 0.5s ease;
     }
-    .segment.is-active:nth-child(10), .segment.is-active:nth-child(9) { background: #d32f2f; }
-    .segment.is-active:nth-child(8), .segment.is-active:nth-child(7) { background: #f39c12; }
-    .segment.is-active:nth-child(6), .segment.is-active:nth-child(5), .segment.is-active:nth-child(4) { background: #f1c40f; }
-    .segment.is-active:nth-child(3) { background: #2ecc71; }
-    .segment.is-active:nth-child(2), .segment.is-active:nth-child(1) { background: #00cec9; }
+    /* 🎨 VIBE UPGRADE: Colori batteria invertiti 🎨 */
+    .segment.is-active:nth-child(1), .segment.is-active:nth-child(2) { background: #d32f2f; }
+    .segment.is-active:nth-child(3), .segment.is-active:nth-child(4) { background: #f39c12; }
+    .segment.is-active:nth-child(5), .segment.is-active:nth-child(6), .segment.is-active:nth-child(7) { background: #f1c40f; }
+    .segment.is-active:nth-child(8) { background: #2ecc71; }
+    .segment.is-active:nth-child(9), .segment.is-active:nth-child(10) { background: #00cec9; }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: #777;
@@ -243,16 +243,17 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const [transactionsRes, budgetRes, goalRes, allTransactionsRes] = await Promise.all([
+        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
-            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').eq('month', selectedMonth).maybeSingle(),
+            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
             supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
+            supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle(),
             supabase.from('transactions').select('kind, amount').eq('created_by', user.id).lte('occurred_at', endDate.toISOString())
         ]);
         
         monthSelector.disabled = false;
         
-        const errors = [transactionsRes.error, budgetRes.error, goalRes.error, allTransactionsRes.error].filter(Boolean);
+        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error].filter(Boolean);
         if (errors.length > 0) {
             errors.forEach(error => console.error("Errore caricamento dati:", error));
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
@@ -260,26 +261,33 @@
         }
 
         const transactions = transactionsRes.data || [];
-        const monthlySavingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
+        const monthlySavingGoal = latestBudgetRes.data ? safeToNumber(latestBudgetRes.data.amount) : 0;
         const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo';
         const goalTargetAmount = goalRes.data ? safeToNumber(goalRes.data.target_amount) : 0;
         
-        const cumulativeSaving = (allTransactionsRes.data || []).reduce((acc, tx) => {
-            const amount = safeToNumber(tx.amount);
-            return tx.kind === 'income' ? acc + amount : acc - amount;
+        let cumulativeIdealSaving = 0;
+        if (firstTransactionRes.data) {
+            const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
+            const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth()) + 1;
+            cumulativeIdealSaving = monthlySavingGoal * Math.max(0, monthsElapsed);
+        }
+
+        const cumulativeActualSaving = (allPastTransactionsRes.data || []).reduce((acc, tx) => {
+             const amount = safeToNumber(tx.amount);
+             return tx.kind === 'income' ? acc + amount : acc - amount;
         }, 0);
-        
-        renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeSaving);
+
+        renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, cumulativeActualSaving);
     }
     
-    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeSaving) {
+    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, cumulativeActualSaving) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        const remainingAmount = goalTargetAmount - cumulativeSaving;
-
+        const remainingAmount = goalTargetAmount - cumulativeActualSaving;
+        
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
             acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
@@ -337,8 +345,8 @@
                 </div>
                 <div class="summary-card-footer">
                     <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">OBIETTIVO TOTALE</span><span class="breakdown-value net">${goalTargetAmount.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO ACCUMULATO</span><span class="breakdown-value income">${cumulativeSaving.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO PREVISTO</span><span class="breakdown-value net">${cumulativeIdealSaving.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO REALE</span><span class="breakdown-value income">${cumulativeActualSaving.toFixed(2)}€</span></div>
                         <div class="breakdown-item"><span class="breakdown-label">AL RAGGIUNGIMENTO</span><span class="breakdown-value expense">${remainingAmount.toFixed(2)}€</span></div>
                     </div>
                 </div>
@@ -356,7 +364,7 @@
         renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': monthlySavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
-        renderGoal(cumulativeSaving, goalTargetAmount);
+        renderGoal(cumulativeActualSaving, goalTargetAmount);
     }
 
     const centerTextPlugin = {
@@ -452,12 +460,12 @@
         }
 
         const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100));
-        const activeSegmentsCount = Math.ceil(percentage / 10);
+        const activeSegmentsCount = Math.floor(percentage / 10);
         
         percentageEl.textContent = `${percentage.toFixed(1)}%`;
 
         segments.forEach((seg, index) => {
-            seg.classList.toggle('is-active', index >= (10 - activeSegmentsCount));
+            seg.classList.toggle('is-active', index < activeSegmentsCount);
         });
     }
 
