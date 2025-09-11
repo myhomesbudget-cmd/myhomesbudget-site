@@ -178,7 +178,8 @@
       left: 5px;
       right: 5px;
       border-radius: 5px;
-      background: var(--grad);
+      /* 🎨 VIBE UPGRADE: Gradiente di energia per la batteria 🎨 */
+      background: linear-gradient(to top, #d32f2f, #f39c12, #f1c40f, #2ecc71, #00cec9);
       transition: height 0.5s ease-out;
     }
 
@@ -354,13 +355,13 @@
             percentage: `${availablePercentage.toFixed(0)}% RESIDUO`
         };
 
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#ff7675', '#a29bfe', '#00cec9'], budgetCenterText);
+        // 🎨 VIBE UPGRADE: Colori del grafico Budget allineati 🎨
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': savingGoal, 'Disponibile': availableAmount }, ['#d32f2f', '#f39c12', '#2e7d32'], budgetCenterText);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7']);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2']);
         renderGoal(netSaving, savingGoal);
     }
 
-    // 🎨 VIBE UPGRADE: Plugin per il testo al centro del grafico 🎨
     const centerTextPlugin = {
       id: 'centerText',
       beforeDraw: function(chart) {
@@ -388,7 +389,7 @@
         }
       }
     };
-    Chart.register(centerTextPlugin); // Registra il plugin globalmente
+    Chart.register(centerTextPlugin);
 
     function renderDoughnutChart(canvasId, data, colors, centerText = null) {
         const ctx = document.getElementById(canvasId)?.getContext('2d');
