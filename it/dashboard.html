@@ -49,7 +49,6 @@
     .dash-nav a.is-active{background:#fff;color:var(--primary-color);box-shadow:0 4px 12px rgba(0,0,0,.08);}
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
     
-    /* 🎨 VIBE UPGRADE: Pannello Glassmorphism 🎨 */
     .dashboard-panel {
       background: rgba(255,255,255,0.55);
       backdrop-filter: blur(8px);
@@ -59,16 +58,14 @@
       border: 1px solid var(--card-border);
       box-shadow: var(--shadow);
     }
-    /* Semplifichiamo gli elementi interni per dare risalto al pannello principale */
     .dashboard-panel .content-section,
     .dashboard-panel .summary-card {
       box-shadow: none;
       border: none;
     }
     .dashboard-panel .content-section {
-       background: rgba(255,255,255,0.7); /* Leggermente più opaco del pannello */
+       background: rgba(255,255,255,0.7);
     }
-
 
     /* ====== Layout Dashboard & Colonne ====== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
@@ -109,6 +106,16 @@
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
 
     /* ====== Lista Transazioni e Bottoni Azione ====== */
+    /* 🎨 VIBE UPGRADE: Titolo per le liste 🎨 */
+    .list-title {
+      margin: -24px -24px 16px; /* Sposta il titolo in alto, allineato con il padding del contenitore */
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #333;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.4);
+    }
     .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
     .item:last-child{border-bottom:none}
     .item-icon{font-size:1.5rem;flex-shrink:0}
@@ -196,8 +203,15 @@
       const selectedKind=kindSelect.value;const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
     function updateSubcategories(selectedSubcategoryId=null){
       const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
+    
     function renderDashboard(transactions){
-      const incomes=transactions.filter(tx=>tx.kind==='income');const expenses=transactions.filter(tx=>tx.kind==='expense');renderSummary(incomes,incomeSummary,'income');renderList(incomes,incomeList);renderSummary(expenses,expenseSummary,'expense');renderList(expenses,expenseList)}
+      const incomes=transactions.filter(tx=>tx.kind==='income');
+      const expenses=transactions.filter(tx=>tx.kind==='expense');
+      renderSummary(incomes,incomeSummary,'income');
+      renderList(incomes,incomeList, 'income');
+      renderSummary(expenses,expenseSummary,'expense');
+      renderList(expenses,expenseList, 'expense');
+    }
     
     function renderSummary(items, container, kind) {
         container.innerHTML = '';
@@ -249,8 +263,35 @@
         `;
     }
 
-    function renderList(items,container){
-      container.innerHTML='';if(!items.length){container.innerHTML=`<div class="empty-state"><p>Nessun movimento qui.</p></div>`;return}items.forEach(tx=>{const item=document.createElement('div');item.className='item';const cat=tx.categories;const sub=tx.subcategories;const icon=sub?.icon||cat?.icon||'💸';const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;const amountNum=safeToNumber(tx.amount);item.innerHTML=`<div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note??''}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button></div>`;container.appendChild(item)})}
+    function renderList(items, container, kind){
+      container.innerHTML = ''; // Pulisci prima di aggiungere
+      
+      const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
+      const titleEl = document.createElement('h3');
+      titleEl.className = 'list-title';
+      titleEl.textContent = titleText;
+      container.appendChild(titleEl);
+
+      if(!items.length){
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `<p>Nessun movimento qui.</p>`;
+        container.appendChild(emptyState);
+        return;
+      }
+      
+      items.forEach(tx=>{
+        const item=document.createElement('div');
+        item.className='item';
+        const cat=tx.categories;
+        const sub=tx.subcategories;
+        const icon=sub?.icon||cat?.icon||'💸';
+        const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;
+        const amountNum=safeToNumber(tx.amount);
+        item.innerHTML=`<div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note??''}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button></div>`;
+        container.appendChild(item);
+      });
+    }
 
     async function loadTransactions() {
         monthSelector.disabled = true;
