@@ -222,7 +222,7 @@
         const startDate = new Date(selectedMonth);
         const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const [transactionsRes, budgetRes] = await Promise.all([
+        const [transactionsRes, budgetRes, goalRes] = await Promise.all([
             supabase.from('transactions')
                 .select(`*, categories(name, icon)`)
                 .eq('created_by', user.id)
@@ -233,23 +233,29 @@
                 .eq('user_id', user.id)
                 .eq('macro_category', 'Risparmi')
                 .eq('month', selectedMonth)
+                .maybeSingle(),
+            supabase.from('goals')
+                .select('name')
+                .eq('user_id', user.id)
                 .maybeSingle()
         ]);
         
         monthSelector.disabled = false;
 
-        if (transactionsRes.error || budgetRes.error) {
+        if (transactionsRes.error || budgetRes.error || goalRes.error) {
             console.error("Errore transazioni:", transactionsRes.error);
             console.error("Errore budget:", budgetRes.error);
+            console.error("Errore obiettivo:", goalRes.error);
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
             return;
         }
 
         const transactions = transactionsRes.data || [];
         const savingGoal = budgetRes.data ? safeToNumber(budgetRes.data.amount) : 0;
+        const goalName = goalRes.data ? goalRes.data.name : 'IL TUO OBIETTIVO';
         
         if (transactions.length === 0) {
-             renderStrategicSummary([], savingGoal);
+             renderStrategicSummary([], savingGoal, goalName);
              const grid = summaryContent.querySelector('.summary-grid');
              if (grid) {
                 grid.innerHTML += '<div class="summary-card empty-state" style="grid-column: 1 / -1;"><p>Nessuna transazione trovata per questo mese.</p></div>';
@@ -257,10 +263,10 @@
             return;
         }
         
-        renderStrategicSummary(transactions, savingGoal);
+        renderStrategicSummary(transactions, savingGoal, goalName);
     }
     
-    function renderStrategicSummary(transactions, savingGoal) {
+    function renderStrategicSummary(transactions, savingGoal, goalName) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
 
@@ -320,7 +326,7 @@
                  </div>
             </div>
             <div class="summary-card goal-card">
-                <div class="summary-card-header"><h3>IL TUO OBIETTIVO</h3></div>
+                <div class="summary-card-header"><h3>${goalName}</h3></div>
                 <div class="goal-card-content">
                   <div class="battery">
                     <div class="battery-segments">
@@ -403,7 +409,6 @@
             return;
         }
 
-        // 🎨 VIBE UPGRADE: Gradiente per il grafico Budget 🎨
         if (canvasId === 'budgetChart') {
             const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
             gradient.addColorStop(0, '#00cec9');
@@ -457,7 +462,6 @@
         const activeSegmentsCount = Math.ceil(percentage / 10);
 
         segments.forEach((seg, index) => {
-            // index 0-9 corrisponde a nth-child 1-10
             if (index >= (10 - activeSegmentsCount)) {
                 seg.classList.add('is-active');
             } else {
