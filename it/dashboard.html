@@ -109,7 +109,7 @@
   </style>
 </head>
 <body>
-  <!-- ⚡️ VIBE CHANGE: Topbar più pulita e funzionale ⚡️ -->
+  <!-- Topbar -->
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-center"><div id="trial-banner"><span id="trial-days-left"></span><a href="/it/paywall.html">Aggiorna piano</a></div></div>
@@ -123,7 +123,7 @@
   <main class="container">
     <nav id="dash-nav" class="dash-nav"><a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a><a href="/it/dashboard-riepilogo.html">Riepilogo</a></nav>
 
-    <!-- Sezione Form con Copilota IA (invariata) -->
+    <!-- Sezione Form -->
     <section class="content-section form-section">
       <h2 id="form-title" style="margin:0 0 16px">Nuova Transazione</h2>
       <form id="transaction-form" class="transaction-form">
@@ -138,14 +138,14 @@
       </form>
     </section>
 
-    <!-- Griglia Dashboard con Analisi IA (invariata) -->
+    <!-- Griglia Dashboard -->
     <div class="dashboard-grid" style="margin-top: 24px;">
       <div class="flow-column income"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="content-section transaction-list"></div></div>
       <div class="flow-column expense"><h2><span>❌ Uscite Recenti</span> <button id="analyze-expenses-btn" class="btn-ai">✨ Analizza Spese</button></h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="content-section transaction-list"></div></div>
     </div>
   </main>
   
-  <!-- Modal per Risultati IA (invariato) -->
+  <!-- Modal -->
   <div id="gemini-modal" class="modal-overlay" style="display: none;">
     <div class="modal-content"><button id="modal-close-btn" class="modal-close">&times;</button><div id="modal-body"></div></div>
   </div>
@@ -153,7 +153,7 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // --- Elementi DOM (con aggiunte per IA) ---
+    // --- Elementi DOM ---
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -165,7 +165,7 @@
     const expenseList = document.getElementById('expense-list');
     const incomeSummary = document.getElementById('income-summary');
     const expenseSummary = document.getElementById('expense-summary');
-    const monthSelector = document.getElementById('month-selector'); // Aggiunto per un accesso più facile
+    const monthSelector = document.getElementById('month-selector');
     // IA
     const analyzeExpensesBtn = document.getElementById('analyze-expenses-btn');
     const suggestNoteBtn = document.getElementById('suggest-note-btn');
@@ -180,47 +180,77 @@
     let allSubcategories = [];
     let allTransactions = [];
 
-    // --- Funzione API Gemini (invariata) ---
-    async function callGemini(systemPrompt, userPrompt, retries = 3, delay = 1000) { /* ...codice invariato... */ }
+    // --- Funzione API Gemini ---
+    async function callGemini(systemPrompt, userPrompt, retries = 3, delay = 1000) {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        const payload = {
+            contents: [{ parts: [{ text: userPrompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                if (response.status === 429 && retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callGemini(systemPrompt, userPrompt, retries - 1, delay * 2);
+                }
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text;
+            } else {
+                console.warn("Struttura risposta inattesa:", result);
+                throw new Error("Risposta non valida dall'API Gemini.");
+            }
+        } catch (error) {
+            console.error("Errore chiamata Gemini:", error);
+            throw error;
+        }
+    }
     
-    // --- Gestione Dati e Rendering (con loadTransactions modificato) ---
-    function handleTrialStatus(profile){ /* ...codice invariato... */ }
+    // --- Gestione Dati e Rendering ---
+    function handleTrialStatus(profile){
+      const banner=document.getElementById('trial-banner');const text=document.getElementById('trial-days-left');if(!profile||profile.plan_type!=='trial'||!profile.trial_end){banner.style.display='none';return}const trialEnd=new Date(profile.trial_end);const today=new Date();today.setHours(0,0,0,0);const diffDays=Math.ceil((trialEnd.getTime()-today.getTime())/864e5);if(diffDays>=0){banner.style.display='flex';text.textContent=diffDays===0?"Ultimo giorno di prova!":diffDays===1?"Manca 1 giorno alla fine della prova.":`Mancano ${diffDays} giorni alla fine della prova.`}else{alert("La tua prova è terminata. Scegli un piano per continuare.");location.replace("/it/paywall.html")}}
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
-    async function loadInitialData(){ /* ...codice invariato... */ }
-    function updateCategoryDropdown(){ /* ...codice invariato... */ }
-    function updateSubcategories(selectedSubcategoryId=null){ /* ...codice invariato... */ }
-    function renderDashboard(transactions){ /* ...codice invariato... */ }
-    function renderSummary(items,container,kind){ /* ...codice invariato... */ }
-    function renderList(items,container){ /* ...codice invariato... */ }
+    async function loadInitialData(){
+      const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);if(cError){console.error("Errore categorie:",cError);return}allCategories=categories||[];if(allCategories.length){const ids=allCategories.map(c=>c.id);const{data:subcategories,error:sError}=await supabase.from('subcategories').select('*').in('category_id',ids);if(sError){console.error("Errore sottocategorie:",sError);return}allSubcategories=subcategories||[]}}
+    function updateCategoryDropdown(){
+      const selectedKind=kindSelect.value;const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
+    function updateSubcategories(selectedSubcategoryId=null){
+      const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
+    function renderDashboard(transactions){
+      const incomes=transactions.filter(tx=>tx.kind==='income');const expenses=transactions.filter(tx=>tx.kind==='expense');renderSummary(incomes,incomeSummary,'income');renderList(incomes,incomeList);renderSummary(expenses,expenseSummary,'expense');renderList(expenses,expenseList)}
+    function renderSummary(items,container,kind){
+      container.innerHTML='';if(!items.length){container.style.display='none';return}container.style.display='block';const summary=items.reduce((acc,tx)=>{const catId=tx.category_id;const cat=tx.categories;if(!cat)return acc;if(!acc[catId]){acc[catId]={name:cat.name,icon:cat.icon||'💰',total:0}}acc[catId].total+=safeToNumber(tx.amount);return acc},{});const totalAmount=items.reduce((sum,tx)=>sum+safeToNumber(tx.amount),0);const summaryTitle=kind==='income'?'Riepilogo Entrate':'Riepilogo Uscite';let tagsHTML=Object.values(summary).sort((a,b)=>b.total-a.total).map(cat=>`<div class="category-tag"><span class="icon">${cat.icon}</span><span class="name">${cat.name}</span><span class="total">${cat.total.toFixed(2)}€</span></div>`).join('');container.innerHTML=`<h3>${summaryTitle} (Totale: ${totalAmount.toFixed(2)}€)</h3><div class="category-summary">${tagsHTML}</div>`}
+    function renderList(items,container){
+      container.innerHTML='';if(!items.length){container.innerHTML=`<div class="empty-state"><p>Nessun movimento qui.</p></div>`;return}items.forEach(tx=>{const item=document.createElement('div');item.className='item';const cat=tx.categories;const sub=tx.subcategories;const icon=sub?.icon||cat?.icon||'💸';const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;const amountNum=safeToNumber(tx.amount);item.innerHTML=`<div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note??''}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button></div>`;container.appendChild(item)})}
 
-    // ⚡️ VIBE CHANGE: loadTransactions ora è una macchina del tempo ⚡️
     async function loadTransactions() {
         monthSelector.disabled = true;
-        renderDashboard([]); // Svuota subito per dare un feedback visivo
-
+        renderDashboard([]); 
         const selectedMonth = monthSelector.value;
-
         let query = supabase.from('transactions')
             .select(`*, categories(name, icon), subcategories(name, icon)`)
             .eq('created_by', user.id)
             .order('occurred_at', { ascending: false });
-        
         if (selectedMonth) {
             const startDate = new Date(selectedMonth);
             const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
-
             query = query
                 .gte('occurred_at', startDate.toISOString())
                 .lte('occurred_at', endDate.toISOString());
         } else {
-            // Fallback nel caso (improbabile) non ci sia un mese selezionato
             query = query.limit(30);
         }
-        
         const { data, error } = await query;
-        
         monthSelector.disabled = false;
-
         if (error) {
             console.error("Errore transazioni:", error);
             return;
@@ -229,17 +259,22 @@
         renderDashboard(allTransactions);
     }
 
-    function handleEdit(id){ /* ...codice invariato... */ }
-    async function handleDelete(id){ /* ...codice invariato... */ }
-    async function handleFormSubmit(e){ /* ...codice invariato... */ }
+    function handleEdit(id){
+      const tx=allTransactions.find(t=>String(t.id)===String(id));if(!tx)return;formTitle.textContent="Modifica Transazione";transactionIdInput.value=tx.id;document.getElementById('kind').value=tx.kind;document.getElementById('note').value=tx.note??'';document.getElementById('amount').value=safeToNumber(tx.amount);document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';updateCategoryDropdown();categorySelect.value=tx.category_id??'';updateSubcategories(tx.subcategory_id??null);window.scrollTo({top:0,behavior:'smooth'})}
+    async function handleDelete(id){
+      if(!confirm("Eliminare questa transazione?"))return;const{error}=await supabase.from('transactions').delete().eq('id',id);if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}else{loadTransactions()}}
+    async function handleFormSubmit(e){
+      e.preventDefault();const formData=new FormData(transactionForm);const id=formData.get('transaction-id');const payload={kind:formData.get('kind'),note:formData.get('note'),amount:formData.get('amount'),occurred_at:formData.get('occurred_at'),category_id:formData.get('category_id'),subcategory_id:formData.get('subcategory_id')||null,created_by:user.id};const{error}=id?await supabase.from('transactions').update(payload).eq('id',id):await supabase.from('transactions').insert(payload);if(error){console.error("Errore salvataggio:",error);alert("Errore. Riprova.")}else{transactionForm.reset();formTitle.textContent="Nuova Transazione";transactionIdInput.value="";document.getElementById('occurred_at').valueAsDate=new Date();updateCategoryDropdown();loadTransactions()}}
     
-    // --- Logica IA (invariata) ---
+    // --- Logica IA ---
     function showModal(content){modalBody.innerHTML=content;geminiModal.style.display='flex'}
     function hideModal(){geminiModal.style.display='none'}
-    async function handleAnalyzeExpenses(){/* ...codice invariato... */}
-    async function handleSuggestNote(){/* ...codice invariato... */}
+    async function handleAnalyzeExpenses(){
+      this.disabled=true;this.textContent='Analizzo...';showModal('<div class="loader"></div>');const e=allTransactions.filter(t=>t.kind==="expense");if(e.length<3){showModal("<h3>Ops!</h3><p>Aggiungi almeno 3 uscite per ricevere un'analisi utile.</p>");this.disabled=false;this.innerHTML="✨ Analizza Spese";return}const t=e.map(e=>{const t=e.categories?.name||"N/D";return`- ${e.amount.toFixed(2)}€ in ${t}: ${e.note}`}).join("\n"),s=`Sei un amichevole e incoraggiante consulente finanziario per un'app di budgeting chiamata MyHomesBudget. Analizza le spese dell'utente e offri 3 consigli pratici, brevi e personalizzati. Non dare consigli generici come "spendi meno". Sii specifico e positivo. Rispondi in italiano e usa markdown per la formattazione (es. grassetto per i punti chiave, liste puntate).`,a=`Ciao! Ecco la lista delle mie recenti uscite:\n\n${t}\n\nPotresti darmi qualche consiglio per migliorare la gestione delle mie finanze? Grazie!`;try{const e=await callGemini(s,a),t=e.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");showModal(`<h3>✨ I Tuoi Consigli Personalizzati ✨</h3>${t}`)}catch(e){showModal("<h3>Si è verificato un errore</h3><p>Non è stato possibile ottenere l'analisi. Riprova più tardi.</p>")}finally{this.disabled=false;this.innerHTML="✨ Analizza Spese"}}
+    async function handleSuggestNote(){
+      const e=categorySelect.value;if(!e)return;this.disabled=true;noteSuggestionsContainer.innerHTML="";const t=allCategories.find(t=>String(t.id)===e);if(!t){this.disabled=false;return}const s=`Sei un assistente per un'app di budgeting. Il tuo compito è suggerire delle note comuni per una transazione, data una categoria. Rispondi SOLO con una lista di 3-4 suggerimenti separati da virgola, senza altre frasi o spiegazioni. Esempio: Benzina,Biglietto treno,Parcheggio`,a=`La categoria è: ${t.name}`;try{const e=(await callGemini(s,a)).split(",").map(e=>e.trim());e.forEach(e=>{const t=document.createElement("div");t.className="suggestion-tag",t.textContent=e,t.onclick=()=>{noteInput.value=e,noteSuggestionsContainer.innerHTML=""},noteSuggestionsContainer.appendChild(t)})}catch(e){console.error("Errore suggerimento nota:",e)}finally{this.disabled=false}}
 
-    // --- Inizializzazione pagina (con listener aggiornati) ---
+    // --- Inizializzazione pagina ---
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session){ location.replace("/it/login.html"); return; }
@@ -249,7 +284,6 @@
       handleTrialStatus(profile);
       if (profile && !profile.onboarded && new URLSearchParams(location.search).get('edit')!=='1'){location.replace("/it/onboarding.html");return;}
 
-      // Popola il selettore del mese
       for (let i = 0; i < 12; i++){
         const d = new Date(); d.setMonth(d.getMonth()-i);
         const value = d.toISOString().slice(0,7) + '-01';
@@ -260,17 +294,15 @@
       document.getElementById('occurred_at').valueAsDate=new Date();
       await loadInitialData();
       updateCategoryDropdown();
-      await loadTransactions(); // Carica i dati per il mese corrente (default)
+      await loadTransactions(); 
 
-      // Listener originali
+      // Listeners
       kindSelect.addEventListener('change', updateCategoryDropdown);
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
       logoutBtn.addEventListener('click', async(e)=>{e.preventDefault();await supabase.auth.signOut();location.replace("/it/")});
       document.querySelector('.dashboard-grid').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn');if(!t)return;const id=t.dataset.id;if(t.classList.contains('edit-btn'))handleEdit(id);else if(t.classList.contains('delete-btn'))handleDelete(id)});
-      
-      // ✨ Nuovi Listener ✨
-      monthSelector.addEventListener('change', loadTransactions); // Il selettore ora controlla i dati
+      monthSelector.addEventListener('change', loadTransactions);
       analyzeExpensesBtn.addEventListener('click', handleAnalyzeExpenses);
       suggestNoteBtn.addEventListener('click', handleSuggestNote);
       modalCloseBtn.addEventListener('click', hideModal);
@@ -278,22 +310,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
-
-    // --- Funzioni Copiate (per mantenere l'integrità del blocco) ---
-    async function callGemini(systemPrompt, userPrompt, retries = 3, delay = 1000) { const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`; const payload = { contents: [{ parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] }, }; try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) { if (response.status === 429 && retries > 0) { await new Promise(res => setTimeout(res, delay)); return callGemini(systemPrompt, userPrompt, retries - 1, delay * 2); } throw new Error(`API Error: ${response.statusText}`); } const result = await response.json(); const candidate = result.candidates?.[0]; if (candidate && candidate.content?.parts?.[0]?.text) { return candidate.content.parts[0].text; } else { console.warn("Struttura risposta inattesa:", result); throw new Error("Risposta non valida dall'API Gemini."); } } catch (error) { console.error("Errore chiamata Gemini:", error); throw error; } }
-    function handleTrialStatus(profile){const banner=document.getElementById('trial-banner');const text=document.getElementById('trial-days-left');if(!profile||profile.plan_type!=='trial'||!profile.trial_end){banner.style.display='none';return}const trialEnd=new Date(profile.trial_end);const today=new Date();today.setHours(0,0,0,0);const diffDays=Math.ceil((trialEnd.getTime()-today.getTime())/864e5);if(diffDays>=0){banner.style.display='flex';text.textContent=diffDays===0?"Ultimo giorno di prova!":diffDays===1?"Manca 1 giorno alla fine della prova.":`Mancano ${diffDays} giorni alla fine della prova.`}else{alert("La tua prova è terminata. Scegli un piano per continuare.");location.replace("/it/paywall.html")}}
-    async function loadInitialData(){const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);if(cError){console.error("Errore categorie:",cError);return}allCategories=categories||[];if(allCategories.length){const ids=allCategories.map(c=>c.id);const{data:subcategories,error:sError}=await supabase.from('subcategories').select('*').in('category_id',ids);if(sError){console.error("Errore sottocategorie:",sError);return}allSubcategories=subcategories||[]}}
-    function updateCategoryDropdown(){const selectedKind=kindSelect.value;const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
-    function updateSubcategories(selectedSubcategoryId=null){const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
-    function renderDashboard(transactions){const incomes=transactions.filter(tx=>tx.kind==='income');const expenses=transactions.filter(tx=>tx.kind==='expense');renderSummary(incomes,incomeSummary,'income');renderList(incomes,incomeList);renderSummary(expenses,expenseSummary,'expense');renderList(expenses,expenseList)}
-    function renderSummary(items,container,kind){container.innerHTML='';if(!items.length){container.style.display='none';return}container.style.display='block';const summary=items.reduce((acc,tx)=>{const catId=tx.category_id;const cat=tx.categories;if(!cat)return acc;if(!acc[catId]){acc[catId]={name:cat.name,icon:cat.icon||'💰',total:0}}acc[catId].total+=safeToNumber(tx.amount);return acc},{});const totalAmount=items.reduce((sum,tx)=>sum+safeToNumber(tx.amount),0);const summaryTitle=kind==='income'?'Riepilogo Entrate':'Riepilogo Uscite';let tagsHTML=Object.values(summary).sort((a,b)=>b.total-a.total).map(cat=>`<div class="category-tag"><span class="icon">${cat.icon}</span><span class="name">${cat.name}</span><span class="total">${cat.total.toFixed(2)}€</span></div>`).join('');container.innerHTML=`<h3>${summaryTitle} (Totale: ${totalAmount.toFixed(2)}€)</h3><div class="category-summary">${tagsHTML}</div>`}
-    function renderList(items,container){container.innerHTML='';if(!items.length){container.innerHTML=`<div class="empty-state"><p>Nessun movimento qui.</p></div>`;return}items.forEach(tx=>{const item=document.createElement('div');item.className='item';const cat=tx.categories;const sub=tx.subcategories;const icon=sub?.icon||cat?.icon||'💸';const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;const amountNum=safeToNumber(tx.amount);item.innerHTML=`<div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note??''}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button></div>`;container.appendChild(item)})}
-    function handleEdit(id){const tx=allTransactions.find(t=>String(t.id)===String(id));if(!tx)return;formTitle.textContent="Modifica Transazione";transactionIdInput.value=tx.id;document.getElementById('kind').value=tx.kind;document.getElementById('note').value=tx.note??'';document.getElementById('amount').value=safeToNumber(tx.amount);document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';updateCategoryDropdown();categorySelect.value=tx.category_id??'';updateSubcategories(tx.subcategory_id??null);window.scrollTo({top:0,behavior:'smooth'})}
-    async function handleDelete(id){if(!confirm("Eliminare questa transazione?"))return;const{error}=await supabase.from('transactions').delete().eq('id',id);if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}else{loadTransactions()}}
-    async function handleFormSubmit(e){e.preventDefault();const formData=new FormData(transactionForm);const id=formData.get('transaction-id');const payload={kind:formData.get('kind'),note:formData.get('note'),amount:formData.get('amount'),occurred_at:formData.get('occurred_at'),category_id:formData.get('category_id'),subcategory_id:formData.get('subcategory_id')||null,created_by:user.id};const{error}=id?await supabase.from('transactions').update(payload).eq('id',id):await supabase.from('transactions').insert(payload);if(error){console.error("Errore salvataggio:",error);alert("Errore. Riprova.")}else{transactionForm.reset();formTitle.textContent="Nuova Transazione";transactionIdInput.value="";document.getElementById('occurred_at').valueAsDate=new Date();updateCategoryDropdown();loadTransactions()}}
-    async function handleAnalyzeExpenses(){this.disabled=!0;this.textContent='Analizzo...';showModal('<div class="loader"></div>');const e=allTransactions.filter(t=>t.kind==="expense");if(e.length<3){showModal("<h3>Ops!</h3><p>Aggiungi almeno 3 uscite per ricevere un'analisi utile.</p>");this.disabled=!1;this.innerHTML="✨ Analizza Spese";return}const t=e.map(e=>{const t=e.categories?.name||"N/D";return`- ${e.amount.toFixed(2)}€ in ${t}: ${e.note}`}).join("\n"),s=`Sei un amichevole e incoraggiante consulente finanziario per un'app di budgeting chiamata MyHomesBudget. Analizza le spese dell'utente e offri 3 consigli pratici, brevi e personalizzati. Non dare consigli generici come "spendi meno". Sii specifico e positivo. Rispondi in italiano e usa markdown per la formattazione (es. grassetto per i punti chiave, liste puntate).`,a=`Ciao! Ecco la lista delle mie recenti uscite:\n\n${t}\n\nPotresti darmi qualche consiglio per migliorare la gestione delle mie finanze? Grazie!`;try{const e=await callGemini(s,a),t=e.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");showModal(`<h3>✨ I Tuoi Consigli Personalizzati ✨</h3>${t}`)}catch(e){showModal("<h3>Si è verificato un errore</h3><p>Non è stato possibile ottenere l'analisi. Riprova più tardi.</p>")}finally{this.disabled=!1;this.innerHTML="✨ Analizza Spese"}}
-    async function handleSuggestNote(){const e=categorySelect.value;if(!e)return;this.disabled=!0;noteSuggestionsContainer.innerHTML="";const t=allCategories.find(t=>String(t.id)===e);if(!t){this.disabled=!1;return}const s=`Sei un assistente per un'app di budgeting. Il tuo compito è suggerire delle note comuni per una transazione, data una categoria. Rispondi SOLO con una lista di 3-4 suggerimenti separati da virgola, senza altre frasi o spiegazioni. Esempio: Benzina,Biglietto treno,Parcheggio`,a=`La categoria è: ${t.name}`;try{const e=(await callGemini(s,a)).split(",").map(e=>e.trim());e.forEach(e=>{const t=document.createElement("div");t.className="suggestion-tag",t.textContent=e,t.onclick=()=>{noteInput.value=e,noteSuggestionsContainer.innerHTML=""},noteSuggestionsContainer.appendChild(t)})}catch(e){console.error("Errore suggerimento nota:",e)}finally{this.disabled=!1}}
-
   </script>
 </body>
 </html>
