@@ -13,6 +13,9 @@
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      /* 🎨 VIBE UPGRADE: Colori estratti dalla Index 🎨 */
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
     }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans);background-color:var(--bg)}
@@ -67,16 +70,16 @@
     .expense .progress-bar-fg { background: linear-gradient(90deg, #6c5ce7, #fd79a8); }
 
 
-    /* ====== Form Compatto ====== */
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;transition: transform 0.2s ease, box-shadow 0.2s ease;}
-    .btn:hover { transform: translateY(-2px); }
+    /* ====== Form e Bottoni ====== */
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
+    
     .btn-primary{
-      background: linear-gradient(135deg, #6c5ce7, #00cec9);
-      color:#fff;
-      box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+      background: var(--grad);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
     }
     .btn-primary:hover {
-       box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+       box-shadow: 0 14px 28px rgba(0,0,0,.22);
     }
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
@@ -86,7 +89,7 @@
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
 
-    /* ====== Stili Lista Transazioni ====== */
+    /* ====== Lista Transazioni e Bottoni Azione ====== */
     .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
     .item:last-child{border-bottom:none}
     .item-icon{font-size:1.5rem;flex-shrink:0}
@@ -98,9 +101,8 @@
     .item-amount.income{color:var(--success-color);font-weight:700}
     .item-actions{display:flex;gap:4px;flex-shrink:0}
     
-    /* 🎨 VIBE UPGRADE: Bottoni con Gradiente 🎨 */
     .action-btn{
-      background: linear-gradient(135deg, #6c5ce7, #00cec9);
+      background: var(--grad);
       color:#fff;
       border:none;
       border-radius:8px;
@@ -115,7 +117,7 @@
       transform: translateY(-1px);
     }
     .action-btn.delete{
-       background: linear-gradient(135deg, #d32f2f, #ff7675);
+       background: var(--grad-danger);
     }
 
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
@@ -193,44 +195,30 @@
     function renderDashboard(transactions){
       const incomes=transactions.filter(tx=>tx.kind==='income');const expenses=transactions.filter(tx=>tx.kind==='expense');renderSummary(incomes,incomeSummary,'income');renderList(incomes,incomeList);renderSummary(expenses,expenseSummary,'expense');renderList(expenses,expenseList)}
     
-    // 🎨 --- NUOVA FUNZIONE RENDER SUMMARY INTELLIGENTE --- 🎨
     function renderSummary(items, container, kind) {
         container.innerHTML = '';
-
-        // 1. Crea una mappa di tutte le categorie per questo tipo, inizializzate a zero.
         const categoryMap = allCategories
             .filter(cat => cat.kind === kind)
             .reduce((acc, cat) => {
                 acc[cat.id] = { name: cat.name, icon: cat.icon || (kind === 'income' ? '💰' : '💸'), total: 0 };
                 return acc;
             }, {});
-
-        // 2. Somma i totali delle transazioni del periodo corrente.
         items.forEach(tx => {
             const catId = tx.category_id;
-            if (categoryMap[catId]) { // Assicurati che la categoria della transazione esista
+            if (categoryMap[catId]) {
                 categoryMap[catId].total += safeToNumber(tx.amount);
             }
         });
-        
-        // 3. Calcola il totale complessivo del periodo.
         const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-
-        // 4. Ordina tutte le categorie (incluse quelle a 0) e prendi le prime 5.
         const top5Categories = Object.values(categoryMap)
             .sort((a, b) => b.total - a.total)
             .slice(0, 5);
-
-        // Se non c'è nulla da mostrare (nessuna categoria definita), nascondi la card.
         if (top5Categories.length === 0) {
             container.style.display = 'none';
             return;
         }
         container.style.display = 'block';
-
         const summaryTitle = kind === 'income' ? 'Top 5 Entrate' : 'Top 5 Uscite';
-        
-        // 5. Genera l'HTML per le barre. La percentuale è calcolata sul totale del periodo.
         let barsHTML = top5Categories.map(cat => {
             const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0;
             return `
@@ -248,7 +236,6 @@
                 </div>
             `;
         }).join('');
-
         container.innerHTML = `
             <h3>
                 <span>${summaryTitle}</span>
