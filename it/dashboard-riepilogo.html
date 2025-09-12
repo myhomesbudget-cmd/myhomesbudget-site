@@ -114,6 +114,12 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
       width: 240px;
       max-width: 100%;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .summary-card-header h3:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
     }
     .summary-card-header p {
       margin: 8px 0 0;
@@ -256,7 +262,7 @@
       text-align: center; padding: 60px 20px; color: #777;
       grid-column: 1 / -1;
     }
-
+    
     /* ====== MODAL ====== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
@@ -278,6 +284,13 @@
     .btn-action-deadline { padding: 8px 12px; font-size: 0.9rem; color: #fff; border:none; border-radius: 10px;}
     .btn-action-deadline.pay { background: var(--warning-color); }
     .btn-action-deadline.receive { background: var(--success-color); }
+    /* Dettagli nel modal delle card */
+    .modal-body ul { list-style: none; padding: 0; margin: 0; }
+    .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+    .modal-body li:last-child { border-bottom: none; }
+    .transaction-info .category-name { font-weight: 600; }
+    .transaction-info .transaction-date { font-size: 0.85rem; color: #666; }
+    .transaction-amount { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -320,8 +333,8 @@
 
   </main>
   
-  <!-- Modal per Scadenziario e Notifiche -->
-  <div id="scheduler-modal" class="modal-overlay">
+  <!-- Modal per i dettagli, scadenziario e notifiche -->
+  <div id="details-modal" class="modal-overlay">
       <div class="modal-content">
           <div class="modal-header">
               <h3 id="modal-title" class="modal-title"></h3>
@@ -341,7 +354,7 @@
     const schedulerBtn = document.getElementById('scheduler-btn');
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
-    const schedulerModal = document.getElementById('scheduler-modal');
+    const detailsModal = document.getElementById('details-modal');
     const logoutBtn = document.getElementById('logout-btn');
 
     let user = null;
@@ -397,6 +410,35 @@
         updateNotifications();
     }
     
+    function showDetailsModal(title, transactions, type) {
+        const modalTitle = detailsModal.querySelector('.modal-title');
+        const modalBody = detailsModal.querySelector('.modal-body');
+
+        modalTitle.textContent = title;
+        
+        if (transactions.length === 0) {
+            modalBody.innerHTML = '<p style="text-align:center;color:#777;">Nessuna operazione da mostrare per questo mese.</p>';
+        } else {
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
+            const listItems = sortedTransactions.map(tx => {
+                const amount = safeToNumber(tx.amount);
+                const categoryName = tx.categories?.name || 'Senza Categoria';
+                const date = new Date(tx.occurred_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
+                return `
+                    <li>
+                        <div class="transaction-info">
+                            <div class="category-name">${tx.note || categoryName}</div>
+                            <div class="transaction-date">${date}</div>
+                        </div>
+                        <div class="transaction-amount ${type}">${type === 'income' ? '+' : '-'}${amount.toFixed(2)}€</div>
+                    </li>
+                `;
+            }).join('');
+            modalBody.innerHTML = `<ul>${listItems}</ul>`;
+        }
+        detailsModal.classList.add('is-visible');
+    }
+
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
@@ -418,14 +460,14 @@
 
         summaryContent.innerHTML = `
             <div class="summary-card income-card">
-                 <div class="summary-card-header"><h3>ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="income">ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card expense-card">
-                 <div class="summary-card-header"><h3>USCITE</h3><p>(∑ Spese Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="expense">USCITE</h3><p>(∑ Spese Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
@@ -468,6 +510,10 @@
                 </div>
             </div>
         `;
+        
+        // Add event listeners to new headers
+        summaryContent.querySelector('[data-type="income"]').addEventListener('click', () => showDetailsModal('Dettaglio Entrate', incomes, 'income'));
+        summaryContent.querySelector('[data-type="expense"]').addEventListener('click', () => showDetailsModal('Dettaglio Uscite', expenses, 'expense'));
         
         const availableAmount = Math.max(0, totalIncome - totalExpense - monthlySavingGoal);
         const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
@@ -617,7 +663,7 @@
             notificationBadge.classList.remove('is-visible');
         }
     }
-
+    
     async function handleConfirmDeadline(id) {
         if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
         
@@ -654,9 +700,9 @@
         const startDate = new Date(selectedYear, selectedMonth, 1);
         const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
         const scheduled = await getScheduledTransactions(startDate, endDate);
-        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-        schedulerModal.classList.add('is-visible');
+        detailsModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+        renderDeadlinesList(detailsModal.querySelector('.modal-body'), scheduled);
+        detailsModal.classList.add('is-visible');
       });
 
       notificationsBtn.addEventListener('click', async () => {
@@ -664,19 +710,19 @@
         const futureDate = new Date();
         futureDate.setDate(today.getDate() + 7);
         const upcoming = await getScheduledTransactions(today, futureDate);
-        schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
-        schedulerModal.classList.add('is-visible');
+        detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+        renderDeadlinesList(detailsModal.querySelector('.modal-body'), upcoming);
+        detailsModal.classList.add('is-visible');
       });
 
-      schedulerModal.addEventListener('click', (e) => {
+      detailsModal.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-            schedulerModal.classList.remove('is-visible');
+            detailsModal.classList.remove('is-visible');
         }
         const actionButton = e.target.closest('.btn-action-deadline');
         if (actionButton) { 
             handleConfirmDeadline(actionButton.dataset.id).then(() => {
-                schedulerModal.classList.remove('is-visible');
+                detailsModal.classList.remove('is-visible');
             });
         }
       });
