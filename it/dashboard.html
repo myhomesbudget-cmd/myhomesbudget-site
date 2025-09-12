@@ -101,11 +101,11 @@
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
     
-    /* Stili per Opzioni Avanzate Spesa */
-    #expense-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
-    .expense-options-controls { display: flex; gap: 20px; align-items: center; margin-bottom: 12px; }
-    .expense-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
-    .expense-options-fields { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    /* Stili per Opzioni Avanzate */
+    #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
+    .advanced-options-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px; }
+    .advanced-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+    .advanced-options-fields { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
 
     /* ====== Lista Transazioni e Scadenze ====== */
     .list-title { margin: -24px -24px 16px; padding: 12px 24px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; }
@@ -130,10 +130,13 @@
 
     /* Pannello Scadenze */
     #deadlines-section h3 { color: var(--warning-color); border-bottom: 2px solid var(--warning-color); padding-bottom: 8px; }
-    .deadline-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; }
-    .deadline-item .item-amount { color: var(--danger-color); font-weight: 700;}
+    .deadline-item { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 12px; }
+    .deadline-item .item-amount.expense { color: var(--danger-color); }
+    .deadline-item .item-amount.income { color: var(--success-color); }
     .deadline-item .days-left { font-weight: 700; color: var(--warning-color); }
-    .btn-pay { background: var(--warning-color); padding: 8px 12px; font-size: 0.9rem; }
+    .btn-action-deadline { padding: 8px 12px; font-size: 0.9rem; }
+    .btn-action-deadline.pay { background: var(--warning-color); }
+    .btn-action-deadline.receive { background: var(--success-color); }
   </style>
 </head>
 <body>
@@ -162,29 +165,29 @@
 
     <!-- Sezione Form -->
     <section class="content-section form-section">
-      <h2 id="form-title" style="margin:0 0 16px">Nuova Transazione</h2>
+      <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group kind"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
-        <div class="form-group note"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required></div>
+        <div class="form-group note"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required></div>
         <div class="form-group amount"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
         <div class="form-group date"><label for="occurred_at">Data</label><input type="date" id="occurred_at" name="occurred_at" required></div>
         <div class="form-group category"><label for="category_id">Categoria</label><select id="category_id" name="category_id" required></select></div>
         <div class="form-group subcategory"><label for="subcategory_id">Sottocategoria</label><select id="subcategory_id" name="subcategory_id"></select></div>
         
-        <!-- Opzioni Avanzate per Spese -->
-        <div id="expense-options-wrapper">
-            <div class="expense-options-controls">
-                <label><input type="radio" name="expense_type" value="single" checked> Spesa Singola</label>
-                <label><input type="radio" name="expense_type" value="recurring"> 🔄 Spesa Ricorrente</label>
-                <label><input type="radio" name="expense_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+        <!-- Opzioni Avanzate -->
+        <div id="advanced-options-wrapper">
+            <div class="advanced-options-controls">
+                <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
+                <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
+                <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
             </div>
-            <div id="recurring-options" class="expense-options-fields">
+            <div id="recurring-options" class="advanced-options-fields">
                 <div class="form-group"><label for="recurring_frequency">Frequenza</label><select id="recurring_frequency" name="recurring_frequency"><option value="monthly">Mensile</option></select></div>
                 <div class="form-group"><label for="recurring_end_date">Termina il</label><input type="date" id="recurring_end_date" name="recurring_end_date"></div>
             </div>
-            <div id="due-date-options" class="expense-options-fields">
-                <div class="form-group full-width"><label for="due_date">Data di Scadenza</label><input type="date" id="due_date" name="due_date"></div>
+            <div id="due-date-options" class="advanced-options-fields">
+                <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
             </div>
         </div>
 
@@ -192,9 +195,9 @@
       </form>
     </section>
 
-    <!-- Sezione Scadenze Imminenti -->
+    <!-- Sezione Scadenze e Voci Future -->
     <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
-        <h3>🔔 Scadenze Imminenti (Prossimi 30 giorni)</h3>
+        <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
         <div id="deadlines-list" class="transaction-list"></div>
     </section>
 
@@ -223,7 +226,7 @@
     const incomeSummary = document.getElementById('income-summary');
     const expenseSummary = document.getElementById('expense-summary');
     const monthSelector = document.getElementById('month-selector');
-    const expenseOptionsWrapper = document.getElementById('expense-options-wrapper');
+    const advancedOptionsWrapper = document.getElementById('advanced-options-wrapper');
     const recurringOptions = document.getElementById('recurring-options');
     const dueDateOptions = document.getElementById('due-date-options');
     const deadlinesSection = document.getElementById('deadlines-section');
@@ -242,15 +245,15 @@
     
     function updateCategoryDropdown(){
       const selectedKind=kindSelect.value;
-      expenseOptionsWrapper.style.display = selectedKind === 'expense' ? 'block' : 'none';
+      advancedOptionsWrapper.style.display = 'block'; // Mostra sempre le opzioni per entrate e uscite
       const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
     
     function updateSubcategories(selectedSubcategoryId=null){
       const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
     
     function renderDashboard(transactions){
-      const incomes=transactions.filter(tx=>tx.kind==='income');
-      const expenses=transactions.filter(tx=>tx.kind==='expense');
+      const incomes=transactions.filter(tx=>tx.kind==='income' && tx.is_paid !== false);
+      const expenses=transactions.filter(tx=>tx.kind==='expense' && tx.is_paid !== false);
       renderSummary(incomes,incomeSummary,'income');
       renderList(incomes,incomeList, 'income');
       renderSummary(expenses,expenseSummary,'expense');
@@ -302,7 +305,7 @@
                     <span class="note">${tx.note??''}${recurringIcon}</span>
                     <span class="category">${categoryText}</span>
                 </div>
-                <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div>
+                <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':'+'}${amountNum.toFixed(2)} €</div>
                 <div class="item-actions">
                     <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
                     <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
@@ -334,10 +337,17 @@
         deadlinesSection.style.display = 'block';
         deadlinesList.innerHTML = '';
         data.forEach(tx => {
+            const isIncome = tx.kind === 'income';
             const dueDate = new Date(tx.due_date);
-            const diffTime = dueDate - today;
+            const todayMidnight = new Date();
+            todayMidnight.setHours(0,0,0,0);
+            const diffTime = dueDate - todayMidnight;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const daysLeftText = diffDays <= 0 ? 'Oggi' : `${diffDays} giorni`;
+            const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+            const amountClass = isIncome ? 'income' : 'expense';
+            const amountSign = isIncome ? '+' : '-';
+            const buttonClass = isIncome ? 'receive' : 'pay';
+            const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
 
             deadlinesList.insertAdjacentHTML('beforeend', `
                 <div class="item deadline-item">
@@ -345,9 +355,9 @@
                         <span class="note">${tx.note}</span>
                         <span class="category">${tx.categories?.name || ''}</span>
                     </div>
-                    <span class="item-amount">-${safeToNumber(tx.amount).toFixed(2)}€</span>
+                    <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
                     <span class="days-left">${daysLeftText}</span>
-                    <button class="btn btn-pay" data-id="${tx.id}">Paga Ora</button>
+                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
                 </div>
             `);
         });
@@ -373,16 +383,60 @@
     }
 
     function handleEdit(id){
-      const tx=allTransactions.find(t=>String(t.id)===String(id));if(!tx)return;formTitle.textContent="✍️ Modifica Transazione";transactionIdInput.value=tx.id;document.getElementById('kind').value=tx.kind;document.getElementById('note').value=tx.note??'';document.getElementById('amount').value=safeToNumber(tx.amount);document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';updateCategoryDropdown();categorySelect.value=tx.category_id??'';updateSubcategories(tx.subcategory_id??null);window.scrollTo({top:0,behavior:'smooth'})}
+      const tx = allTransactions.find(t=>String(t.id)===String(id));
+      if(!tx) return;
+
+      if (tx.is_recurring_parent) {
+        alert("La modifica delle operazioni ricorrenti non è supportata. Elimina la serie e creane una nuova.");
+        return;
+      }
+
+      formTitle.textContent="✍️ Modifica Operazione";
+      transactionIdInput.value=tx.id;
+      document.getElementById('kind').value=tx.kind;
+      document.getElementById('note').value=tx.note??'';
+      document.getElementById('amount').value=safeToNumber(tx.amount);
+      document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';
+      updateCategoryDropdown();
+      categorySelect.value=tx.category_id??'';
+      updateSubcategories(tx.subcategory_id??null);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
     
     async function handleDelete(id){
-      if(!confirm("Eliminare questa transazione?"))return;const{error}=await supabase.from('transactions').delete().eq('id',id);if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}else{loadTransactions(); loadAndRenderDeadlines();}}
+        const txToDelete = allTransactions.find(t => String(t.id) === String(id));
+        if (!txToDelete) {
+             const {data} = await supabase.from('transactions').select('is_recurring_parent').eq('id',id).single();
+             if(data) txToDelete = data; else return;
+        }
+
+        let confirmMessage = "Eliminare questa operazione?";
+        if (txToDelete.is_recurring_parent) {
+            confirmMessage = "Questa è un'operazione ricorrente. Vuoi eliminare anche tutte le occorrenze future non registrate?";
+        }
+
+        if (!confirm(confirmMessage)) return;
+
+        let error;
+        if (txToDelete.is_recurring_parent) {
+            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
+            if(childrenError) error = childrenError;
+        }
+        
+        if(error){ console.error("Errore eliminazione figli:", error); alert("Impossibile eliminare le operazioni future."); return; }
+
+        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
+        if (deleteError) { error = deleteError; }
+
+        if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}
+        else{loadTransactions(); loadAndRenderDeadlines();}
+    }
     
     async function handleFormSubmit(e) {
         e.preventDefault();
         const formData = new FormData(transactionForm);
         const id = formData.get('transaction-id');
-        const expenseType = formData.get('expense_type');
+        const transactionType = formData.get('transaction_type');
 
         const payload = {
             kind: formData.get('kind'),
@@ -391,14 +445,16 @@
             occurred_at: formData.get('occurred_at'),
             category_id: formData.get('category_id'),
             subcategory_id: formData.get('subcategory_id') || null,
-            created_by: user.id
+            created_by: user.id,
+            is_paid: true
         };
 
         let error;
 
-        if (payload.kind === 'expense' && expenseType === 'recurring') {
-            const endDate = new Date(formData.get('recurring_end_date'));
-            if (!endDate || isNaN(endDate)) { alert("Seleziona una data di fine valida per la spesa ricorrente."); return; }
+        if (transactionType === 'recurring') {
+            const endDateStr = formData.get('recurring_end_date');
+            if (!endDateStr) { alert("Seleziona una data di fine valida per l'operazione ricorrente."); return; }
+            const endDate = new Date(endDateStr);
             
             payload.is_recurring_parent = true;
             
@@ -423,10 +479,11 @@
                     if (recurringError) error = recurringError;
                 }
             }
-        } else if (payload.kind === 'expense' && expenseType === 'scheduled') {
+        } else if (transactionType === 'scheduled') {
             payload.due_date = formData.get('due_date');
             payload.is_paid = false;
-            if (!payload.due_date) { alert("Seleziona una data di scadenza valida."); return; }
+            payload.occurred_at = payload.due_date;
+            if (!payload.due_date) { alert("Seleziona una data di scadenza/incasso valida."); return; }
              const { error: scheduledError } = await supabase.from('transactions').insert(payload);
              error = scheduledError;
         } else {
@@ -438,7 +495,7 @@
         if(error){ console.error("Errore salvataggio:",error); alert("Errore. Riprova.") }
         else{
             transactionForm.reset();
-            formTitle.textContent="Nuova Transazione";
+            formTitle.textContent="Nuova Operazione";
             transactionIdInput.value="";
             document.getElementById('occurred_at').valueAsDate=new Date();
             updateCategoryDropdown();
@@ -447,20 +504,15 @@
         }
     }
 
-    async function handlePayDeadline(id) {
-        const deadlineTx = await supabase.from('transactions').select('*').eq('id', id).single();
-        if (deadlineTx.error || !deadlineTx.data) {
-            alert("Errore nel recuperare la spesa.");
-            return;
-        }
-
+    async function handleConfirmDeadline(id) {
+        if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
+        
         const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
         
         if (error) {
-            alert("Errore nell'aggiornamento della spesa.");
+            alert("Errore nell'aggiornamento dell'operazione.");
             console.error(error);
         } else {
-            alert("Spesa pagata e registrata con successo!");
             loadTransactions();
             loadAndRenderDeadlines();
         }
@@ -497,13 +549,13 @@
       document.querySelector('.dashboard-panel').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn');if(!t)return;const id=t.dataset.id;if(t.classList.contains('edit-btn'))handleEdit(id);else if(t.classList.contains('delete-btn'))handleDelete(id)});
       
       deadlinesList.addEventListener('click', (e) => {
-        const payButton = e.target.closest('.btn-pay');
-        if (payButton) { handlePayDeadline(payButton.dataset.id); }
+        const actionButton = e.target.closest('.btn-action-deadline');
+        if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
       });
       
       monthSelector.addEventListener('change', loadTransactions);
 
-      document.querySelectorAll('input[name="expense_type"]').forEach(radio => {
+      document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
             dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
