@@ -15,6 +15,7 @@
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color: #f39c12;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
       --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
@@ -523,8 +524,7 @@
     }
 
     const gaugeNeedle = { id: 'gaugeNeedle', afterDatasetDraw(chart, args, options) { const { ctx, data } = chart; const value = data.datasets[0].value; const totalIncome = data.datasets[0].totalIncome || 1; const xCenter = chart.getDatasetMeta(0).data[0].x; const yCenter = chart.getDatasetMeta(0).data[0].y; const outerRadius = chart.getDatasetMeta(0).data[0].outerRadius; const innerRadius = chart.getDatasetMeta(0).data[0].innerRadius; const needleRadius = innerRadius - 15; let percentage = (value + totalIncome) / (totalIncome * 2); percentage = Math.max(0, Math.min(1, percentage)); const angle = Math.PI + (Math.PI * percentage); ctx.save(); ctx.translate(xCenter, yCenter); ctx.rotate(angle); ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(needleRadius, 0); ctx.lineTo(0, 5); ctx.fillStyle = '#444'; ctx.fill(); ctx.rotate(-angle); ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill(); ctx.restore(); } };
-    Chart.register(gaugeNeedle);
-
+    
     function renderGaugeChart(canvasId, valueData) {
         const { net, totalIncome } = valueData;
         const ctx = document.getElementById(canvasId)?.getContext('2d');
@@ -536,12 +536,13 @@
     }
 
     const centerTextPlugin = { id: 'centerText', beforeDraw: function(chart) { if (chart.options.plugins.centerText) { const ctx = chart.ctx; const centerConfig = chart.options.plugins.centerText; const amountText = centerConfig.amount; const percentageText = centerConfig.percentage; const hasPercentage = percentageText && percentageText.length > 0; ctx.save(); const chartArea = chart.chartArea; const centerX = (chartArea.left + chartArea.right) / 2; const centerY = (chartArea.top + chartArea.bottom) / (chart.config.type === 'doughnut' && chart.options.circumference === 180 ? 1.7 : 2); ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillStyle = '#333'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(amountText, centerX, hasPercentage ? centerY - 12 : centerY); if(hasPercentage) { ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillStyle = '#555'; ctx.fillText(percentageText, centerX, centerY + 18); } ctx.restore(); } } };
-    Chart.register(centerTextPlugin, ChartDataLabels);
+    
     function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) { const ctx = document.getElementById(canvasId)?.getContext('2d'); if (!ctx) return; if (chartInstances[canvasId]) chartInstances[canvasId].destroy(); const filteredData = Object.entries(data).filter(([key, value]) => value > 0); const labels = filteredData.map(item => item[0]); const values = filteredData.map(item => item[1]); if (values.length === 0) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#999'; ctx.font = '16px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillText('Nessun dato', ctx.canvas.width / 2, ctx.canvas.height / 2); ctx.restore(); return; } const chartOptions = { type: 'doughnut', data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }, datalabels: { display: showDataLabels, formatter: (value, ctx) => { const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return (value / sum * 100).toFixed(1) + '%'; }, color: '#fff', font: { weight: 'bold', size: 14 }, textShadow: '0px 1px 3px rgba(0, 0, 0, 0.5)' } } } }; if(centerText) chartOptions.options.plugins.centerText = centerText; chartInstances[canvasId] = new Chart(ctx, chartOptions); }
     function renderGoal(savedAmount, goalAmount) { const segments = document.querySelectorAll('.battery-segments .segment'); const percentageEl = document.querySelector('.battery-percentage'); if (!segments.length || !percentageEl) return; if (goalAmount <= 0) { segments.forEach(seg => seg.classList.remove('is-active')); percentageEl.textContent = '0%'; return; } const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100)); const activeSegmentsCount = Math.floor(percentage / 10); percentageEl.textContent = `${percentage.toFixed(1)}%`; segments.forEach((seg, index) => { seg.classList.toggle('is-active', index < activeSegmentsCount); }); }
 
     // --- Inizializzazione pagina ---
     async function initializePage() {
+      Chart.register(centerTextPlugin, ChartDataLabels);
       // Setup UI Listeners
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
