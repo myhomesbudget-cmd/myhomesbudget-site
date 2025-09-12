@@ -15,7 +15,6 @@
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
-      --warning-color: #f39c12;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
       --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
@@ -33,40 +32,34 @@
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link, .top-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 34px;
+    .top-link{
       color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
       font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-    }
-    .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
-    
-    .date-selectors { display: flex; gap: 8px; }
-    .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
-    .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
-    .select-wrapper::after { content: '▼'; font-size: 10px; color: rgba(255,255,255,0.8); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-    .topbar-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; color: #fff; border: none; padding: 6px 28px 6px 12px; font-size: .9rem; font-weight: 600; cursor: pointer; }
-    .topbar-select option { background: white; color: black; }
-    .topbar-select:disabled { opacity: 0.7; }
-
-    .notification-bell { position: relative; }
-    #scheduler-btn, #notifications-btn { width: 38px; padding: 0; }
-    .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none; }
-    .notification-badge.is-visible { display: flex; }
-
-    .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-    .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
-
-    @media (max-width: 960px) {
-      .mobile-menu-toggle { display: block; }
-      .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
-      .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
-      .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
-      #scheduler-btn, #notifications-btn { width: 100%; }
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+    .select-wrapper {
+      position: relative;display: flex;align-items: center;border-radius: 10px;
+      background: var(--grad);box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .select-wrapper:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+    .select-wrapper::after {content: '▼';font-size: 10px;color: rgba(255,255,255,0.8);position: absolute;right: 10px;top: 50%;transform: translateY(-50%);pointer-events: none;}
+    #month-selector {
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;background: transparent;
+      color: #fff;border: none;padding: 6px 28px 6px 12px;font-size: .9rem;font-weight: 600;cursor: pointer;width: 100%;}
+    #month-selector option { background: white; color: black; }
+    #month-selector:disabled { opacity: 0.7; }
+    .mobile-menu-toggle {display: none;background: var(--grad);border: none;border-radius: 10px;width: 40px;height: 38px;cursor: pointer;padding: 0;z-index: 101;box-shadow: 0 4px 12px rgba(0,0,0,.15);}
+    .mobile-menu-toggle svg {width: 24px;height: 24px;stroke: #fff;stroke-width: 2.5;stroke-linecap: round;}
+    @media (max-width: 768px) {
+      .mobile-menu-toggle {display: block;}
+      .top-actions {
+        position: absolute;top: 70px;right: 16px;background: rgba(255,255,255,0.8);backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);border-radius: var(--radius-lg);box-shadow: var(--shadow);
+        padding: 16px;flex-direction: column;gap: 16px;align-items: stretch;width: 220px;
+        transform: translateY(-20px) scale(0.95);opacity: 0;pointer-events: none;
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out;z-index: 100;border: 1px solid var(--card-border);}
+      .top-actions.is-open {transform: translateY(0) scale(1);opacity: 1;pointer-events: auto;}
+      .top-actions .top-link,.top-actions .select-wrapper {width: 100%;text-align: center;}
     }
 
     /* ====== Contenuto Principale ====== */
@@ -247,12 +240,12 @@
     .focus-item-amount {
         font-weight: 700;
     }
-    .progress-bar-bg {
+    .focus-progress-bar-bg {
         width: 100%; height: 6px;
         background: rgba(0,0,0,0.1);
         border-radius: 3px;
     }
-    .progress-bar-fg {
+    .focus-progress-bar-fg {
         height: 100%;
         border-radius: 3px;
         transition: width 0.5s ease;
@@ -264,33 +257,55 @@
     }
     
     /* ====== MODAL ====== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
-    .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
-    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
-    .modal-overlay.is-visible .modal-content { transform: scale(1); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.is-visible {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-content {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.is-visible .modal-content {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px; margin-bottom: 16px;
+    }
     .modal-title { margin: 0; font-size: 1.3rem; }
-    .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #888; line-height: 1; padding: 0; }
-    .modal-body { list-style: none; padding: 0; margin: 0; }
-    .deadline-item { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
-    .deadline-item:last-child { border-bottom: none; }
-    .item-details{display:flex;flex-direction:column;min-width:0}
-    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0; font-weight: 700;}
-    .item-amount.expense{color:var(--danger-color);}
-    .item-amount.income{color:var(--success-color);}
-    .days-left { font-weight: 700; color: var(--warning-color); }
-    .btn-action-deadline { padding: 8px 12px; font-size: 0.9rem; color: #fff; border:none; border-radius: 10px;}
-    .btn-action-deadline.pay { background: var(--warning-color); }
-    .btn-action-deadline.receive { background: var(--success-color); }
-    /* Dettagli nel modal delle card */
+    .modal-close {
+      background: none; border: none; font-size: 2rem; cursor: pointer;
+      color: #888; line-height: 1; padding: 0;
+    }
     .modal-body ul { list-style: none; padding: 0; margin: 0; }
-    .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+    .modal-body li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
     .modal-body li:last-child { border-bottom: none; }
     .transaction-info .category-name { font-weight: 600; }
     .transaction-info .transaction-date { font-size: 0.85rem; color: #666; }
     .transaction-amount { font-weight: 700; }
+    .transaction-amount.income { color: var(--success-color); }
+    .transaction-amount.expense { color: var(--danger-color); }
+
   </style>
 </head>
 <body>
@@ -302,16 +317,10 @@
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
       <div class="top-actions">
-        <div class="date-selectors">
-            <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
-            <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
+        <div class="select-wrapper">
+          <select id="month-selector" aria-label="Seleziona mese"></select>
         </div>
-        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
-        <button id="scheduler-btn" class="top-btn">🗓️</button>
-        <button id="notifications-btn" class="top-btn notification-bell">
-            <span>🔔</span>
-            <span id="notification-badge" class="notification-badge"></span>
-        </button>
+        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Modifica Obiettivo</a>
         <a href="#" id="logout-btn" class="top-link">Esci</a>
       </div>
     </div>
@@ -333,30 +342,23 @@
 
   </main>
   
-  <!-- Modal per i dettagli, scadenziario e notifiche -->
+  <!-- Modal per i dettagli -->
   <div id="details-modal" class="modal-overlay">
       <div class="modal-content">
           <div class="modal-header">
               <h3 id="modal-title" class="modal-title"></h3>
-              <button class="modal-close">&times;</button>
+              <button id="modal-close-btn" class="modal-close">&times;</button>
           </div>
           <div id="modal-body" class="modal-body"></div>
       </div>
   </div>
-  
+
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
     const monthSelector = document.getElementById('month-selector');
-    const yearSelector = document.getElementById('year-selector');
     const summaryContent = document.getElementById('summary-content');
     const deepDiveContent = document.getElementById('deep-dive-content');
-    const schedulerBtn = document.getElementById('scheduler-btn');
-    const notificationsBtn = document.getElementById('notifications-btn');
-    const notificationBadge = document.getElementById('notification-badge');
-    const detailsModal = document.getElementById('details-modal');
-    const logoutBtn = document.getElementById('logout-btn');
-
     let user = null;
     let chartInstances = {};
 
@@ -364,17 +366,15 @@
 
     async function loadSummaryData() {
         monthSelector.disabled = true;
-        yearSelector.disabled = true;
         summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Caricamento dati...</p></div>';
         deepDiveContent.style.display = 'none';
 
         const selectedMonth = monthSelector.value;
-        const selectedYear = yearSelector.value;
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+        const startDate = new Date(selectedMonth);
+        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
         
         const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes] = await Promise.all([
-            supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()).eq('is_paid', true),
+            supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()),
             supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
             supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
             supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle(),
@@ -382,7 +382,6 @@
         ]);
         
         monthSelector.disabled = false;
-        yearSelector.disabled = false;
         
         const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error].filter(Boolean);
         if (errors.length > 0) {
@@ -407,12 +406,14 @@
 
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions);
         renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving);
-        updateNotifications();
     }
     
     function showDetailsModal(title, transactions, type) {
-        const modalTitle = detailsModal.querySelector('.modal-title');
-        const modalBody = detailsModal.querySelector('.modal-body');
+        const modal = document.getElementById('details-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        if (!modal || !modalTitle || !modalBody) return;
 
         modalTitle.textContent = title;
         
@@ -427,7 +428,7 @@
                 return `
                     <li>
                         <div class="transaction-info">
-                            <div class="category-name">${tx.note || categoryName}</div>
+                            <div class="category-name">${tx.description || categoryName}</div>
                             <div class="transaction-date">${date}</div>
                         </div>
                         <div class="transaction-amount ${type}">${type === 'income' ? '+' : '-'}${amount.toFixed(2)}€</div>
@@ -436,7 +437,7 @@
             }).join('');
             modalBody.innerHTML = `<ul>${listItems}</ul>`;
         }
-        detailsModal.classList.add('is-visible');
+        modal.classList.add('is-visible');
     }
 
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
@@ -604,145 +605,59 @@
     function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) { const ctx = document.getElementById(canvasId)?.getContext('2d'); if (!ctx) return; if (chartInstances[canvasId]) chartInstances[canvasId].destroy(); const filteredData = Object.entries(data).filter(([key, value]) => value > 0); const labels = filteredData.map(item => item[0]); const values = filteredData.map(item => item[1]); if (values.length === 0) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#999'; ctx.font = '16px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillText('Nessun dato', ctx.canvas.width / 2, ctx.canvas.height / 2); ctx.restore(); return; } if (canvasId === 'budgetChart') { const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height); gradient.addColorStop(0, '#00cec9'); gradient.addColorStop(1, '#6c5ce7'); colors = ['#d32f2f', '#f39c12', gradient]; } const chartOptions = { type: 'doughnut', data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }, datalabels: { display: showDataLabels, formatter: (value, ctx) => { const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return (value / sum * 100).toFixed(1) + '%'; }, color: '#fff', font: { weight: 'bold', size: 14 }, textShadow: '0px 1px 3px rgba(0, 0, 0, 0.5)' } } } }; if(centerText) chartOptions.options.plugins.centerText = centerText; chartInstances[canvasId] = new Chart(ctx, chartOptions); }
     function renderGoal(savedAmount, goalAmount) { const segments = document.querySelectorAll('.battery-segments .segment'); const percentageEl = document.querySelector('.battery-percentage'); if (!segments.length || !percentageEl) return; if (goalAmount <= 0) { segments.forEach(seg => seg.classList.remove('is-active')); percentageEl.textContent = '0%'; return; } const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100)); const activeSegmentsCount = Math.floor(percentage / 10); percentageEl.textContent = `${percentage.toFixed(1)}%`; segments.forEach((seg, index) => { seg.classList.toggle('is-active', index < activeSegmentsCount); }); }
 
-    async function getScheduledTransactions(startDate, endDate) {
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon)`)
-            .eq('created_by', user.id)
-            .eq('is_paid', false)
-            .gte('due_date', startDate.toISOString().split('T')[0])
-            .lte('due_date', endDate.toISOString().split('T')[0])
-            .order('due_date', { ascending: true });
-        
-        if (error) { console.error("Errore caricamento scadenze:", error); return []; }
-        return data;
-    }
-
-    function renderDeadlinesList(container, transactions) {
-        if (transactions.length === 0) {
-            container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
-            return;
-        }
-        container.innerHTML = '';
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        transactions.forEach(tx => {
-            const isIncome = tx.kind === 'income';
-            const dueDate = new Date(tx.due_date);
-            const diffTime = dueDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
-            const amountClass = isIncome ? 'income' : 'expense';
-            const amountSign = isIncome ? '+' : '-';
-            const buttonClass = isIncome ? 'receive' : 'pay';
-            const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
-
-            container.insertAdjacentHTML('beforeend', `
-                <div class="deadline-item">
-                    <div class="item-details">
-                        <span class="note">${tx.note}</span>
-                        <span class="category">${tx.categories?.name || ''}</span>
-                    </div>
-                    <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                    <span class="days-left">${daysLeftText}</span>
-                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                </div>
-            `);
-        });
-    }
-
-    async function updateNotifications() {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
-        
-        if(upcomingDeadlines.length > 0) {
-            notificationBadge.textContent = upcomingDeadlines.length;
-            notificationBadge.classList.add('is-visible');
-        } else {
-            notificationBadge.classList.remove('is-visible');
-        }
-    }
-    
-    async function handleConfirmDeadline(id) {
-        if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
-        
-        const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
-        
-        if (error) {
-            alert("Errore nell'aggiornamento dell'operazione.");
-            console.error(error);
-        } else {
-            loadSummaryData();
-        }
-    }
-
     // --- Inizializzazione pagina ---
     async function initializePage() {
-      // Setup UI Listeners immediately
+      // Attiva subito gli event listener per l'interfaccia
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
       if(mobileMenuBtn && topActions) {
-        mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
-        document.addEventListener('click', (e) => { if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+        mobileMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          topActions.classList.toggle('is-open');
+        });
+        document.addEventListener('click', (e) => {
+          if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            topActions.classList.remove('is-open');
+          }
+        });
       }
       
-      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+          logoutBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              await supabase.auth.signOut();
+              location.replace("/it/");
+          });
+      }
 
       monthSelector.addEventListener('change', loadSummaryData);
-      yearSelector.addEventListener('change', loadSummaryData);
+      
+      const modal = document.getElementById('details-modal');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+      if (modal && modalCloseBtn) {
+          const closeModal = () => modal.classList.remove('is-visible');
+          modalCloseBtn.addEventListener('click', closeModal);
+          modal.addEventListener('click', (e) => {
+              if (e.target === modal) closeModal();
+          });
+      }
 
-      const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
-
-      schedulerBtn.addEventListener('click', async () => {
-        const selectedMonth = monthSelector.value;
-        const selectedYear = yearSelector.value;
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
-        const scheduled = await getScheduledTransactions(startDate, endDate);
-        detailsModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
-        renderDeadlinesList(detailsModal.querySelector('.modal-body'), scheduled);
-        detailsModal.classList.add('is-visible');
-      });
-
-      notificationsBtn.addEventListener('click', async () => {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcoming = await getScheduledTransactions(today, futureDate);
-        detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-        renderDeadlinesList(detailsModal.querySelector('.modal-body'), upcoming);
-        detailsModal.classList.add('is-visible');
-      });
-
-      detailsModal.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-            detailsModal.classList.remove('is-visible');
-        }
-        const actionButton = e.target.closest('.btn-action-deadline');
-        if (actionButton) { 
-            handleConfirmDeadline(actionButton.dataset.id).then(() => {
-                detailsModal.classList.remove('is-visible');
-            });
-        }
-      });
-
-      // Load data
+      // Gestione sessione utente e caricamento dati
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        if (error || !session){ location.replace("/it/login.html"); return; }
+        if (error || !session){ 
+          location.replace("/it/login.html"); 
+          return; 
+        }
         user = session.user;
         
-        // Populate date selectors
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
-        months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-        for(let i = currentYear - 2; i <= currentYear + 5; i++) {
-            yearSelector.add(new Option(i, i));
+        for (let i = 0; i < 12; i++){
+          const d = new Date(); d.setMonth(d.getMonth()-i);
+          const value = d.toISOString().slice(0,7) + '-01';
+          const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+          monthSelector.add(new Option(label, value));
         }
-        monthSelector.value = currentMonth;
-        yearSelector.value = currentYear;
 
         await loadSummaryData();
       } catch(e) {
