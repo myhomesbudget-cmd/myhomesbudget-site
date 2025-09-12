@@ -20,6 +20,10 @@
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:32px;border-radius:6px}
     .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .edit-badge{
+      display:none;margin-left:8px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.25);
+      padding:4px 8px;border-radius:999px;font-weight:700
+    }
     .top-actions{display:flex;gap:8px;align-items:center}
     .logout-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);}
     .logout-link:hover{background:rgba(0,0,0,.38)}
@@ -47,6 +51,7 @@
     input[type="radio"]:checked ~ .option-details { display: grid; }
     .input-field { width: 100%; border: 1px solid #ccc; background: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; }
     .input-field::placeholder { color: #999; }
+    .hint { font-size:.9rem; color:#555; }
     .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:8px;padding:8px 10px;font-weight:600;text-align:center;display:none}
     .error-message.show{display:block}
     .panel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -58,7 +63,11 @@
 </head>
 <body>
   <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span></a>
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo" class="logo-image">
+      <span class="logo-text">MyHomesBudget</span>
+      <span id="edit-badge" class="edit-badge">Modifica</span>
+    </a>
     <div class="top-actions"><a href="#" id="logout-btn" class="logout-link">Esci</a></div>
   </nav>
 
@@ -70,6 +79,7 @@
       <div id="step-indicator" class="step-indicator"></div>
     </div>
     
+    <!-- STEP 1 -->
     <section id="step-1" class="step" data-step="1">
       <h1 class="step-title">Qual è il tuo obiettivo principale?</h1>
       <p class="step-description">Scegliere un obiettivo ci aiuta a personalizzare la tua esperienza e a tracciare i tuoi progressi.</p>
@@ -96,11 +106,15 @@
           <div class="option-details">
             <input type="text" class="input-field" name="goal_name" placeholder="Es: Vacanza a New York">
             <input type="number" class="input-field" name="goal_target_amount" placeholder="1.500,00" step="50">
+            <!-- PATCH: data target + suggerimento -->
+            <input type="date" class="input-field" name="goal_target_date" placeholder="Data target">
+            <div id="goal-suggestion" class="hint"></div>
           </div>
         </div>
       </fieldset>
     </section>
     
+    <!-- STEP 2 -->
     <section id="step-2" class="step" data-step="2">
       <h1 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h1>
       <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
@@ -123,9 +137,25 @@
       </fieldset>
     </section>
 
+    <!-- STEP 3 -->
     <section id="step-3" class="step" data-step="3">
         <h1 class="step-title">Scegli le tue categorie</h1>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
+
+        <!-- PATCH: contatori + ricerca + preset -->
+        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 6px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
+            <span style="width:1px;height:16px;background:rgba(0,0,0,.15);display:inline-block"></span>
+            <strong>Uscite:</strong> <span id="count-expense">0 selezionate</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input id="cat-search" class="input-field" placeholder="Cerca categorie..." style="max-width:220px;">
+            <button type="button" id="preset-min" class="btn btn-secondary">Preset: Minimo</button>
+            <button type="button" id="preset-full" class="btn btn-secondary">Preset: Completo</button>
+          </div>
+        </div>
+
         <fieldset>
           <div class="category-columns">
             <div class="column">
@@ -138,10 +168,26 @@
             </div>
           </div>
         </fieldset>
+
+        <!-- PATCH: Review card -->
+        <div id="review-card" class="panel-header" style="margin-top:12px;">
+          <div style="font-weight:800;margin-bottom:8px;">Riepilogo</div>
+          <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:.95rem;">
+            <div><b>Obiettivo</b></div><div id="rev-goal">—</div>
+            <div><b>Target</b></div><div id="rev-target">—</div>
+            <div><b>Metodo</b></div><div id="rev-method">—</div>
+            <div><b>Parametro</b></div><div id="rev-param">—</div>
+            <div><b>Entrate</b></div><div id="rev-inc">—</div>
+            <div><b>Uscite</b></div><div id="rev-exp">—</div>
+          </div>
+        </div>
     </section>
     
     <div id="error" class="error-message"></div>
-    <div class="panel-footer"><button id="back-btn" class="btn btn-secondary">Indietro</button><button id="next-btn" class="btn btn-primary">Avanti</button></div>
+    <div class="panel-footer">
+      <button id="back-btn" class="btn btn-secondary">Indietro</button>
+      <button id="next-btn" class="btn btn-primary">Avanti</button>
+    </div>
   </main>
   
   <script type="module">
@@ -162,10 +208,41 @@
     const stepIndicator = document.getElementById('step-indicator');
     const errorBox = document.getElementById('error');
     const steps = document.querySelectorAll('.step');
+    const editBadge = document.getElementById('edit-badge');
 
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
     const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
 
+    /* ---------- PATCH: util suggerimento quota ---------- */
+    function monthsBetween(a,b){
+      const A=new Date(a), B=new Date(b); if(isNaN(A)||isNaN(B)) return null;
+      let m=(B.getFullYear()-A.getFullYear())*12+(B.getMonth()-A.getMonth());
+      if(B.getDate()<A.getDate()) m-=1;
+      return Math.max(1,m);
+    }
+    function updateGoalSuggestion(){
+      const typeRadio = document.querySelector('input[name="goal_type"]:checked');
+      const box = document.getElementById('goal-suggestion');
+      if(!box){ return; }
+      if(!typeRadio || typeRadio.value!=='Obiettivo Specifico'){ box.textContent=''; return; }
+      const wrap = typeRadio.closest('div');
+      const amount = parseFloat(wrap.querySelector('input[name="goal_target_amount"]')?.value||'');
+      const date = wrap.querySelector('input[name="goal_target_date"]')?.value||'';
+      if(!amount || !date){ box.textContent=''; return; }
+      const m = monthsBetween(new Date().toISOString(), date);
+      if(!m){ box.textContent=''; return; }
+      const perMonth = Math.ceil((amount / m)*100)/100;
+      box.textContent = `Suggerimento: ~€${perMonth}/mese per raggiungere il target entro ${date}.`;
+    }
+    document.addEventListener('input', (e)=>{
+      const names = ['goal_target_amount','goal_target_date'];
+      if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion();
+    });
+    document.addEventListener('change', (e)=>{
+      if(e.target.name==='goal_type') updateGoalSuggestion();
+    });
+
+    /* ---------- STEP RENDER ---------- */
     function renderStep(n) {
         steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
         const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
@@ -175,8 +252,12 @@
         backBtn.style.visibility = (n > 1) ? 'visible' : 'hidden';
         nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
         showError('');
+
+        // PATCH: quando arrivo allo step 3, mostra riepilogo
+        if (n === 3) renderReview();
     }
 
+    /* ---------- POPOLAZIONE CATEGORIE ---------- */
     function populateCategoriesFromDB(defaultCategories) {
         const incomeContainer = document.getElementById('income-category-options');
         const expenseContainer = document.getElementById('expense-category-options');
@@ -192,8 +273,12 @@
                 expenseContainer.appendChild(w);
             }
         });
+
+        // PATCH: aggiorna contatori all’inizializzazione
+        updateCategoryCounters();
     }
 
+    /* ---------- PRESELEZIONE DATI ---------- */
     function preselectFormData(goal, budget, userCategories) {
         if (goal) {
             const typeRadio = document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
@@ -229,8 +314,14 @@
                 }
             } catch(e) {}
         });
+
+        // PATCH: counters aggiornati dopo preselezione
+        updateCategoryCounters();
+        // PATCH: aggiorna suggerimento se specific_goal
+        updateGoalSuggestion();
     }
 
+    /* ---------- VALIDAZIONE ---------- */
     function validateAndUpdateState(n) {
         showError('');
         if (n === 1) {
@@ -261,6 +352,7 @@
         return true;
     }
 
+    /* ---------- SALVATAGGIO LEGACY (INVARIATO) ---------- */
     async function saveOnboardingToSupabase(user, existingUserCategories) {
         nextBtn.disabled = true;
         nextBtn.textContent = 'Salvataggio...';
@@ -325,7 +417,86 @@
             return false;
         }
     }
-    
+
+    /* ---------- PATCH: contatori / ricerca / preset ---------- */
+    function updateCategoryCounters(){
+      const all = [...document.querySelectorAll('input[name="category"]')];
+      const sel = all.filter(i=>i.checked).map(i=>JSON.parse(i.value));
+      const inc = sel.filter(c=>c.kind==='income').length;
+      const exp = sel.filter(c=>c.kind!=='income').length;
+      const incEl = document.getElementById('count-income');
+      const expEl = document.getElementById('count-expense');
+      if(incEl) incEl.textContent = `${inc} selezionate`;
+      if(expEl) expEl.textContent = `${exp} selezionate`;
+    }
+    document.addEventListener('change', (e)=>{
+      if(e.target && e.target.name==='category') updateCategoryCounters();
+      if(currentStep===3 && (e.target.name==='goal_type' || e.target.name==='contribution_method')) renderReview();
+    });
+    const catSearch = document.getElementById('cat-search');
+    if(catSearch){
+      catSearch.addEventListener('input', (e)=>{
+        const q = e.target.value.toLowerCase();
+        document.querySelectorAll('#income-category-options > div, #expense-category-options > div')
+          .forEach(w=>{
+            const label = w.textContent.toLowerCase();
+            w.style.display = label.includes(q)?'block':'none';
+          });
+      });
+    }
+    const presetMin = document.getElementById('preset-min');
+    const presetFull = document.getElementById('preset-full');
+    if(presetMin){
+      presetMin.addEventListener('click', ()=>{
+        const boxes=[...document.querySelectorAll('input[name="category"]')];
+        boxes.forEach(b=>b.checked=false);
+        const incomes=boxes.filter(b=>JSON.parse(b.value).kind==='income').slice(0,2);
+        const expenses=boxes.filter(b=>JSON.parse(b.value).kind!=='income').slice(0,3);
+        [...incomes, ...expenses].forEach(b=>b.checked=true);
+        updateCategoryCounters();
+        if(currentStep===3) renderReview();
+      });
+    }
+    if(presetFull){
+      presetFull.addEventListener('click', ()=>{
+        document.querySelectorAll('input[name="category"]').forEach(b=> b.checked=true);
+        updateCategoryCounters();
+        if(currentStep===3) renderReview();
+      });
+    }
+
+    /* ---------- PATCH: review renderer ---------- */
+    function renderReview(){
+      const type = document.querySelector('input[name="goal_type"]:checked')?.value || null;
+      const tDiv = document.querySelector('input[name="goal_type"]:checked')?.closest('div');
+      const name = tDiv?.querySelector('input[name="goal_name"]')?.value?.trim() || '';
+      const target = parseFloat(tDiv?.querySelector('input[name="goal_target_amount"]')?.value || '') || null;
+      const date   = tDiv?.querySelector('input[name="goal_target_date"]')?.value || '';
+
+      const method = document.querySelector('input[name="contribution_method"]:checked')?.value || null;
+      const mDiv = document.querySelector('input[name="contribution_method"]:checked')?.closest('div');
+      const amount = parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value || '') || null;
+
+      const selected = [...document.querySelectorAll('input[name="category"]:checked')].map(i=>JSON.parse(i.value));
+      const inc = selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
+      const exp = selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
+
+      const revGoal = document.getElementById('rev-goal');
+      const revTarget = document.getElementById('rev-target');
+      const revMethod = document.getElementById('rev-method');
+      const revParam = document.getElementById('rev-param');
+      const revInc = document.getElementById('rev-inc');
+      const revExp = document.getElementById('rev-exp');
+
+      if(revGoal) revGoal.textContent = type || '—';
+      if(revTarget) revTarget.textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — ${date}`:'') || '—';
+      if(revMethod) revMethod.textContent = method || '—';
+      if(revParam) revParam.textContent = (amount!=null && !Number.isNaN(amount)) ? (method==='Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/mese`) : '—';
+      if(revInc) revInc.textContent = inc;
+      if(revExp) revExp.textContent = exp;
+    }
+
+    /* ---------- INIT PAGE ---------- */
     async function initializePage() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -355,6 +526,8 @@
             const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
 
             const isEditing = new URLSearchParams(location.search).get('edit') === '1';
+            if (isEditing) { editBadge.style.display = 'inline-block'; }
+
             if (profile && profile.onboarded && !isEditing) {
                 location.replace(itPrefix() + "dashboard.html");
                 return;
