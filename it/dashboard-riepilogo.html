@@ -107,6 +107,12 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
       width: 240px;
       max-width: 100%;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .summary-card-header h3:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
     }
     .summary-card-header p {
       margin: 8px 0 0;
@@ -249,6 +255,57 @@
       text-align: center; padding: 60px 20px; color: #777;
       grid-column: 1 / -1;
     }
+    
+    /* ====== MODAL ====== */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.is-visible {
+      opacity: 1; pointer-events: auto;
+    }
+    .modal-content {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.is-visible .modal-content {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px; margin-bottom: 16px;
+    }
+    .modal-title { margin: 0; font-size: 1.3rem; }
+    .modal-close {
+      background: none; border: none; font-size: 2rem; cursor: pointer;
+      color: #888; line-height: 1; padding: 0;
+    }
+    .modal-body ul { list-style: none; padding: 0; margin: 0; }
+    .modal-body li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .modal-body li:last-child { border-bottom: none; }
+    .transaction-info .category-name { font-weight: 600; }
+    .transaction-info .transaction-date { font-size: 0.85rem; color: #666; }
+    .transaction-amount { font-weight: 700; }
+    .transaction-amount.income { color: var(--success-color); }
+    .transaction-amount.expense { color: var(--danger-color); }
+
   </style>
 </head>
 <body>
@@ -285,6 +342,17 @@
 
   </main>
   
+  <!-- Modal per i dettagli -->
+  <div id="details-modal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h3 id="modal-title" class="modal-title"></h3>
+              <button id="modal-close-btn" class="modal-close">&times;</button>
+          </div>
+          <div id="modal-body" class="modal-body"></div>
+      </div>
+  </div>
+
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
@@ -337,10 +405,41 @@
         const allTimeTransactions = allPastTransactionsRes.data || [];
 
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions);
-        // MODIFICA: Passaggio del risparmio ideale (cumulativeIdealSaving) per coerenza
         renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving);
     }
     
+    function showDetailsModal(title, transactions, type) {
+        const modal = document.getElementById('details-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        if (!modal || !modalTitle || !modalBody) return;
+
+        modalTitle.textContent = title;
+        
+        if (transactions.length === 0) {
+            modalBody.innerHTML = '<p style="text-align:center;color:#777;">Nessuna operazione da mostrare per questo mese.</p>';
+        } else {
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
+            const listItems = sortedTransactions.map(tx => {
+                const amount = safeToNumber(tx.amount);
+                const categoryName = tx.categories?.name || 'Senza Categoria';
+                const date = new Date(tx.occurred_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
+                return `
+                    <li>
+                        <div class="transaction-info">
+                            <div class="category-name">${tx.description || categoryName}</div>
+                            <div class="transaction-date">${date}</div>
+                        </div>
+                        <div class="transaction-amount ${type}">${type === 'income' ? '+' : '-'}${amount.toFixed(2)}€</div>
+                    </li>
+                `;
+            }).join('');
+            modalBody.innerHTML = `<ul>${listItems}</ul>`;
+        }
+        modal.classList.add('is-visible');
+    }
+
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
         const incomes = transactions.filter(tx => tx.kind === 'income');
         const expenses = transactions.filter(tx => tx.kind === 'expense');
@@ -362,14 +461,14 @@
 
         summaryContent.innerHTML = `
             <div class="summary-card income-card">
-                 <div class="summary-card-header"><h3>ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="income">ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card expense-card">
-                 <div class="summary-card-header"><h3>USCITE</h3><p>(∑ Spese Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="expense">USCITE</h3><p>(∑ Spese Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
@@ -413,6 +512,10 @@
             </div>
         `;
         
+        // Add event listeners to new headers
+        summaryContent.querySelector('[data-type="income"]').addEventListener('click', () => showDetailsModal('Dettaglio Entrate', incomes, 'income'));
+        summaryContent.querySelector('[data-type="expense"]').addEventListener('click', () => showDetailsModal('Dettaglio Uscite', expenses, 'expense'));
+        
         const availableAmount = Math.max(0, totalIncome - totalExpense - monthlySavingGoal);
         const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
         const expensePercentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
@@ -427,7 +530,6 @@
         renderGoal(cumulativeIdealSaving, goalTargetAmount);
     }
 
-    // MODIFICA: La funzione ora accetta `cumulativeIdealSaving` e non calcola più il risparmio reale.
     function renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving) {
         deepDiveContent.style.display = 'grid';
 
@@ -461,7 +563,6 @@
             <div class="summary-card focus-panel" id="deep-dive-goal"></div>
         `;
         
-        // MODIFICA: La card obiettivo ora usa il risparmio ideale e un'etichetta coerente.
         const goalPanel = document.getElementById('deep-dive-goal');
         const goalBreakdown = { 'Risparmio Maturato': cumulativeIdealSaving };
         goalPanel.innerHTML = renderBreakdownList('PROGRESSO OBIETTIVO', goalBreakdown, goalTargetAmount, 'net');
@@ -475,8 +576,7 @@
                          'linear-gradient(90deg, #6c5ce7, #00cec9)';
 
         const listItems = sortedData.map(([label, value]) => {
-            // Per il budget, il totale di riferimento è l'entrata, non la somma algebrica
-            const referenceTotal = title === 'DETTAGLIO BUDGET' ? data['Entrate'] : total;
+            const referenceTotal = title === 'DETTAGLIO BUDGET' ? data['Entrate'] || total : total;
             const percentage = referenceTotal > 0 ? (Math.abs(value) / referenceTotal) * 100 : 0;
             return `
                 <div class="focus-list-item">
@@ -507,7 +607,7 @@
 
     // --- Inizializzazione pagina ---
     async function initializePage() {
-      // Gli event listener vengono attivati subito per garantire la reattività dell'interfaccia.
+      // Attiva subito gli event listener per l'interfaccia
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
       if(mobileMenuBtn && topActions) {
@@ -532,8 +632,18 @@
       }
 
       monthSelector.addEventListener('change', loadSummaryData);
+      
+      const modal = document.getElementById('details-modal');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+      if (modal && modalCloseBtn) {
+          const closeModal = () => modal.classList.remove('is-visible');
+          modalCloseBtn.addEventListener('click', closeModal);
+          modal.addEventListener('click', (e) => {
+              if (e.target === modal) closeModal();
+          });
+      }
 
-      // Gestione più sicura della sessione utente.
+      // Gestione sessione utente e caricamento dati
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error || !session){ 
