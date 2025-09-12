@@ -337,7 +337,8 @@
         const allTimeTransactions = allPastTransactionsRes.data || [];
 
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions);
-        renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, allTimeTransactions);
+        // MODIFICA: Passaggio del risparmio ideale (cumulativeIdealSaving) per coerenza
+        renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving);
     }
     
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
@@ -346,12 +347,6 @@
 
         const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
         const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        
-        const cumulativeActualSaving = allTimeTransactions.reduce((acc, tx) => {
-             const amount = safeToNumber(tx.amount);
-             return tx.kind === 'income' ? acc + amount : acc - amount;
-        }, 0);
-        const remainingAmount = goalTargetAmount - cumulativeIdealSaving;
         
         const incomeByCategory = incomes.reduce((acc, tx) => {
             const catName = tx.categories?.name || 'Senza Categoria';
@@ -432,7 +427,8 @@
         renderGoal(cumulativeIdealSaving, goalTargetAmount);
     }
 
-    function renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, allTimeTransactions) {
+    // MODIFICA: La funzione ora accetta `cumulativeIdealSaving` e non calcola più il risparmio reale.
+    function renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving) {
         deepDiveContent.style.display = 'grid';
 
         const incomes = transactions.filter(tx => tx.kind === 'income');
@@ -458,8 +454,6 @@
             'Risparmio': -monthlySavingGoal,
         };
 
-        const cumulativeActualSaving = allTimeTransactions.reduce((acc, tx) => acc + (tx.kind === 'income' ? safeToNumber(tx.amount) : -safeToNumber(tx.amount)), 0);
-
         deepDiveContent.innerHTML = `
             <div class="summary-card focus-panel">${renderBreakdownList('CLASSIFICA ENTRATE', incomeByCategory, totalIncome, 'income')}</div>
             <div class="summary-card focus-panel">${renderBreakdownList('CLASSIFICA USCITE', expenseByCategory, totalExpense, 'expense')}</div>
@@ -467,9 +461,9 @@
             <div class="summary-card focus-panel" id="deep-dive-goal"></div>
         `;
         
-        // La card obiettivo è speciale
+        // MODIFICA: La card obiettivo ora usa il risparmio ideale e un'etichetta coerente.
         const goalPanel = document.getElementById('deep-dive-goal');
-        const goalBreakdown = { 'Risparmio Accumulato': cumulativeActualSaving };
+        const goalBreakdown = { 'Risparmio Maturato': cumulativeIdealSaving };
         goalPanel.innerHTML = renderBreakdownList('PROGRESSO OBIETTIVO', goalBreakdown, goalTargetAmount, 'net');
     }
     
@@ -481,7 +475,9 @@
                          'linear-gradient(90deg, #6c5ce7, #00cec9)';
 
         const listItems = sortedData.map(([label, value]) => {
-            const percentage = total > 0 ? (Math.abs(value) / total) * 100 : 0;
+            // Per il budget, il totale di riferimento è l'entrata, non la somma algebrica
+            const referenceTotal = title === 'DETTAGLIO BUDGET' ? data['Entrate'] : total;
+            const percentage = referenceTotal > 0 ? (Math.abs(value) / referenceTotal) * 100 : 0;
             return `
                 <div class="focus-list-item">
                     <div class="focus-item-info">
@@ -511,7 +507,7 @@
 
     // --- Inizializzazione pagina ---
     async function initializePage() {
-      // CORREZIONE: Gli event listener vengono attivati subito per garantire la reattività dell'interfaccia.
+      // Gli event listener vengono attivati subito per garantire la reattività dell'interfaccia.
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
       if(mobileMenuBtn && topActions) {
@@ -537,7 +533,7 @@
 
       monthSelector.addEventListener('change', loadSummaryData);
 
-      // CORREZIONE: Gestione più sicura della sessione utente.
+      // Gestione più sicura della sessione utente.
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error || !session){ 
