@@ -66,6 +66,15 @@
 
     /* ====== Opzioni ====== */
     .options-grid{display:grid;gap:12px}
+    
+    /* MODIFICA: Griglia a 2 colonne per le categorie su schermi grandi */
+    @media(min-width: 768px) {
+      #income-category-options, #expense-category-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px 16px; /* 12px vertical, 16px horizontal */
+      }
+    }
+
     .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,.9);transition:.18s ease;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .option-label:hover{background:#fff;transform:translateY(-1px)}
     input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
@@ -112,6 +121,7 @@
   </style>
 </head>
 <body>
+  <!-- Topbar uguale alla Dashboard -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
@@ -137,8 +147,9 @@
         <div id="step-indicator" class="step-indicator"></div>
       </div>
 
+      <!-- STEP 1 -->
       <section id="step-1" class="step" data-step="1">
-        <h1 class="step-title">Qual è il tuo obiettivo principale?</h1>
+        <h2 class="step-title">Qual è il tuo obiettivo principale?</h2>
         <p class="step-description">Scegliere un obiettivo ci aiuta a personalizzare la tua esperienza e a tracciare i tuoi progressi.</p>
         <fieldset class="options-grid">
           <div>
@@ -170,8 +181,9 @@
         </fieldset>
       </section>
 
+      <!-- STEP 2 -->
       <section id="step-2" class="step" data-step="2">
-        <h1 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h1>
+        <h2 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h2>
         <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
         <fieldset class="options-grid">
           <div>
@@ -192,10 +204,12 @@
         </fieldset>
       </section>
 
+      <!-- STEP 3 -->
       <section id="step-3" class="step" data-step="3">
-        <h1 class="step-title">Scegli le tue categorie</h1>
+        <h2 class="step-title">Scegli le tue categorie</h2>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
 
+        <!-- Toolbar: contatori + ricerca + preset (una riga, bottoni gradiente) -->
         <div id="cats-toolbar">
           <div class="cats-counts">
             <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
@@ -222,6 +236,7 @@
           </div>
         </fieldset>
 
+        <!-- Riepilogo -->
         <div id="review-card" class="panel-header" style="margin-top:12px;">
           <div style="font-weight:800;margin-bottom:8px;">Riepilogo</div>
           <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:.95rem;">
