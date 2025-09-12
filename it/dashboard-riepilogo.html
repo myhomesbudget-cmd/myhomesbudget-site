@@ -204,59 +204,17 @@
     .segment.is-active:nth-child(9), .segment.is-active:nth-child(10) { background: #00cec9; }
 
     /* ====== Pannelli di Focalizzazione (Deep Dive) ====== */
-    .focus-panel {
-        padding: 16px;
-    }
-    .focus-panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        border-bottom: 1px solid rgba(0,0,0,0.1);
-        padding-bottom: 8px;
-    }
-    .focus-panel-header h4 {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 700;
-        color: #333;
-    }
-    .focus-panel-header .total-value {
-        font-size: 1.1rem;
-        font-weight: 800;
-    }
-    .focus-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    .focus-list-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    .focus-item-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.9rem;
-    }
-    .focus-item-label {
-        font-weight: 600;
-    }
-    .focus-item-amount {
-        font-weight: 700;
-    }
-    .progress-bar-bg {
-        width: 100%; height: 6px;
-        background: rgba(0,0,0,0.1);
-        border-radius: 3px;
-    }
-    .progress-bar-fg {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 0.5s ease;
-    }
+    .focus-panel { padding: 16px; }
+    .focus-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 8px; }
+    .focus-panel-header h4 { margin: 0; font-size: 1rem; font-weight: 700; color: #333; }
+    .focus-panel-header .total-value { font-size: 1.1rem; font-weight: 800; }
+    .focus-list { display: flex; flex-direction: column; gap: 12px; }
+    .focus-list-item { display: flex; flex-direction: column; gap: 5px; }
+    .focus-item-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+    .focus-item-label { font-weight: 600; }
+    .focus-item-amount { font-weight: 700; }
+    .focus-progress-bar-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; }
+    .focus-progress-bar-fg { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
     .empty-state {
       text-align: center; padding: 60px 20px; color: #777;
@@ -417,7 +375,7 @@
         modalTitle.textContent = title;
         
         if (transactions.length === 0) {
-            modalBody.innerHTML = '<p style="text-align:center;color:#777;">Nessuna operazione da mostrare per questo mese.</p>';
+            modalBody.innerHTML = '<div class="empty-state"><p>Nessuna operazione da mostrare per questo mese.</p></div>';
         } else {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
             const listItems = sortedTransactions.map(tx => {
