@@ -286,7 +286,8 @@
   <main class="container">
     <nav id="dash-nav" class="dash-nav">
       <a href="/it/dashboard.html">Operazioni</a>
-      <a href="/it/dashboard-riepilogo.html" class="is-active" aria-current="page">Riepilogo</a>
+      <a href="#" id="monthly-summary-btn" class="is-active">AGGIORNA</a>
+      <a href="#" id="annual-summary-btn">RESUME ANNUAL</a>
     </nav>
 
     <div id="summary-content" class="summary-grid">
@@ -323,9 +324,12 @@
     const detailsModal = document.getElementById('details-modal');
     const logoutBtn = document.getElementById('logout-btn');
     const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+    const monthlySummaryBtn = document.getElementById('monthly-summary-btn');
+    const annualSummaryBtn = document.getElementById('annual-summary-btn');
 
     let user = null;
     let chartInstances = {};
+    let currentView = 'monthly';
 
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
 
@@ -337,8 +341,17 @@
 
         const selectedMonth = monthSelector.value;
         const selectedYear = yearSelector.value;
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+        let startDate, endDate;
+
+        if (currentView === 'annual') {
+            startDate = new Date(selectedYear, 0, 1);
+            endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
+            monthSelector.disabled = true;
+        } else {
+            startDate = new Date(selectedYear, selectedMonth, 1);
+            endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+            monthSelector.disabled = false;
+        }
         
         const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()).eq('is_paid', true),
@@ -348,8 +361,8 @@
             supabase.from('transactions').select('kind, amount, occurred_at').eq('created_by', user.id).lte('occurred_at', new Date().toISOString())
         ]);
         
-        monthSelector.disabled = false;
         yearSelector.disabled = false;
+        if(currentView === 'monthly') monthSelector.disabled = false;
         
         const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error].filter(Boolean);
         if (errors.length > 0) {
@@ -366,7 +379,8 @@
         let cumulativeIdealSaving = 0;
         if (firstTransactionRes.data) {
             const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
-            const monthsElapsed = (startDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (startDate.getMonth() - firstTransactionDate.getMonth());
+            const refDate = currentView === 'annual' ? endDate : startDate;
+            const monthsElapsed = (refDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (refDate.getMonth() - firstTransactionDate.getMonth());
             cumulativeIdealSaving = monthlySavingGoal * (monthsElapsed + 1);
         }
 
@@ -384,7 +398,7 @@
         modalTitle.textContent = title;
         
         if (transactions.length === 0) {
-            modalBody.innerHTML = '<div class="empty-state"><p>Nessuna operazione da mostrare per questo mese.</p></div>';
+            modalBody.innerHTML = '<div class="empty-state"><p>Nessuna operazione da mostrare per questo periodo.</p></div>';
         } else {
             const sortedTransactions = transactions.sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
             const listItems = sortedTransactions.map(tx => {
@@ -427,14 +441,14 @@
 
         summaryContent.innerHTML = `
             <div class="summary-card income-card">
-                 <div class="summary-card-header"><h3 data-type="income">ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="income">ENTRATE</h3><p>(∑ Entrate)</p></div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card expense-card">
-                 <div class="summary-card-header"><h3 data-type="expense">USCITE</h3><p>(∑ Spese Mensili)</p></div>
+                 <div class="summary-card-header"><h3 data-type="expense">USCITE</h3><p>(∑ Spese)</p></div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
@@ -447,7 +461,7 @@
                   <div class="footer-breakdown">
                       <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
                       <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
-                      <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${monthlySavingGoal.toFixed(2)}€</span></div>
+                      <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${(currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal).toFixed(2)}€</span></div>
                   </div>
               </div>
             </div>
@@ -482,7 +496,8 @@
         summaryContent.querySelector('[data-type="income"]').addEventListener('click', () => showDetailsModal('Dettaglio Entrate', incomes, 'income'));
         summaryContent.querySelector('[data-type="expense"]').addEventListener('click', () => showDetailsModal('Dettaglio Uscite', expenses, 'expense'));
         
-        const availableAmount = Math.max(0, totalIncome - totalExpense - monthlySavingGoal);
+        const budgetSavingGoal = currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal;
+        const availableAmount = Math.max(0, totalIncome - totalExpense - budgetSavingGoal);
         const availablePercentage = totalIncome > 0 ? (availableAmount / totalIncome) * 100 : 0;
         const expensePercentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
         
@@ -490,7 +505,7 @@
         const incomeCenterText = { amount: `${totalIncome.toFixed(2)}€`, percentage: `TOTALE ENTRATE` };
         const expenseCenterText = { amount: `${totalExpense.toFixed(2)}€`, percentage: `${expensePercentage.toFixed(0)}% SULLE ENTRATE` };
 
-        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': monthlySavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
+        renderDoughnutChart('budgetChart', { 'Spese': totalExpense, 'Risparmio Obiettivo': budgetSavingGoal, 'Disponibile': availableAmount }, [], budgetCenterText, false);
         renderDoughnutChart('incomeChart', incomeByCategory, ['#2e7d32', '#4caf50', '#81c784', '#a5d6a7'], incomeCenterText, true);
         renderDoughnutChart('expenseChart', expenseByCategory, ['#d32f2f', '#f44336', '#e57373', '#ffcdd2'], expenseCenterText, true);
         renderGoal(cumulativeIdealSaving, goalTargetAmount);
@@ -519,7 +534,7 @@
         const budgetBreakdown = {
             'Entrate': totalIncome,
             'Spese': -totalExpense,
-            'Risparmio': -monthlySavingGoal,
+            'Risparmio': -(currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal),
         };
 
         deepDiveContent.innerHTML = `
@@ -730,6 +745,26 @@
       monthSelector.addEventListener('change', loadSummaryData);
       yearSelector.addEventListener('change', loadSummaryData);
 
+      monthlySummaryBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (currentView === 'monthly') return;
+          currentView = 'monthly';
+          monthlySummaryBtn.classList.add('is-active');
+          annualSummaryBtn.classList.remove('is-active');
+          monthSelector.disabled = false;
+          loadSummaryData();
+      });
+
+      annualSummaryBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (currentView === 'annual') return;
+          currentView = 'annual';
+          annualSummaryBtn.classList.add('is-active');
+          monthlySummaryBtn.classList.remove('is-active');
+          monthSelector.disabled = true;
+          loadSummaryData();
+      });
+
       const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
 
       schedulerBtn.addEventListener('click', async () => {
@@ -778,7 +813,7 @@
           console.error("Errore nel caricare il profilo utente:", profileError);
         } else if (profile) {
             renderSubscriptionStatus(profile);
-            positionSubscriptionButton(); // Posiziona il pulsante dopo averlo creato
+            positionSubscriptionButton();
         }
         
         // Populate date selectors
