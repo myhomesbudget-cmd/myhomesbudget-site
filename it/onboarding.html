@@ -1,369 +1,633 @@
 <!doctype html>
-<html lang="it" data-app="myhomesbudget">
+<html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Configurazione Iniziale — MyHomesBudget</title>
-  <meta name="description" content="Configura il tuo profilo in pochi passi per iniziare a gestire il tuo bilancio familiare.">
+  <title>Configurazione iniziale — Onboarding</title>
+  <meta name="description" content="Imposta obiettivi, metodo e categorie per iniziare con il piede giusto.">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" href="/favicon.ico">
+  <meta name="color-scheme" content="light dark">
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- CSP identica alla tua baseline; aggiungi solo ciò che già usi -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://esm.sh;
+                 connect-src 'self' https://*.supabase.co;
+                 base-uri 'self';
+                 form-action 'self'">
+
   <style>
-    :root{--fg:#111;--glass:rgba(255,255,255,.58);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.10);--radius-lg:16px;--primary-color:#6c5ce7;}
-    *{box-sizing:border-box}
-    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-    body{margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
-    .topbar{position:fixed;top:16px;left:50%;transform:translateX(-50%);width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;display:flex;align-items:center;justify-content:space-between;}
-    .logo-link,.top-actions{pointer-events:auto}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px;border-radius:6px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .logout-link{color:#fff;text-decoration:none;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.25);}
-    .logout-link:hover{background:rgba(0,0,0,.38)}
-    main.panel{margin-top:84px;width:min(920px,calc(100% - 40px));background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);padding:clamp(18px,4vw,22px); box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px;}
-    .panel-header{background:rgba(255,255,255,.55);border-radius:12px;padding:14px;border:1px solid var(--card-border)}
-    .progress-bar{width:100%;height:8px;background:rgba(0,0,0,.1);border-radius:4px;overflow:hidden}
-    .progress-bar-inner{width:0%;height:100%;background:var(--primary-color);transition:width .4s ease}
-    .step-indicator{font-size:.9rem;font-weight:600;color:#555;margin-top:8px;text-align:right}
-    .step{display:none}
-    .step.is-active{display:block;animation:fadeIn .45s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    .step-title{text-align:center;margin:6px 0 8px;font-size:clamp(1.5rem,4vw,1.8rem);color:#111}
-    .step-description{text-align:center;color:#333;margin:0 auto 16px;max-width:520px}
-    .options-grid{display:grid;gap:12px}
-    .category-columns {display: grid; gap: 24px;}
-    @media(min-width: 768px) { .category-columns {grid-template-columns: 1fr 1fr;} }
-    .column h3 { text-align: center; margin-top: 0; color: #333; }
-    .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:10px;background:rgba(255,255,255,.6);transition:.18s ease;cursor:pointer}
-    .option-label:hover{background:#fff}
-    input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
-    input[type="radio"]:checked + .option-label,
-    input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
-    .option-label strong{display:block;font-size:1.05rem}
-    .option-label span{font-size:.92rem;color:#444}
-    .option-details { display: none; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px 14px 0; }
-    input[type="radio"]:checked ~ .option-details { display: grid; }
-    .input-field { width: 100%; border: 1px solid #ccc; background: #fff; padding: 10px; border-radius: 8px; font-size: 1rem; }
-    .input-field::placeholder { color: #999; }
-    .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:8px;padding:8px 10px;font-weight:600;text-align:center;display:none}
-    .error-message.show{display:block}
-    .panel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800}
-    .btn-primary{background:var(--primary-color);color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14)}
-    .btn[disabled]{opacity:.6;cursor:not-allowed}
-    .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
+    :root{
+      /* Palette coerente con la tua app: neutri soft + accenti */
+      --bg: rgba(255,255,255,0.6);
+      --bg-dark: rgba(20,20,25,0.5);
+      --glass: rgba(255,255,255,0.32);
+      --glass-dark: rgba(30,30,40,0.38);
+      --border: rgba(0,0,0,0.08);
+      --border-dark: rgba(255,255,255,0.08);
+      --txt: #111;
+      --txt-dim: #555;
+      --txt-inv: #fff;
+      --brand: #5b8cff;     /* accento “calmo” */
+      --brand-2: #7dd3fc;   /* accento secondario */
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 16px;
+      --radius-lg: 20px;
+      --shadow: 0 8px 30px rgba(0,0,0,0.10);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --bg: var(--bg-dark);
+        --glass: var(--glass-dark);
+        --border: var(--border-dark);
+        --txt: #f5f7fb;
+        --txt-dim: #cfd3dc;
+      }
+    }
+
+    /* Full-width glass topbar, come richiesto nel tuo layout */
+    .topbar{
+      position: sticky; top: 0; z-index: 50;
+      display:flex; align-items:center; gap:16px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: var(--glass);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+    .topbar .left { flex: 1; display:flex; align-items:center; gap:12px; }
+    .topbar .center { flex: 1; display:flex; justify-content:center; }
+    .topbar .right { flex: 1; display:flex; justify-content:flex-end; gap:8px; }
+    .badge{
+      padding: 4px 10px; border-radius: 999px;
+      font-size:12px; border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.25));
+    }
+
+    .page{
+      max-width: 980px; margin: 24px auto; padding: 0 16px 56px;
+    }
+
+    /* Stepper */
+    .stepper{
+      display:flex; align-items:center; gap:12px; margin: 18px 0 24px;
+    }
+    .step{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 14px; border-radius: 999px;
+      border:1px solid var(--border);
+      background: var(--glass);
+      transition:.25s ease;
+    }
+    .step[data-active="true"]{
+      border-color: var(--brand);
+      box-shadow: inset 0 0 0 1px rgba(91,140,255,.2);
+    }
+    .step .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: var(--border);
+    }
+    .step[data-active="true"] .dot{ background: var(--brand); }
+
+    /* Cards selezionabili */
+    .grid{ display:grid; gap:14px; }
+    @media(min-width: 860px){ .grid.cols-3{ grid-template-columns: repeat(3, 1fr);} .grid.cols-2{ grid-template-columns: repeat(2, 1fr);} }
+
+    .card{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.25));
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{ transform: translateY(-1px); }
+    .card[data-selected="true"]{
+      border-color: var(--brand);
+      box-shadow: 0 6px 20px rgba(91,140,255,.15);
+    }
+    .card h3{ margin: 0 0 6px; font-size: 16px; }
+    .card p{ margin: 0; font-size: 13px; color: var(--txt-dim); }
+
+    .section{ margin: 18px 0 8px; font-weight:600; }
+    .row{ display:grid; gap:12px; }
+    @media(min-width:700px){ .row.cols-3{ grid-template-columns: repeat(3, 1fr);} .row.cols-2{ grid-template-columns: repeat(2, 1fr);} }
+
+    input[type="text"], input[type="number"], input[type="date"]{
+      width:100%; padding:12px 12px; border-radius: 12px;
+      border:1px solid var(--border); background: rgba(255,255,255,.5);
+      color: var(--txt);
+    }
+    .hint{ font-size:12px; color: var(--txt-dim); margin-top:6px;}
+
+    /* Chips categorie */
+    .chips{ display:flex; flex-wrap: wrap; gap:8px; }
+    .chip{
+      padding:8px 12px; border:1px solid var(--border);
+      border-radius: 999px; cursor:pointer; font-size:13px;
+      background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,.2));
+    }
+    .chip[data-selected="true"]{
+      border-color: var(--brand);
+      box-shadow: inset 0 0 0 1px rgba(91,140,255,.18);
+    }
+
+    /* Nav bottom */
+    .nav{
+      display:flex; justify-content:space-between; gap:12px; margin-top: 22px;
+    }
+    .btn{
+      appearance:none; border:1px solid var(--border); border-radius: 12px;
+      padding:12px 16px; background: var(--glass); cursor:pointer;
+      transition:.2s ease; font-weight:600;
+    }
+    .btn.primary{
+      border-color: transparent;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      color: var(--txt-inv);
+    }
+    .btn:disabled{ opacity:.6; cursor: not-allowed; }
+
+    /* Review */
+    .review{
+      border:1px solid var(--border); border-radius: var(--radius-lg);
+      padding:16px; background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.3));
+    }
+    .kv{ display:grid; grid-template-columns: 220px 1fr; gap:8px; font-size:14px; }
+    .kv b{ color: var(--txt); }
+    .spacer{ height:12px; }
+
+    /* Toast */
+    .toast{
+      position: fixed; left:50%; bottom:20px; transform: translateX(-50%);
+      background:#111; color:#fff; padding:10px 14px; border-radius:12px; opacity:0; pointer-events:none;
+      transition:.25s ease; z-index:9999;
+    }
+    .toast[data-show="true"]{ opacity:1; transform: translateX(-50%) translateY(-4px); }
   </style>
 </head>
 <body>
-  <nav class="topbar">
-    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" class="logo-image"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-actions"><a href="#" id="logout-btn" class="logout-link">Esci</a></div>
-  </nav>
+  <!-- Topbar glass -->
+  <header class="topbar">
+    <div class="left">
+      <div class="badge">Onboarding</div>
+      <div id="editBadge" class="badge" style="display:none;">Modifica</div>
+    </div>
+    <div class="center">
+      <div class="badge">Step <span id="stepNow">1</span>/3</div>
+    </div>
+    <div class="right">
+      <!-- Azioni standard: es. lingue / esci se le usi globali -->
+      <a class="badge" href="/it/index.html">Home</a>
+    </div>
+  </header>
 
-  <main class="panel">
-    <div class="panel-header"><div class="progress-bar" role="progressbar"><div class="progress-bar-inner"></div></div><div id="step-indicator" class="step-indicator"></div></div>
-    
-    <section id="step-1" class="step" data-step="1">
-      <h1 class="step-title">Qual è il tuo obiettivo principale?</h1>
-      <p class="step-description">Scegliere un obiettivo ci aiuta a personalizzare la tua esperienza e a tracciare i tuoi progressi.</p>
-      <fieldset class="options-grid">
-        <div>
-          <input type="radio" id="goal-saving" name="goal_type" value="Risparmio">
-          <label for="goal-saving" class="option-label"><strong>💰 Risparmio generico</strong><span>Accantona una somma specifica ogni mese.</span></label>
-          <div class="option-details">
-            <input type="text" class="input-field" name="goal_name" value="Risparmio ANNUALE" readonly>
-            <input type="number" class="input-field" name="goal_target_amount" placeholder="5.000,00" step="100">
+  <main class="page">
+    <h1 style="margin:0 0 6px;">Configura i tuoi obiettivi</h1>
+    <p class="hint" style="margin:0 0 10px;">Un flusso rapido in tre passi. Tutto modificabile in seguito.</p>
+
+    <!-- Stepper -->
+    <div class="stepper" aria-hidden="true">
+      <div class="step" data-step="1" data-active="true"><div class="dot"></div> Obiettivo</div>
+      <div class="step" data-step="2"><div class="dot"></div> Metodo</div>
+      <div class="step" data-step="3"><div class="dot"></div> Categorie</div>
+    </div>
+
+    <!-- STEP 1: Obiettivo -->
+    <section id="step1">
+      <div class="section">Scegli il tipo di obiettivo</div>
+      <div class="grid cols-3" data-group="goal_type">
+        <div class="card" data-value="generic_savings">
+          <h3>Risparmio generico</h3>
+          <p>Mettere da parte ogni mese, senza una destinazione fissa.</p>
+        </div>
+        <div class="card" data-value="debt_reduction">
+          <h3>Riduzione debiti</h3>
+          <p>Strategie “valanga” o “palla di neve” per liberarli in ordine.</p>
+        </div>
+        <div class="card" data-value="specific_goal">
+          <h3>Obiettivo specifico</h3>
+          <p>Vacanza, auto, fondo emergenze… con target & scadenza.</p>
+        </div>
+      </div>
+
+      <div id="goal_specific_fields" style="display:none; margin-top:16px;">
+        <div class="row cols-3">
+          <div>
+            <label class="section">Nome obiettivo</label>
+            <input id="goal_name" type="text" placeholder="Es. Vacanza Zanzibar">
+          </div>
+          <div>
+            <label class="section">Target (€)</label>
+            <input id="target_amount" type="number" min="0" step="0.01" placeholder="Es. 2500">
+            <div class="hint">Serve per calcolare la quota mensile consigliata.</div>
+          </div>
+          <div>
+            <label class="section">Data target</label>
+            <input id="target_date" type="date">
           </div>
         </div>
-        <div>
-          <input type="radio" id="goal-debts" name="goal_type" value="Riduzione Debiti">
-          <label for="goal-debts" class="option-label"><strong>📉 Riduzione debiti</strong><span>Monitora e riduci i tuoi debiti in modo efficace.</span></label>
-          <div class="option-details">
-            <input type="text" class="input-field" name="goal_name" placeholder="Es: Estinzione mutuo">
-            <input type="number" class="input-field" name="goal_target_amount" placeholder="70.000,00" step="1000">
-          </div>
-        </div>
-        <div>
-          <input type="radio" id="goal-objective" name="goal_type" value="Obiettivo Specifico">
-          <label for="goal-objective" class="option-label"><strong>🎯 Raggiungi un obiettivo</strong><span>Viaggi, acquisti importanti, progetti personali.</span></label>
-          <div class="option-details">
-            <input type="text" class="input-field" name="goal_name" placeholder="Es: Vacanza a New York">
-            <input type="number" class="input-field" name="goal_target_amount" placeholder="1.500,00" step="50">
-          </div>
-        </div>
-      </fieldset>
-    </section>
-    
-    <section id="step-2" class="step" data-step="2">
-      <h1 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h1>
-      <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
-      <fieldset class="options-grid">
-         <div>
-            <input type="radio" id="method-fixed" name="contribution_method" value="Cifra fissa">
-            <label for="method-fixed" class="option-label"><strong>🗓️ Cifra fissa mensile</strong><span>Destina un importo prestabilito ogni mese.</span></label>
-            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
-         </div>
-         <div>
-            <input type="radio" id="method-variable" name="contribution_method" value="Importo variabile">
-            <label for="method-variable" class="option-label"><strong>🎛️ Importo variabile</strong><span>Decidi quanto accantonare in base alle tue spese.</span></label>
-            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
-         </div>
-         <div>
-            <input type="radio" id="method-percentage" name="contribution_method" value="Percentuale sulle entrate">
-            <label for="method-percentage" class="option-label"><strong>📊 Percentuale sulle entrate</strong><span>Imposta una percentuale fissa del tuo reddito.</span></label>
-            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="1"></div>
-         </div>
-      </fieldset>
+        <div class="hint" id="suggest_box" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="nav">
+        <button class="btn" disabled>Indietro</button>
+        <button id="to2" class="btn primary">Continua</button>
+      </div>
     </section>
 
-    <section id="step-3" class="step" data-step="3">
-        <h1 class="step-title">Scegli le tue categorie</h1>
-        <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
-        <fieldset><div class="category-columns"><div class="column"><h3>Entrate</h3><div id="income-category-options" class="options-grid"></div></div><div class="column"><h3>Uscite</h3><div id="expense-category-options" class="options-grid"></div></div></div></fieldset>
+    <!-- STEP 2: Metodo -->
+    <section id="step2" style="display:none;">
+      <div class="section">Come vuoi accantonare?</div>
+      <div class="grid cols-3" data-group="method">
+        <div class="card" data-value="fixed_amount">
+          <h3>Importo fisso</h3>
+          <p>La stessa cifra ogni mese. Disciplina pura.</p>
+        </div>
+        <div class="card" data-value="income_percent">
+          <h3>% sulle entrate</h3>
+          <p>Es. 20% di ciò che guadagni. Adatta e flessibile.</p>
+        </div>
+        <div class="card" data-value="variable_amount">
+          <h3>Importo variabile</h3>
+          <p>Decidi mese per mese quanto mettere da parte.</p>
+        </div>
+      </div>
+
+      <div id="method_fields" style="margin-top:16px;">
+        <div class="row cols-3" id="fixed_wrap" style="display:none;">
+          <div>
+            <label class="section">Importo mensile (€)</label>
+            <input id="monthly_amount" type="number" min="0" step="0.01" placeholder="Es. 200">
+          </div>
+        </div>
+        <div class="row cols-3" id="percent_wrap" style="display:none;">
+          <div>
+            <label class="section">Percentuale %</label>
+            <input id="income_percent" type="number" min="1" max="60" step="1" placeholder="Es. 20">
+            <div class="hint">Suggerimento: 20% è un buon inizio.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button id="back1" class="btn">Indietro</button>
+        <button id="to3" class="btn primary">Continua</button>
+      </div>
     </section>
-    
-    <div id="error" class="error-message"></div>
-    <div class="panel-footer"><button id="back-btn" class="btn btn-secondary">Indietro</button><button id="next-btn" class="btn btn-primary">Avanti</button></div>
+
+    <!-- STEP 3: Categorie -->
+    <section id="step3" style="display:none;">
+      <div class="row cols-2">
+        <div>
+          <div class="section">Entrate</div>
+          <div class="chips" data-kind="income">
+            <div class="chip" data-code="stipendio">Stipendio</div>
+            <div class="chip" data-code="bonus">Bonus</div>
+            <div class="chip" data-code="freelance">Freelance</div>
+            <div class="chip" data-code="rendite">Rendite</div>
+          </div>
+        </div>
+        <div>
+          <div class="section">Uscite</div>
+          <div class="chips" data-kind="expense">
+            <div class="chip" data-code="affitto">Affitto/Mutuo</div>
+            <div class="chip" data-code="spesa_alimentare">Spesa</div>
+            <div class="chip" data-code="utenze">Utenze</div>
+            <div class="chip" data-code="trasporti">Trasporti</div>
+            <div class="chip" data-code="svago">Svago</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+      <div class="review" id="review" aria-live="polite">
+        <div class="section" style="margin:0;">Riepilogo</div>
+        <div class="kv">
+          <div><b>Tipo obiettivo</b></div><div id="kv_goal_type">—</div>
+          <div><b>Nome/Target</b></div><div id="kv_goal_meta">—</div>
+          <div><b>Metodo</b></div><div id="kv_method">—</div>
+          <div><b>Parametri</b></div><div id="kv_method_meta">—</div>
+          <div><b>Categorie entrata</b></div><div id="kv_inc">—</div>
+          <div><b>Categorie uscita</b></div><div id="kv_exp">—</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button id="back2" class="btn">Indietro</button>
+        <button id="confirmBtn" class="btn primary">Conferma e salva</button>
+      </div>
+    </section>
   </main>
-  
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Salvato</div>
+
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(window.__SUPABASE_URL__, window.__SUPABASE_ANON__);
 
-    const TOTAL_STEPS = 3;
+    // ---------- Vibe helpers ----------
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
     const state = {
-        goal_type: null, goal_name: null, goal_target_amount: null,
-        contribution_method: null, contribution_amount: null,
-        categories: []
+      step: 1,
+      goal_type: null,
+      goal_name: '',
+      target_amount: null,
+      target_date: null,
+      method: null,
+      monthly_amount: null,
+      income_percent: null,
+      income: new Set(),
+      expense: new Set()
     };
-    let currentStep = 1;
 
-    const backBtn = document.getElementById('back-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const progressBarInner = document.querySelector('.progress-bar-inner');
-    const stepIndicator = document.getElementById('step-indicator');
-    const errorBox = document.getElementById('error');
-    const steps = document.querySelectorAll('.step');
+    const isEdit = new URLSearchParams(location.search).get('edit') === '1';
 
-    const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
-    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
-
-    function renderStep(n) {
-        steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step, 10) === n));
-        const progress = n > 1 ? ((n - 1) / (TOTAL_STEPS - 1)) * 100 : 0;
-        progressBarInner.style.width = progress + '%';
-        (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
-        stepIndicator.textContent = `Passo ${n} di ${TOTAL_STEPS}`;
-        backBtn.style.visibility = (n > 1) ? 'visible' : 'hidden';
-        nextBtn.textContent = (n === TOTAL_STEPS) ? 'Fine' : 'Avanti';
-        showError('');
+    function toast(msg){
+      const el = $('#toast'); el.textContent = msg; el.dataset.show = "true";
+      setTimeout(()=> el.dataset.show = "false", 1800);
+    }
+    function setStep(n){
+      state.step = n;
+      $('#stepNow').textContent = n;
+      // toggle sections
+      ['#step1','#step2','#step3'].forEach((sel, i)=>{
+        $(sel).style.display = (i+1===n)?'block':'none';
+      });
+      // stepper dots
+      $$('.stepper .step').forEach(st => {
+        st.dataset.active = (Number(st.dataset.step) === n) ? "true": "false";
+      });
+      // badge edit
+      if(isEdit) $('#editBadge').style.display = 'inline-flex';
+      // aggiorna review (quando visibile)
+      if(n === 3) renderReview();
     }
 
-    function populateCategoriesFromDB(defaultCategories) {
-        const incomeContainer = document.getElementById('income-category-options');
-        const expenseContainer = document.getElementById('expense-category-options');
-        if (incomeContainer.childElementCount > 0) return;
-        
-        defaultCategories.forEach((cat, i) => {
-            const id = 'cat-' + i;
-            const w = document.createElement('div');
-            w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'><label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
-            if (cat.kind === 'income') {
-                incomeContainer.appendChild(w);
-            } else {
-                expenseContainer.appendChild(w);
-            }
+    // ---------- Selectable Cards ----------
+    function bindCards(){
+      // goal_type
+      $$('.grid[data-group="goal_type"] .card').forEach(card=>{
+        card.addEventListener('click', ()=>{
+          $$('.grid[data-group="goal_type"] .card').forEach(c=>c.dataset.selected="false");
+          card.dataset.selected = "true";
+          state.goal_type = card.dataset.value;
+          $('#goal_specific_fields').style.display = (state.goal_type === 'specific_goal')?'block':'none';
+          computeSuggestion();
         });
-    }
-
-    function preselectFormData(goal, budget, userCategories) {
-        if (goal) {
-            const typeRadio = document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
-            if (typeRadio) {
-                typeRadio.checked = true;
-                const parentDiv = typeRadio.closest('div');
-                if(parentDiv){
-                    parentDiv.querySelector('input[name="goal_name"]').value = goal.name;
-                    parentDiv.querySelector('input[name="goal_target_amount"]').value = goal.target_amount;
-                }
-            }
-        }
-        if (budget) {
-            const methodRadio = document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`); // Semplificato
-            if (methodRadio) {
-                methodRadio.checked = true;
-                const parentDiv = methodRadio.closest('div');
-                if(parentDiv){
-                   parentDiv.querySelector('input[name="contribution_amount"]').value = budget.amount;
-                }
-            }
-        }
-        
-        const selectedNames = userCategories.map(c => c.name);
-        document.querySelectorAll('input[name="category"]').forEach(checkbox => {
-            try {
-                const catObj = JSON.parse(checkbox.value);
-                if (selectedNames.includes(catObj.name)) {
-                    checkbox.checked = true;
-                }
-            } catch(e) {}
+      });
+      // method
+      $$('.grid[data-group="method"] .card').forEach(card=>{
+        card.addEventListener('click', ()=>{
+          $$('.grid[data-group="method"] .card').forEach(c=>c.dataset.selected="false");
+          card.dataset.selected = "true";
+          state.method = card.dataset.value;
+          $('#fixed_wrap').style.display = (state.method === 'fixed_amount' || state.method === 'variable_amount') ? 'grid' : 'none';
+          $('#percent_wrap').style.display = (state.method === 'income_percent') ? 'grid' : 'none';
         });
+      });
     }
 
-    function validateAndUpdateState(n) {
-        showError('');
-        if (n === 1) {
-            const typeRadio = document.querySelector('input[name="goal_type"]:checked');
-            if (!typeRadio) { showError('Per favore, scegli un obiettivo.'); return false; }
-            state.goal_type = typeRadio.value;
-            const parentDiv = typeRadio.closest('div');
-            const nameInput = parentDiv.querySelector('input[name="goal_name"]');
-            const amountInput = parentDiv.querySelector('input[name="goal_target_amount"]');
-            if (!nameInput || !amountInput) { showError('Errore interno, ricarica la pagina.'); return false; }
-            if (!nameInput.value.trim()) { showError('Per favore, inserisci un nome per il tuo obiettivo.'); return false; }
-            if (amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo valido.'); return false; }
-            state.goal_name = nameInput.value.trim();
-            state.goal_target_amount = parseFloat(amountInput.value);
-        } else if (n === 2) {
-            const methodRadio = document.querySelector('input[name="contribution_method"]:checked');
-            if (!methodRadio) { showError('Per favore, scegli un metodo.'); return false; }
-            state.contribution_method = methodRadio.value;
-            const parentDiv = methodRadio.closest('div');
-            const amountInput = parentDiv.querySelector('input[name="contribution_amount"]');
-            if (!amountInput || amountInput.value === '' || parseFloat(amountInput.value) <= 0) { showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
-            state.contribution_amount = parseFloat(amountInput.value);
-        } else if (n === 3) {
-            const sel = [...document.querySelectorAll('input[name="category"]:checked')].map(e => JSON.parse(e.value));
-            if (!sel.length) { showError('Per favore, seleziona almeno una categoria.'); return false; }
-            state.categories = sel;
+    // ---------- Chips ----------
+    function bindChips(){
+      $$('.chips .chip').forEach(ch=>{
+        ch.addEventListener('click', ()=>{
+          const kind = ch.closest('.chips').dataset.kind; // income | expense
+          const code = ch.dataset.code;
+          const set = state[kind];
+          if(ch.dataset.selected === "true"){
+            ch.dataset.selected = "false"; set.delete(code);
+          }else{
+            ch.dataset.selected = "true"; set.add(code);
+          }
+          if(state.step===3) renderReview();
+        });
+      });
+    }
+
+    // ---------- Inputs ----------
+    function bindInputs(){
+      $('#goal_name').addEventListener('input', e=>{ state.goal_name = e.target.value; computeSuggestion(); });
+      $('#target_amount').addEventListener('input', e=>{ state.target_amount = numOrNull(e.target.value); computeSuggestion(); });
+      $('#target_date').addEventListener('input', e=>{ state.target_date = e.target.value || null; computeSuggestion(); });
+      $('#monthly_amount').addEventListener('input', e=>{ state.monthly_amount = numOrNull(e.target.value); if(state.step===3) renderReview(); });
+      $('#income_percent').addEventListener('input', e=>{ state.income_percent = numOrNull(e.target.value); if(state.step===3) renderReview(); });
+    }
+
+    function numOrNull(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+
+    function monthsBetween(nowISO, futureISO){
+      if(!futureISO) return null;
+      const now = new Date(nowISO);
+      const fut = new Date(futureISO);
+      let months = (fut.getFullYear()-now.getFullYear())*12 + (fut.getMonth()-now.getMonth());
+      // se il giorno del futuro è sotto l'oggi, riduci di 1 per stimare "mesi interi residui"
+      if(fut.getDate() < now.getDate()) months -= 1;
+      return Math.max(1, months);
+    }
+
+    function computeSuggestion(){
+      if(state.goal_type !== 'specific_goal'){ $('#suggest_box').textContent = ""; return; }
+      const m = monthsBetween(new Date().toISOString(), state.target_date);
+      if(state.target_amount && m){
+        const perMonth = Math.ceil((state.target_amount / m) * 100) / 100;
+        $('#suggest_box').textContent = `Suggerimento: per raggiungere €${state.target_amount} entro ${state.target_date} servono ~€${perMonth}/mese.`;
+      }else{
+        $('#suggest_box').textContent = "";
+      }
+    }
+
+    // ---------- Review ----------
+    function renderReview(){
+      $('#kv_goal_type').textContent = ({
+        generic_savings: 'Risparmio generico',
+        debt_reduction: 'Riduzione debiti',
+        specific_goal: 'Obiettivo specifico'
+      }[state.goal_type] || '—');
+
+      if(state.goal_type === 'specific_goal'){
+        const bits = [];
+        if(state.goal_name) bits.push(`Nome: ${state.goal_name}`);
+        if(state.target_amount!=null) bits.push(`Target: €${state.target_amount}`);
+        if(state.target_date) bits.push(`Data: ${state.target_date}`);
+        $('#kv_goal_meta').textContent = bits.join(' — ') || '—';
+      }else{
+        $('#kv_goal_meta').textContent = '—';
+      }
+
+      $('#kv_method').textContent = ({
+        fixed_amount: 'Importo fisso',
+        income_percent: '% sulle entrate',
+        variable_amount: 'Importo variabile'
+      }[state.method] || '—');
+
+      if(state.method === 'income_percent' && state.income_percent!=null){
+        $('#kv_method_meta').textContent = `Percentuale: ${state.income_percent}%`;
+      }else if((state.method==='fixed_amount'||state.method==='variable_amount') && state.monthly_amount!=null){
+        $('#kv_method_meta').textContent = `Importo: €${state.monthly_amount}/mese`;
+      }else{
+        $('#kv_method_meta').textContent = '—';
+      }
+
+      $('#kv_inc').textContent = state.income.size ? Array.from(state.income).join(', ') : '—';
+      $('#kv_exp').textContent = state.expense.size ? Array.from(state.expense).join(', ') : '—';
+    }
+
+    // ---------- Nav ----------
+    function bindNav(){
+      $('#to2').addEventListener('click', ()=>{
+        if(!state.goal_type){ toast('Seleziona un tipo di obiettivo'); return; }
+        setStep(2);
+      });
+      $('#to3').addEventListener('click', ()=>{
+        if(!state.method){ toast('Seleziona un metodo'); return; }
+        // con percent serve valore, con fixed/variable se inserito lo leggiamo (non obbligatorio)
+        setStep(3);
+      });
+      $('#back1').addEventListener('click', ()=> setStep(1));
+      $('#back2').addEventListener('click', ()=> setStep(2));
+    }
+
+    // ---------- Preload per edit=1 ----------
+    async function preloadIfEdit(){
+      if(!isEdit) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if(!user) return;
+
+      // goal
+      const { data: goal } = await supabase
+        .from('app_goals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending:false })
+        .limit(1)
+        .maybeSingle();
+
+      if(goal){
+        state.goal_type = goal.goal_type;
+        // attiva card
+        if(state.goal_type){
+          const card = document.querySelector(`.grid[data-group="goal_type"] .card[data-value="${state.goal_type}"]`);
+          if(card) card.dataset.selected = "true";
         }
-        return true;
-    }
-
-    async function saveOnboardingToSupabase(user, existingUserCategories) {
-        nextBtn.disabled = true;
-        nextBtn.textContent = 'Salvataggio...';
-        try {
-            await supabase.from('goals').upsert({
-                user_id: user.id,
-                goal_type: state.goal_type,
-                name: state.goal_name,
-                target_amount: state.goal_target_amount,
-            }, { onConflict: 'user_id' });
-
-            const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
-            await supabase.from('budgets').upsert({
-                user_id: user.id,
-                month: currentMonth,
-                macro_category: 'Risparmi',
-                amount: state.contribution_amount
-            }, { onConflict: 'user_id, month, macro_category' });
-
-            const existingNames = existingUserCategories.map(c => c.name);
-            const selectedObjects = state.categories;
-            const selectedNames = selectedObjects.map(c => c.name);
-            const categoriesToInsert = selectedObjects.filter(obj => !existingNames.includes(obj.name));
-            const categoriesToDelete = existingUserCategories.filter(cat => !selectedNames.includes(cat.name));
-
-            if (categoriesToDelete.length > 0) {
-                const idsToDelete = categoriesToDelete.map(c => c.id);
-                await supabase.from('categories').delete().in('id', idsToDelete);
-            }
-
-            let createdCategories = [];
-            if (categoriesToInsert.length > 0) {
-                const payload = categoriesToInsert.map(obj => ({ name: obj.name, icon: obj.icon, kind: obj.kind, created_by: user.id }));
-                const { data, error } = await supabase.from('categories').insert(payload).select();
-                if (error) throw error;
-                createdCategories = data;
-            }
-
-            if (createdCategories.length > 0) {
-                const { data: defaults, error: defaultsError } = await supabase.from('default_subcategories').select(`name, icon, default_categories ( name )`);
-                if (defaultsError) throw defaultsError;
-                const subcategoriesPayload = [];
-                for (const cat of createdCategories) {
-                    const matchingDefaults = defaults.filter(def => def.default_categories.name === cat.name);
-                    for (const sub of matchingDefaults) {
-                        subcategoriesPayload.push({ name: sub.name, icon: sub.icon, category_id: cat.id });
-                    }
-                }
-                if (subcategoriesPayload.length > 0) {
-                    await supabase.from('subcategories').insert(subcategoriesPayload);
-                }
-            }
-            
-            await supabase.from("profiles").update({ onboarded: true }).eq('id', user.id);
-            
-            return true;
-        } catch (error) {
-            console.error("Errore nel salvataggio:", error);
-            showError("Si è verificato un errore critico. Riprova.");
-            nextBtn.disabled = false;
-            nextBtn.textContent = 'Fine';
-            return false;
+        if(goal.goal_type === 'specific_goal'){
+          $('#goal_specific_fields').style.display = 'block';
+          $('#goal_name').value = goal.goal_name || '';
+          $('#target_amount').value = goal.target_amount ?? '';
+          $('#target_date').value = goal.target_date ?? '';
+          state.goal_name = goal.goal_name || '';
+          state.target_amount = goal.target_amount ?? null;
+          state.target_date = goal.target_date ?? null;
+          computeSuggestion();
         }
-    }
-    
-    async function initializePage() {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { location.replace(itPrefix() + "login.html"); return; }
-            
-            const [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes] = await Promise.all([
-                supabase.from('profiles').select('*').eq('id', user.id).single(),
-                supabase.from('categories').select('*').eq('created_by', user.id),
-                supabase.from('default_categories').select('name, icon, kind').order('id'),
-                supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle(),
-                supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category', 'Risparmi')
-            ]);
-            
-            const results = [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes];
-            for (const res of results) {
-                if (res.error) {
-                    console.error("Errore durante il caricamento dati:", res.error);
-                    showError("Impossibile caricare i dati. Ricarica la pagina."); 
-                    return;
-                }
-            }
-            
-            const profile = profileRes.data;
-            const userCategories = userCatRes.data || [];
-            const defaultCategories = defaultCatRes.data || [];
-            const goal = goalRes.data;
-            const budget = budgetRes.data && budgetRes.data.length > 0 ? budgetRes.data[0] : null;
 
-            const isEditing = new URLSearchParams(location.search).get('edit') === '1';
-            if (profile && profile.onboarded && !isEditing) {
-                location.replace(itPrefix() + "dashboard.html");
-                return;
-            }
+        // method
+        const { data: method } = await supabase
+          .from('app_goal_method')
+          .select('*')
+          .eq('goal_id', goal.id)
+          .maybeSingle();
 
-            populateCategoriesFromDB(defaultCategories);
-            preselectFormData(goal, budget, userCategories);
-            renderStep(1);
-            
-            nextBtn.addEventListener('click', async () => {
-                if (!validateAndUpdateState(currentStep)) return;
-                if (currentStep === TOTAL_STEPS) {
-                    const success = await saveOnboardingToSupabase(user, userCategories);
-                    if (success) location.replace(itPrefix() + 'dashboard.html');
-                } else {
-                    currentStep++;
-                    renderStep(currentStep);
-                }
-            });
-            backBtn.addEventListener('click', () => { if (currentStep > 1) { currentStep--; renderStep(currentStep); } });
-            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace(itPrefix()); });
-        } catch (e) {
-            console.error("Errore critico di inizializzazione:", e);
-            showError("Si è verificato un errore imprevisto. Ricarica la pagina.");
+        if(method){
+          state.method = method.method;
+          const mcard = document.querySelector(`.grid[data-group="method"] .card[data-value="${state.method}"]`);
+          if(mcard) mcard.dataset.selected = "true";
+
+          if(method.method === 'income_percent'){
+            $('#percent_wrap').style.display = 'grid';
+            $('#income_percent').value = method.income_percent ?? '';
+            state.income_percent = method.income_percent ?? null;
+          }else{
+            $('#fixed_wrap').style.display = 'grid';
+            $('#monthly_amount').value = method.monthly_amount ?? '';
+            state.monthly_amount = method.monthly_amount ?? null;
+          }
         }
+
+        // categories
+        const { data: cats } = await supabase
+          .from('app_user_categories')
+          .select('kind, category_code')
+          .eq('user_id', user.id);
+
+        if(cats){
+          cats.forEach(c=>{
+            const chip = document.querySelector(`.chips[data-kind="${c.kind}"] .chip[data-code="${c.category_code}"]`);
+            if(chip){ chip.dataset.selected = "true"; state[c.kind].add(c.category_code); }
+          });
+        }
+      }
+
+      $('#editBadge').style.display = 'inline-flex';
     }
-    
-    document.addEventListener('DOMContentLoaded', initializePage);
+
+    // ---------- Save ----------
+    async function saveOnboarding(){
+      const { data: { user } } = await supabase.auth.getUser();
+      if(!user){ toast('Accedi per salvare'); return; }
+
+      // Scrittura “pulita” e compatibile
+      // 1) UPSERT goal (un record per user_id)
+      const { data: goalRow, error: eg } = await supabase
+        .from('app_goals')
+        .upsert([{
+          user_id: user.id,
+          goal_type: state.goal_type,
+          goal_name: state.goal_name || null,
+          target_amount: state.target_amount,
+          target_date: state.target_date
+        }], { onConflict: 'user_id' })
+        .select()
+        .maybeSingle();
+      if(eg){ console.error(eg); toast('Errore salvataggio obiettivo'); return; }
+
+      // 2) UPSERT method (1:1 su goal_id)
+      const { error: em } = await supabase
+        .from('app_goal_method')
+        .upsert([{
+          goal_id: goalRow.id,
+          method: state.method,
+          monthly_amount: (state.method==='income_percent') ? null : state.monthly_amount,
+          income_percent: (state.method==='income_percent') ? state.income_percent : null
+        }], { onConflict: 'goal_id' });
+      if(em){ console.error(em); toast('Errore salvataggio metodo'); return; }
+
+      // 3) Categorie (wipe & insert dell’istantanea selezionata)
+      await supabase.from('app_user_categories').delete().eq('user_id', user.id);
+      const rows = [
+        ...Array.from(state.income).map(code => ({ user_id: user.id, kind:'income', category_code: code })),
+        ...Array.from(state.expense).map(code => ({ user_id: user.id, kind:'expense', category_code: code }))
+      ];
+      if(rows.length){
+        const { error: ec } = await supabase.from('app_user_categories').insert(rows);
+        if(ec){ console.error(ec); toast('Errore salvataggio categorie'); return; }
+      }
+
+      // 4) Stato onboarding
+      await supabase.from('app_onboarding_state')
+        .upsert([{ user_id: user.id, completed: true, last_step: 3 }], { onConflict: 'user_id' });
+
+      toast('Onboarding salvato');
+      // Redirect “soft”: portiamo in app
+      setTimeout(()=> location.href = '/app/dashboard.html', 600);
+    }
+
+    // ---------- Boot ----------
+    bindCards(); bindChips(); bindInputs(); bindNav();
+    setStep(1);
+    preloadIfEdit();
+
+    // Actions
+    $('#confirmBtn').addEventListener('click', saveOnboarding);
   </script>
 </body>
 </html>
