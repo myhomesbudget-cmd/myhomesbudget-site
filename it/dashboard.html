@@ -30,26 +30,40 @@
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{
+    .top-link, .top-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
       color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
       font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
-    .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+    .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
     
-    .select-wrapper { position: relative; display: flex; align-items: center; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
+    .date-selectors { display: flex; gap: 8px; }
+    .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
     .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
     .select-wrapper::after { content: '▼'; font-size: 10px; color: rgba(255,255,255,0.8); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-    #month-selector { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; color: #fff; border: none; padding: 6px 28px 6px 12px; font-size: .9rem; font-weight: 600; cursor: pointer; width: 100%; }
-    #month-selector option { background: white; color: black; }
-    #month-selector:disabled { opacity: 0.7; }
+    .topbar-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; color: #fff; border: none; padding: 6px 28px 6px 12px; font-size: .9rem; font-weight: 600; cursor: pointer; }
+    .topbar-select option { background: white; color: black; }
+    .topbar-select:disabled { opacity: 0.7; }
+
+    .notification-bell { position: relative; }
+    #scheduler-btn, #notifications-btn { width: 38px; padding: 0; }
+    .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none; }
+    .notification-badge.is-visible { display: flex; }
+
     .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
     .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
 
-    @media (max-width: 768px) {
+    @media (max-width: 960px) {
       .mobile-menu-toggle { display: block; }
       .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
       .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
-      .top-actions .top-link, .top-actions .select-wrapper { width: 100%; text-align: center; }
+      .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
+      #scheduler-btn, #notifications-btn { width: 100%; }
     }
 
     /* ====== Contenuto Principale ====== */
@@ -137,6 +151,18 @@
     .btn-action-deadline { padding: 8px 12px; font-size: 0.9rem; }
     .btn-action-deadline.pay { background: var(--warning-color); }
     .btn-action-deadline.receive { background: var(--success-color); }
+
+    /* ====== MODAL ====== */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-overlay.is-visible .modal-content { transform: scale(1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-title { margin: 0; font-size: 1.3rem; }
+    .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #888; line-height: 1; padding: 0; }
+    .modal-body ul { list-style: none; padding: 0; margin: 0; }
+    .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+    .modal-body li:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -148,10 +174,16 @@
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
       <div class="top-actions">
-        <div class="select-wrapper">
-          <select id="month-selector" aria-label="Seleziona mese"></select>
+        <div class="date-selectors">
+            <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
+            <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
-        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Modifica Obiettivo</a>
+        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
+        <button id="scheduler-btn" class="top-btn">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell">
+            <span>🔔</span>
+            <span id="notification-badge" class="notification-badge"></span>
+        </button>
         <a href="#" id="logout-btn" class="top-link">Esci</a>
       </div>
     </div>
@@ -210,6 +242,17 @@
     </div>
   </main>
   
+  <!-- Modal per Scadenziario e Notifiche -->
+  <div id="scheduler-modal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h3 id="modal-title" class="modal-title"></h3>
+              <button class="modal-close">&times;</button>
+          </div>
+          <div id="modal-body" class="modal-body transaction-list"></div>
+      </div>
+  </div>
+
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
@@ -226,11 +269,16 @@
     const incomeSummary = document.getElementById('income-summary');
     const expenseSummary = document.getElementById('expense-summary');
     const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
     const advancedOptionsWrapper = document.getElementById('advanced-options-wrapper');
     const recurringOptions = document.getElementById('recurring-options');
     const dueDateOptions = document.getElementById('due-date-options');
     const deadlinesSection = document.getElementById('deadlines-section');
     const deadlinesList = document.getElementById('deadlines-list');
+    const schedulerBtn = document.getElementById('scheduler-btn');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationBadge = document.getElementById('notification-badge');
+    const schedulerModal = document.getElementById('scheduler-modal');
 
     let user = null;
     let allCategories = [];
@@ -245,7 +293,7 @@
     
     function updateCategoryDropdown(){
       const selectedKind=kindSelect.value;
-      advancedOptionsWrapper.style.display = 'block'; // Mostra sempre le opzioni per entrate e uscite
+      advancedOptionsWrapper.style.display = 'block';
       const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
     
     function updateSubcategories(selectedSubcategoryId=null){
@@ -314,34 +362,34 @@
       });
     }
 
-    async function loadAndRenderDeadlines() {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 30);
-
+    async function getScheduledTransactions(startDate, endDate) {
         const { data, error } = await supabase.from('transactions')
             .select(`*, categories(name, icon)`)
             .eq('created_by', user.id)
             .eq('is_paid', false)
-            .gte('due_date', today.toISOString().split('T')[0])
-            .lte('due_date', futureDate.toISOString().split('T')[0])
+            .gte('due_date', startDate.toISOString().split('T')[0])
+            .lte('due_date', endDate.toISOString().split('T')[0])
             .order('due_date', { ascending: true });
+        
+        if (error) {
+            console.error("Errore caricamento scadenze:", error);
+            return [];
+        }
+        return data;
+    }
 
-        if (error) { console.error("Errore caricamento scadenze:", error); return; }
-
-        if (data.length === 0) {
-            deadlinesSection.style.display = 'none';
+    function renderDeadlinesList(container, transactions) {
+        if (transactions.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
             return;
         }
-
-        deadlinesSection.style.display = 'block';
-        deadlinesList.innerHTML = '';
-        data.forEach(tx => {
+        container.innerHTML = '';
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        transactions.forEach(tx => {
             const isIncome = tx.kind === 'income';
             const dueDate = new Date(tx.due_date);
-            const todayMidnight = new Date();
-            todayMidnight.setHours(0,0,0,0);
-            const diffTime = dueDate - todayMidnight;
+            const diffTime = dueDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
             const amountClass = isIncome ? 'income' : 'expense';
@@ -349,7 +397,7 @@
             const buttonClass = isIncome ? 'receive' : 'pay';
             const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
 
-            deadlinesList.insertAdjacentHTML('beforeend', `
+            container.insertAdjacentHTML('beforeend', `
                 <div class="item deadline-item">
                     <div class="item-details">
                         <span class="note">${tx.note}</span>
@@ -363,20 +411,57 @@
         });
     }
 
+    async function updateNotifications() {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
+        
+        if(upcomingDeadlines.length > 0) {
+            notificationBadge.textContent = upcomingDeadlines.length;
+            notificationBadge.classList.add('is-visible');
+        } else {
+            notificationBadge.classList.remove('is-visible');
+        }
+    }
+    
+    async function loadAllDataForMonth() {
+        await loadTransactions();
+        
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 30);
+        const imminentDeadlines = await getScheduledTransactions(today, futureDate);
+        
+        if (imminentDeadlines.length > 0) {
+            deadlinesSection.style.display = 'block';
+            renderDeadlinesList(deadlinesList, imminentDeadlines);
+        } else {
+            deadlinesSection.style.display = 'none';
+        }
+        updateNotifications();
+    }
+
     async function loadTransactions() {
         monthSelector.disabled = true;
+        yearSelector.disabled = true;
         renderDashboard([]);
+        
         const selectedMonth = monthSelector.value;
-        let query = supabase.from('transactions').select(`*, categories(name, icon), subcategories(name, icon)`).eq('created_by', user.id).order('occurred_at', { ascending: false });
-        if (selectedMonth) {
-            const startDate = new Date(selectedMonth);
-            const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
-            query = query.gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString());
-        } else {
-            query = query.limit(30);
-        }
-        const { data, error } = await query;
+        const selectedYear = yearSelector.value;
+        
+        const startDate = new Date(selectedYear, selectedMonth, 1);
+        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+        
+        const { data, error } = await supabase.from('transactions')
+            .select(`*, categories(name, icon), subcategories(name, icon)`)
+            .eq('created_by', user.id)
+            .gte('occurred_at', startDate.toISOString())
+            .lte('occurred_at', endDate.toISOString())
+            .order('occurred_at', { ascending: false });
+
         monthSelector.disabled = false;
+        yearSelector.disabled = false;
         if (error) { console.error("Errore transazioni:", error); return; }
         allTransactions = data || [];
         renderDashboard(allTransactions);
@@ -404,11 +489,8 @@
     }
     
     async function handleDelete(id){
-        const txToDelete = allTransactions.find(t => String(t.id) === String(id));
-        if (!txToDelete) {
-             const {data} = await supabase.from('transactions').select('is_recurring_parent').eq('id',id).single();
-             if(data) txToDelete = data; else return;
-        }
+        const {data: txToDelete} = await supabase.from('transactions').select('is_recurring_parent, parent_transaction_id').eq('id',id).single();
+        if (!txToDelete) return;
 
         let confirmMessage = "Eliminare questa operazione?";
         if (txToDelete.is_recurring_parent) {
@@ -429,7 +511,7 @@
         if (deleteError) { error = deleteError; }
 
         if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}
-        else{loadTransactions(); loadAndRenderDeadlines();}
+        else{loadAllDataForMonth();}
     }
     
     async function handleFormSubmit(e) {
@@ -499,8 +581,7 @@
             transactionIdInput.value="";
             document.getElementById('occurred_at').valueAsDate=new Date();
             updateCategoryDropdown();
-            loadTransactions();
-            loadAndRenderDeadlines();
+            loadAllDataForMonth();
         }
     }
 
@@ -513,8 +594,7 @@
             alert("Errore nell'aggiornamento dell'operazione.");
             console.error(error);
         } else {
-            loadTransactions();
-            loadAndRenderDeadlines();
+            loadAllDataForMonth();
         }
     }
 
@@ -527,18 +607,22 @@
       const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
       if (profile && !profile.onboarded){location.replace("/it/onboarding.html");return;}
 
-      for (let i = 0; i < 12; i++){
-        const d = new Date(); d.setMonth(d.getMonth()-i);
-        const value = d.toISOString().slice(0,7) + '-01';
-        const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
-        monthSelector.add(new Option(label, value));
+      // Popola selettori data
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+      months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+      for(let i = currentYear - 2; i <= currentYear + 5; i++) {
+        yearSelector.add(new Option(i, i));
       }
+      monthSelector.value = currentMonth;
+      yearSelector.value = currentYear;
 
       document.getElementById('occurred_at').valueAsDate=new Date();
       await loadInitialData();
       updateCategoryDropdown();
-      await loadTransactions();
-      await loadAndRenderDeadlines();
+      await loadAllDataForMonth();
 
       // Listeners
       kindSelect.addEventListener('change', updateCategoryDropdown);
@@ -553,13 +637,46 @@
         if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
       });
       
-      monthSelector.addEventListener('change', loadTransactions);
+      monthSelector.addEventListener('change', loadAllDataForMonth);
+      yearSelector.addEventListener('change', loadAllDataForMonth);
 
       document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
             recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
             dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
         });
+      });
+
+      schedulerBtn.addEventListener('click', async () => {
+        const selectedMonth = monthSelector.value;
+        const selectedYear = yearSelector.value;
+        const startDate = new Date(selectedYear, selectedMonth, 1);
+        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
+        const scheduled = await getScheduledTransactions(startDate, endDate);
+        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+        schedulerModal.classList.add('is-visible');
+      });
+
+      notificationsBtn.addEventListener('click', async () => {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcoming = await getScheduledTransactions(today, futureDate);
+        schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
+        schedulerModal.classList.add('is-visible');
+      });
+
+      schedulerModal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
+            schedulerModal.classList.remove('is-visible');
+        }
+        const actionButton = e.target.closest('.btn-action-deadline');
+        if (actionButton) { 
+            handleConfirmDeadline(actionButton.dataset.id);
+            schedulerModal.classList.remove('is-visible');
+        }
       });
       
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
