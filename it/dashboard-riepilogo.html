@@ -655,8 +655,8 @@
 
         switch(profile.plan_type) {
             case 'trial':
-                if (profile.trial_end_date) {
-                    const endDate = new Date(profile.trial_end_date);
+                if (profile.trial_end) { // CORREZIONE: Usare trial_end
+                    const endDate = new Date(profile.trial_end);
                     const today = new Date();
                     const diffTime = endDate - today;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -745,7 +745,8 @@
         if (error || !session){ location.replace("/it/login.html"); return; }
         user = session.user;
 
-        const { data: profile } = await supabase.from('profiles').select('plan_type, trial_end_date').eq('id', user.id).single();
+        // CORREZIONE: Usare trial_end invece di trial_end_date
+        const { data: profile } = await supabase.from('profiles').select('plan_type, trial_end').eq('id', user.id).single();
         if(profile) {
             renderSubscriptionStatus(profile);
         }
