@@ -82,7 +82,11 @@
     /* ====== Colonne Categorie ====== */
     .category-columns{display:grid;gap:24px}
     @media(min-width:768px){.category-columns{grid-template-columns:1fr 1fr}}
-    .column h3{text-align:center;margin:0 0 8px;color:#333}
+    .column h3{text-align:center;margin:0 0 8px}
+    /* Richiesta: Entrate verde, Uscite rosso */
+    .category-columns .column:first-child h3{ color: var(--success-color); } /* Entrate */
+    .category-columns .column:last-child  h3{ color: var(--danger-color); }  /* Uscite  */
+
     .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;display:none}
     .error-message.show{display:block}
 
@@ -98,6 +102,17 @@
     /* Badge Modifica */
     .edit-badge{display:none;margin-left:8px;background:rgba(255,255,255,.85);color:#333;border:1px solid var(--card-border);
       padding:4px 8px;border-radius:999px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+
+    /* ====== Toolbar categorie: una riga + bottoni in gradiente ====== */
+    #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
+    #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    #cats-toolbar .cats-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+    #cats-toolbar .cats-actions .input-field{max-width:220px;min-width:180px}
+    #cats-toolbar .btn.btn-primary{white-space:nowrap;padding:10px 14px}
+    @media (max-width: 420px){
+      #cats-toolbar{flex-wrap:wrap}
+      #cats-toolbar .cats-actions{flex-wrap:wrap}
+    }
   </style>
 </head>
 <body>
@@ -190,17 +205,17 @@
         <h1 class="step-title">Scegli le tue categorie</h1>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
 
-        <!-- Contatori + ricerca + preset -->
-        <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:wrap">
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <!-- Toolbar: contatori + ricerca + preset (una riga, bottoni gradiente) -->
+        <div id="cats-toolbar">
+          <div class="cats-counts">
             <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
-            <span style="width:1px;height:16px;background:rgba(0,0,0,.15);display:inline-block"></span>
+            <span style="width:1px;height:16px;background:rgba(0,0,0,.15);display:inline-block;margin:0 6px"></span>
             <strong>Uscite:</strong> <span id="count-expense">0 selezionate</span>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <input id="cat-search" class="input-field" placeholder="Cerca categorie..." style="max-width:220px;">
-            <button type="button" id="preset-min" class="btn btn-secondary">Preset: Minimo</button>
-            <button type="button" id="preset-full" class="btn btn-secondary">Preset: Completo</button>
+          <div class="cats-actions">
+            <input id="cat-search" class="input-field" placeholder="Cerca categorie..." />
+            <button type="button" id="preset-min" class="btn btn-primary">Preset: Minimo</button>
+            <button type="button" id="preset-full" class="btn btn-primary">Preset: Completo</button>
           </div>
         </div>
 
@@ -242,7 +257,7 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    /* ====== Topbar mobile toggle (coerente Dashboard) ====== */
+    /* ====== Topbar mobile toggle ====== */
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const topActions = document.querySelector('.top-actions');
     if(mobileMenuBtn && topActions){
