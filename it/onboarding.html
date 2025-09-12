@@ -66,14 +66,6 @@
 
     /* ====== Opzioni ====== */
     .options-grid{display:grid;gap:12px}
-    
-    /* MODIFICA: Griglia a 2 colonne per le categorie su schermi grandi */
-    @media(min-width: 768px) {
-      #income-category-options, #expense-category-options {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px 16px; /* 12px vertical, 16px horizontal */
-      }
-    }
 
     .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,.9);transition:.18s ease;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .option-label:hover{background:#fff;transform:translateY(-1px)}
@@ -82,8 +74,11 @@
     input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
     .option-label strong{display:block;font-size:1.05rem}
     .option-label span{font-size:.92rem;color:#444}
-    .option-details{display:none;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 14px 0}
+    
+    /* MODIFICA: Ottimizzazione mobile per i campi extra. Ora si impilano sempre verticalmente. */
+    .option-details{display:none;grid-template-columns:1fr;gap:10px;padding:10px 14px 0}
     input[type="radio"]:checked ~ .option-details{display:grid}
+    
     .input-field{width:100%;border:1px solid #ccc;background:#fff;padding:10px;border-radius:10px;font-size:1rem}
     .input-field::placeholder{color:#999}
     .hint{font-size:.9rem;color:#555}
