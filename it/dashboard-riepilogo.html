@@ -337,7 +337,7 @@
         const allTimeTransactions = allPastTransactionsRes.data || [];
 
         renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions);
-        renderDeepDiveCharts(transactions, monthlySavingGoal, allTimeTransactions);
+        renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, allTimeTransactions);
     }
     
     function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
@@ -370,26 +370,26 @@
                  <div class="summary-card-header"><h3>ENTRATE</h3><p>(∑ Entrate Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="incomeChart"></canvas></div>
                  <div class="summary-card-footer">
-                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
+                   <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card expense-card">
                  <div class="summary-card-header"><h3>USCITE</h3><p>(∑ Spese Mensili)</p></div>
                  <div class="summary-card-chart"><canvas id="expenseChart"></canvas></div>
                  <div class="summary-card-footer">
-                    <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
+                   <div class="footer-breakdown"><div class="breakdown-item"><span class="breakdown-label">TOTALE USCITE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div></div>
                  </div>
             </div>
             <div class="summary-card budget-card">
-                <div class="summary-card-header"><h3>BUDGET</h3><p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p></div>
-                <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
-                <div class="summary-card-footer">
-                    <div class="footer-breakdown">
-                        <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
-                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${monthlySavingGoal.toFixed(2)}€</span></div>
-                    </div>
-                </div>
+              <div class="summary-card-header"><h3>BUDGET</h3><p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p></div>
+              <div class="summary-card-chart"><canvas id="budgetChart"></canvas></div>
+              <div class="summary-card-footer">
+                  <div class="footer-breakdown">
+                      <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income">${totalIncome.toFixed(2)}€</span></div>
+                      <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense">${totalExpense.toFixed(2)}€</span></div>
+                      <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net">${monthlySavingGoal.toFixed(2)}€</span></div>
+                  </div>
+              </div>
             </div>
             <div class="summary-card goal-card">
                 <div class="summary-card-header">
@@ -432,7 +432,7 @@
         renderGoal(cumulativeIdealSaving, goalTargetAmount);
     }
 
-    function renderDeepDiveCharts(transactions, monthlySavingGoal, allTimeTransactions) {
+    function renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, allTimeTransactions) {
         deepDiveContent.style.display = 'grid';
 
         const incomes = transactions.filter(tx => tx.kind === 'income');
@@ -469,8 +469,8 @@
         
         // La card obiettivo è speciale
         const goalPanel = document.getElementById('deep-dive-goal');
-        const goalBreakdown = { 'Risparmio Accumulato': cumulativeActualSaving }; // Qui potremmo aggiungere altre metriche in futuro
-        goalPanel.innerHTML = renderBreakdownList('PROGRESSO OBIETTIVO', goalBreakdown, goalTargetAmount, 'net'); // Placeholder, logica da definire
+        const goalBreakdown = { 'Risparmio Accumulato': cumulativeActualSaving };
+        goalPanel.innerHTML = renderBreakdownList('PROGRESSO OBIETTIVO', goalBreakdown, goalTargetAmount, 'net');
     }
     
     function renderBreakdownList(title, data, total, type) {
@@ -511,21 +511,7 @@
 
     // --- Inizializzazione pagina ---
     async function initializePage() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session){ location.replace("/it/login.html"); return; }
-      user = session.user;
-      
-      for (let i = 0; i < 12; i++){
-        const d = new Date(); d.setMonth(d.getMonth()-i);
-        const value = d.toISOString().slice(0,7) + '-01';
-        const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
-        monthSelector.add(new Option(label, value));
-      }
-
-      await loadSummaryData(); 
-      
-      monthSelector.addEventListener('change', loadSummaryData);
-      
+      // CORREZIONE: Gli event listener vengono attivati subito per garantire la reattività dell'interfaccia.
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
       if(mobileMenuBtn && topActions) {
@@ -538,6 +524,39 @@
             topActions.classList.remove('is-open');
           }
         });
+      }
+      
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+          logoutBtn.addEventListener('click', async (e) => {
+              e.preventDefault();
+              await supabase.auth.signOut();
+              location.replace("/it/");
+          });
+      }
+
+      monthSelector.addEventListener('change', loadSummaryData);
+
+      // CORREZIONE: Gestione più sicura della sessione utente.
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session){ 
+          location.replace("/it/login.html"); 
+          return; 
+        }
+        user = session.user;
+        
+        for (let i = 0; i < 12; i++){
+          const d = new Date(); d.setMonth(d.getMonth()-i);
+          const value = d.toISOString().slice(0,7) + '-01';
+          const label = d.toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+          monthSelector.add(new Option(label, value));
+        }
+
+        await loadSummaryData();
+      } catch(e) {
+        console.error("Errore critico di inizializzazione:", e);
+        summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore imprevisto. Ricarica la pagina.</p></div>';
       }
     }
 
