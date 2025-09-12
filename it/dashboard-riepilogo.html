@@ -697,6 +697,24 @@
         }
     }
 
+    function positionSubscriptionButton() {
+        const topCenter = document.querySelector('.top-center');
+        const topActions = document.querySelector('.top-actions');
+        const subscriptionBtn = document.getElementById('subscription-status-btn');
+
+        if (!topCenter || !topActions || !subscriptionBtn) return;
+
+        if (window.innerWidth <= 1200) {
+            if (subscriptionBtn.parentElement !== topActions) {
+                topActions.prepend(subscriptionBtn);
+            }
+        } else {
+            if (subscriptionBtn.parentElement !== topCenter) {
+                topCenter.appendChild(subscriptionBtn);
+            }
+        }
+    }
+
     // --- Inizializzazione pagina ---
     async function initializePage() {
       // Setup UI Listeners immediately
@@ -747,6 +765,8 @@
         }
       });
 
+      window.addEventListener('resize', positionSubscriptionButton);
+
       // Load data
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -758,6 +778,7 @@
           console.error("Errore nel caricare il profilo utente:", profileError);
         } else if (profile) {
             renderSubscriptionStatus(profile);
+            positionSubscriptionButton(); // Posiziona il pulsante dopo averlo creato
         }
         
         // Populate date selectors
