@@ -12,6 +12,7 @@
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color: #f39c12;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
       --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
@@ -35,146 +36,37 @@
       transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
     .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
     
-    .select-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      border-radius: 10px;
-      background: var(--grad);
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-    }
-    .select-wrapper:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.08);
-      box-shadow: 0 6px 16px rgba(0,0,0,.20);
-    }
-    .select-wrapper::after {
-      content: '▼';
-      font-size: 10px;
-      color: rgba(255,255,255,0.8);
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-    #month-selector {
-      appearance: none; -webkit-appearance: none; -moz-appearance: none;
-      background: transparent;
-      color: #fff;
-      border: none;
-      padding: 6px 28px 6px 12px;
-      font-size: .9rem;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
+    .select-wrapper { position: relative; display: flex; align-items: center; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
+    .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
+    .select-wrapper::after { content: '▼'; font-size: 10px; color: rgba(255,255,255,0.8); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    #month-selector { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; color: #fff; border: none; padding: 6px 28px 6px 12px; font-size: .9rem; font-weight: 600; cursor: pointer; width: 100%; }
     #month-selector option { background: white; color: black; }
     #month-selector:disabled { opacity: 0.7; }
-
-    .top-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px}
-    #trial-banner{display:none;align-items:center;gap:10px;background:var(--grad);color:#fff;padding:8px 12px;border-radius:999px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.15)}
-    #trial-banner a{background:#fff;color:var(--primary-color);text-decoration:none;padding:4px 10px;border-radius:999px;font-size:.85rem;font-weight:800}
-
-    /* 🎨 VIBE UPGRADE: Menu Mobile Adattivo 🎨 */
-    .mobile-menu-toggle {
-      display: none;
-      background: var(--grad);
-      border: none;
-      border-radius: 10px;
-      width: 40px;
-      height: 38px;
-      cursor: pointer;
-      padding: 0;
-      z-index: 101;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    }
-    .mobile-menu-toggle svg {
-      width: 24px;
-      height: 24px;
-      stroke: #fff;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-    }
+    .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+    .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
 
     @media (max-width: 768px) {
-      .mobile-menu-toggle {
-        display: block;
-      }
-      .top-actions {
-        position: absolute;
-        top: 70px; /* Sotto la topbar */
-        right: 16px;
-        background: rgba(255,255,255,0.8);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow);
-        padding: 16px;
-        flex-direction: column;
-        gap: 16px;
-        align-items: stretch;
-        width: 220px;
-        transform: translateY(-20px) scale(0.95);
-        opacity: 0;
-        pointer-events: none;
-        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-        z-index: 100;
-        border: 1px solid var(--card-border);
-      }
-      .top-actions.is-open {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-        pointer-events: auto;
-      }
-      .top-actions .top-link,
-      .top-actions .select-wrapper {
-        width: 100%;
-        text-align: center;
-      }
+      .mobile-menu-toggle { display: block; }
+      .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
+      .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+      .top-actions .top-link, .top-actions .select-wrapper { width: 100%; text-align: center; }
     }
 
     /* ====== Contenuto Principale ====== */
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
     .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
-    
-    .dash-nav a{
-      text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;
-      transition: all 0.2s ease;
-      background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1);
-    }
-    .dash-nav a:hover {
-      transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15);
-    }
-    .dash-nav a.is-active{
-      filter: brightness(1.15);
-      box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2);
-    }
-    
+    .dash-nav a{ text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600; transition: all 0.2s ease; background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .dash-nav a:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+    .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
     
-    .dashboard-panel {
-      background: rgba(255,255,255,0.55);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
-    }
-    .dashboard-panel .content-section,
-    .dashboard-panel .summary-card {
-      box-shadow: none;
-      border: none;
-    }
-    .dashboard-panel .content-section {
-       background: rgba(255,255,255,0.7);
-    }
+    .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
+    .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
+    .dashboard-panel .content-section { background: rgba(255,255,255,0.7); }
 
     /* ====== Layout Dashboard & Colonne ====== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
-    @media(min-width: 1024px){.dashboard-grid{grid-template-columns:repeat(2, 1fr);}.form-section{grid-column:1 / -1}}
+    @media(min-width: 1024px){.dashboard-grid{grid-template-columns:repeat(2, 1fr);}}
     .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px; padding: 0 8px;}
     .flow-column.income h2{color:var(--success-color)}
     .flow-column.expense h2{color:var(--danger-color)}
@@ -196,7 +88,6 @@
     .income .progress-bar-fg { background: linear-gradient(90deg, #00cec9, #81ecec); }
     .expense .progress-bar-fg { background: linear-gradient(90deg, #6c5ce7, #fd79a8); }
 
-
     /* ====== Form e Bottoni ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
     .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
@@ -206,27 +97,19 @@
     .form-group{display:flex;flex-direction:column}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
     .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
-    .form-group.kind, .form-group.note{grid-column:1 / -1}
+    .form-group.full-width{grid-column:1 / -1}
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
+    
+    /* Stili per Opzioni Avanzate Spesa */
+    #expense-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
+    .expense-options-controls { display: flex; gap: 20px; align-items: center; margin-bottom: 12px; }
+    .expense-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
+    .expense-options-fields { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
 
-    /* ====== Lista Transazioni e Bottoni Azione ====== */
-    .list-title {
-      margin: -24px -24px 16px;
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #333;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
-      background: rgba(255,255,255,0.4);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .list-total-amount {
-      font-weight: 800;
-      font-size: 1.2rem;
-    }
+    /* ====== Lista Transazioni e Scadenze ====== */
+    .list-title { margin: -24px -24px 16px; padding: 12px 24px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; }
+    .list-total-amount { font-weight: 800; font-size: 1.2rem; }
     .income .list-total-amount { color: var(--success-color); }
     .expense .list-total-amount { color: var(--danger-color); }
 
@@ -244,15 +127,19 @@
     .action-btn:hover{filter: brightness(1.1);transform: translateY(-1px);}
     .action-btn.delete{background: var(--grad-danger);}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
+
+    /* Pannello Scadenze */
+    #deadlines-section h3 { color: var(--warning-color); border-bottom: 2px solid var(--warning-color); padding-bottom: 8px; }
+    .deadline-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px; }
+    .deadline-item .item-amount { color: var(--danger-color); font-weight: 700;}
+    .deadline-item .days-left { font-weight: 700; color: var(--warning-color); }
+    .btn-pay { background: var(--warning-color); padding: 8px 12px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
   <!-- Topbar -->
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
-    <div class="top-center"><div id="trial-banner"><span id="trial-days-left"></span><a href="/it/paywall.html">Aggiorna piano</a></div></div>
-    
-    <!-- Contenitore Azioni Destra (per logica mobile) -->
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -269,23 +156,46 @@
 
   <main class="container">
     <nav id="dash-nav" class="dash-nav">
-      <a href="/it/dashboard.html" class="is-active" aria-current="page">AGGIORNA</a>
+      <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
     </nav>
 
     <!-- Sezione Form -->
     <section class="content-section form-section">
-      <h2 id="form-title" style="margin:0 0 16px">📚💰 Nuova Transazione</h2>
+      <h2 id="form-title" style="margin:0 0 16px">Nuova Transazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
-        <div class="form-group kind"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option><option value="transfer">Trasferimento</option></select></div>
+        <div class="form-group kind"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
         <div class="form-group note"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Caffè al bar" required></div>
         <div class="form-group amount"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
         <div class="form-group date"><label for="occurred_at">Data</label><input type="date" id="occurred_at" name="occurred_at" required></div>
         <div class="form-group category"><label for="category_id">Categoria</label><select id="category_id" name="category_id" required></select></div>
         <div class="form-group subcategory"><label for="subcategory_id">Sottocategoria</label><select id="subcategory_id" name="subcategory_id"></select></div>
+        
+        <!-- Opzioni Avanzate per Spese -->
+        <div id="expense-options-wrapper">
+            <div class="expense-options-controls">
+                <label><input type="radio" name="expense_type" value="single" checked> Spesa Singola</label>
+                <label><input type="radio" name="expense_type" value="recurring"> 🔄 Spesa Ricorrente</label>
+                <label><input type="radio" name="expense_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+            </div>
+            <div id="recurring-options" class="expense-options-fields">
+                <div class="form-group"><label for="recurring_frequency">Frequenza</label><select id="recurring_frequency" name="recurring_frequency"><option value="monthly">Mensile</option></select></div>
+                <div class="form-group"><label for="recurring_end_date">Termina il</label><input type="date" id="recurring_end_date" name="recurring_end_date"></div>
+            </div>
+            <div id="due-date-options" class="expense-options-fields">
+                <div class="form-group full-width"><label for="due_date">Data di Scadenza</label><input type="date" id="due_date" name="due_date"></div>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Aggiungi</button>
       </form>
+    </section>
+
+    <!-- Sezione Scadenze Imminenti -->
+    <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
+        <h3>🔔 Scadenze Imminenti (Prossimi 30 giorni)</h3>
+        <div id="deadlines-list" class="transaction-list"></div>
     </section>
 
     <!-- Pannello Principale Dati -->
@@ -313,6 +223,11 @@
     const incomeSummary = document.getElementById('income-summary');
     const expenseSummary = document.getElementById('expense-summary');
     const monthSelector = document.getElementById('month-selector');
+    const expenseOptionsWrapper = document.getElementById('expense-options-wrapper');
+    const recurringOptions = document.getElementById('recurring-options');
+    const dueDateOptions = document.getElementById('due-date-options');
+    const deadlinesSection = document.getElementById('deadlines-section');
+    const deadlinesList = document.getElementById('deadlines-list');
 
     let user = null;
     let allCategories = [];
@@ -320,13 +235,16 @@
     let allTransactions = [];
 
     // --- Gestione Dati e Rendering ---
-    function handleTrialStatus(profile){
-      const banner=document.getElementById('trial-banner');const text=document.getElementById('trial-days-left');if(!profile||profile.plan_type!=='trial'||!profile.trial_end){banner.style.display='none';return}const trialEnd=new Date(profile.trial_end);const today=new Date();today.setHours(0,0,0,0);const diffDays=Math.ceil((trialEnd.getTime()-today.getTime())/864e5);if(diffDays>=0){banner.style.display='flex';text.textContent=diffDays===0?"Ultimo giorno di prova!":diffDays===1?"Manca 1 giorno alla fine della prova.":`Mancano ${diffDays} giorni alla fine della prova.`}else{alert("La tua prova è terminata. Scegli un piano per continuare.");location.replace("/it/paywall.html")}}
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
+    
     async function loadInitialData(){
       const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);if(cError){console.error("Errore categorie:",cError);return}allCategories=categories||[];if(allCategories.length){const ids=allCategories.map(c=>c.id);const{data:subcategories,error:sError}=await supabase.from('subcategories').select('*').in('category_id',ids);if(sError){console.error("Errore sottocategorie:",sError);return}allSubcategories=subcategories||[]}}
+    
     function updateCategoryDropdown(){
-      const selectedKind=kindSelect.value;const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
+      const selectedKind=kindSelect.value;
+      expenseOptionsWrapper.style.display = selectedKind === 'expense' ? 'block' : 'none';
+      const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
+    
     function updateSubcategories(selectedSubcategoryId=null){
       const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
     
@@ -341,123 +259,212 @@
     
     function renderSummary(items, container, kind) {
         container.innerHTML = '';
-        const categoryMap = allCategories
-            .filter(cat => cat.kind === kind)
-            .reduce((acc, cat) => {
-                acc[cat.id] = { name: cat.name, icon: cat.icon || (kind === 'income' ? '💰' : '💸'), total: 0 };
-                return acc;
-            }, {});
-        items.forEach(tx => {
-            const catId = tx.category_id;
-            if (categoryMap[catId]) {
-                categoryMap[catId].total += safeToNumber(tx.amount);
-            }
-        });
+        const categoryMap = allCategories.filter(cat => cat.kind === kind).reduce((acc, cat) => ({ ...acc, [cat.id]: { name: cat.name, icon: cat.icon || (kind === 'income' ? '💰' : '💸'), total: 0 } }), {});
+        items.forEach(tx => { if (categoryMap[tx.category_id]) { categoryMap[tx.category_id].total += safeToNumber(tx.amount); } });
         const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        const top5Categories = Object.values(categoryMap)
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 5);
-        if (top5Categories.length === 0) {
-            container.style.display = 'none';
-            return;
-        }
+        const top5Categories = Object.values(categoryMap).sort((a, b) => b.total - a.total).slice(0, 5);
+        if (top5Categories.length === 0 || top5Categories.every(c => c.total === 0)) { container.style.display = 'none'; return; }
         container.style.display = 'block';
         const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
         let barsHTML = top5Categories.map(cat => {
             const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0;
-            return `
-                <div class="category-bar-item">
-                    <div class="category-bar-info">
-                        <span class="category-bar-label">
-                            <span class="icon">${cat.icon}</span>
-                            <span>${cat.name}</span>
-                        </span>
-                        <span class="category-bar-amount">${cat.total.toFixed(2)}€</span>
-                    </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fg" style="width: ${percentage}%"></div>
-                    </div>
-                </div>
-            `;
+            return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width: ${percentage}%"></div></div></div>`;
         }).join('');
-        container.innerHTML = `
-            <h3>
-                <span>${summaryTitle}</span>
-                <span class="summary-total-amount">${totalAmount.toFixed(2)}€</span>
-            </h3>
-            <div class="category-summary-bars">${barsHTML}</div>
-        `;
+        container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
     }
 
     function renderList(items, container, kind){
       container.innerHTML = '';
-      
       const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
       const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
-      
       const titleEl = document.createElement('div');
       titleEl.className = 'list-title';
-      const totalColorClass = kind === 'income' ? 'income' : 'expense';
-      titleEl.innerHTML = `
-        <span>${titleText}</span>
-        <span class="list-total-amount ${totalColorClass}">${totalAmount.toFixed(2)}€</span>
-      `;
+      titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
       container.appendChild(titleEl);
 
       if(!items.length){
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
-        emptyState.innerHTML = `<p>Nessun movimento qui.</p>`;
-        container.appendChild(emptyState);
+        container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`);
         return;
       }
       
       items.forEach(tx=>{
-        const item=document.createElement('div');
-        item.className='item';
         const cat=tx.categories;
         const sub=tx.subcategories;
         const icon=sub?.icon||cat?.icon||'💸';
         const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;
         const amountNum=safeToNumber(tx.amount);
-        item.innerHTML=`<div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note??''}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button></div>`;
-        container.appendChild(item);
+        const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+        
+        container.insertAdjacentHTML('beforeend', `
+            <div class="item">
+                <div class="item-icon">${icon}</div>
+                <div class="item-details">
+                    <span class="note">${tx.note??''}${recurringIcon}</span>
+                    <span class="category">${categoryText}</span>
+                </div>
+                <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':''}${amountNum.toFixed(2)} €</div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
+                    <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
+                </div>
+            </div>`);
       });
+    }
+
+    async function loadAndRenderDeadlines() {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 30);
+
+        const { data, error } = await supabase.from('transactions')
+            .select(`*, categories(name, icon)`)
+            .eq('created_by', user.id)
+            .eq('is_paid', false)
+            .gte('due_date', today.toISOString().split('T')[0])
+            .lte('due_date', futureDate.toISOString().split('T')[0])
+            .order('due_date', { ascending: true });
+
+        if (error) { console.error("Errore caricamento scadenze:", error); return; }
+
+        if (data.length === 0) {
+            deadlinesSection.style.display = 'none';
+            return;
+        }
+
+        deadlinesSection.style.display = 'block';
+        deadlinesList.innerHTML = '';
+        data.forEach(tx => {
+            const dueDate = new Date(tx.due_date);
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const daysLeftText = diffDays <= 0 ? 'Oggi' : `${diffDays} giorni`;
+
+            deadlinesList.insertAdjacentHTML('beforeend', `
+                <div class="item deadline-item">
+                    <div class="item-details">
+                        <span class="note">${tx.note}</span>
+                        <span class="category">${tx.categories?.name || ''}</span>
+                    </div>
+                    <span class="item-amount">-${safeToNumber(tx.amount).toFixed(2)}€</span>
+                    <span class="days-left">${daysLeftText}</span>
+                    <button class="btn btn-pay" data-id="${tx.id}">Paga Ora</button>
+                </div>
+            `);
+        });
     }
 
     async function loadTransactions() {
         monthSelector.disabled = true;
-        renderDashboard([]); 
+        renderDashboard([]);
         const selectedMonth = monthSelector.value;
-        let query = supabase.from('transactions')
-            .select(`*, categories(name, icon), subcategories(name, icon)`)
-            .eq('created_by', user.id)
-            .order('occurred_at', { ascending: false });
+        let query = supabase.from('transactions').select(`*, categories(name, icon), subcategories(name, icon)`).eq('created_by', user.id).order('occurred_at', { ascending: false });
         if (selectedMonth) {
             const startDate = new Date(selectedMonth);
             const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0, 23, 59, 59);
-            query = query
-                .gte('occurred_at', startDate.toISOString())
-                .lte('occurred_at', endDate.toISOString());
+            query = query.gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString());
         } else {
             query = query.limit(30);
         }
         const { data, error } = await query;
         monthSelector.disabled = false;
-        if (error) {
-            console.error("Errore transazioni:", error);
-            return;
-        }
+        if (error) { console.error("Errore transazioni:", error); return; }
         allTransactions = data || [];
         renderDashboard(allTransactions);
     }
 
     function handleEdit(id){
       const tx=allTransactions.find(t=>String(t.id)===String(id));if(!tx)return;formTitle.textContent="✍️ Modifica Transazione";transactionIdInput.value=tx.id;document.getElementById('kind').value=tx.kind;document.getElementById('note').value=tx.note??'';document.getElementById('amount').value=safeToNumber(tx.amount);document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';updateCategoryDropdown();categorySelect.value=tx.category_id??'';updateSubcategories(tx.subcategory_id??null);window.scrollTo({top:0,behavior:'smooth'})}
+    
     async function handleDelete(id){
-      if(!confirm("Eliminare questa transazione?"))return;const{error}=await supabase.from('transactions').delete().eq('id',id);if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}else{loadTransactions()}}
-    async function handleFormSubmit(e){
-      e.preventDefault();const formData=new FormData(transactionForm);const id=formData.get('transaction-id');const payload={kind:formData.get('kind'),note:formData.get('note'),amount:formData.get('amount'),occurred_at:formData.get('occurred_at'),category_id:formData.get('category_id'),subcategory_id:formData.get('subcategory_id')||null,created_by:user.id};const{error}=id?await supabase.from('transactions').update(payload).eq('id',id):await supabase.from('transactions').insert(payload);if(error){console.error("Errore salvataggio:",error);alert("Errore. Riprova.")}else{transactionForm.reset();formTitle.textContent="📚 Inserisci una Nuova Transazione";transactionIdInput.value="";document.getElementById('occurred_at').valueAsDate=new Date();updateCategoryDropdown();loadTransactions()}}
+      if(!confirm("Eliminare questa transazione?"))return;const{error}=await supabase.from('transactions').delete().eq('id',id);if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}else{loadTransactions(); loadAndRenderDeadlines();}}
+    
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(transactionForm);
+        const id = formData.get('transaction-id');
+        const expenseType = formData.get('expense_type');
+
+        const payload = {
+            kind: formData.get('kind'),
+            note: formData.get('note'),
+            amount: formData.get('amount'),
+            occurred_at: formData.get('occurred_at'),
+            category_id: formData.get('category_id'),
+            subcategory_id: formData.get('subcategory_id') || null,
+            created_by: user.id
+        };
+
+        let error;
+
+        if (payload.kind === 'expense' && expenseType === 'recurring') {
+            const endDate = new Date(formData.get('recurring_end_date'));
+            if (!endDate || isNaN(endDate)) { alert("Seleziona una data di fine valida per la spesa ricorrente."); return; }
+            
+            payload.is_recurring_parent = true;
+            
+            const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
+            if (parentError) { error = parentError; } 
+            else {
+                const transactionsToCreate = [];
+                let currentDate = new Date(payload.occurred_at);
+                currentDate.setMonth(currentDate.getMonth() + 1);
+
+                while (currentDate <= endDate) {
+                    transactionsToCreate.push({
+                        ...payload,
+                        is_recurring_parent: false,
+                        parent_transaction_id: parentData.id,
+                        occurred_at: new Date(currentDate).toISOString().split('T')[0]
+                    });
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+                if (transactionsToCreate.length > 0) {
+                    const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
+                    if (recurringError) error = recurringError;
+                }
+            }
+        } else if (payload.kind === 'expense' && expenseType === 'scheduled') {
+            payload.due_date = formData.get('due_date');
+            payload.is_paid = false;
+            if (!payload.due_date) { alert("Seleziona una data di scadenza valida."); return; }
+             const { error: scheduledError } = await supabase.from('transactions').insert(payload);
+             error = scheduledError;
+        } else {
+            const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
+            const { error: singleError } = await query;
+            error = singleError;
+        }
+
+        if(error){ console.error("Errore salvataggio:",error); alert("Errore. Riprova.") }
+        else{
+            transactionForm.reset();
+            formTitle.textContent="Nuova Transazione";
+            transactionIdInput.value="";
+            document.getElementById('occurred_at').valueAsDate=new Date();
+            updateCategoryDropdown();
+            loadTransactions();
+            loadAndRenderDeadlines();
+        }
+    }
+
+    async function handlePayDeadline(id) {
+        const deadlineTx = await supabase.from('transactions').select('*').eq('id', id).single();
+        if (deadlineTx.error || !deadlineTx.data) {
+            alert("Errore nel recuperare la spesa.");
+            return;
+        }
+
+        const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+        
+        if (error) {
+            alert("Errore nell'aggiornamento della spesa.");
+            console.error(error);
+        } else {
+            alert("Spesa pagata e registrata con successo!");
+            loadTransactions();
+            loadAndRenderDeadlines();
+        }
+    }
 
     // --- Inizializzazione pagina ---
     async function initializePage() {
@@ -465,9 +472,8 @@
       if (!session){ location.replace("/it/login.html"); return; }
       user = session.user;
       
-      const { data: profile } = await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
-      handleTrialStatus(profile);
-      if (profile && !profile.onboarded && new URLSearchParams(location.search).get('edit')!=='1'){location.replace("/it/onboarding.html");return;}
+      const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+      if (profile && !profile.onboarded){location.replace("/it/onboarding.html");return;}
 
       for (let i = 0; i < 12; i++){
         const d = new Date(); d.setMonth(d.getMonth()-i);
@@ -479,37 +485,36 @@
       document.getElementById('occurred_at').valueAsDate=new Date();
       await loadInitialData();
       updateCategoryDropdown();
-      await loadTransactions(); 
+      await loadTransactions();
+      await loadAndRenderDeadlines();
 
       // Listeners
       kindSelect.addEventListener('change', updateCategoryDropdown);
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
       logoutBtn.addEventListener('click', async(e)=>{e.preventDefault();await supabase.auth.signOut();location.replace("/it/")});
-      document.querySelector('.dashboard-grid').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn');if(!t)return;const id=t.dataset.id;if(t.classList.contains('edit-btn'))handleEdit(id);else if(t.classList.contains('delete-btn'))handleDelete(id)});
-      monthSelector.addEventListener('change', loadTransactions);
       
-      const refreshButton = document.querySelector('.dash-nav a[href="/it/dashboard.html"]');
-      if(refreshButton) {
-        refreshButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          loadTransactions();
-        });
-      }
+      document.querySelector('.dashboard-panel').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn');if(!t)return;const id=t.dataset.id;if(t.classList.contains('edit-btn'))handleEdit(id);else if(t.classList.contains('delete-btn'))handleDelete(id)});
+      
+      deadlinesList.addEventListener('click', (e) => {
+        const payButton = e.target.closest('.btn-pay');
+        if (payButton) { handlePayDeadline(payButton.dataset.id); }
+      });
+      
+      monthSelector.addEventListener('change', loadTransactions);
 
-      // 🚀 Logica Menu Mobile 🚀
+      document.querySelectorAll('input[name="expense_type"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
+            dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
+        });
+      });
+      
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
       if(mobileMenuBtn && topActions) {
-        mobileMenuBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          topActions.classList.toggle('is-open');
-        });
-        document.addEventListener('click', (e) => {
-          if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-            topActions.classList.remove('is-open');
-          }
-        });
+        mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+        document.addEventListener('click', (e) => { if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
       }
     }
 
