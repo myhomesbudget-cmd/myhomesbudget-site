@@ -32,6 +32,7 @@
       border-bottom:1px solid var(--card-border);z-index:100}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
     .top-actions{display:flex;gap:12px;align-items:center}
     .top-link, .top-btn {
       display: flex;
@@ -42,6 +43,7 @@
       font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
       transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
+      white-space: nowrap;
     }
     .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
     
@@ -61,6 +63,9 @@
     .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
     .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
 
+    @media (max-width: 1200px) {
+        .top-center { display: none; }
+    }
     @media (max-width: 960px) {
       .mobile-menu-toggle { display: block; }
       .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
@@ -255,6 +260,9 @@
   <!-- Topbar -->
   <nav class="topbar">
     <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
+    <div class="top-center">
+        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
+    </div>
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -314,6 +322,7 @@
     const notificationBadge = document.getElementById('notification-badge');
     const detailsModal = document.getElementById('details-modal');
     const logoutBtn = document.getElementById('logout-btn');
+    const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
 
     let user = null;
     let chartInstances = {};
@@ -635,6 +644,51 @@
         }
     }
 
+    function renderSubscriptionStatus(profile) {
+        if (!profile || !profile.plan_type) {
+            subscriptionStatusBtn.style.display = 'none';
+            return;
+        }
+
+        let text = '';
+        let link = '#';
+
+        switch(profile.plan_type) {
+            case 'trial':
+                if (profile.trial_end_date) {
+                    const endDate = new Date(profile.trial_end_date);
+                    const today = new Date();
+                    const diffTime = endDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 0) {
+                        text = `${diffDays} giorni rimasti`;
+                        link = '/it/pricing.html';
+                    } else {
+                        text = 'Prova Scaduta';
+                        link = '/it/pricing.html';
+                    }
+                }
+                break;
+            case 'plus':
+                text = 'MyHomesBudget PLUS';
+                link = '/it/account.html';
+                break;
+            case 'pro':
+                text = 'MyHomesBudget PRO';
+                link = '/it/account.html';
+                break;
+        }
+
+        if (text) {
+            subscriptionStatusBtn.textContent = text;
+            subscriptionStatusBtn.href = link;
+            subscriptionStatusBtn.style.display = 'flex';
+        } else {
+            subscriptionStatusBtn.style.display = 'none';
+        }
+    }
+
     // --- Inizializzazione pagina ---
     async function initializePage() {
       // Setup UI Listeners immediately
@@ -690,6 +744,11 @@
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error || !session){ location.replace("/it/login.html"); return; }
         user = session.user;
+
+        const { data: profile } = await supabase.from('profiles').select('plan_type, trial_end_date').eq('id', user.id).single();
+        if(profile) {
+            renderSubscriptionStatus(profile);
+        }
         
         // Populate date selectors
         const now = new Date();
