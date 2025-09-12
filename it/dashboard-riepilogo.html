@@ -664,10 +664,16 @@
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                     if (diffDays >= 0) {
-                        text = diffDays === 1 ? `1 giorno rimasto` : `${diffDays} giorni rimasti`;
+                        if (diffDays > 10) {
+                            text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
+                        } else if (diffDays > 3) {
+                            text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
+                        } else {
+                             text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
+                        }
                         link = '/it/pricing.html';
                     } else {
-                        text = 'Prova Scaduta';
+                        text = '😭 Prova Scaduta. Aggiorna ora!';
                         link = '/it/pricing.html';
                     }
                 }
