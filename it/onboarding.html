@@ -99,10 +99,6 @@
     .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
-    /* Badge Modifica */
-    .edit-badge{display:none;margin-left:8px;background:rgba(255,255,255,.85);color:#333;border:1px solid var(--card-border);
-      padding:4px 8px;border-radius:999px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.08)}
-
     /* ====== Toolbar categorie: una riga + bottoni in gradiente ====== */
     #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
     #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -116,12 +112,10 @@
   </style>
 </head>
 <body>
-  <!-- Topbar uguale alla Dashboard -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
-      <span id="edit-badge" class="edit-badge">Modifica</span>
     </a>
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
@@ -143,7 +137,6 @@
         <div id="step-indicator" class="step-indicator"></div>
       </div>
 
-      <!-- STEP 1 -->
       <section id="step-1" class="step" data-step="1">
         <h1 class="step-title">Qual è il tuo obiettivo principale?</h1>
         <p class="step-description">Scegliere un obiettivo ci aiuta a personalizzare la tua esperienza e a tracciare i tuoi progressi.</p>
@@ -177,7 +170,6 @@
         </fieldset>
       </section>
 
-      <!-- STEP 2 -->
       <section id="step-2" class="step" data-step="2">
         <h1 class="step-title">Come vuoi raggiungere il tuo obiettivo?</h1>
         <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
@@ -200,12 +192,10 @@
         </fieldset>
       </section>
 
-      <!-- STEP 3 -->
       <section id="step-3" class="step" data-step="3">
         <h1 class="step-title">Scegli le tue categorie</h1>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
 
-        <!-- Toolbar: contatori + ricerca + preset (una riga, bottoni gradiente) -->
         <div id="cats-toolbar">
           <div class="cats-counts">
             <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
@@ -232,7 +222,6 @@
           </div>
         </fieldset>
 
-        <!-- Riepilogo -->
         <div id="review-card" class="panel-header" style="margin-top:12px;">
           <div style="font-weight:800;margin-bottom:8px;">Riepilogo</div>
           <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:.95rem;">
@@ -281,7 +270,6 @@
     const stepIndicator = document.getElementById('step-indicator');
     const errorBox = document.getElementById('error');
     const steps = document.querySelectorAll('.step');
-    const editBadge = document.getElementById('edit-badge');
 
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
     const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
@@ -338,7 +326,7 @@
         const id='cat-'+i;
         const w=document.createElement('div');
         w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'>
-                       <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
+                          <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
         (cat.kind==='income' ? incomeContainer : expenseContainer).appendChild(w);
       });
       updateCategoryCounters();
@@ -556,8 +544,7 @@
         const budget = budgetRes.data && budgetRes.data.length>0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
-        if(isEditing){ document.getElementById('edit-badge').style.display='inline-block'; }
-
+        
         if(profile && profile.onboarded && !isEditing){
           location.replace(itPrefix()+'dashboard.html'); return;
         }
