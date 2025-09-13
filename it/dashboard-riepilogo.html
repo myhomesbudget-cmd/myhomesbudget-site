@@ -844,7 +844,11 @@
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
-  <!-- Goal Progress (console test) -->
+  
+  <!-- carica il client Supabase -->
+<script type="module" src="/it/supabase-client.js"></script>
+<!-- poi il nostro lettore che RIUSA window.supabase -->
 <script type="module" src="/js/goal-progress.js"></script>
+
 </body>
 </html>
