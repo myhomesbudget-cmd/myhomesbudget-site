@@ -354,18 +354,28 @@
             monthSelector.disabled = false;
         }
         
-        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes] = await Promise.all([
+        // [PATCH 1] — aggiunta 6ª promessa: lettura view app.v_goal_progress
+        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes, goalProgressRes] = await Promise.all([
             supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()).eq('is_paid', true),
             supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
             supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
             supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle(),
-            supabase.from('transactions').select('kind, amount, occurred_at').eq('created_by', user.id).lte('occurred_at', new Date().toISOString())
+            supabase.from('transactions').select('kind, amount, occurred_at').eq('created_by', user.id).lte('occurred_at', new Date().toISOString()),
+            // NUOVO: stato reale dell’obiettivo nello schema `app`
+            supabase
+              .schema('app')
+              .from('v_goal_progress')
+              .select('title,target_amount,contributed_amount,progress_pct,remaining_amount')
+              .eq('user_id', user.id)
+              .limit(1)
+              .maybeSingle()
         ]);
         
         yearSelector.disabled = false;
         if(currentView === 'monthly') monthSelector.disabled = false;
         
-        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error].filter(Boolean);
+        // [PATCH 1] — includo l’eventuale errore della nuova query
+        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error, goalProgressRes.error].filter(Boolean);
         if (errors.length > 0) {
             errors.forEach(error => console.error("Errore caricamento dati:", error));
             summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
@@ -387,8 +397,18 @@
 
         const allTimeTransactions = allPastTransactionsRes.data || [];
 
-        renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions);
-        renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving);
+        // [PATCH 2] — se disponibile, uso i valori REALI della view (maturato e target)
+        const goalProgress = goalProgressRes?.data || null;
+        const adjustedGoalTargetAmount = (goalProgress && goalProgress.target_amount != null)
+          ? safeToNumber(goalProgress.target_amount)
+          : goalTargetAmount;
+        const adjustedCumulativeSaving = (goalProgress && goalProgress.contributed_amount != null)
+          ? safeToNumber(goalProgress.contributed_amount)
+          : cumulativeIdealSaving;
+
+        // Passo i valori “adjusted” al rendering
+        renderStrategicSummary(transactions, monthlySavingGoal, goalName, adjustedGoalTargetAmount, adjustedCumulativeSaving, allTimeTransactions);
+        renderDeepDiveCharts(transactions, monthlySavingGoal, adjustedGoalTargetAmount, adjustedCumulativeSaving);
         updateNotifications();
     }
     
