@@ -11,4 +11,7 @@ export const supabase = createClient(url, key, {
     detectSessionInUrl: true,
   },
 });
-
+// Espone il client anche in global, senza rompere gli import esistenti
+if (typeof window !== 'undefined') {
+  window.supabase = window.supabase || supabase;
+}
