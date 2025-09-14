@@ -279,15 +279,18 @@
   </div>
 
   <script type="module">
-  import { supabase } from "/it/supabase-client.js";
-  window.supabase = supabase; // rende supabase disponibile in console e in altri snippet
+    import { supabase } from "/it/supabase-client.js";
+    window.supabase = supabase; // disponibile in console
 
-  const { data: view, error: eView } = await supabase
-    .from('app.v_dashboard_goals')
-    .select('*');
-
-  console.log("[Goals] data:", view, "error:", eView);
-</script>
+    // --- Test rapido: leggo la view corretta (public.v_dashboard_goals)
+    try {
+      const { data: view, error: eView } = await supabase
+        .from('v_dashboard_goals')
+        .select('*');
+      console.log("[Goals] data:", view, "error:", eView || null);
+    } catch (e) {
+      console.log("[Goals] view error (catch):", e);
+    }
 
     // --- Elementi DOM ---
     const transactionForm = document.getElementById('transaction-form');
@@ -330,13 +333,12 @@
     const fmt = (n)=> Number(n||0).toFixed(2);
 
     /* ===================== GOALS ===================== */
-
     async function loadGoals() {
       const { data, error } = await supabase.rpc('get_dashboard_goals');
       if (error) {
         console.warn("get_dashboard_goals non disponibile o errore:", error);
-        goalsData = [];               // fallback
-        renderGoalsUI(goalsData);     // mostra placeholder
+        goalsData = [];
+        renderGoalsUI(goalsData);
         return;
       }
       goalsData = data || [];
@@ -377,10 +379,8 @@
       goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
 
       const activeGoals = goals.filter(g => g.active);
-      // Editor SOLO per l'Obiettivo 1 (il primo attivo con goal_number=1)
       const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
 
-      // calcolo valori correnti per i campi in base al metodo
       const method = g1.goal_method || 'fixed';
       const valueForMethod =
         method === 'fixed' ? (g1.fixed_amount || 0) :
@@ -395,7 +395,6 @@
       const placeholderForMethod =
         method === 'percent_income' ? '10 → significa 10%' : '100.00';
 
-      // Card editor Obiettivo 1
       const editCard = `
         <div class="goal-card" style="margin-bottom:12px;">
           <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
@@ -418,7 +417,6 @@
         </div>
       `;
 
-      // Altre card (bloccate se non PRO e goal_number > 1)
       let extraCards = '';
       const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
       if (moreGoals.length) {
@@ -448,7 +446,6 @@
 
       goalsList.innerHTML = editCard + extraCards;
 
-      // Bind editor Obiettivo 1
       bindGoalEditor(g1);
     }
 
@@ -460,17 +457,14 @@
 
       if (!methodWrap || !valueInput || !saveBtn) return;
 
-      // cambia UI su click chip
       methodWrap.addEventListener('click', (e) => {
         const chip = e.target.closest('.chip');
         if (!chip) return;
 
-        // toggle visivo
         Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
         chip.classList.add('is-active');
 
-        const m = chip.dataset.method; // fixed | variable | percent_income
-        // aggiorna label/placeholder/valore
+        const m = chip.dataset.method;
         if (m === 'fixed') {
           labelEl.textContent = 'Importo fisso (€)';
           valueInput.placeholder = '100.00';
@@ -489,7 +483,6 @@
         }
       });
 
-      // salva
       saveBtn.addEventListener('click', async () => {
         const activeChip = methodWrap.querySelector('.chip.is-active');
         const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
@@ -512,7 +505,6 @@
           return;
         }
         console.log('Obiettivo aggiornato');
-        // aggiorna cache locale e UI
         goal.goal_method = method;
         if (method === 'fixed') goal.fixed_amount = val;
         if (method === 'variable') goal.variable_amount = val;
@@ -810,8 +802,8 @@
             payload.is_paid = false;
             payload.occurred_at = payload.due_date;
             if (!payload.due_date) { alert("Seleziona una data di scadenza/incasso valida."); return; }
-             const { error: scheduledError } = await supabase.from('transactions').insert(payload);
-             error = scheduledError;
+            const { error: scheduledError } = await supabase.from('transactions').insert(payload);
+            error = scheduledError;
         } else {
             const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
             const { error: singleError } = await query;
@@ -847,7 +839,6 @@
         if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
         
         const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
-        
         if (error) {
             alert("Errore nell'aggiornamento dell'operazione.");
             console.error(error);
