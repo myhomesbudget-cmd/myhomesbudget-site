@@ -164,20 +164,21 @@
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
 
-    /* ====== GOALS (UI leggera) ====== */
+    /* ====== GOALS (UI) ====== */
     #goals-section .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     #goals-plan-info { font-weight:700; color:#666; }
     .goal-card { background:#fff; border:1px solid var(--card-border); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
     .goal-title { font-weight:800; color:#444; margin:0 0 4px; }
     .goal-subtitle { margin:0 0 12px; color:#666; }
     .goal-row { display:grid; grid-template-columns: 1fr 1fr auto; gap:12px; align-items:center; }
-    .chip { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:rgba(0,0,0,.05); font-weight:700; cursor:default; user-select:none; }
+    .chip { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:rgba(0,0,0,.05); font-weight:700; cursor:pointer; user-select:none; }
     .chip.is-active { background: var(--grad); color:#fff; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
     .goal-method { display:flex; gap:8px; flex-wrap:wrap; }
     .goal-input input { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; font-size:1rem; background:#fff; }
     .goal-hint { display:block; margin-top:6px; font-size:.85rem; color:#777; }
     .goal-confirm { text-align:right; }
     .goal-card .link { color: var(--primary-color); font-weight:700; text-decoration:none; }
+    .goal-locked { opacity: .7; }
   </style>
 </head>
 <body>
@@ -242,7 +243,7 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (sempre visibile con fallback) -->
+    <!-- 🎯 Sezione Obiettivi -->
     <section id="goals-section" class="content-section" style="margin-top: 16px;">
       <div class="header">
         <h3 style="margin:0; display:flex; align-items:center; gap:8px;">🎯 <span>Obiettivi</span></h3>
@@ -316,9 +317,204 @@
     // dati goals
     let goalsData = [];
 
-    // --- Gestione Dati e Rendering ---
+    // --- Utils ---
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
-    
+    const fmt = (n)=> Number(n||0).toFixed(2);
+
+    /* ===================== GOALS ===================== */
+
+    async function loadGoals() {
+      const { data, error } = await supabase.rpc('get_dashboard_goals');
+      if (error) {
+        console.warn("get_dashboard_goals non disponibile o errore:", error);
+        goalsData = [];               // fallback
+        renderGoalsUI(goalsData);     // mostra placeholder
+        return;
+      }
+      goalsData = data || [];
+      renderGoalsUI(goalsData);
+    }
+
+    function renderGoalsUI(goals) {
+      goalsSection.style.display = "block";
+
+      if (!goals || goals.length === 0) {
+        goalsPlanInfo.textContent = '';
+        goalsList.innerHTML = `
+          <div class="goal-card">
+            <div class="goal-title">🎯 <span>Obiettivo</span></div>
+            <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+            <div class="goal-row">
+              <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+                <span class="chip is-active" data-method="fixed">Somma fissa</span>
+                <span class="chip" data-method="variable">Somma variabile</span>
+                <span class="chip" data-method="percent_income">% sulle entrate</span>
+              </div>
+              <div class="goal-input">
+                <input type="number" placeholder="100.00" step="0.01" />
+                <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+              </div>
+              <div class="goal-confirm">
+                <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const plan = goals.find(g => g.plan_type)?.plan_type || '';
+      const countActive = goals.filter(g => g.active).length;
+      const maxGoals = goals[0]?.max_goals ?? '';
+      goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
+
+      const activeGoals = goals.filter(g => g.active);
+      // Editor SOLO per l'Obiettivo 1 (il primo attivo con goal_number=1)
+      const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
+
+      // calcolo valori correnti per i campi in base al metodo
+      const method = g1.goal_method || 'fixed';
+      const valueForMethod =
+        method === 'fixed' ? (g1.fixed_amount || 0) :
+        method === 'variable' ? (g1.variable_amount || 0) :
+        (g1.percent_of_income || 0);
+
+      const labelForMethod =
+        method === 'fixed' ? 'Importo fisso (€)' :
+        method === 'variable' ? 'Importo variabile (€)' :
+        'Percentuale sulle entrate (%)';
+
+      const placeholderForMethod =
+        method === 'percent_income' ? '10 → significa 10%' : '100.00';
+
+      // Card editor Obiettivo 1
+      const editCard = `
+        <div class="goal-card" style="margin-bottom:12px;">
+          <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
+          <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
+          <div class="goal-row">
+            <div class="goal-method" id="g1-method">
+              <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
+              <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
+              <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
+            </div>
+            <div class="goal-input">
+              <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+              <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholderForMethod}" />
+              <span class="goal-hint">Target: <strong>${fmt(g1.target_amount)}€</strong></span>
+            </div>
+            <div class="goal-confirm">
+              <button id="g1-save" class="btn btn-primary">Salva</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Altre card (bloccate se non PRO e goal_number > 1)
+      let extraCards = '';
+      const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
+      if (moreGoals.length) {
+        const isPro = (plan || '').toLowerCase() === 'pro';
+        extraCards = moreGoals.map(g => {
+          const locked = !isPro;
+          const content = `
+            <div class="goal-card ${locked ? 'goal-locked' : ''}">
+              <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
+              <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
+              <div class="goal-row" style="grid-template-columns: 1fr auto;">
+                <div>
+                  <div class="goal-hint" style="margin:0;">Target: <strong>${fmt(g.target_amount)}€</strong></div>
+                </div>
+                <div class="goal-confirm">
+                  ${locked
+                    ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
+                    : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
+                  }
+                </div>
+              </div>
+            </div>
+          `;
+          return content;
+        }).join('');
+      }
+
+      goalsList.innerHTML = editCard + extraCards;
+
+      // Bind editor Obiettivo 1
+      bindGoalEditor(g1);
+    }
+
+    function bindGoalEditor(goal) {
+      const methodWrap = document.getElementById('g1-method');
+      const valueInput = document.getElementById('g1-value');
+      const saveBtn = document.getElementById('g1-save');
+      const labelEl = document.getElementById('g1-label');
+
+      if (!methodWrap || !valueInput || !saveBtn) return;
+
+      // cambia UI su click chip
+      methodWrap.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+
+        // toggle visivo
+        Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+        chip.classList.add('is-active');
+
+        const m = chip.dataset.method; // fixed | variable | percent_income
+        // aggiorna label/placeholder/valore
+        if (m === 'fixed') {
+          labelEl.textContent = 'Importo fisso (€)';
+          valueInput.placeholder = '100.00';
+          valueInput.step = '0.01';
+          valueInput.value = goal.fixed_amount || 0;
+        } else if (m === 'variable') {
+          labelEl.textContent = 'Importo variabile (€)';
+          valueInput.placeholder = '100.00';
+          valueInput.step = '0.01';
+          valueInput.value = goal.variable_amount || 0;
+        } else {
+          labelEl.textContent = 'Percentuale sulle entrate (%)';
+          valueInput.placeholder = '10 → significa 10%';
+          valueInput.step = '0.01';
+          valueInput.value = goal.percent_of_income || 0;
+        }
+      });
+
+      // salva
+      saveBtn.addEventListener('click', async () => {
+        const activeChip = methodWrap.querySelector('.chip.is-active');
+        const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+        const raw = parseFloat(valueInput.value);
+        const val = Number.isFinite(raw) ? raw : 0;
+
+        const patch = { goal_method: method };
+        if (method === 'fixed') {
+          patch.fixed_amount = val;
+        } else if (method === 'variable') {
+          patch.variable_amount = val;
+        } else {
+          patch.percent_of_income = val;
+        }
+
+        const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+        if (error) {
+          console.error('Errore aggiornamento obiettivo:', error);
+          alert('Impossibile salvare. Riprova.');
+          return;
+        }
+        console.log('Obiettivo aggiornato');
+        // aggiorna cache locale e UI
+        goal.goal_method = method;
+        if (method === 'fixed') goal.fixed_amount = val;
+        if (method === 'variable') goal.variable_amount = val;
+        if (method === 'percent_income') goal.percent_of_income = val;
+        alert('Obiettivo aggiornato');
+      });
+    }
+
+    /* ===================== TRANSAZIONI ===================== */
+
     async function loadInitialData(){
       const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);
       if(cError){console.error("Errore categorie:",cError);return}
@@ -639,6 +835,20 @@
         }
     }
 
+    async function updateNotifications() {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
+        
+        if(upcomingDeadlines.length > 0) {
+            notificationBadge.textContent = upcomingDeadlines.length;
+            notificationBadge.classList.add('is-visible');
+        } else {
+            notificationBadge.classList.remove('is-visible');
+        }
+    }
+
     async function handleConfirmDeadline(id) {
         if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
         
@@ -650,104 +860,6 @@
         } else {
             loadAllDataForMonth();
         }
-    }
-
-    /* ===================== 🎯 GOALS — UI (Step 4A) ===================== */
-
-    // 1) NON nascondo la sezione: se RPC fallisce o è vuota, mostro placeholder
-    async function loadGoals() {
-      const { data, error } = await supabase.rpc('get_dashboard_goals');
-      if (error) {
-        console.warn("get_dashboard_goals non disponibile o errore:", error);
-        goalsData = [];               // fallback
-        renderGoalsUI(goalsData);     // mostra placeholder
-        return;
-      }
-      goalsData = data || [];
-      renderGoalsUI(goalsData);
-    }
-
-    // 2) Renderer: se non ci sono goals => placeholder con chips e link Configura
-    function renderGoalsUI(goals) {
-      // la sezione resta sempre visibile
-      goalsSection.style.display = "block";
-
-      // placeholder se non arrivano goal
-      if (!goals || goals.length === 0) {
-        goalsPlanInfo.textContent = '';
-        goalsList.innerHTML = `
-          <div class="goal-card">
-            <div class="goal-title">🎯 <span>Obiettivo</span></div>
-            <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
-            <div class="goal-row">
-              <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-                <span class="chip is-active">Somma fissa</span>
-                <span class="chip">Somma variabile</span>
-                <span class="chip">% sulle entrate</span>
-              </div>
-              <div class="goal-input">
-                <input type="number" placeholder="100.00" step="0.01" />
-                <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
-              </div>
-              <div class="goal-confirm">
-                <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-              </div>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      // Se ci sono goals: visualizzazione semplice (senza cambiare logiche esistenti)
-      // (Mostro solo i goal attivi e la plan info lato destro)
-      const plan = goals.find(g => g.plan_type)?.plan_type || '';
-      const countActive = goals.filter(g => g.active).length;
-      const maxGoals = goals[0]?.max_goals ?? '';
-      goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
-
-      const activeGoals = goals.filter(g => g.active);
-      if (activeGoals.length === 0) {
-        goalsList.innerHTML = `
-          <div class="goal-card">
-            <div class="goal-title">🎯 <span>Obiettivo</span></div>
-            <p class="goal-subtitle">Non hai obiettivi attivi in questo momento.</p>
-            <div class="goal-row">
-              <div class="goal-method">
-                <span class="chip is-active">Somma fissa</span>
-                <span class="chip">% sulle entrate</span>
-              </div>
-              <div class="goal-input">
-                <input type="number" placeholder="100.00" step="0.01" />
-                <span class="goal-hint">Attiva o modifica dall’Onboarding.</span>
-              </div>
-              <div class="goal-confirm">
-                <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-              </div>
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      goalsList.innerHTML = activeGoals.map(g => {
-        const title = `Obiettivo ${g.goal_number ?? ''}`;
-        const name = g.name || 'Risparmio';
-        const target = (g.target_amount ?? 0).toFixed(2) + '€';
-        return `
-          <div class="goal-card" style="margin-bottom:12px;">
-            <div class="goal-title">🎯 <span>${title}</span></div>
-            <p class="goal-subtitle">${name}</p>
-            <div class="goal-row" style="grid-template-columns: 1fr auto;">
-              <div>
-                <div class="goal-hint" style="margin:0;">Target: <strong>${target}</strong></div>
-              </div>
-              <div class="goal-confirm">
-                <a class="link" href="/it/onboarding.html?edit=1">Modifica</a>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     // --- Inizializzazione pagina ---
@@ -775,7 +887,7 @@
       await loadInitialData();
       updateCategoryDropdown();
 
-      // 🎯 Carica obiettivi (Step 4A)
+      // 🎯 Obiettivi
       await loadGoals();
 
       await loadAllDataForMonth();
