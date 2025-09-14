@@ -279,8 +279,15 @@
   </div>
 
   <script type="module">
-    import { supabase } from "/it/supabase-client.js";
-    window.supabase = supabase; // rende supabase disponibile in console e in altri snippet
+  import { supabase } from "/it/supabase-client.js";
+  window.supabase = supabase; // rende supabase disponibile in console e in altri snippet
+
+  const { data: view, error: eView } = await supabase
+    .from('app.v_dashboard_goals')
+    .select('*');
+
+  console.log("[Goals] data:", view, "error:", eView);
+</script>
 
     // --- Elementi DOM ---
     const transactionForm = document.getElementById('transaction-form');
