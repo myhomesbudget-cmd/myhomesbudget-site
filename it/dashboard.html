@@ -41,7 +41,7 @@
       cursor: pointer;
     }
     .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
-    
+
     .date-selectors { display: flex; gap: 8px; }
     .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
     .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
@@ -73,7 +73,7 @@
     .dash-nav a:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
     .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
-    
+
     .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
     .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
     .dashboard-panel .content-section { background: rgba(255,255,255,0.7); }
@@ -104,7 +104,7 @@
 
     /* ====== Form e Bottoni ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .btn-primary{background: var(--grad);box-shadow: 0 10px 24px rgba(0,0,0,.18);}
     .btn-primary:hover {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
@@ -114,8 +114,6 @@
     .form-group.full-width{grid-column:1 / -1}
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
-    
-    /* Stili per Opzioni Avanzate */
     #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
     .advanced-options-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px; }
     .advanced-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
@@ -164,34 +162,37 @@
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
 
-    /* STEP 1: segnaposto (inizialmente nascosto) */
-    .savings-panels { display: none; }
-
-    /* STEP 3B: stile leggero per placeholder card */
-    .savings-grid { display:grid; grid-template-columns:1fr; gap:12px; }
-    @media (min-width: 900px){ .savings-grid{ grid-template-columns: repeat(2, 1fr);} }
-    @media (min-width: 1200px){ .savings-grid{ grid-template-columns: repeat(3, 1fr);} }
-    .savings-card {
-      background: rgba(255,255,255,0.75);
+    /* ====== GOALS (UI Step 4A) ====== */
+    .goals-header {
+      display:flex;justify-content:space-between;align-items:center;margin: -8px 0 16px 0;
+    }
+    .goals-plan { font-weight:700;color:#666;font-size:0.95rem }
+    .goal-card {
       border:1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
+      border-radius:12px;
       padding:16px;
-      display:flex;flex-direction:column;gap:8px;
+      background:#fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
     }
-    .savings-card .title { font-weight:800; font-size:1rem; }
-    .savings-card .meta { color:#555; font-weight:600; }
-    .savings-card.locked { opacity:.8; background:linear-gradient(135deg, #f8f9fb, #fff); }
-    .savings-card .cta { margin-top:auto; display:flex; gap:8px; }
-    .btn-ghost {
-      background: transparent;
-      color: var(--primary-color);
-      border:1px solid rgba(0,0,0,.1);
-      border-radius:10px;
-      padding:8px 12px;
-      font-weight:700;
-      cursor:pointer;
+    .goal-title { font-weight:800; margin:0 0 6px; display:flex; align-items:center; gap:8px;}
+    .goal-subtitle { margin:0 0 14px; color:#555; font-weight:600; }
+    .goal-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .goal-method { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip {
+      padding:8px 12px; border-radius:999px; border:1px solid var(--card-border);
+      background: rgba(255,255,255,.8); cursor:pointer; font-weight:700; color:#555;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      user-select:none;
     }
+    .chip:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.08); }
+    .chip.is-active { background: var(--grad); color:#fff; border-color: transparent; }
+    .goal-input { min-width: 220px; display:flex; align-items:center; gap:8px; }
+    .goal-input input {
+      padding:10px 12px; border-radius:10px; border:1px solid #ccc; font-size:1rem; width: 180px;
+    }
+    .goal-hint { color:#666; font-size:0.9rem; }
+    .goal-confirm { margin-left:auto; }
+    .btn-disabled { opacity:.6; cursor:not-allowed; }
   </style>
 </head>
 <body>
@@ -256,8 +257,14 @@
       </form>
     </section>
 
-    <!-- STEP 1: contenitore per il futuro box risparmio (sotto il form) -->
-    <section id="savings-method-panels" class="content-section savings-panels" style="margin-top:16px;"></section>
+    <!-- ====== OBIETTIVI (UI Step 4A) ====== -->
+    <section id="goals-section" class="content-section" style="margin-top: 24px; display: none;">
+      <div class="goals-header">
+        <h2 style="margin:0">🎯 Obiettivi</h2>
+        <div id="goals-plan-info" class="goals-plan"></div>
+      </div>
+      <div id="goals-list"></div>
+    </section>
 
     <!-- Sezione Scadenze e Voci Future -->
     <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
@@ -311,12 +318,17 @@
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
     const schedulerModal = document.getElementById('scheduler-modal');
-    const savingsPanels = document.getElementById('savings-method-panels'); /* STEP 3B */
+
+    // Goals UI
+    const goalsSection = document.getElementById('goals-section');
+    const goalsList = document.getElementById('goals-list');
+    const goalsPlanInfo = document.getElementById('goals-plan-info');
 
     let user = null;
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
+    let goalsData = []; // dati dagli RPC (get_dashboard_goals)
 
     // --- Gestione Dati e Rendering ---
     function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
@@ -339,6 +351,9 @@
       renderList(incomes,incomeList, 'income');
       renderSummary(expenses,expenseSummary,'expense');
       renderList(expenses,expenseList, 'expense');
+
+      // Aggiorno eventuale anteprima % sulle entrate nei controlli obiettivo
+      renderGoalsUI(goalsData); // solo UI, ricalcola la stima percentuale sul mese corrente
     }
     
     function renderSummary(items, container, kind) {
@@ -393,6 +408,126 @@
                 </div>
             </div>`);
       });
+    }
+
+    // ====== GOALS (UI Step 4A) ======
+    function incomesOfCurrentMonth() {
+      const incomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false);
+      return incomes.reduce((s, t) => s + safeToNumber(t.amount), 0);
+    }
+
+    function renderGoalsUI(goals) {
+      // se non ci sono obiettivi non mostro la section
+      if (!goals || goals.length === 0) {
+        goalsSection.style.display = "none";
+        return;
+      }
+      goalsSection.style.display = "block";
+
+      // Piano / limiti (arrivano dall'RPC come colonne plan_type, max_goals, active_goals?)
+      // Se non hai questi campi nel RPC, la stringa resta vuota.
+      const plan = goals[0]?.plan_type || '';            // opzionale
+      const maxGoals = goals[0]?.max_goals || '';        // opzionale
+      const activeGoals = goals[0]?.active_goals || '';  // opzionale
+      goalsPlanInfo.textContent = (plan && maxGoals && activeGoals) ? `Piano: ${plan} • Attivi: ${activeGoals}/${maxGoals}` : '';
+
+      // Mostriamo solo i goal attivi (Starter/Plus 1 solo attivo; Pro potrà vederne fino a 3)
+      const activeGoalsList = goals.filter(g => g.active !== false);
+
+      const monthIncome = incomesOfCurrentMonth();
+
+      goalsList.innerHTML = activeGoalsList.map(g => {
+        const goalId = g.id;
+        const name = g.name || 'Obiettivo';
+        const horizon = g.horizon || 'ANNUALE';
+        const target = safeToNumber(g.target_amount || g.target || 0);
+
+        // UI controls id
+        const wrapId = `goal-wrap-${goalId}`;
+        const fixedId = `goal-fixed-${goalId}`;
+        const variableId = `goal-variable-${goalId}`;
+        const percentId = `goal-percent-${goalId}`;
+        const inputId = `goal-input-${goalId}`;
+        const hintId = `goal-hint-${goalId}`;
+        const confirmId = `goal-confirm-${goalId}`;
+
+        return `
+          <div class="goal-card" id="${wrapId}">
+            <div class="goal-title">🎯 <span>Obiettivo ${name ? `<strong>${name}</strong>` : ''}</span></div>
+            <p class="goal-subtitle">Risparmio <strong>${horizon}</strong> • Target: <strong>${target.toFixed(2)}€</strong></p>
+            <div class="goal-row">
+              <div class="goal-method" role="tablist">
+                <span class="chip is-active" data-method="FIXED" id="${fixedId}">Somma fissa</span>
+                <span class="chip" data-method="VARIABLE" id="${variableId}">Somma variabile</span>
+                <span class="chip" data-method="PERCENT_INCOME" id="${percentId}">% sulle entrate</span>
+              </div>
+
+              <div class="goal-input">
+                <input type="number" id="${inputId}" placeholder="100.00" step="0.01" />
+                <span class="goal-hint" id="${hintId}"></span>
+              </div>
+
+              <div class="goal-confirm">
+                <button class="btn btn-primary btn-disabled" id="${confirmId}" title="Solo UI (Step 4A)">Conferma</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // bind events per ogni card
+      activeGoalsList.forEach(g => bindGoalCardEvents(g.id, monthIncome));
+    }
+
+    function bindGoalCardEvents(goalId, monthIncome) {
+      const wrap = document.getElementById(`goal-wrap-${goalId}`);
+      if (!wrap) return;
+
+      const chips = [
+        wrap.querySelector(`[id="goal-fixed-${goalId}"]`),
+        wrap.querySelector(`[id="goal-variable-${goalId}"]`),
+        wrap.querySelector(`[id="goal-percent-${goalId}"]`)
+      ].filter(Boolean);
+
+      const input = wrap.querySelector(`#goal-input-${goalId}`);
+      const hint = wrap.querySelector(`#goal-hint-${goalId}`);
+      const confirmBtn = wrap.querySelector(`#goal-confirm-${goalId}`);
+
+      function setActive(method) {
+        chips.forEach(c => c.classList.toggle('is-active', c?.dataset.method === method));
+        if (method === 'PERCENT_INCOME') {
+          input.placeholder = "es. 10 = 10%";
+          updateHint(); // mostra stima
+        } else {
+          input.placeholder = (method === 'FIXED') ? "es. 100.00 €" : "es. 0-∞";
+          hint.textContent = "";
+        }
+      }
+      function updateHint() {
+        const method = chips.find(c => c.classList.contains('is-active'))?.dataset.method;
+        const val = safeToNumber(input.value);
+        if (method === 'PERCENT_INCOME' && val > 0) {
+          const estimate = (monthIncome * val) / 100;
+          hint.textContent = `Stima mese: ${estimate.toFixed(2)}€`;
+        } else {
+          hint.textContent = "";
+        }
+      }
+
+      chips.forEach(chip => {
+        chip?.addEventListener('click', () => setActive(chip.dataset.method));
+      });
+      input?.addEventListener('input', updateHint);
+
+      // Solo UI: non scrive
+      confirmBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert("Step 4A (UI): il salvataggio verrà attivato nello Step 4B. Qui stai solo provando i controlli.");
+      });
+
+      // stato iniziale
+      setActive('FIXED');
+      confirmBtn?.classList.add('btn-disabled');
     }
 
     async function getScheduledTransactions(startDate, endDate) {
@@ -631,84 +766,17 @@
         }
     }
 
-    /* =======================
-       STEP 3B: lettura limiti & goals e placeholder UI
-       ======================= */
-    function renderSavingsPanelsPlaceholders(limits, goals){
-      if(!savingsPanels) return;
-      // Mostra il contenitore solo quando pronto
-      savingsPanels.style.display = 'block';
-
-      const max = limits?.max_goals ?? 1;
-      const plan = (limits?.plan_type || 'starter').toUpperCase();
-      const activeGoals = goals || [];
-
-      // Griglia
-      const grid = document.createElement('div');
-      grid.className = 'savings-grid';
-
-      // Card per ogni goal restituito (fino a max)
-      activeGoals.forEach((g, idx) => {
-        const card = document.createElement('div');
-        card.className = 'savings-card';
-        card.innerHTML = `
-          <div class="title">🎯 Obiettivo ${idx+1}${g.active ? '' : ' (disattivo)'} </div>
-          <div class="meta"><strong>${g.name || 'Senza nome'}</strong></div>
-          <div class="meta">Target: ${Number(g.target_amount||0).toFixed(2)}€</div>
-          <div class="cta">
-            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Modifica</a>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-
-      // Slot vuoti residui (solo per piani che lo consentono: es. PRO fino a 3)
-      const remaining = Math.max(0, max - activeGoals.length);
-      for(let i=0; i<remaining; i++){
-        const idx = activeGoals.length + i + 1;
-        const card = document.createElement('div');
-        card.className = 'savings-card locked';
-        card.innerHTML = `
-          <div class="title">🎯 Slot Obiettivo ${idx}</div>
-          <div class="meta">Piano: ${plan}</div>
-          <div class="meta">Slot disponibile</div>
-          <div class="cta">
-            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Configura</a>
-          </div>
-        `;
-        grid.appendChild(card);
+    // ====== GOALS: fetch dai servizi (rpc) e render UI ======
+    async function loadGoals() {
+      // RPC creato in precedenza; se non esiste restituisce errore, ma la dashboard continua
+      const { data, error } = await supabase.rpc('get_dashboard_goals');
+      if (error) {
+        console.warn("get_dashboard_goals non disponibile o errore:", error);
+        goalsSection.style.display = 'none';
+        return;
       }
-
-      // Intestazione semplice del blocco
-      savingsPanels.innerHTML = `
-        <h3 style="margin-top:0; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
-          <span>🎯 Obiettivi</span>
-          <span style="font-weight:700; font-size:.95rem; color:#555;">Piano: ${plan} • Attivi: ${activeGoals.length}/${max}</span>
-        </h3>
-      `;
-      savingsPanels.appendChild(grid);
-    }
-
-    async function loadSavingsPanelsInfo(){
-      try{
-        const { data: { session } } = await supabase.auth.getSession();
-        if(!session) return;
-        const userId = session.user.id;
-
-        // Limiti per l'utente
-        const { data: limits, error: lErr } = await supabase.rpc('get_goal_limits_for_user', { p_user: userId });
-        if(lErr){ console.warn('[SavingsPanels] limits error', lErr); return; }
-        const limitRow = limits && limits[0] ? limits[0] : { plan_type:'starter', active_goals:0, max_goals:1, remaining_slots:1 };
-
-        // Goals per la dashboard (fino al limite piano)
-        const { data: goals, error: gErr } = await supabase.rpc('get_dashboard_goals', { p_user: userId });
-        if(gErr){ console.warn('[SavingsPanels] goals error', gErr); return; }
-
-        // Render placeholder
-        renderSavingsPanelsPlaceholders(limitRow, goals||[]);
-      }catch(e){
-        console.error('[SavingsPanels] init error', e);
-      }
+      goalsData = data || [];
+      renderGoalsUI(goalsData);
     }
 
     // --- Inizializzazione pagina ---
@@ -736,9 +804,7 @@
       await loadInitialData();
       updateCategoryDropdown();
       await loadAllDataForMonth();
-
-      /* STEP 3B: carica limiti+goals e mostra placeholder */
-      await loadSavingsPanelsInfo();
+      await loadGoals(); // carico obiettivi (UI)
 
       // Listeners
       kindSelect.addEventListener('change', updateCategoryDropdown);
@@ -753,8 +819,8 @@
         if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
       });
       
-      monthSelector.addEventListener('change', loadAllDataForMonth);
-      yearSelector.addEventListener('change', loadAllDataForMonth);
+      monthSelector.addEventListener('change', async () => { await loadAllDataForMonth(); renderGoalsUI(goalsData); });
+      yearSelector.addEventListener('change', async () => { await loadAllDataForMonth(); renderGoalsUI(goalsData); });
 
       document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
         radio.addEventListener('change', (e) => {
@@ -769,7 +835,8 @@
         const startDate = new Date(selectedYear, selectedMonth, 1);
         const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
         const scheduled = await getScheduledTransactions(startDate, endDate);
-        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+        const monthsNames = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${monthsNames[selectedMonth]} ${selectedYear}`;
         renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
         schedulerModal.classList.add('is-visible');
       });
