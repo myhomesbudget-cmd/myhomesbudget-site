@@ -395,17 +395,30 @@
 
     // --- GOALS LOGIC ---
     async function loadGoals() {
-      try {
-        const { data, error } = await supabase.rpc('get_dashboard_goals');
-        if (error) throw error;
-        goalsData = data || [];
-        renderGoalsUI(goalsData);
-      } catch(error) {
-        console.warn("get_dashboard_goals non disponibile o errore:", error);
-        goalsData = [];
-        renderGoalsUI(goalsData);
-      }
+  try {
+    // 1) prima provo l'RPC
+    const { data, error } = await supabase.rpc('get_dashboard_goals');
+    if (error) throw error;
+    goalsData = data || [];
+  } catch (e1) {
+    console.warn('[Goals] RPC non disponibile:', e1?.message || e1);
+
+    // 2) fallback: vista nello schema "app"
+    try {
+      const { data: vData, error: vErr } = await supabase
+        .schema('app')                 // <- questa è la chiave!
+        .from('v_dashboard_goals')     // NON "app.v_dashboard_goals"
+        .select('*');
+      if (vErr) throw vErr;
+      goalsData = vData || [];
+    } catch (e2) {
+      console.error('[Goals] Vista schema app non raggiungibile:', e2?.message || e2);
+      goalsData = []; // 3) fallback finale: placeholder
     }
+  }
+
+  renderGoalsUI(goalsData);
+}
 
     function renderGoalsUI(goals) {
         goalsSection.style.display = "block";
