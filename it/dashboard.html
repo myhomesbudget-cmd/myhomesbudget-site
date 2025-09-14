@@ -163,6 +163,9 @@
     .modal-body ul { list-style: none; padding: 0; margin: 0; }
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
+
+    /* STEP 1: segnaposto per il futuro box risparmio (invisibile, non interferisce) */
+    .savings-panels { display: none; }
   </style>
 </head>
 <body>
@@ -226,6 +229,9 @@
         <button type="submit" class="btn btn-primary">Aggiungi</button>
       </form>
     </section>
+
+    <!-- STEP 1: contenitore vuoto per il futuro box risparmio (sotto il form, nascosto) -->
+    <section id="savings-method-panels" class="content-section savings-panels" style="margin-top:16px;"></section>
 
     <!-- Sezione Scadenze e Voci Future -->
     <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
