@@ -614,14 +614,37 @@
         const categoryMap = allCategories.filter(cat => cat.kind === kind).reduce((acc, cat) => ({ ...acc, [cat.id]: { name: cat.name, icon: cat.icon || (kind === 'income' ? '💰' : '💸'), total: 0 } }), {});
         items.forEach(tx => { if (categoryMap[tx.category_id]) { categoryMap[tx.category_id].total += safeToNumber(tx.amount); } });
         const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-        const top5Categories = Object.values(categoryMap).sort((a, b) => b.total - a.total).slice(0, 5);
-        if (top5Categories.length === 0 || top5Categories.every(c => c.total === 0)) { container.style.display = 'none'; return; }
+
+        // Get top categories with a positive total
+        const categoriesToRender = Object.values(categoryMap)
+            .filter(cat => cat.total > 0)
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 5);
+
+        // Always display the container for alignment
         container.style.display = 'block';
         const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
-        let barsHTML = top5Categories.map(cat => {
+
+        let barsHTML = categoriesToRender.map(cat => {
             const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0;
             return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width: ${percentage}%"></div></div></div>`;
         }).join('');
+
+        // Add placeholder rows to always have 5 total rows for alignment
+        const placeholdersNeeded = 5 - categoriesToRender.length;
+        if (placeholdersNeeded > 0) {
+            // A placeholder with the same structure but hidden content to maintain height
+            const placeholderHTML = `
+                <div class="category-bar-item" aria-hidden="true">
+                    <div class="category-bar-info" style="visibility: hidden;">
+                        <span class="category-bar-label"><span class="icon">&nbsp;</span><span>-</span></span>
+                        <span class="category-bar-amount">&nbsp;</span>
+                    </div>
+                    <div class="progress-bar-bg" style="visibility: hidden;"><div class="progress-bar-fg" style="width: 0%;"></div></div>
+                </div>`;
+            barsHTML += placeholderHTML.repeat(placeholdersNeeded);
+        }
+
         container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
     }
 
