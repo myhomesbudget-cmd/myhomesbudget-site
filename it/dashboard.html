@@ -280,6 +280,7 @@
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
+    window.supabase = supabase; // rende supabase disponibile in console e in altri snippet
 
     // --- Elementi DOM ---
     const transactionForm = document.getElementById('transaction-form');
@@ -661,20 +662,6 @@
         });
     }
 
-    async function updateNotifications() {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
-        
-        if(upcomingDeadlines.length > 0) {
-            notificationBadge.textContent = upcomingDeadlines.length;
-            notificationBadge.classList.add('is-visible');
-        } else {
-            notificationBadge.classList.remove('is-visible');
-        }
-    }
-    
     async function loadAllDataForMonth() {
         await loadTransactions();
         
