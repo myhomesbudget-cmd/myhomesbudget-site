@@ -41,7 +41,7 @@
       cursor: pointer;
     }
     .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
-
+    
     .date-selectors { display: flex; gap: 8px; }
     .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
     .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
@@ -57,10 +57,11 @@
 
     .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
     .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 
     @media (max-width: 960px) {
       .mobile-menu-toggle { display: block; }
-      .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
+      .top-actions { position: fixed; top: 70px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
       .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
       .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
       #scheduler-btn, #notifications-btn { width: 100%; }
@@ -74,7 +75,7 @@
     .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
 
-    .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
+    .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
     .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
     .dashboard-panel .content-section { background: rgba(255,255,255,0.7); }
 
@@ -115,7 +116,6 @@
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
     
-    /* Stili per Opzioni Avanzate */
     #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
     .advanced-options-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px; }
     .advanced-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
@@ -145,6 +145,7 @@
     /* Pannello Scadenze */
     #deadlines-section h3 { color: var(--warning-color); border-bottom: 2px solid var(--warning-color); padding-bottom: 8px; }
     .deadline-item { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 12px; }
+    .deadline-item .item-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
     .deadline-item .item-amount.expense { color: var(--danger-color); }
     .deadline-item .item-amount.income { color: var(--success-color); }
     .deadline-item .days-left { font-weight: 700; color: var(--warning-color); }
@@ -152,10 +153,10 @@
     .btn-action-deadline.pay { background: var(--warning-color); }
     .btn-action-deadline.receive { background: var(--success-color); }
 
-    /* ====== MODAL ====== */
+    /* ====== MODAL GENERICO E NOTIFICHE ====== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
-    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
     .modal-overlay.is-visible .modal-content { transform: scale(1); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
     .modal-title { margin: 0; font-size: 1.3rem; }
@@ -163,6 +164,31 @@
     .modal-body ul { list-style: none; padding: 0; margin: 0; }
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
+    .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-footer .btn.delete {
+        background: var(--grad-danger);
+        box-shadow: 0 8px 20px rgba(211, 47, 47, .25);
+    }
+    .modal-footer .btn.delete:hover {
+        box-shadow: 0 12px 24px rgba(211, 47, 47, .3);
+    }
+    .modal-footer .btn-secondary { 
+        background: #f0f0f0;
+        color: #555;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .modal-footer .btn-secondary:hover {
+        background: #e5e5e5;
+        border-color: #ccc;
+        color: #333;
+    }
+
+    /* Messaggi di stato */
+    .status-message { padding: 12px 16px; border-radius: 10px; margin-top: 16px; text-align: center; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; grid-column: 1 / -1; }
+    .status-message.is-visible { opacity: 1; }
+    .status-message.success { background-color: var(--success-color); color: #fff; }
+    .status-message.error { background-color: var(--danger-color); color: #fff; }
 
     /* ====== GOALS (UI) ====== */
     #goals-section .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
@@ -188,6 +214,7 @@
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <span class="visually-hidden">Menu</span>
       </button>
       <div class="top-actions">
         <div class="date-selectors">
@@ -195,8 +222,8 @@
             <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
         <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
-        <button id="scheduler-btn" class="top-btn">🗓️</button>
-        <button id="notifications-btn" class="top-btn notification-bell">
+        <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
             <span>🔔</span>
             <span id="notification-badge" class="notification-badge"></span>
         </button>
@@ -238,8 +265,9 @@
                 <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
             </div>
         </div>
-
         <button type="submit" class="btn btn-primary">Aggiungi</button>
+        <!-- Contenitore per messaggi di stato -->
+        <div id="status-message" class="status-message" aria-live="polite"></div>
       </form>
     </section>
 
@@ -267,22 +295,41 @@
     </div>
   </main>
   
-  <!-- Modal per Scadenziario e Notifiche -->
+  <!-- Modal per Scadenziario -->
   <div id="scheduler-modal" class="modal-overlay">
       <div class="modal-content">
           <div class="modal-header">
-              <h3 id="modal-title" class="modal-title"></h3>
-              <button class="modal-close">&times;</button>
+              <h3 id="scheduler-modal-title" class="modal-title"></h3>
+              <button class="modal-close" aria-label="Chiudi modale">&times;</button>
           </div>
-          <div id="modal-body" class="modal-body transaction-list"></div>
+          <div id="scheduler-modal-body" class="modal-body transaction-list"></div>
       </div>
+  </div>
+
+  <!-- Modal Generico per Notifiche e Conferme -->
+  <div id="generic-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="generic-modal-title" class="modal-title"></h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="generic-modal-body" class="modal-body"></div>
+      <div id="generic-modal-footer" class="modal-footer"></div>
+    </div>
   </div>
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
     window.supabase = supabase;
 
-    // --- Elementi DOM ---
+    // --- STATE MANAGEMENT ---
+    let user = null;
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
+    let goalsData = [];
+
+    // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -305,238 +352,261 @@
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
     const schedulerModal = document.getElementById('scheduler-modal');
-
-    // 🎯 Goals DOM
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
     const goalsPlanInfo = document.getElementById('goals-plan-info');
+    const statusMessage = document.getElementById('status-message');
 
-    let user = null;
-    let allCategories = [];
-    let allSubcategories = [];
-    let allTransactions = [];
-    let goalsData = [];
+    // --- UTILITY & HELPER FUNCTIONS ---
+    function safeToNumber(v) { 
+        const n = (typeof v === 'number') ? v : parseFloat(v);
+        return Number.isFinite(n) ? n : 0;
+    }
+    const fmt = (n) => Number(n || 0).toFixed(2);
 
-    // Utils
-    function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
-    const fmt = (n)=> Number(n||0).toFixed(2);
+    function showStatusMessage(message, type = 'success', duration = 3000) {
+        statusMessage.textContent = message;
+        statusMessage.className = `status-message ${type} is-visible`;
+        setTimeout(() => {
+            statusMessage.classList.remove('is-visible');
+        }, duration);
+    }
 
-    /* ===================== GOALS ===================== */
+    function showModal(title, bodyHtml, buttons = []) {
+        const modal = document.getElementById('generic-modal');
+        document.getElementById('generic-modal-title').textContent = title;
+        document.getElementById('generic-modal-body').innerHTML = bodyHtml;
+        const footer = document.getElementById('generic-modal-footer');
+        footer.innerHTML = '';
+
+        buttons.forEach(btnInfo => {
+            const button = document.createElement('button');
+            button.innerHTML = btnInfo.text; // Use innerHTML to support emojis
+            button.className = `btn ${btnInfo.class || 'btn-secondary'}`;
+            button.onclick = () => {
+                if (btnInfo.action) btnInfo.action();
+                modal.classList.remove('is-visible');
+            };
+            footer.appendChild(button);
+        });
+
+        modal.classList.add('is-visible');
+    }
+
+    // --- GOALS LOGIC ---
     async function loadGoals() {
-      const { data, error } = await supabase.rpc('get_dashboard_goals');
-      if (error) {
+      try {
+        const { data, error } = await supabase.rpc('get_dashboard_goals');
+        if (error) throw error;
+        goalsData = data || [];
+        renderGoalsUI(goalsData);
+      } catch(error) {
         console.warn("get_dashboard_goals non disponibile o errore:", error);
         goalsData = [];
         renderGoalsUI(goalsData);
-        return;
       }
-      goalsData = data || [];
-      renderGoalsUI(goalsData);
     }
 
     function renderGoalsUI(goals) {
-      goalsSection.style.display = "block";
+        goalsSection.style.display = "block";
 
-      if (!goals || goals.length === 0) {
-        goalsPlanInfo.textContent = '';
-        goalsList.innerHTML = `
-          <div class="goal-card">
-            <div class="goal-title">🎯 <span>Obiettivo</span></div>
-            <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+        if (!goals || goals.length === 0) {
+            goalsPlanInfo.textContent = '';
+            goalsList.innerHTML = `
+              <div class="goal-card">
+                <div class="goal-title">🎯 <span>Obiettivo</span></div>
+                <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+                <div class="goal-row">
+                  <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+                    <span class="chip is-active" data-method="fixed">Somma fissa</span>
+                    <span class="chip" data-method="variable">Somma variabile</span>
+                    <span class="chip" data-method="percent_income">% sulle entrate</span>
+                  </div>
+                  <div class="goal-input">
+                    <input type="number" placeholder="100.00" step="0.01" />
+                    <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+                  </div>
+                  <div class="goal-confirm">
+                    <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+                  </div>
+                </div>
+              </div>
+            `;
+            return;
+        }
+
+        const plan = goals.find(g => g.plan_type)?.plan_type || '';
+        const countActive = goals.filter(g => g.active).length;
+        const maxGoals = goals[0]?.max_goals ?? '';
+        goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
+
+        const activeGoals = goals.filter(g => g.active);
+        const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
+
+        const method = g1.goal_method || 'fixed';
+        const valueForMethod =
+            method === 'fixed' ? (g1.fixed_amount || 0) :
+            method === 'variable' ? (g1.variable_amount || 0) :
+            (g1.percent_of_income || 0);
+
+        const labelForMethod =
+            method === 'fixed' ? 'Importo fisso (€)' :
+            method === 'variable' ? 'Importo variabile (€)' :
+            'Percentuale sulle entrate (%)';
+
+        const placeholderForMethod =
+            method === 'percent_income' ? '10 → significa 10%' : '100.00';
+
+        const editCard = `
+          <div class="goal-card" style="margin-bottom:12px;">
+            <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
+            <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
             <div class="goal-row">
-              <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-                <span class="chip is-active" data-method="fixed">Somma fissa</span>
-                <span class="chip" data-method="variable">Somma variabile</span>
-                <span class="chip" data-method="percent_income">% sulle entrate</span>
+              <div class="goal-method" id="g1-method">
+                <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
+                <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
+                <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
               </div>
               <div class="goal-input">
-                <input type="number" placeholder="100.00" step="0.01" />
-                <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+                <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+                <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholderForMethod}" />
+                <span class="goal-hint">Target: <strong>${fmt(g1.target_amount)}€</strong></span>
               </div>
               <div class="goal-confirm">
-                <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+                <button id="g1-save" class="btn btn-primary">Salva</button>
               </div>
             </div>
           </div>
         `;
-        return;
-      }
 
-      const plan = goals.find(g => g.plan_type)?.plan_type || '';
-      const countActive = goals.filter(g => g.active).length;
-      const maxGoals = goals[0]?.max_goals ?? '';
-      goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
-
-      const activeGoals = goals.filter(g => g.active);
-      const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
-
-      const method = g1.goal_method || 'fixed';
-      const valueForMethod =
-        method === 'fixed' ? (g1.fixed_amount || 0) :
-        method === 'variable' ? (g1.variable_amount || 0) :
-        (g1.percent_of_income || 0);
-
-      const labelForMethod =
-        method === 'fixed' ? 'Importo fisso (€)' :
-        method === 'variable' ? 'Importo variabile (€)' :
-        'Percentuale sulle entrate (%)';
-
-      const placeholderForMethod =
-        method === 'percent_income' ? '10 → significa 10%' : '100.00';
-
-      const editCard = `
-        <div class="goal-card" style="margin-bottom:12px;">
-          <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
-          <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
-          <div class="goal-row">
-            <div class="goal-method" id="g1-method">
-              <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
-              <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
-              <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
-            </div>
-            <div class="goal-input">
-              <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
-              <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholderForMethod}" />
-              <span class="goal-hint">Target: <strong>${fmt(g1.target_amount)}€</strong></span>
-            </div>
-            <div class="goal-confirm">
-              <button id="g1-save" class="btn btn-primary">Salva</button>
-            </div>
-          </div>
-        </div>
-      `;
-
-      let extraCards = '';
-      const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
-      if (moreGoals.length) {
-        const isPro = (plan || '').toLowerCase() === 'pro';
-        extraCards = moreGoals.map(g => {
-          const locked = !isPro;
-          const content = `
-            <div class="goal-card ${locked ? 'goal-locked' : ''}">
-              <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
-              <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
-              <div class="goal-row" style="grid-template-columns: 1fr auto;">
-                <div>
-                  <div class="goal-hint" style="margin:0;">Target: <strong>${fmt(g.target_amount)}€</strong></div>
-                </div>
-                <div class="goal-confirm">
-                  ${locked
-                    ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
-                    : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
-                  }
-                </div>
-              </div>
-            </div>
-          `;
-          return content;
-        }).join('');
-      }
-
-      goalsList.innerHTML = editCard + extraCards;
-
-      bindGoalEditor(g1);
+        let extraCards = '';
+        const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
+        if (moreGoals.length) {
+            const isPro = (plan || '').toLowerCase() === 'pro';
+            extraCards = moreGoals.map(g => {
+                const locked = !isPro;
+                return `
+                  <div class="goal-card ${locked ? 'goal-locked' : ''}">
+                    <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
+                    <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
+                    <div class="goal-row" style="grid-template-columns: 1fr auto;">
+                      <div>
+                        <div class="goal-hint" style="margin:0;">Target: <strong>${fmt(g.target_amount)}€</strong></div>
+                      </div>
+                      <div class="goal-confirm">
+                        ${locked
+                          ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
+                          : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
+                        }
+                      </div>
+                    </div>
+                  </div>
+                `;
+            }).join('');
+        }
+        goalsList.innerHTML = editCard + extraCards;
+        bindGoalEditor(g1);
     }
 
     function bindGoalEditor(goal) {
-      const methodWrap = document.getElementById('g1-method');
-      const valueInput = document.getElementById('g1-value');
-      const saveBtn = document.getElementById('g1-save');
-      const labelEl = document.getElementById('g1-label');
+        const methodWrap = document.getElementById('g1-method');
+        const valueInput = document.getElementById('g1-value');
+        const saveBtn = document.getElementById('g1-save');
+        const labelEl = document.getElementById('g1-label');
 
-      if (!methodWrap || !valueInput || !saveBtn) return;
+        if (!methodWrap || !valueInput || !saveBtn) return;
 
-      methodWrap.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
+        methodWrap.addEventListener('click', (e) => {
+            const chip = e.target.closest('.chip');
+            if (!chip) return;
+            Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+            chip.classList.add('is-active');
 
-        Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
-        chip.classList.add('is-active');
+            const m = chip.dataset.method;
+            if (m === 'fixed') {
+                labelEl.textContent = 'Importo fisso (€)'; valueInput.placeholder = '100.00'; valueInput.value = goal.fixed_amount || 0;
+            } else if (m === 'variable') {
+                labelEl.textContent = 'Importo variabile (€)'; valueInput.placeholder = '100.00'; valueInput.value = goal.variable_amount || 0;
+            } else {
+                labelEl.textContent = 'Percentuale sulle entrate (%)'; valueInput.placeholder = '10 → significa 10%'; valueInput.value = goal.percent_of_income || 0;
+            }
+        });
 
-        const m = chip.dataset.method;
-        if (m === 'fixed') {
-          labelEl.textContent = 'Importo fisso (€)';
-          valueInput.placeholder = '100.00';
-          valueInput.step = '0.01';
-          valueInput.value = goal.fixed_amount || 0;
-        } else if (m === 'variable') {
-          labelEl.textContent = 'Importo variabile (€)';
-          valueInput.placeholder = '100.00';
-          valueInput.step = '0.01';
-          valueInput.value = goal.variable_amount || 0;
-        } else {
-          labelEl.textContent = 'Percentuale sulle entrate (%)';
-          valueInput.placeholder = '10 → significa 10%';
-          valueInput.step = '0.01';
-          valueInput.value = goal.percent_of_income || 0;
-        }
-      });
+        saveBtn.addEventListener('click', async () => {
+            const activeChip = methodWrap.querySelector('.chip.is-active');
+            const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+            const raw = parseFloat(valueInput.value);
+            const val = Number.isFinite(raw) ? raw : 0;
 
-      saveBtn.addEventListener('click', async () => {
-        const activeChip = methodWrap.querySelector('.chip.is-active');
-        const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-        const raw = parseFloat(valueInput.value);
-        const val = Number.isFinite(raw) ? raw : 0;
+            const patch = { goal_method: method };
+            if (method === 'fixed') patch.fixed_amount = val;
+            else if (method === 'variable') patch.variable_amount = val;
+            else patch.percent_of_income = val;
 
-        const patch = { goal_method: method };
-        if (method === 'fixed')      patch.fixed_amount = val;
-        else if (method === 'variable') patch.variable_amount = val;
-        else                          patch.percent_of_income = val;
+            const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+            if (error) {
+                console.error('Errore aggiornamento obiettivo:', error);
+                showModal('Errore', `<p>Impossibile salvare l'obiettivo. Riprova.</p>`, [{text: 'Chiudi'}]);
+                return;
+            }
 
-        const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-        if (error) { console.error('Errore aggiornamento obiettivo:', error); alert('Impossibile salvare. Riprova.'); return; }
-
-        goal.goal_method = method;
-        if (method === 'fixed') goal.fixed_amount = val;
-        if (method === 'variable') goal.variable_amount = val;
-        if (method === 'percent_income') goal.percent_of_income = val;
-        alert('Obiettivo aggiornato');
-      });
+            goal.goal_method = method; // Update local state
+            if (method === 'fixed') goal.fixed_amount = val;
+            if (method === 'variable') goal.variable_amount = val;
+            if (method === 'percent_income') goal.percent_of_income = val;
+            
+            showStatusMessage('Obiettivo aggiornato!', 'success');
+        });
     }
 
-    /* ===================== TRANSAZIONI ===================== */
-
-    async function loadInitialData(){
-      const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);
-      if(cError){console.error("Errore categorie:",cError);return}
-      allCategories=categories||[];
-      if(allCategories.length){
-        const ids=allCategories.map(c=>c.id);
-        const{data:subcategories,error:sError}=await supabase.from('subcategories').select('*').in('category_id',ids);
-        if(sError){console.error("Errore sottocategorie:",sError);return}
-        allSubcategories=subcategories||[]
+    // --- TRANSACTIONS LOGIC ---
+    async function loadInitialData() {
+      try {
+        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
+        if (cError) throw cError;
+        allCategories = categories || [];
+        
+        if (allCategories.length) {
+            const ids = allCategories.map(c => c.id);
+            const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', ids);
+            if (sError) throw sError;
+            allSubcategories = subcategories || [];
+        }
+      } catch (error) {
+        console.error("Errore nel caricamento dei dati iniziali:", error);
+        showModal('Errore', `<p>Impossibile caricare le categorie. Riprova più tardi.</p>`, [{ text: 'Chiudi' }]);
       }
     }
     
     function updateCategoryDropdown(){
-      const selectedKind=kindSelect.value;
+      const selectedKind = kindSelect.value;
       advancedOptionsWrapper.style.display = 'block';
-      const filtered=allCategories.filter(cat=>cat.kind===selectedKind);
-      categorySelect.innerHTML='<option value="">Scegli categoria...</option>';
-      filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));
-      updateSubcategories()
+      const filtered = allCategories.filter(cat => cat.kind === selectedKind);
+      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
+      updateSubcategories();
     }
     
-    function updateSubcategories(selectedSubcategoryId=null){
-      const categoryId=categorySelect.value;
-      subcategorySelect.innerHTML='<option value="">Nessuna</option>';
-      subcategorySelect.disabled=true;
-      if(!categoryId)return;
-      const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));
-      if(relevant.length){
-        subcategorySelect.disabled=false;
-        relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));
-        if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId
-      }
+    function updateSubcategories(selectedSubcategoryId = null) {
+        const categoryId = categorySelect.value;
+        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+        subcategorySelect.disabled = true;
+        if (!categoryId) return;
+        const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+        if (relevant.length) {
+            subcategorySelect.disabled = false;
+            relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
+            if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
+        }
     }
     
-    function renderDashboard(transactions){
-      const incomes=transactions.filter(tx=>tx.kind==='income' && tx.is_paid !== false);
-      const expenses=transactions.filter(tx=>tx.kind==='expense' && tx.is_paid !== false);
-      renderSummary(incomes,incomeSummary,'income');
-      renderList(incomes,incomeList, 'income');
-      renderSummary(expenses,expenseSummary,'expense');
-      renderList(expenses,expenseList, 'expense');
+    function renderDashboard(transactions) {
+        const incomes = transactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false);
+        const expenses = transactions.filter(tx => tx.kind === 'expense' && tx.is_paid !== false);
+        renderSummary(incomes, incomeSummary, 'income');
+        renderList(incomes, incomeList, 'income');
+        renderSummary(expenses, expenseSummary, 'expense');
+        renderList(expenses, expenseList, 'expense');
     }
     
     function renderSummary(items, container, kind) {
@@ -555,58 +625,60 @@
         container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
     }
 
-    function renderList(items, container, kind){
-      container.innerHTML = '';
-      const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-      const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
-      const titleEl = document.createElement('div');
-      titleEl.className = 'list-title';
-      titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
-      container.appendChild(titleEl);
+    function renderList(items, container, kind) {
+        container.innerHTML = '';
+        const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
+        const titleEl = document.createElement('div');
+        titleEl.className = 'list-title';
+        titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
+        container.appendChild(titleEl);
 
-      if(!items.length){
-        container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`);
-        return;
-      }
-      
-      items.forEach(tx=>{
-        const cat=tx.categories;
-        const sub=tx.subcategories;
-        const icon=sub?.icon||cat?.icon||'💸';
-        const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;
-        const amountNum=safeToNumber(tx.amount);
-        const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+        if (!items.length) {
+            container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`);
+            return;
+        }
         
-        container.insertAdjacentHTML('beforeend', `
-            <div class="item">
-                <div class="item-icon">${icon}</div>
-                <div class="item-details">
-                    <span class="note">${tx.note??''}${recurringIcon}</span>
-                    <span class="category">${categoryText}</span>
-                </div>
-                <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':'+'}${amountNum.toFixed(2)} €</div>
-                <div class="item-actions">
-                    <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
-                    <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
-                </div>
-            </div>`);
-      });
+        items.forEach(tx => {
+            const cat = tx.categories;
+            const sub = tx.subcategories;
+            const icon = sub?.icon || cat?.icon || '💸';
+            const categoryText = `${cat?.name || 'N/A'}${(sub ? ` / ${sub.name}` : '')}`;
+            const amountNum = safeToNumber(tx.amount);
+            const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div class="item">
+                    <div class="item-icon">${icon}</div>
+                    <div class="item-details">
+                        <span class="note">${tx.note ?? ''}${recurringIcon}</span>
+                        <span class="category">${categoryText}</span>
+                    </div>
+                    <div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div>
+                    <div class="item-actions">
+                        <button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button>
+                        <button class="action-btn delete-btn delete" data-id="${tx.id}">🗑️ Elimina</button>
+                    </div>
+                </div>`);
+        });
     }
 
     async function getScheduledTransactions(startDate, endDate) {
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon)`)
-            .eq('created_by', user.id)
-            .eq('is_paid', false)
-            .gte('due_date', startDate.toISOString().split('T')[0])
-            .lte('due_date', endDate.toISOString().split('T')[0])
-            .order('due_date', { ascending: true });
-        
-        if (error) {
+        try {
+            const { data, error } = await supabase.from('transactions')
+                .select(`*, categories(name, icon)`)
+                .eq('created_by', user.id)
+                .eq('is_paid', false)
+                .gte('due_date', startDate.toISOString().split('T')[0])
+                .lte('due_date', endDate.toISOString().split('T')[0])
+                .order('due_date', { ascending: true });
+            
+            if (error) throw error;
+            return data;
+        } catch (error) {
             console.error("Errore caricamento scadenze:", error);
             return [];
         }
-        return data;
     }
 
     function renderDeadlinesList(container, transactions) {
@@ -636,12 +708,30 @@
                     </div>
                     <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
                     <span class="days-left">${daysLeftText}</span>
-                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                    <div class="item-actions">
+                      <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
+                      <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                      <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                    </div>
                 </div>
             `);
         });
     }
 
+    async function updateNotifications() {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
+        
+        if(upcomingDeadlines.length > 0) {
+            notificationBadge.textContent = upcomingDeadlines.length;
+            notificationBadge.classList.add('is-visible');
+        } else {
+            notificationBadge.classList.remove('is-visible');
+        }
+    }
+    
     async function loadAllDataForMonth() {
         await loadTransactions();
         
@@ -670,65 +760,105 @@
         const startDate = new Date(selectedYear, selectedMonth, 1);
         const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
         
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon), subcategories(name, icon)`)
-            .eq('created_by', user.id)
-            .gte('occurred_at', startDate.toISOString())
-            .lte('occurred_at', endDate.toISOString())
-            .order('occurred_at', { ascending: false });
+        try {
+            const { data, error } = await supabase.from('transactions')
+                .select(`*, categories(name, icon), subcategories(name, icon)`)
+                .eq('created_by', user.id)
+                .gte('occurred_at', startDate.toISOString())
+                .lte('occurred_at', endDate.toISOString())
+                .order('occurred_at', { ascending: false });
 
-        monthSelector.disabled = false;
-        yearSelector.disabled = false;
-        if (error) { console.error("Errore transazioni:", error); return; }
-        allTransactions = data || [];
-        renderDashboard(allTransactions);
+            if (error) throw error;
+            allTransactions = data || [];
+            renderDashboard(allTransactions);
+        } catch (error) {
+            console.error("Errore transazioni:", error);
+            showModal('Errore', `<p>Impossibile caricare le transazioni. Riprova più tardi.</p>`, [{ text: 'Chiudi' }]);
+        } finally {
+            monthSelector.disabled = false;
+            yearSelector.disabled = false;
+        }
     }
 
-    function handleEdit(id){
-      const tx = allTransactions.find(t=>String(t.id)===String(id));
-      if(!tx) return;
+    // --- EVENT HANDLERS ---
+    function handleEdit(id) {
+        // We might be editing a scheduled transaction that is not in the main `allTransactions` list
+        const tx = allTransactions.find(t => String(t.id) === String(id)) || {}; // Find it or create an empty object to populate
 
-      if (tx.is_recurring_parent) {
-        alert("La modifica delle operazioni ricorrenti non è supportata. Elimina la serie e creane una nuova.");
-        return;
-      }
+        if (!tx.id) { // If it wasn't found, we need to fetch it
+          supabase.from('transactions').select('*').eq('id', id).single().then(({data, error}) => {
+            if (error || !data) {
+              showModal('Errore', `<p>Impossibile trovare la transazione da modificare.</p>`, [{ text: 'Chiudi' }]);
+              return;
+            }
+            populateAndShowEditForm(data);
+          });
+        } else {
+          populateAndShowEditForm(tx);
+        }
+    }
 
-      formTitle.textContent="✍️ Modifica Operazione";
-      transactionIdInput.value=tx.id;
-      document.getElementById('kind').value=tx.kind;
-      document.getElementById('note').value=tx.note??'';
-      document.getElementById('amount').value=safeToNumber(tx.amount);
-      document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';
-      updateCategoryDropdown();
-      categorySelect.value=tx.category_id??'';
-      updateSubcategories(tx.subcategory_id??null);
-      window.scrollTo({top:0,behavior:'smooth'});
+    function populateAndShowEditForm(tx) {
+        if (tx.is_recurring_parent) {
+            showModal(
+                'Azione non permessa', 
+                '<p>La modifica delle operazioni ricorrenti non è ancora supportata. Per cambiare i dettagli, elimina questa serie ricorrente e creane una nuova.</p>',
+                [{ text: 'Ho capito' }]
+            );
+            return;
+        }
+
+        formTitle.textContent = "✍️ Modifica Operazione";
+        transactionIdInput.value = tx.id;
+        document.getElementById('kind').value = tx.kind;
+        document.getElementById('note').value = tx.note ?? '';
+        document.getElementById('amount').value = safeToNumber(tx.amount);
+        
+        // Handle both regular and scheduled transactions
+        const dateToUse = tx.is_paid === false ? tx.due_date : tx.occurred_at;
+        document.getElementById('occurred_at').value = (dateToUse || '').split('T')[0] || '';
+
+        updateCategoryDropdown();
+        categorySelect.value = tx.category_id ?? '';
+        updateSubcategories(tx.subcategory_id ?? null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
-    async function handleDelete(id){
-        const {data: txToDelete} = await supabase.from('transactions').select('is_recurring_parent, parent_transaction_id').eq('id',id).single();
+    async function handleDelete(id) {
+        const { data: txToDelete } = await supabase.from('transactions').select('is_recurring_parent').eq('id', id).single();
         if (!txToDelete) return;
 
-        let confirmMessage = "Eliminare questa operazione?";
+        let title = "Conferma eliminazione";
+        let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
         if (txToDelete.is_recurring_parent) {
-            confirmMessage = "Questa è un'operazione ricorrente. Vuoi eliminare anche tutte le occorrenze future non registrate?";
+            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong> non ancora pagate.</p><p>Vuoi procedere?</p>";
         }
 
-        if (!confirm(confirmMessage)) return;
+        showModal(title, message, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { 
+                text: '🗑️ Elimina', 
+                class: 'delete', 
+                action: async () => {
+                    try {
+                        let error;
+                        if (txToDelete.is_recurring_parent) {
+                            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
+                            if (childrenError) error = childrenError;
+                        }
+                        if (error) throw error;
 
-        let error;
-        if (txToDelete.is_recurring_parent) {
-            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
-            if(childrenError) error = childrenError;
-        }
-        
-        if(error){ console.error("Errore eliminazione figli:", error); alert("Impossibile eliminare le operazioni future."); return; }
-
-        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
-        if (deleteError) { error = deleteError; }
-
-        if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}
-        else{loadAllDataForMonth();}
+                        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
+                        if (deleteError) throw deleteError;
+                        
+                        loadAllDataForMonth();
+                    } catch (error) {
+                        console.error("Errore durante l'eliminazione:", error);
+                        showModal('Errore', `<p>Impossibile completare l'eliminazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                    }
+                }
+            }
+        ]);
     }
     
     async function handleFormSubmit(e) {
@@ -748,18 +878,20 @@
             is_paid: true
         };
 
-        let error;
+        try {
+            let error;
+            if (transactionType === 'recurring') {
+                const endDateStr = formData.get('recurring_end_date');
+                if (!endDateStr) {
+                    showModal('Dati mancanti', `<p>Seleziona una data di fine valida per l'operazione ricorrente.</p>`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                const endDate = new Date(endDateStr);
+                payload.is_recurring_parent = true;
+                
+                const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
+                if (parentError) throw parentError;
 
-        if (transactionType === 'recurring') {
-            const endDateStr = formData.get('recurring_end_date');
-            if (!endDateStr) { alert("Seleziona una data di fine valida per l'operazione ricorrente."); return; }
-            const endDate = new Date(endDateStr);
-            
-            payload.is_recurring_parent = true;
-            
-            const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
-            if (parentError) { error = parentError; } 
-            else {
                 const transactionsToCreate = [];
                 let currentDate = new Date(payload.occurred_at);
                 currentDate.setMonth(currentDate.getMonth() + 1);
@@ -777,154 +909,164 @@
                     const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
                     if (recurringError) error = recurringError;
                 }
+            } else if (transactionType === 'scheduled') {
+                payload.due_date = formData.get('due_date');
+                payload.is_paid = false;
+                payload.occurred_at = payload.due_date;
+                if (!payload.due_date) {
+                    showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                const { error: scheduledError } = await supabase.from('transactions').insert(payload);
+                error = scheduledError;
+            } else {
+                const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
+                const { error: singleError } = await query;
+                error = singleError;
             }
-        } else if (transactionType === 'scheduled') {
-            payload.due_date = formData.get('due_date');
-            payload.is_paid = false;
-            payload.occurred_at = payload.due_date;
-            if (!payload.due_date) { alert("Seleziona una data di scadenza/incasso valida."); return; }
-            const { error: scheduledError } = await supabase.from('transactions').insert(payload);
-            error = scheduledError;
-        } else {
-            const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
-            const { error: singleError } = await query;
-            error = singleError;
-        }
-
-        if(error){ console.error("Errore salvataggio:",error); alert("Errore. Riprova.") }
-        else{
+            if(error) throw error;
+            
+            showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
             transactionForm.reset();
-            formTitle.textContent="Nuova Operazione";
-            transactionIdInput.value="";
-            document.getElementById('occurred_at').valueAsDate=new Date();
+            formTitle.textContent = "Nuova Operazione";
+            transactionIdInput.value = "";
+            document.getElementById('occurred_at').valueAsDate = new Date();
             updateCategoryDropdown();
             loadAllDataForMonth();
+
+        } catch (error) {
+            console.error("Errore nel salvataggio:", error);
+            showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text: 'Chiudi' }]);
         }
     }
 
-    async function updateNotifications() {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
-        
-        if(upcomingDeadlines.length > 0) {
-            notificationBadge.textContent = upcomingDeadlines.length;
-            notificationBadge.classList.add('is-visible');
-        } else {
-            notificationBadge.classList.remove('is-visible');
+    function handleDeadlineActions(e) {
+        const target = e.target.closest('button[data-id]');
+        if (!target) return;
+
+        const id = target.dataset.id;
+        const isModal = target.closest('.modal-overlay');
+
+        if (target.classList.contains('edit-btn')) {
+            handleEdit(id);
+            if (isModal) isModal.classList.remove('is-visible');
+        } else if (target.classList.contains('delete-btn')) {
+            handleDelete(id);
+        } else if (target.classList.contains('btn-action-deadline')) {
+            handleConfirmDeadline(id);
+            if (isModal) isModal.classList.remove('is-visible');
         }
     }
 
     async function handleConfirmDeadline(id) {
-        if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
-        
-        const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
-        if (error) {
-            alert("Errore nell'aggiornamento dell'operazione.");
-            console.error(error);
-        } else {
-            loadAllDataForMonth();
-        }
+        showModal(
+            'Conferma Operazione',
+            '<p>Vuoi registrare questa operazione con la data di oggi?</p>',
+            [
+                { text: 'Annulla', class: 'btn-secondary' },
+                {
+                    text: 'Conferma',
+                    class: 'btn-primary',
+                    action: async () => {
+                        try {
+                            const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+                            if (error) throw error;
+                            loadAllDataForMonth();
+                        } catch (error) {
+                             console.error("Errore nell'aggiornamento dell'operazione:", error);
+                             showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                        }
+                    }
+                }
+            ]
+        );
     }
 
-    // --- Inizializzazione pagina ---
+    // --- PAGE INITIALIZATION ---
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session){ location.replace("/it/login.html"); return; }
+      if (!session) { location.replace("/it/login.html"); return; }
       user = session.user;
       
       const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
-      if (profile && !profile.onboarded){location.replace("/it/onboarding.html");return;}
+      if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
 
-      // Popola selettori data
       const now = new Date();
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth();
       const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-      for(let i = currentYear - 2; i <= currentYear + 5; i++) {
-        yearSelector.add(new Option(i, i));
+      for (let i = currentYear - 2; i <= currentYear + 5; i++) {
+          yearSelector.add(new Option(i, i));
       }
       monthSelector.value = currentMonth;
       yearSelector.value = currentYear;
 
-      document.getElementById('occurred_at').valueAsDate=new Date();
+      document.getElementById('occurred_at').valueAsDate = new Date();
       await loadInitialData();
       updateCategoryDropdown();
-
-      // 🎯 Obiettivi
       await loadGoals();
-
       await loadAllDataForMonth();
 
-      // Listeners
+      // --- EVENT LISTENERS ---
       kindSelect.addEventListener('change', updateCategoryDropdown);
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
-      logoutBtn.addEventListener('click', async(e)=>{e.preventDefault();await supabase.auth.signOut();location.replace("/it/")});
-      
-      document.querySelector('.dashboard-panel').addEventListener('click',(ev)=>{
-        const t=ev.target.closest('.action-btn');
-        if(!t)return;
-        const id=t.dataset.id;
-        if(t.classList.contains('edit-btn'))handleEdit(id);
-        else if(t.classList.contains('delete-btn'))handleDelete(id)
-      });
-      
-      deadlinesList.addEventListener('click', (e) => {
-        const actionButton = e.target.closest('.btn-action-deadline');
-        if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
-      });
-      
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
       monthSelector.addEventListener('change', loadAllDataForMonth);
       yearSelector.addEventListener('change', loadAllDataForMonth);
 
+      document.querySelector('.dashboard-panel').addEventListener('click', (ev) => {
+          const t = ev.target.closest('.action-btn');
+          if (!t) return;
+          const id = t.dataset.id;
+          if (t.classList.contains('edit-btn')) handleEdit(id);
+          else if (t.classList.contains('delete-btn')) handleDelete(id);
+      });
+      
+      deadlinesList.addEventListener('click', handleDeadlineActions);
+      schedulerModal.addEventListener('click', handleDeadlineActions);
+      
       document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
-            dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
-        });
+          radio.addEventListener('change', (e) => {
+              recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
+              dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
+          });
       });
 
       schedulerBtn.addEventListener('click', async () => {
-        const selectedMonth = monthSelector.value;
-        const selectedYear = yearSelector.value;
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
-        const scheduled = await getScheduledTransactions(startDate, endDate);
-        const monthsNames = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${monthsNames[selectedMonth]} ${selectedYear}`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-        schedulerModal.classList.add('is-visible');
+          const selectedMonth = monthSelector.value;
+          const selectedYear = yearSelector.value;
+          const startDate = new Date(selectedYear, selectedMonth, 1);
+          const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
+          const scheduled = await getScheduledTransactions(startDate, endDate);
+          schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+          schedulerModal.classList.add('is-visible');
       });
 
       notificationsBtn.addEventListener('click', async () => {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcoming = await getScheduledTransactions(today, futureDate);
-        schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
-        schedulerModal.classList.add('is-visible');
+          const today = new Date();
+          const futureDate = new Date();
+          futureDate.setDate(today.getDate() + 7);
+          const upcoming = await getScheduledTransactions(today, futureDate);
+          schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
+          schedulerModal.classList.add('is-visible');
       });
 
-      schedulerModal.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-            schedulerModal.classList.remove('is-visible');
-        }
-        const actionButton = e.target.closest('.btn-action-deadline');
-        if (actionButton) { 
-            handleConfirmDeadline(actionButton.dataset.id);
-            schedulerModal.classList.remove('is-visible');
-        }
+      document.body.addEventListener('click', (e) => {
+          const modal = e.target.closest('.modal-overlay');
+          if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))) {
+              modal.classList.remove('is-visible');
+          }
       });
       
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
-      if(mobileMenuBtn && topActions) {
-        mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
-        document.addEventListener('click', (e) => { if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+      if (mobileMenuBtn && topActions) {
+          mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+          document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
       }
     }
 
