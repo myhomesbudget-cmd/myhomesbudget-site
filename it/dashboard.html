@@ -164,8 +164,34 @@
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
 
-    /* STEP 1: segnaposto per il futuro box risparmio (invisibile, non interferisce) */
-    .savings-panels { display: block; }
+    /* STEP 1: segnaposto (inizialmente nascosto) */
+    .savings-panels { display: none; }
+
+    /* STEP 3B: stile leggero per placeholder card */
+    .savings-grid { display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width: 900px){ .savings-grid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (min-width: 1200px){ .savings-grid{ grid-template-columns: repeat(3, 1fr);} }
+    .savings-card {
+      background: rgba(255,255,255,0.75);
+      border:1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding:16px;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .savings-card .title { font-weight:800; font-size:1rem; }
+    .savings-card .meta { color:#555; font-weight:600; }
+    .savings-card.locked { opacity:.8; background:linear-gradient(135deg, #f8f9fb, #fff); }
+    .savings-card .cta { margin-top:auto; display:flex; gap:8px; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary-color);
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:10px;
+      padding:8px 12px;
+      font-weight:700;
+      cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -230,13 +256,8 @@
       </form>
     </section>
 
-    <!-- STEP 1: contenitore vuoto per il futuro box risparmio (sotto il form, nascosto) -->
-    <section id="savings-method-panels" class="content-section savings-panels" style="margin-top:16px;">
-  <!-- Placeholder visivo temporaneo -->
-  <div style="background:rgba(255,255,255,.75);border:1px dashed #ccc;border-radius:12px;padding:16px;text-align:center;font-weight:700;color:#555;">
-    🔧 Segnaposto Box Obiettivo (apparirà qui)
-  </div>
-</section>
+    <!-- STEP 1: contenitore per il futuro box risparmio (sotto il form) -->
+    <section id="savings-method-panels" class="content-section savings-panels" style="margin-top:16px;"></section>
 
     <!-- Sezione Scadenze e Voci Future -->
     <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
@@ -290,6 +311,7 @@
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
     const schedulerModal = document.getElementById('scheduler-modal');
+    const savingsPanels = document.getElementById('savings-method-panels'); /* STEP 3B */
 
     let user = null;
     let allCategories = [];
@@ -609,6 +631,86 @@
         }
     }
 
+    /* =======================
+       STEP 3B: lettura limiti & goals e placeholder UI
+       ======================= */
+    function renderSavingsPanelsPlaceholders(limits, goals){
+      if(!savingsPanels) return;
+      // Mostra il contenitore solo quando pronto
+      savingsPanels.style.display = 'block';
+
+      const max = limits?.max_goals ?? 1;
+      const plan = (limits?.plan_type || 'starter').toUpperCase();
+      const activeGoals = goals || [];
+
+      // Griglia
+      const grid = document.createElement('div');
+      grid.className = 'savings-grid';
+
+      // Card per ogni goal restituito (fino a max)
+      activeGoals.forEach((g, idx) => {
+        const card = document.createElement('div');
+        card.className = 'savings-card';
+        card.innerHTML = `
+          <div class="title">🎯 Obiettivo ${idx+1}${g.active ? '' : ' (disattivo)'} </div>
+          <div class="meta"><strong>${g.name || 'Senza nome'}</strong></div>
+          <div class="meta">Target: ${Number(g.target_amount||0).toFixed(2)}€</div>
+          <div class="cta">
+            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Modifica</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Slot vuoti residui (solo per piani che lo consentono: es. PRO fino a 3)
+      const remaining = Math.max(0, max - activeGoals.length);
+      for(let i=0; i<remaining; i++){
+        const idx = activeGoals.length + i + 1;
+        const card = document.createElement('div');
+        card.className = 'savings-card locked';
+        card.innerHTML = `
+          <div class="title">🎯 Slot Obiettivo ${idx}</div>
+          <div class="meta">Piano: ${plan}</div>
+          <div class="meta">Slot disponibile</div>
+          <div class="cta">
+            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Configura</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+
+      // Intestazione semplice del blocco
+      savingsPanels.innerHTML = `
+        <h3 style="margin-top:0; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+          <span>🎯 Obiettivi</span>
+          <span style="font-weight:700; font-size:.95rem; color:#555;">Piano: ${plan} • Attivi: ${activeGoals.length}/${max}</span>
+        </h3>
+      `;
+      savingsPanels.appendChild(grid);
+    }
+
+    async function loadSavingsPanelsInfo(){
+      try{
+        const { data: { session } } = await supabase.auth.getSession();
+        if(!session) return;
+        const userId = session.user.id;
+
+        // Limiti per l'utente
+        const { data: limits, error: lErr } = await supabase.rpc('get_goal_limits_for_user', { p_user: userId });
+        if(lErr){ console.warn('[SavingsPanels] limits error', lErr); return; }
+        const limitRow = limits && limits[0] ? limits[0] : { plan_type:'starter', active_goals:0, max_goals:1, remaining_slots:1 };
+
+        // Goals per la dashboard (fino al limite piano)
+        const { data: goals, error: gErr } = await supabase.rpc('get_dashboard_goals', { p_user: userId });
+        if(gErr){ console.warn('[SavingsPanels] goals error', gErr); return; }
+
+        // Render placeholder
+        renderSavingsPanelsPlaceholders(limitRow, goals||[]);
+      }catch(e){
+        console.error('[SavingsPanels] init error', e);
+      }
+    }
+
     // --- Inizializzazione pagina ---
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -634,6 +736,9 @@
       await loadInitialData();
       updateCategoryDropdown();
       await loadAllDataForMonth();
+
+      /* STEP 3B: carica limiti+goals e mostra placeholder */
+      await loadSavingsPanelsInfo();
 
       // Listeners
       kindSelect.addEventListener('change', updateCategoryDropdown);
