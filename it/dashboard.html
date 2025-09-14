@@ -41,7 +41,7 @@
       cursor: pointer;
     }
     .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
-
+    
     .date-selectors { display: flex; gap: 8px; }
     .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
     .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
@@ -57,10 +57,11 @@
 
     .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
     .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 
     @media (max-width: 960px) {
       .mobile-menu-toggle { display: block; }
-      .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
+      .top-actions { position: fixed; top: 70px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
       .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
       .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
       #scheduler-btn, #notifications-btn { width: 100%; }
@@ -73,7 +74,7 @@
     .dash-nav a:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
     .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
-
+    
     .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
     .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
     .dashboard-panel .content-section { background: rgba(255,255,255,0.7); }
@@ -104,7 +105,7 @@
 
     /* ====== Form e Bottoni ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
     .btn-primary{background: var(--grad);box-shadow: 0 10px 24px rgba(0,0,0,.18);}
     .btn-primary:hover {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
@@ -114,6 +115,7 @@
     .form-group.full-width{grid-column:1 / -1}
     .transaction-form button{grid-column:1 / -1;margin-top:10px}
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
+    
     #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
     .advanced-options-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px; }
     .advanced-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
@@ -150,10 +152,10 @@
     .btn-action-deadline.pay { background: var(--warning-color); }
     .btn-action-deadline.receive { background: var(--success-color); }
 
-    /* ====== MODAL ====== */
+    /* ====== MODAL GENERICO E NOTIFICHE ====== */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
-    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
     .modal-overlay.is-visible .modal-content { transform: scale(1); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
     .modal-title { margin: 0; font-size: 1.3rem; }
@@ -161,38 +163,25 @@
     .modal-body ul { list-style: none; padding: 0; margin: 0; }
     .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
     .modal-body li:last-child { border-bottom: none; }
+    .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px; }
+    .modal-footer .btn-secondary { background: #ccc; }
 
-    /* ====== GOALS (UI Step 4A) ====== */
-    .goals-header {
-      display:flex;justify-content:space-between;align-items:center;margin: -8px 0 16px 0;
-    }
-    .goals-plan { font-weight:700;color:#666;font-size:0.95rem }
-    .goal-card {
-      border:1px solid var(--card-border);
-      border-radius:12px;
-      padding:16px;
-      background:#fff;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    }
-    .goal-title { font-weight:800; margin:0 0 6px; display:flex; align-items:center; gap:8px;}
-    .goal-subtitle { margin:0 0 14px; color:#555; font-weight:600; }
-    .goal-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .goal-method { display:flex; gap:8px; flex-wrap:wrap; }
-    .chip {
-      padding:8px 12px; border-radius:999px; border:1px solid var(--card-border);
-      background: rgba(255,255,255,.8); cursor:pointer; font-weight:700; color:#555;
-      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-      user-select:none;
-    }
-    .chip:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.08); }
-    .chip.is-active { background: var(--grad); color:#fff; border-color: transparent; }
-    .goal-input { min-width: 220px; display:flex; align-items:center; gap:8px; }
-    .goal-input input {
-      padding:10px 12px; border-radius:10px; border:1px solid #ccc; font-size:1rem; width: 180px;
-    }
-    .goal-hint { color:#666; font-size:0.9rem; }
-    .goal-confirm { margin-left:auto; }
-    .btn-disabled { opacity:.6; cursor:not-allowed; }
+    /* Messaggi di stato */
+    .status-message { padding: 12px 16px; border-radius: 10px; margin-top: 16px; text-align: center; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; grid-column: 1 / -1; }
+    .status-message.is-visible { opacity: 1; }
+    .status-message.success { background-color: var(--success-color); color: #fff; }
+    .status-message.error { background-color: var(--danger-color); color: #fff; }
+
+    .savings-panels { display: none; }
+    .savings-grid { display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width: 900px){ .savings-grid{ grid-template-columns: repeat(2, 1fr);} }
+    @media (min-width: 1200px){ .savings-grid{ grid-template-columns: repeat(3, 1fr);} }
+    .savings-card { background: rgba(255,255,255,0.75); border:1px solid var(--card-border); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding:16px; display:flex;flex-direction:column;gap:8px; }
+    .savings-card .title { font-weight:800; font-size:1rem; }
+    .savings-card .meta { color:#555; font-weight:600; }
+    .savings-card.locked { opacity:.8; background:linear-gradient(135deg, #f8f9fb, #fff); }
+    .savings-card .cta { margin-top:auto; display:flex; gap:8px; }
+    .btn-ghost { background: transparent; color: var(--primary-color); border:1px solid rgba(0,0,0,.1); border-radius:10px; padding:8px 12px; font-weight:700; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -202,6 +191,7 @@
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <span class="visually-hidden">Menu</span>
       </button>
       <div class="top-actions">
         <div class="date-selectors">
@@ -209,8 +199,8 @@
             <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
         <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
-        <button id="scheduler-btn" class="top-btn">🗓️</button>
-        <button id="notifications-btn" class="top-btn notification-bell">
+        <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
             <span>🔔</span>
             <span id="notification-badge" class="notification-badge"></span>
         </button>
@@ -252,19 +242,13 @@
                 <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
             </div>
         </div>
-
         <button type="submit" class="btn btn-primary">Aggiungi</button>
+        <!-- Contenitore per messaggi di stato -->
+        <div id="status-message" class="status-message" aria-live="polite"></div>
       </form>
     </section>
 
-    <!-- ====== OBIETTIVI (UI Step 4A) ====== -->
-    <section id="goals-section" class="content-section" style="margin-top: 24px; display: none;">
-      <div class="goals-header">
-        <h2 style="margin:0">🎯 Obiettivi</h2>
-        <div id="goals-plan-info" class="goals-plan"></div>
-      </div>
-      <div id="goals-list"></div>
-    </section>
+    <section id="savings-method-panels" class="content-section savings-panels" style="margin-top:16px;"></section>
 
     <!-- Sezione Scadenze e Voci Future -->
     <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
@@ -281,21 +265,39 @@
     </div>
   </main>
   
-  <!-- Modal per Scadenziario e Notifiche -->
+  <!-- Modal per Scadenziario -->
   <div id="scheduler-modal" class="modal-overlay">
       <div class="modal-content">
           <div class="modal-header">
-              <h3 id="modal-title" class="modal-title"></h3>
-              <button class="modal-close">&times;</button>
+              <h3 id="scheduler-modal-title" class="modal-title"></h3>
+              <button class="modal-close" aria-label="Chiudi modale">&times;</button>
           </div>
-          <div id="modal-body" class="modal-body transaction-list"></div>
+          <div id="scheduler-modal-body" class="modal-body transaction-list"></div>
       </div>
+  </div>
+
+  <!-- Modal Generico per Notifiche e Conferme -->
+  <div id="generic-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="generic-modal-title" class="modal-title"></h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="generic-modal-body" class="modal-body"></div>
+      <div id="generic-modal-footer" class="modal-footer"></div>
+    </div>
   </div>
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // --- Elementi DOM ---
+    // --- STATE MANAGEMENT ---
+    let user = null;
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
+
+    // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -318,42 +320,149 @@
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
     const schedulerModal = document.getElementById('scheduler-modal');
+    const savingsPanels = document.getElementById('savings-method-panels');
+    const statusMessage = document.getElementById('status-message');
 
-    // Goals UI
-    const goalsSection = document.getElementById('goals-section');
-    const goalsList = document.getElementById('goals-list');
-    const goalsPlanInfo = document.getElementById('goals-plan-info');
+    // --- UTILITY & HELPER FUNCTIONS ---
+    function safeToNumber(v) { 
+        const n = (typeof v === 'number') ? v : parseFloat(v);
+        return Number.isFinite(n) ? n : 0;
+    }
 
-    let user = null;
-    let allCategories = [];
-    let allSubcategories = [];
-    let allTransactions = [];
-    let goalsData = []; // dati dagli RPC (get_dashboard_goals)
+    function showStatusMessage(message, type = 'success', duration = 3000) {
+        statusMessage.textContent = message;
+        statusMessage.className = `status-message ${type} is-visible`;
+        setTimeout(() => {
+            statusMessage.classList.remove('is-visible');
+        }, duration);
+    }
 
-    // --- Gestione Dati e Rendering ---
-    function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
-    
-    async function loadInitialData(){
-      const{data:categories,error:cError}=await supabase.from('categories').select('*').eq('created_by',user.id);if(cError){console.error("Errore categorie:",cError);return}allCategories=categories||[];if(allCategories.length){const ids=allCategories.map(c=>c.id);const{data:subcategories,error:sError}=await supabase.from('subcategories').select('*').in('category_id',ids);if(sError){console.error("Errore sottocategorie:",sError);return}allSubcategories=subcategories||[]}}
-    
-    function updateCategoryDropdown(){
-      const selectedKind=kindSelect.value;
-      advancedOptionsWrapper.style.display = 'block';
-      const filtered=allCategories.filter(cat=>cat.kind===selectedKind);categorySelect.innerHTML='<option value="">Scegli categoria...</option>';filtered.forEach(cat=>categorySelect.add(new Option(`${cat.icon} ${cat.name}`,cat.id)));updateSubcategories()}
-    
-    function updateSubcategories(selectedSubcategoryId=null){
-      const categoryId=categorySelect.value;subcategorySelect.innerHTML='<option value="">Nessuna</option>';subcategorySelect.disabled=true;if(!categoryId)return;const relevant=allSubcategories.filter(sub=>String(sub.category_id)===String(categoryId));if(relevant.length){subcategorySelect.disabled=false;relevant.forEach(sub=>subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`,sub.id)));if(selectedSubcategoryId)subcategorySelect.value=selectedSubcategoryId}}
-    
-    function renderDashboard(transactions){
-      const incomes=transactions.filter(tx=>tx.kind==='income' && tx.is_paid !== false);
-      const expenses=transactions.filter(tx=>tx.kind==='expense' && tx.is_paid !== false);
-      renderSummary(incomes,incomeSummary,'income');
-      renderList(incomes,incomeList, 'income');
-      renderSummary(expenses,expenseSummary,'expense');
-      renderList(expenses,expenseList, 'expense');
+    /**
+     * Mostra una modale generica per notifiche o conferme.
+     * @param {string} title - Il titolo della modale.
+     * @param {string} bodyHtml - Il contenuto HTML del corpo.
+     * @param {Array<Object>} buttons - Array di oggetti per i bottoni (es. [{ text: 'OK', class: 'btn-primary', action: () => {} }]).
+     */
+    function showModal(title, bodyHtml, buttons = []) {
+        const modal = document.getElementById('generic-modal');
+        document.getElementById('generic-modal-title').textContent = title;
+        document.getElementById('generic-modal-body').innerHTML = bodyHtml;
+        const footer = document.getElementById('generic-modal-footer');
+        footer.innerHTML = '';
 
-      // Aggiorno eventuale anteprima % sulle entrate nei controlli obiettivo
-      renderGoalsUI(goalsData); // solo UI, ricalcola la stima percentuale sul mese corrente
+        buttons.forEach(btnInfo => {
+            const button = document.createElement('button');
+            button.textContent = btnInfo.text;
+            button.className = `btn ${btnInfo.class || 'btn-secondary'}`;
+            button.onclick = () => {
+                if (btnInfo.action) btnInfo.action();
+                modal.classList.remove('is-visible');
+            };
+            footer.appendChild(button);
+        });
+
+        modal.classList.add('is-visible');
+    }
+
+    // --- API & DATA FETCHING ---
+    async function loadInitialData() {
+      try {
+        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
+        if (cError) throw cError;
+        allCategories = categories || [];
+        
+        if (allCategories.length) {
+            const ids = allCategories.map(c => c.id);
+            const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', ids);
+            if (sError) throw sError;
+            allSubcategories = subcategories || [];
+        }
+      } catch (error) {
+        console.error("Errore nel caricamento dei dati iniziali:", error);
+        showModal('Errore', `<p>Impossibile caricare le categorie. Riprova più tardi.</p>`, [{ text: 'Chiudi' }]);
+      }
+    }
+
+    async function loadTransactions() {
+        monthSelector.disabled = true;
+        yearSelector.disabled = true;
+        renderDashboard([]); // Clear dashboard while loading
+        
+        const selectedMonth = monthSelector.value;
+        const selectedYear = yearSelector.value;
+        
+        const startDate = new Date(selectedYear, selectedMonth, 1);
+        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+        
+        try {
+            const { data, error } = await supabase.from('transactions')
+                .select(`*, categories(name, icon), subcategories(name, icon)`)
+                .eq('created_by', user.id)
+                .gte('occurred_at', startDate.toISOString())
+                .lte('occurred_at', endDate.toISOString())
+                .order('occurred_at', { ascending: false });
+
+            if (error) throw error;
+
+            allTransactions = data || [];
+            renderDashboard(allTransactions);
+        } catch (error) {
+            console.error("Errore nel caricamento delle transazioni:", error);
+            showModal('Errore', `<p>Impossibile caricare le transazioni. Riprova più tardi.</p>`, [{ text: 'Chiudi' }]);
+        } finally {
+            monthSelector.disabled = false;
+            yearSelector.disabled = false;
+        }
+    }
+
+    async function getScheduledTransactions(startDate, endDate) {
+        try {
+            const { data, error } = await supabase.from('transactions')
+                .select(`*, categories(name, icon)`)
+                .eq('created_by', user.id)
+                .eq('is_paid', false)
+                .gte('due_date', startDate.toISOString().split('T')[0])
+                .lte('due_date', endDate.toISOString().split('T')[0])
+                .order('due_date', { ascending: true });
+            
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error("Errore caricamento scadenze:", error);
+            return [];
+        }
+    }
+
+    // --- UI RENDERING ---
+    function updateCategoryDropdown() {
+        const selectedKind = kindSelect.value;
+        advancedOptionsWrapper.style.display = 'block';
+        const filtered = allCategories.filter(cat => cat.kind === selectedKind);
+        categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+        filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
+        updateSubcategories();
+    }
+    
+    function updateSubcategories(selectedSubcategoryId = null) {
+        const categoryId = categorySelect.value;
+        subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+        subcategorySelect.disabled = true;
+        if (!categoryId) return;
+        const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+        if (relevant.length) {
+            subcategorySelect.disabled = false;
+            relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon} ${sub.name}`, sub.id)));
+            if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
+        }
+    }
+    
+    function renderDashboard(transactions) {
+        const incomes = transactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false);
+        const expenses = transactions.filter(tx => tx.kind === 'expense' && tx.is_paid !== false);
+        renderSummary(incomes, incomeSummary, 'income');
+        renderList(incomes, incomeList, 'income');
+        renderSummary(expenses, expenseSummary, 'expense');
+        renderList(expenses, expenseList, 'expense');
     }
     
     function renderSummary(items, container, kind) {
@@ -372,178 +481,42 @@
         container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
     }
 
-    function renderList(items, container, kind){
-      container.innerHTML = '';
-      const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-      const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
-      const titleEl = document.createElement('div');
-      titleEl.className = 'list-title';
-      titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
-      container.appendChild(titleEl);
+    function renderList(items, container, kind) {
+        container.innerHTML = '';
+        const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
+        const titleEl = document.createElement('div');
+        titleEl.className = 'list-title';
+        titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
+        container.appendChild(titleEl);
 
-      if(!items.length){
-        container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`);
-        return;
-      }
-      
-      items.forEach(tx=>{
-        const cat=tx.categories;
-        const sub=tx.subcategories;
-        const icon=sub?.icon||cat?.icon||'💸';
-        const categoryText=`${cat?.name||'N/A'}${(sub?` / ${sub.name}`:'')}`;
-        const amountNum=safeToNumber(tx.amount);
-        const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+        if (!items.length) {
+            container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`);
+            return;
+        }
         
-        container.insertAdjacentHTML('beforeend', `
-            <div class="item">
-                <div class="item-icon">${icon}</div>
-                <div class="item-details">
-                    <span class="note">${tx.note??''}${recurringIcon}</span>
-                    <span class="category">${categoryText}</span>
-                </div>
-                <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':'+'}${amountNum.toFixed(2)} €</div>
-                <div class="item-actions">
-                    <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
-                    <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
-                </div>
-            </div>`);
-      });
-    }
-
-    // ====== GOALS (UI Step 4A) ======
-    function incomesOfCurrentMonth() {
-      const incomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false);
-      return incomes.reduce((s, t) => s + safeToNumber(t.amount), 0);
-    }
-
-    function renderGoalsUI(goals) {
-      // se non ci sono obiettivi non mostro la section
-      if (!goals || goals.length === 0) {
-        goalsSection.style.display = "none";
-        return;
-      }
-      goalsSection.style.display = "block";
-
-      // Piano / limiti (arrivano dall'RPC come colonne plan_type, max_goals, active_goals?)
-      // Se non hai questi campi nel RPC, la stringa resta vuota.
-      const plan = goals[0]?.plan_type || '';            // opzionale
-      const maxGoals = goals[0]?.max_goals || '';        // opzionale
-      const activeGoals = goals[0]?.active_goals || '';  // opzionale
-      goalsPlanInfo.textContent = (plan && maxGoals && activeGoals) ? `Piano: ${plan} • Attivi: ${activeGoals}/${maxGoals}` : '';
-
-      // Mostriamo solo i goal attivi (Starter/Plus 1 solo attivo; Pro potrà vederne fino a 3)
-      const activeGoalsList = goals.filter(g => g.active !== false);
-
-      const monthIncome = incomesOfCurrentMonth();
-
-      goalsList.innerHTML = activeGoalsList.map(g => {
-        const goalId = g.id;
-        const name = g.name || 'Obiettivo';
-        const horizon = g.horizon || 'ANNUALE';
-        const target = safeToNumber(g.target_amount || g.target || 0);
-
-        // UI controls id
-        const wrapId = `goal-wrap-${goalId}`;
-        const fixedId = `goal-fixed-${goalId}`;
-        const variableId = `goal-variable-${goalId}`;
-        const percentId = `goal-percent-${goalId}`;
-        const inputId = `goal-input-${goalId}`;
-        const hintId = `goal-hint-${goalId}`;
-        const confirmId = `goal-confirm-${goalId}`;
-
-        return `
-          <div class="goal-card" id="${wrapId}">
-            <div class="goal-title">🎯 <span>Obiettivo ${name ? `<strong>${name}</strong>` : ''}</span></div>
-            <p class="goal-subtitle">Risparmio <strong>${horizon}</strong> • Target: <strong>${target.toFixed(2)}€</strong></p>
-            <div class="goal-row">
-              <div class="goal-method" role="tablist">
-                <span class="chip is-active" data-method="FIXED" id="${fixedId}">Somma fissa</span>
-                <span class="chip" data-method="VARIABLE" id="${variableId}">Somma variabile</span>
-                <span class="chip" data-method="PERCENT_INCOME" id="${percentId}">% sulle entrate</span>
-              </div>
-
-              <div class="goal-input">
-                <input type="number" id="${inputId}" placeholder="100.00" step="0.01" />
-                <span class="goal-hint" id="${hintId}"></span>
-              </div>
-
-              <div class="goal-confirm">
-                <button class="btn btn-primary btn-disabled" id="${confirmId}" title="Solo UI (Step 4A)">Conferma</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // bind events per ogni card
-      activeGoalsList.forEach(g => bindGoalCardEvents(g.id, monthIncome));
-    }
-
-    function bindGoalCardEvents(goalId, monthIncome) {
-      const wrap = document.getElementById(`goal-wrap-${goalId}`);
-      if (!wrap) return;
-
-      const chips = [
-        wrap.querySelector(`[id="goal-fixed-${goalId}"]`),
-        wrap.querySelector(`[id="goal-variable-${goalId}"]`),
-        wrap.querySelector(`[id="goal-percent-${goalId}"]`)
-      ].filter(Boolean);
-
-      const input = wrap.querySelector(`#goal-input-${goalId}`);
-      const hint = wrap.querySelector(`#goal-hint-${goalId}`);
-      const confirmBtn = wrap.querySelector(`#goal-confirm-${goalId}`);
-
-      function setActive(method) {
-        chips.forEach(c => c.classList.toggle('is-active', c?.dataset.method === method));
-        if (method === 'PERCENT_INCOME') {
-          input.placeholder = "es. 10 = 10%";
-          updateHint(); // mostra stima
-        } else {
-          input.placeholder = (method === 'FIXED') ? "es. 100.00 €" : "es. 0-∞";
-          hint.textContent = "";
-        }
-      }
-      function updateHint() {
-        const method = chips.find(c => c.classList.contains('is-active'))?.dataset.method;
-        const val = safeToNumber(input.value);
-        if (method === 'PERCENT_INCOME' && val > 0) {
-          const estimate = (monthIncome * val) / 100;
-          hint.textContent = `Stima mese: ${estimate.toFixed(2)}€`;
-        } else {
-          hint.textContent = "";
-        }
-      }
-
-      chips.forEach(chip => {
-        chip?.addEventListener('click', () => setActive(chip.dataset.method));
-      });
-      input?.addEventListener('input', updateHint);
-
-      // Solo UI: non scrive
-      confirmBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert("Step 4A (UI): il salvataggio verrà attivato nello Step 4B. Qui stai solo provando i controlli.");
-      });
-
-      // stato iniziale
-      setActive('FIXED');
-      confirmBtn?.classList.add('btn-disabled');
-    }
-
-    async function getScheduledTransactions(startDate, endDate) {
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon)`)
-            .eq('created_by', user.id)
-            .eq('is_paid', false)
-            .gte('due_date', startDate.toISOString().split('T')[0])
-            .lte('due_date', endDate.toISOString().split('T')[0])
-            .order('due_date', { ascending: true });
-        
-        if (error) {
-            console.error("Errore caricamento scadenze:", error);
-            return [];
-        }
-        return data;
+        items.forEach(tx => {
+            const cat = tx.categories;
+            const sub = tx.subcategories;
+            const icon = sub?.icon || cat?.icon || '💸';
+            const categoryText = `${cat?.name || 'N/A'}${(sub ? ` / ${sub.name}` : '')}`;
+            const amountNum = safeToNumber(tx.amount);
+            const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div class="item">
+                    <div class="item-icon">${icon}</div>
+                    <div class="item-details">
+                        <span class="note">${tx.note ?? ''}${recurringIcon}</span>
+                        <span class="category">${categoryText}</span>
+                    </div>
+                    <div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div>
+                    <div class="item-actions">
+                        <button class="action-btn edit-btn" data-id="${tx.id}">Modifica</button>
+                        <button class="action-btn delete-btn delete" data-id="${tx.id}">Elimina</button>
+                    </div>
+                </div>`);
+        });
     }
 
     function renderDeadlinesList(container, transactions) {
@@ -610,76 +583,67 @@
         updateNotifications();
     }
 
-    async function loadTransactions() {
-        monthSelector.disabled = true;
-        yearSelector.disabled = true;
-        renderDashboard([]);
-        
-        const selectedMonth = monthSelector.value;
-        const selectedYear = yearSelector.value;
-        
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
-        
-        const { data, error } = await supabase.from('transactions')
-            .select(`*, categories(name, icon), subcategories(name, icon)`)
-            .eq('created_by', user.id)
-            .gte('occurred_at', startDate.toISOString())
-            .lte('occurred_at', endDate.toISOString())
-            .order('occurred_at', { ascending: false });
+    // --- EVENT HANDLERS ---
+    function handleEdit(id) {
+        const tx = allTransactions.find(t => String(t.id) === String(id));
+        if (!tx) return;
 
-        monthSelector.disabled = false;
-        yearSelector.disabled = false;
-        if (error) { console.error("Errore transazioni:", error); return; }
-        allTransactions = data || [];
-        renderDashboard(allTransactions);
-    }
+        if (tx.is_recurring_parent) {
+            showModal(
+                'Azione non permessa', 
+                '<p>La modifica delle operazioni ricorrenti non è ancora supportata. Per cambiare i dettagli, elimina questa serie ricorrente e creane una nuova.</p>',
+                [{ text: 'Ho capito' }]
+            );
+            return;
+        }
 
-    function handleEdit(id){
-      const tx = allTransactions.find(t=>String(t.id)===String(id));
-      if(!tx) return;
-
-      if (tx.is_recurring_parent) {
-        alert("La modifica delle operazioni ricorrenti non è supportata. Elimina la serie e creane una nuova.");
-        return;
-      }
-
-      formTitle.textContent="✍️ Modifica Operazione";
-      transactionIdInput.value=tx.id;
-      document.getElementById('kind').value=tx.kind;
-      document.getElementById('note').value=tx.note??'';
-      document.getElementById('amount').value=safeToNumber(tx.amount);
-      document.getElementById('occurred_at').value=(tx.occurred_at||'').split('T')[0]||'';
-      updateCategoryDropdown();
-      categorySelect.value=tx.category_id??'';
-      updateSubcategories(tx.subcategory_id??null);
-      window.scrollTo({top:0,behavior:'smooth'});
+        formTitle.textContent = "✍️ Modifica Operazione";
+        transactionIdInput.value = tx.id;
+        document.getElementById('kind').value = tx.kind;
+        document.getElementById('note').value = tx.note ?? '';
+        document.getElementById('amount').value = safeToNumber(tx.amount);
+        document.getElementById('occurred_at').value = (tx.occurred_at || '').split('T')[0] || '';
+        updateCategoryDropdown();
+        categorySelect.value = tx.category_id ?? '';
+        updateSubcategories(tx.subcategory_id ?? null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
-    async function handleDelete(id){
-        const {data: txToDelete} = await supabase.from('transactions').select('is_recurring_parent, parent_transaction_id').eq('id',id).single();
+    async function handleDelete(id) {
+        const { data: txToDelete } = await supabase.from('transactions').select('is_recurring_parent, parent_transaction_id').eq('id', id).single();
         if (!txToDelete) return;
 
-        let confirmMessage = "Eliminare questa operazione?";
+        let title = "Conferma eliminazione";
+        let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
         if (txToDelete.is_recurring_parent) {
-            confirmMessage = "Questa è un'operazione ricorrente. Vuoi eliminare anche tutte le occorrenze future non registrate?";
+            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong> non ancora pagate.</p><p>Vuoi procedere?</p>";
         }
 
-        if (!confirm(confirmMessage)) return;
+        showModal(title, message, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { 
+                text: 'Elimina', 
+                class: 'delete', 
+                action: async () => {
+                    try {
+                        let error;
+                        if (txToDelete.is_recurring_parent) {
+                            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
+                            if (childrenError) error = childrenError;
+                        }
+                        if (error) throw error;
 
-        let error;
-        if (txToDelete.is_recurring_parent) {
-            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
-            if(childrenError) error = childrenError;
-        }
-        
-        if(error){ console.error("Errore eliminazione figli:", error); alert("Impossibile eliminare le operazioni future."); return; }
-
-        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
-        if (deleteError) { error = deleteError; }
-
-        if(error){console.error("Errore eliminazione:",error);alert("Impossibile eliminare.")}
-        else{loadAllDataForMonth();}
+                        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
+                        if (deleteError) throw deleteError;
+                        
+                        loadAllDataForMonth();
+                    } catch (error) {
+                        console.error("Errore durante l'eliminazione:", error);
+                        showModal('Errore', `<p>Impossibile completare l'eliminazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                    }
+                }
+            }
+        ]);
     }
     
     async function handleFormSubmit(e) {
@@ -699,18 +663,20 @@
             is_paid: true
         };
 
-        let error;
+        try {
+            let error;
+            if (transactionType === 'recurring') {
+                const endDateStr = formData.get('recurring_end_date');
+                if (!endDateStr) {
+                    showModal('Dati mancanti', `<p>Seleziona una data di fine valida per l'operazione ricorrente.</p>`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                const endDate = new Date(endDateStr);
+                payload.is_recurring_parent = true;
+                
+                const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
+                if (parentError) throw parentError;
 
-        if (transactionType === 'recurring') {
-            const endDateStr = formData.get('recurring_end_date');
-            if (!endDateStr) { alert("Seleziona una data di fine valida per l'operazione ricorrente."); return; }
-            const endDate = new Date(endDateStr);
-            
-            payload.is_recurring_parent = true;
-            
-            const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
-            if (parentError) { error = parentError; } 
-            else {
                 const transactionsToCreate = [];
                 let currentDate = new Date(payload.occurred_at);
                 currentDate.setMonth(currentDate.getMonth() + 1);
@@ -728,65 +694,139 @@
                     const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
                     if (recurringError) error = recurringError;
                 }
+            } else if (transactionType === 'scheduled') {
+                payload.due_date = formData.get('due_date');
+                payload.is_paid = false;
+                payload.occurred_at = payload.due_date;
+                if (!payload.due_date) {
+                    showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                const { error: scheduledError } = await supabase.from('transactions').insert(payload);
+                error = scheduledError;
+            } else {
+                const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
+                const { error: singleError } = await query;
+                error = singleError;
             }
-        } else if (transactionType === 'scheduled') {
-            payload.due_date = formData.get('due_date');
-            payload.is_paid = false;
-            payload.occurred_at = payload.due_date;
-            if (!payload.due_date) { alert("Seleziona una data di scadenza/incasso valida."); return; }
-             const { error: scheduledError } = await supabase.from('transactions').insert(payload);
-             error = scheduledError;
-        } else {
-            const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
-            const { error: singleError } = await query;
-            error = singleError;
-        }
-
-        if(error){ console.error("Errore salvataggio:",error); alert("Errore. Riprova.") }
-        else{
+            if(error) throw error;
+            
+            showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
             transactionForm.reset();
-            formTitle.textContent="Nuova Operazione";
-            transactionIdInput.value="";
-            document.getElementById('occurred_at').valueAsDate=new Date();
+            formTitle.textContent = "Nuova Operazione";
+            transactionIdInput.value = "";
+            document.getElementById('occurred_at').valueAsDate = new Date();
             updateCategoryDropdown();
             loadAllDataForMonth();
+
+        } catch (error) {
+            console.error("Errore nel salvataggio:", error);
+            showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text: 'Chiudi' }]);
         }
     }
 
     async function handleConfirmDeadline(id) {
-        if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
-        
-        const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
-        
-        if (error) {
-            alert("Errore nell'aggiornamento dell'operazione.");
-            console.error(error);
-        } else {
-            loadAllDataForMonth();
-        }
+        showModal(
+            'Conferma Operazione',
+            '<p>Vuoi registrare questa operazione con la data di oggi?</p>',
+            [
+                { text: 'Annulla', class: 'btn-secondary' },
+                {
+                    text: 'Conferma',
+                    class: 'btn-primary',
+                    action: async () => {
+                        try {
+                            const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+                            if (error) throw error;
+                            loadAllDataForMonth();
+                        } catch (error) {
+                             console.error("Errore nell'aggiornamento dell'operazione:", error);
+                             showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                        }
+                    }
+                }
+            ]
+        );
     }
+    
+    // --- SAVINGS PANELS LOGIC (Placeholder) ---
+    async function loadSavingsPanelsInfo(){
+      try{
+        const { data: { session } } = await supabase.auth.getSession();
+        if(!session) return;
+        const userId = session.user.id;
 
-    // ====== GOALS: fetch dai servizi (rpc) e render UI ======
-    async function loadGoals() {
-      // RPC creato in precedenza; se non esiste restituisce errore, ma la dashboard continua
-      const { data, error } = await supabase.rpc('get_dashboard_goals');
-      if (error) {
-        console.warn("get_dashboard_goals non disponibile o errore:", error);
-        goalsSection.style.display = 'none';
-        return;
+        const { data: limits, error: lErr } = await supabase.rpc('get_goal_limits_for_user', { p_user: userId });
+        if(lErr){ console.warn('[SavingsPanels] limits error', lErr); return; }
+        const limitRow = limits && limits[0] ? limits[0] : { plan_type:'starter', active_goals:0, max_goals:1, remaining_slots:1 };
+
+        const { data: goals, error: gErr } = await supabase.rpc('get_dashboard_goals', { p_user: userId });
+        if(gErr){ console.warn('[SavingsPanels] goals error', gErr); return; }
+
+        renderSavingsPanelsPlaceholders(limitRow, goals||[]);
+      }catch(e){
+        console.error('[SavingsPanels] init error', e);
       }
-      goalsData = data || [];
-      renderGoalsUI(goalsData);
     }
 
-    // --- Inizializzazione pagina ---
+    function renderSavingsPanelsPlaceholders(limits, goals){
+      if(!savingsPanels) return;
+      savingsPanels.style.display = 'block';
+
+      const max = limits?.max_goals ?? 1;
+      const plan = (limits?.plan_type || 'starter').toUpperCase();
+      const activeGoals = goals || [];
+
+      const grid = document.createElement('div');
+      grid.className = 'savings-grid';
+
+      activeGoals.forEach((g, idx) => {
+        const card = document.createElement('div');
+        card.className = 'savings-card';
+        card.innerHTML = `
+          <div class="title">🎯 Obiettivo ${idx+1}${g.active ? '' : ' (disattivo)'} </div>
+          <div class="meta"><strong>${g.name || 'Senza nome'}</strong></div>
+          <div class="meta">Target: ${Number(g.target_amount||0).toFixed(2)}€</div>
+          <div class="cta">
+            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Modifica</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      const remaining = Math.max(0, max - activeGoals.length);
+      for(let i=0; i<remaining; i++){
+        const idx = activeGoals.length + i + 1;
+        const card = document.createElement('div');
+        card.className = 'savings-card locked';
+        card.innerHTML = `
+          <div class="title">🎯 Slot Obiettivo ${idx}</div>
+          <div class="meta">Piano: ${plan}</div>
+          <div class="meta">Slot disponibile</div>
+          <div class="cta">
+            <a class="btn-ghost" href="/it/onboarding.html?edit=1">Configura</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+
+      savingsPanels.innerHTML = `
+        <h3 style="margin-top:0; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+          <span>🎯 Obiettivi</span>
+          <span style="font-weight:700; font-size:.95rem; color:#555;">Piano: ${plan} • Attivi: ${activeGoals.length}/${max}</span>
+        </h3>
+      `;
+      savingsPanels.appendChild(grid);
+    }
+    
+    // --- PAGE INITIALIZATION ---
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session){ location.replace("/it/login.html"); return; }
+      if (!session) { location.replace("/it/login.html"); return; }
       user = session.user;
       
       const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
-      if (profile && !profile.onboarded){location.replace("/it/onboarding.html");return;}
+      if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
 
       // Popola selettori data
       const now = new Date();
@@ -794,79 +834,84 @@
       const currentMonth = now.getMonth();
       const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-      for(let i = currentYear - 2; i <= currentYear + 5; i++) {
-        yearSelector.add(new Option(i, i));
+      for (let i = currentYear - 2; i <= currentYear + 5; i++) {
+          yearSelector.add(new Option(i, i));
       }
       monthSelector.value = currentMonth;
       yearSelector.value = currentYear;
 
-      document.getElementById('occurred_at').valueAsDate=new Date();
+      document.getElementById('occurred_at').valueAsDate = new Date();
       await loadInitialData();
       updateCategoryDropdown();
       await loadAllDataForMonth();
-      await loadGoals(); // carico obiettivi (UI)
+      await loadSavingsPanelsInfo();
 
-      // Listeners
+      // --- EVENT LISTENERS ---
       kindSelect.addEventListener('change', updateCategoryDropdown);
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
-      logoutBtn.addEventListener('click', async(e)=>{e.preventDefault();await supabase.auth.signOut();location.replace("/it/")});
-      
-      document.querySelector('.dashboard-panel').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn');if(!t)return;const id=t.dataset.id;if(t.classList.contains('edit-btn'))handleEdit(id);else if(t.classList.contains('delete-btn'))handleDelete(id)});
-      
-      deadlinesList.addEventListener('click', (e) => {
-        const actionButton = e.target.closest('.btn-action-deadline');
-        if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+      monthSelector.addEventListener('change', loadAllDataForMonth);
+      yearSelector.addEventListener('change', loadAllDataForMonth);
+
+      document.querySelector('.dashboard-panel').addEventListener('click', (ev) => {
+          const t = ev.target.closest('.action-btn');
+          if (!t) return;
+          const id = t.dataset.id;
+          if (t.classList.contains('edit-btn')) handleEdit(id);
+          else if (t.classList.contains('delete-btn')) handleDelete(id);
       });
       
-      monthSelector.addEventListener('change', async () => { await loadAllDataForMonth(); renderGoalsUI(goalsData); });
-      yearSelector.addEventListener('change', async () => { await loadAllDataForMonth(); renderGoalsUI(goalsData); });
-
+      deadlinesList.addEventListener('click', (e) => {
+          const actionButton = e.target.closest('.btn-action-deadline');
+          if (actionButton) { handleConfirmDeadline(actionButton.dataset.id); }
+      });
+      
       document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
-            dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
-        });
+          radio.addEventListener('change', (e) => {
+              recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
+              dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
+          });
       });
 
       schedulerBtn.addEventListener('click', async () => {
-        const selectedMonth = monthSelector.value;
-        const selectedYear = yearSelector.value;
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
-        const scheduled = await getScheduledTransactions(startDate, endDate);
-        const monthsNames = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-        schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${monthsNames[selectedMonth]} ${selectedYear}`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-        schedulerModal.classList.add('is-visible');
+          const selectedMonth = monthSelector.value;
+          const selectedYear = yearSelector.value;
+          const startDate = new Date(selectedYear, selectedMonth, 1);
+          const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
+          const scheduled = await getScheduledTransactions(startDate, endDate);
+          schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+          schedulerModal.classList.add('is-visible');
       });
 
       notificationsBtn.addEventListener('click', async () => {
-        const today = new Date();
-        const futureDate = new Date();
-        futureDate.setDate(today.getDate() + 7);
-        const upcoming = await getScheduledTransactions(today, futureDate);
-        schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-        renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
-        schedulerModal.classList.add('is-visible');
+          const today = new Date();
+          const futureDate = new Date();
+          futureDate.setDate(today.getDate() + 7);
+          const upcoming = await getScheduledTransactions(today, futureDate);
+          schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
+          schedulerModal.classList.add('is-visible');
       });
 
-      schedulerModal.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-            schedulerModal.classList.remove('is-visible');
-        }
-        const actionButton = e.target.closest('.btn-action-deadline');
-        if (actionButton) { 
-            handleConfirmDeadline(actionButton.dataset.id);
-            schedulerModal.classList.remove('is-visible');
-        }
+      document.body.addEventListener('click', (e) => {
+          const modal = e.target.closest('.modal-overlay');
+          if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))) {
+              modal.classList.remove('is-visible');
+          }
+           const actionButton = e.target.closest('.btn-action-deadline');
+           if (modal && modal.id === 'scheduler-modal' && actionButton) {
+                handleConfirmDeadline(actionButton.dataset.id);
+                schedulerModal.classList.remove('is-visible');
+           }
       });
       
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const topActions = document.querySelector('.top-actions');
-      if(mobileMenuBtn && topActions) {
-        mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
-        document.addEventListener('click', (e) => { if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+      if (mobileMenuBtn && topActions) {
+          mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+          document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
       }
     }
 
