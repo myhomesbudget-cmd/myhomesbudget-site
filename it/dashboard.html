@@ -612,17 +612,32 @@
     }
 
     async function loadGoals() {
-      try {
-        const { data, error } = await supabase.rpc('get_dashboard_goals');
-        if (error) throw error;
-        goalsData = data || [];
-        renderGoalsUI(goalsData);
-      } catch (error) {
-        console.warn('[Goals] RPC non disponibile:', error?.message || error);
-        goalsData = [];
-        renderGoalsUI(goalsData);
-      }
-    }
+  try {
+    // Legge direttamente dalla vista materializzata per la dashboard
+    const { data, error } = await supabase
+      .from('app.v_dashboard_goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('goal_number', { ascending: true });
+
+    if (error) throw error;
+
+    // Normalizzazione numerica per sicurezza
+    goalsData = (data || []).map(g => ({
+      ...g,
+      target_amount: g.target_amount != null ? Number(g.target_amount) : 0,
+      fixed_amount: g.fixed_amount != null ? Number(g.fixed_amount) : null,
+      variable_amount: g.variable_amount != null ? Number(g.variable_amount) : null,
+      percent_income: g.percent_income != null ? Number(g.percent_income) : null
+    }));
+
+    renderGoalsUI(goalsData);
+  } catch (err) {
+    console.error('[Goals] Errore caricamento app.v_dashboard_goals:', err);
+    goalsData = [];
+    renderGoalsUI(goalsData);
+  }
+}
 
     function renderGoalsUI(goals) {
         goalsSection.style.display = "block";
