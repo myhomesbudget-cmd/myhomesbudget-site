@@ -761,35 +761,44 @@
         });
 
         saveBtn.addEventListener('click', async () => {
-            const activeChip = methodWrap.querySelector('.chip.is-active');
-            const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-            const raw = parseFloat(valueInput.value);
-            const val = Number.isFinite(raw) ? raw : 0;
+  const activeChip = methodWrap.querySelector('.chip.is-active');
+  const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+  const raw = parseFloat(valueInput.value);
+  const val = Number.isFinite(raw) ? raw : 0;
 
-            const patch = { goal_method: method };
-            if (method === 'fixed') {
-                patch.fixed_amount = val;
-            } else if (method === 'variable') {
-                patch.variable_amount = val;
-            } else {
-                patch.percent_income = val;
-            }
+  // 🔧 Mappa corretta verso la tabella reale `public.goals`
+  const patch = { method };
+  if (method === 'fixed') {
+    patch.fixed_amount = val;
+    // opzionale: azzera gli altri per coerenza
+    patch.variable_amount = null;
+    patch.percent_income = null;
+  } else if (method === 'variable') {
+    patch.variable_amount = val;
+    patch.fixed_amount = null;
+    patch.percent_income = null;
+  } else { // percent_income
+    patch.percent_income = val;
+    patch.fixed_amount = null;
+    patch.variable_amount = null;
+  }
 
-            const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-            if (error) {
-                console.error('Errore aggiornamento obiettivo:', error);
-                showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
-                return;
-            }
+  const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+  if (error) {
+    console.error('Errore aggiornamento obiettivo:', error);
+    showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
+    return;
+  }
 
-            goal.goal_method = method;
-            if (method === 'fixed') goal.fixed_amount = val;
-            if (method === 'variable') goal.variable_amount = val;
-            if (method === 'percent_income') goal.percent_income = val;
+  // Aggiorna lo stato locale per riflettere sia il nome visto nella view che la colonna reale
+  goal.goal_method = method; // usato dalla UI (proviene dalla view)
+  goal.method = method;      // colonna reale della tabella
+  if (method === 'fixed') goal.fixed_amount = val;
+  if (method === 'variable') goal.variable_amount = val;
+  if (method === 'percent_income') goal.percent_income = val;
 
-            showStatusMessage('Obiettivo aggiornato con successo!', 'success');
-        });
-    }
+  showStatusMessage('Obiettivo aggiornato con successo!', 'success');
+});
 
     // --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
