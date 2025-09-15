@@ -613,16 +613,15 @@
 
     async function loadGoals() {
   try {
-    // Legge direttamente dalla vista materializzata per la dashboard
     const { data, error } = await supabase
-      .from('app.v_dashboard_goals')
+      .schema('app')                     // ✅ usa lo schema corretto
+      .from('v_dashboard_goals')         // ✅ nome della vista senza schema
       .select('*')
       .eq('user_id', user.id)
       .order('goal_number', { ascending: true });
 
     if (error) throw error;
 
-    // Normalizzazione numerica per sicurezza
     goalsData = (data || []).map(g => ({
       ...g,
       target_amount: g.target_amount != null ? Number(g.target_amount) : 0,
