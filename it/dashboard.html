@@ -558,170 +558,211 @@
     }
 
     // --- GOALS LOGIC ---
-    async function loadGoals() {
-      try {
-        const { data, error } = await supabase.rpc('get_dashboard_goals');
-        if (error) throw error;
-        goalsData = data || [];
-        renderGoalsUI(goalsData);
-      } catch(error) {
-        console.warn("get_dashboard_goals non disponibile o errore:", error);
-        goalsData = [];
-        renderGoalsUI(goalsData);
-      }
+    function getMethodLabel(method) {
+  return method === 'fixed'
+    ? 'Importo fisso (€)'
+    : method === 'variable'
+      ? 'Importo variabile (€)'
+      : 'Percentuale sulle entrate (%)';
+}
+
+/** Helper: placeholder del metodo */
+function getPlaceholder(method) {
+  return method === 'percent_income' ? '10 → significa 10%' : '100.00';
+}
+
+/** Helper: valore da mostrare con fallback
+ *  fixed: se fixed_amount è null → usa target_amount
+ *  variable/percent: usa i rispettivi campi o 0
+ */
+function getDisplayValue(goal) {
+  const m = goal.goal_method || 'fixed';
+  if (m === 'fixed') {
+    if (goal.fixed_amount !== null && goal.fixed_amount !== undefined) {
+      return Number(goal.fixed_amount) || 0;
     }
+    return Number(goal.target_amount) || 0; // Fallback
+  }
+  if (m === 'variable') return Number(goal.variable_amount) || 0;
+  return Number(goal.percent_income) || 0; // percentuale
+}
 
-    function renderGoalsUI(goals) {
-        goalsSection.style.display = "block";
+async function loadGoals() {
+  try {
+    const { data, error } = await supabase.rpc('get_dashboard_goals');
+    if (error) throw error;
+    goalsData = data || [];
+    renderGoalsUI(goalsData);
+  } catch (error) {
+    console.warn("get_dashboard_goals non disponibile o errore:", error);
+    goalsData = [];
+    renderGoalsUI(goalsData);
+  }
+}
 
-        if (!goals || goals.length === 0) {
-            goalsPlanInfo.textContent = '';
-            goalsList.innerHTML = `
-              <div class="goal-card">
-                <div class="goal-title">🎯 <span>Obiettivo</span></div>
-                <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
-                <div class="goal-row">
-                  <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-                    <span class="chip is-active" data-method="fixed">Somma fissa</span>
-                    <span class="chip" data-method="variable">Somma variabile</span>
-                    <span class="chip" data-method="percent_income">% sulle entrate</span>
-                  </div>
-                  <div class="goal-input">
-                    <input type="number" placeholder="100.00" step="0.01" />
-                    <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
-                  </div>
-                  <div class="goal-confirm">
-                    <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-                  </div>
-                </div>
-              </div>
-            `;
-            return;
-        }
+function renderGoalsUI(goals) {
+  goalsSection.style.display = "block";
 
-        const plan = goals.find(g => g.plan_type)?.plan_type || '';
-        const countActive = goals.filter(g => g.active).length;
-        const maxGoals = goals[0]?.max_goals ?? '';
-        goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
+  // Nessun dato → card placeholder
+  if (!goals || goals.length === 0) {
+    goalsPlanInfo.textContent = '';
+    goalsList.innerHTML = `
+      <div class="goal-card">
+        <div class="goal-title">🎯 <span>Obiettivo</span></div>
+        <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+        <div class="goal-row">
+          <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+            <span class="chip is-active" data-method="fixed">Somma fissa</span>
+            <span class="chip" data-method="variable">Somma variabile</span>
+            <span class="chip" data-method="percent_income">% sulle entrate</span>
+          </div>
+          <div class="goal-input">
+            <input type="number" placeholder="100.00" step="0.01" />
+            <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+          </div>
+          <div class="goal-confirm">
+            <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
 
-        const activeGoals = goals.filter(g => g.active);
-        const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
+  // Info piano (ricavo da prima riga)
+  const plan = goals.find(g => g.plan_type)?.plan_type || '';
+  const countActive = goals.filter(g => g.active).length;
+  const maxGoals = goals[0]?.max_goals ?? '';
+  goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals || ''}` : '';
 
-        const method = g1.goal_method || 'fixed';
-        const valueForMethod =
-            method === 'fixed' ? (g1.fixed_amount || 0) :
-            method === 'variable' ? (g1.variable_amount || 0) :
-            (g1.percent_of_income || 0);
+  // Prendo il primo attivo con goal_number=1 (o il primo attivo)
+  const activeGoals = goals.filter(g => g.active);
+  const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
 
-        const labelForMethod =
-            method === 'fixed' ? 'Importo fisso (€)' :
-            method === 'variable' ? 'Importo variabile (€)' :
-            'Percentuale sulle entrate (%)';
+  const method = g1.goal_method || 'fixed';
+  const valueForMethod = getDisplayValue(g1);
+  const labelForMethod = getMethodLabel(method);
+  const placeholder = getPlaceholder(method);
 
-        const placeholderForMethod =
-            method === 'percent_income' ? '10 → significa 10%' : '100.00';
+  // Card editor Obiettivo 1 (editabile)
+  const editCard = `
+    <div class="goal-card" style="margin-bottom:12px;">
+      <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
+      <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
+      <div class="goal-row">
+        <div class="goal-method" id="g1-method">
+          <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
+          <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
+          <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
+        </div>
+        <div class="goal-input">
+          <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+          <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholder}" />
+          <span class="goal-hint">Target: <strong>${(Number(g1.target_amount)||0).toFixed(2)}€</strong></span>
+        </div>
+        <div class="goal-confirm">
+          <button id="g1-save" class="btn btn-primary">Salva</button>
+        </div>
+      </div>
+    </div>
+  `;
 
-        const editCard = `
-          <div class="goal-card" style="margin-bottom:12px;">
-            <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
-            <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
-            <div class="goal-row">
-              <div class="goal-method" id="g1-method">
-                <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
-                <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
-                <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
-              </div>
-              <div class="goal-input">
-                <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
-                <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholderForMethod}" />
-                <span class="goal-hint">Target: <strong>${fmt(g1.target_amount)}€</strong></span>
-              </div>
-              <div class="goal-confirm">
-                <button id="g1-save" class="btn btn-primary">Salva</button>
-              </div>
+  // Altre card (bloccate se non PRO)
+  let extraCards = '';
+  const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
+  if (moreGoals.length) {
+    const isPro = (plan || '').toLowerCase() === 'pro';
+    extraCards = moreGoals.map(g => {
+      const locked = !isPro;
+      return `
+        <div class="goal-card ${locked ? 'goal-locked' : ''}">
+          <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
+          <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
+          <div class="goal-row" style="grid-template-columns: 1fr auto;">
+            <div>
+              <div class="goal-hint" style="margin:0;">Target: <strong>${(Number(g.target_amount)||0).toFixed(2)}€</strong></div>
+            </div>
+            <div class="goal-confirm">
+              ${locked
+                ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
+                : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
+              }
             </div>
           </div>
-        `;
+        </div>
+      `;
+    }).join('');
+  }
 
-        let extraCards = '';
-        const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
-        if (moreGoals.length) {
-            const isPro = (plan || '').toLowerCase() === 'pro';
-            extraCards = moreGoals.map(g => {
-                const locked = !isPro;
-                return `
-                  <div class="goal-card ${locked ? 'goal-locked' : ''}">
-                    <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
-                    <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
-                    <div class="goal-row" style="grid-template-columns: 1fr auto;">
-                      <div>
-                        <div class="goal-hint" style="margin:0;">Target: <strong>${fmt(g.target_amount)}€</strong></div>
-                      </div>
-                      <div class="goal-confirm">
-                        ${locked
-                          ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
-                          : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
-                        }
-                      </div>
-                    </div>
-                  </div>
-                `;
-            }).join('');
-        }
-        goalsList.innerHTML = editCard + extraCards;
-        bindGoalEditor(g1);
+  goalsList.innerHTML = editCard + extraCards;
+
+  // Bind editor Obiettivo 1
+  bindGoalEditor(g1);
+}
+
+function bindGoalEditor(goal) {
+  const methodWrap = document.getElementById('g1-method');
+  const valueInput = document.getElementById('g1-value');
+  const saveBtn = document.getElementById('g1-save');
+  const labelEl = document.getElementById('g1-label');
+  if (!methodWrap || !valueInput || !saveBtn) return;
+
+  // click sui chip: aggiorno UI + valore predefinito del metodo
+  methodWrap.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+
+    Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+    chip.classList.add('is-active');
+
+    const m = chip.dataset.method; // 'fixed' | 'variable' | 'percent_income'
+    labelEl.textContent = getMethodLabel(m);
+    valueInput.placeholder = getPlaceholder(m);
+    valueInput.step = '0.01';
+
+    // valore da mostrare in base al metodo scelto (con fallback per fixed)
+    if (m === 'fixed') {
+      const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
+      valueInput.value = Number(v) || 0;
+    } else if (m === 'variable') {
+      valueInput.value = Number(goal.variable_amount) || 0;
+    } else {
+      valueInput.value = Number(goal.percent_income) || 0;
+    }
+  });
+
+  // Salva: aggiorna il campo coerente col metodo selezionato
+  saveBtn.addEventListener('click', async () => {
+    const activeChip = methodWrap.querySelector('.chip.is-active');
+    const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+    const raw = parseFloat(valueInput.value);
+    const val = Number.isFinite(raw) ? raw : 0;
+
+    const patch = { goal_method: method };
+    if (method === 'fixed') {
+      patch.fixed_amount = val;
+    } else if (method === 'variable') {
+      patch.variable_amount = val;
+    } else {
+      patch.percent_income = val; // <— nome campo corretto
     }
 
-    function bindGoalEditor(goal) {
-        const methodWrap = document.getElementById('g1-method');
-        const valueInput = document.getElementById('g1-value');
-        const saveBtn = document.getElementById('g1-save');
-        const labelEl = document.getElementById('g1-label');
-
-        if (!methodWrap || !valueInput || !saveBtn) return;
-
-        methodWrap.addEventListener('click', (e) => {
-            const chip = e.target.closest('.chip');
-            if (!chip) return;
-            Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
-            chip.classList.add('is-active');
-
-            const m = chip.dataset.method;
-            if (m === 'fixed') {
-                labelEl.textContent = 'Importo fisso (€)'; valueInput.placeholder = '100.00'; valueInput.value = goal.fixed_amount || 0;
-            } else if (m === 'variable') {
-                labelEl.textContent = 'Importo variabile (€)'; valueInput.placeholder = '100.00'; valueInput.value = goal.variable_amount || 0;
-            } else {
-                labelEl.textContent = 'Percentuale sulle entrate (%)'; valueInput.placeholder = '10 → significa 10%'; valueInput.value = goal.percent_of_income || 0;
-            }
-        });
-
-        saveBtn.addEventListener('click', async () => {
-            const activeChip = methodWrap.querySelector('.chip.is-active');
-            const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-            const raw = parseFloat(valueInput.value);
-            const val = Number.isFinite(raw) ? raw : 0;
-
-            const patch = { goal_method: method };
-            if (method === 'fixed') patch.fixed_amount = val;
-            else if (method === 'variable') patch.variable_amount = val;
-            else patch.percent_of_income = val;
-
-            const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-            if (error) {
-                console.error('Errore aggiornamento obiettivo:', error);
-                showModal('Errore', `<p>Impossibile salvare l'obiettivo. Riprova.</p>`, [{text: 'Chiudi'}]);
-                return;
-            }
-
-            goal.goal_method = method; // Update local state
-            if (method === 'fixed') goal.fixed_amount = val;
-            if (method === 'variable') goal.variable_amount = val;
-            if (method === 'percent_income') goal.percent_of_income = val;
-            
-            showStatusMessage('Obiettivo aggiornato!', 'success');
-        });
+    const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+    if (error) {
+      console.error('Errore aggiornamento obiettivo:', error);
+      alert('Impossibile salvare. Riprova.');
+      return;
     }
+
+    // sync stato locale
+    goal.goal_method = method;
+    if (method === 'fixed') goal.fixed_amount = val;
+    if (method === 'variable') goal.variable_amount = val;
+    if (method === 'percent_income') goal.percent_income = val;
+
+    alert('Obiettivo aggiornato!');
+  });
+}
 
     // --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
