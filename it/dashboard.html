@@ -732,63 +732,81 @@
     }
 
     function bindGoalEditor(goal) {
-        const methodWrap = document.getElementById('g1-method');
-        const valueInput = document.getElementById('g1-value');
-        const saveBtn = document.getElementById('g1-save');
-        const labelEl = document.getElementById('g1-label');
-        if (!methodWrap || !valueInput || !saveBtn) return;
+  const methodWrap = document.getElementById('g1-method');
+  const valueInput = document.getElementById('g1-value');
+  const saveBtn = document.getElementById('g1-save');
+  const labelEl = document.getElementById('g1-label');
+  if (!methodWrap || !valueInput || !saveBtn) return;
 
-        methodWrap.addEventListener('click', (e) => {
-            const chip = e.target.closest('.chip');
-            if (!chip) return;
+  // Cambia metodo (chip)
+  methodWrap.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
 
-            Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
-            chip.classList.add('is-active');
+    Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+    chip.classList.add('is-active');
 
-            const m = chip.dataset.method;
-            labelEl.textContent = getMethodLabel(m);
-            valueInput.placeholder = getPlaceholder(m);
-            valueInput.step = '0.01';
+    const m = chip.dataset.method;
+    // etichetta e placeholder coerenti
+    labelEl.textContent = (m === 'fixed')
+      ? 'Importo fisso (€)'
+      : (m === 'variable')
+        ? 'Importo variabile (€)'
+        : 'Percentuale sulle entrate (%)';
+    valueInput.placeholder = (m === 'percent_income') ? '10 → significa 10%' : '100.00';
+    valueInput.step = '0.01';
 
-            if (m === 'fixed') {
-                const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
-                valueInput.value = Number(v) || 0;
-            } else if (m === 'variable') {
-                valueInput.value = Number(goal.variable_amount) || 0;
-            } else {
-                valueInput.value = Number(goal.percent_income) || 0;
-            }
-        });
+    // valore mostrato coerente con il metodo scelto
+    if (m === 'fixed') {
+      const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
+      valueInput.value = Number(v) || 0;
+    } else if (m === 'variable') {
+      valueInput.value = Number(goal.variable_amount) || 0;
+    } else {
+      valueInput.value = Number(goal.percent_income) || 0;
+    }
+  });
 
-        saveBtn.addEventListener('click', async () => {
-  const activeChip = methodWrap.querySelector('.chip.is-active');
-  const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-  const raw = parseFloat(valueInput.value);
-  const val = Number.isFinite(raw) ? raw : 0;
+  // Salva
+  saveBtn.addEventListener('click', async () => {
+    const activeChip = methodWrap.querySelector('.chip.is-active');
+    const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+    const raw = parseFloat(valueInput.value);
+    const val = Number.isFinite(raw) ? raw : 0;
 
-  // 🔧 Mappa corretta verso la tabella reale `public.goals`
-  const patch = { method };
-  if (method === 'fixed') {
-    patch.fixed_amount = val;
-    // opzionale: azzera gli altri per coerenza
-    patch.variable_amount = null;
-    patch.percent_income = null;
-  } else if (method === 'variable') {
-    patch.variable_amount = val;
-    patch.fixed_amount = null;
-    patch.percent_income = null;
-  } else { // percent_income
-    patch.percent_income = val;
-    patch.fixed_amount = null;
-    patch.variable_amount = null;
-  }
+    // ❗ campi GIUSTI della tabella `public.goals`
+    const patch = { method };
+    if (method === 'fixed') {
+      patch.fixed_amount = val;
+      patch.variable_amount = null;
+      patch.percent_income = null;
+    } else if (method === 'variable') {
+      patch.variable_amount = val;
+      patch.fixed_amount = null;
+      patch.percent_income = null;
+    } else {
+      patch.percent_income = val;
+      patch.fixed_amount = null;
+      patch.variable_amount = null;
+    }
 
-  const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-  if (error) {
-    console.error('Errore aggiornamento obiettivo:', error);
-    showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
-    return;
-  }
+    const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+    if (error) {
+      console.error('Errore aggiornamento obiettivo:', error);
+      showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
+      return;
+    }
+
+    // Aggiorna stato locale (sia alias della view che colonna reale)
+    goal.goal_method = method; // usato dalla UI (proviene dalla view RPC)
+    goal.method = method;      // colonna reale
+    if (method === 'fixed') goal.fixed_amount = val;
+    if (method === 'variable') goal.variable_amount = val;
+    if (method === 'percent_income') goal.percent_income = val;
+
+    showStatusMessage('Obiettivo aggiornato con successo!', 'success');
+  });
+}
 
   // Aggiorna lo stato locale per riflettere sia il nome visto nella view che la colonna reale
   goal.goal_method = method; // usato dalla UI (proviene dalla view)
