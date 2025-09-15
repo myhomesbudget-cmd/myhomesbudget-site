@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fine Periodo di Prova — MyHomesBudget</title>
+  <title>Scegli il tuo piano — MyHomesBudget</title>
   <meta name="description" content="Il tuo periodo di prova è terminato. Scegli un piano per continuare a usare MyHomesBudget senza limiti.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
@@ -29,92 +29,158 @@
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
 
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
-  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
   <link rel="icon" href="/favicon.ico">
+  <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
     :root{
-      --fg:#111; --glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.68);
+      --fg:#111; --glass:rgba(255,255,255,.62);
       --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius-lg:16px; --radius-md:12px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --muted:#2a2a2a;
+      --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
     }
     *{box-sizing:border-box}
-    html, body { font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif }
-    h1,h2,h3,h4,p,a,small,strong,button{font-family:inherit}
-    a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
+    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
 
     body{
-      margin:0; color:#fff; background:url("/bg.webp") no-repeat center center / cover fixed;
-      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
     }
-    body::before{content:""; position:fixed; inset:0; background:rgba(0,0,0,.08); z-index:-1}
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
 
     .topbar{
-      position:fixed; top:16px; left:50%; transform:translateX(-50%);
-      width:min(920px, calc(100% - 40px)); z-index:20; pointer-events:none;
-      display:flex; justify-content:flex-start;
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(960px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:flex-start;
     }
-    .logo-link{display:flex; align-items:center; gap:8px; text-decoration:none; pointer-events:auto}
+    .logo-link{pointer-events:auto; display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:32px}
-    .logo-text{font-weight:600; color:#fff; font-size:1.05rem; text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .logo-link:hover .logo-text{filter:brightness(1.06)}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 
-    .paywall-panel{
-      width:min(920px, calc(100% - 40px)); background:var(--glass);
-      backdrop-filter:saturate(1.1) blur(8px); -webkit-backdrop-filter:saturate(1.1) blur(5px);
-      color:var(--fg); border-radius:var(--radius-lg); padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
+    .wrap{
+      width:min(960px,calc(100% - 40px));
+      margin:110px auto 64px auto;
     }
 
-    .header{text-align:center; margin-bottom:16px}
-    .header h1{margin:0; color:#111; font-size:clamp(1.8rem,4.6vw,2.2rem); text-shadow:0 1px 3px rgba(0,0,0,.35)}
-    .header p{margin:8px 0 0; color:#111; font-weight:600; font-size:clamp(1rem,2.4vw,1.08rem)}
-    .header p::after{content:""; display:block; width:120px; height:2px; margin:10px auto 0; border-radius:999px; background:linear-gradient(90deg,#6c5ce7,#00cec9); opacity:.7}
-
-    .plans{
-      background:var(--glass-strong); border:1px solid var(--card-border); border-radius:var(--radius-lg);
-      padding:14px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);
-      display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0 18px;
+    .panel{
+      text-align:center;
+      background:var(--glass); color:#111; border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
     }
-    @media(max-width:680px){ .plans{ grid-template-columns:1fr } }
+    .panel h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
+    .panel > p{margin:6px auto 16px;color:#222;max-width:760px; font-weight: 500;}
 
-    .price-card{
-      background:rgba(255,255,255,.52); border:1px solid var(--card-border); border-radius:var(--radius-md);
-      padding:16px; text-align:center; box-shadow:var(--shadow);
-      display:flex; flex-direction:column; gap:12px; justify-content:center;
+    .billing{
+      display:flex;gap:10px;align-items:center;justify-content:center;margin:16px 0 8px 0;
+      color:#111;
     }
-    .plan-title{margin:0; display:flex; gap:.5rem; flex-wrap:wrap; align-items:baseline; justify-content:center; font-size:1.08rem}
-    .plan-name{font-weight:700} .sep{opacity:.45}
-    .price-inline{font-weight:800; font-size:1.2rem; line-height:1}
-    .price-inline small{font-weight:600; font-size:.9rem; color:#333}
+    .switch{
+      --w:52px; --h:30px; --dot:22px;
+      position:relative;width:var(--w);height:var(--h);border-radius:999px;
+      background:#ddd; cursor:pointer; transition:filter .15s ease; box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
+    }
+    .switch input{display:none}
+    .knob{
+      position:absolute;top:50%;left:4px;transform:translateY(-50%);
+      width:var(--dot);height:var(--dot);border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.15);
+      transition:left .18s cubic-bezier(.22,1,.36,1);
+    }
+    .switch:has(input:checked) .knob{ left:calc(var(--w) - var(--dot) - 4px); }
+    .save{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--okbg);color:#064e66;font-weight:600}
 
-    .cta-group{display:flex; flex-direction:column; gap:8px}
+    .grid{
+      display:grid; gap:16px; margin-top:14px;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+    @media (max-width:680px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      background:rgba(255,255,255,.8); color:#111; border-radius:var(--radius-lg);
+      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
+      display:flex; flex-direction:column; text-align:left;
+    }
+    .card.popular{ outline:3px solid #6c5ce7; position:relative; }
+    .badge{
+      position:absolute; top:14px; right:14px; font-size:.85rem;
+      background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
+      box-shadow:0 6px 18px rgba(108,92,231,.35);
+    }
+
+    .title{font-weight:800;font-size:1.2rem;margin:0 0 6px 0}
+    .subtitle{margin:0 0 10px 0;color:#333}
+    .price{display:flex;align-items:baseline;gap:6px;margin:6px 0 10px 0}
+    .price .num{font-weight:900;font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .per{color:#333}
+
+    .feat{margin:10px 0 14px 0;padding:0;list-style:none;color:#111}
+    .feat li{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+    .tick{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--okbg);color:#0c4a6e;font-weight:700}
+
+    .cta-group{margin-top:auto; display:flex; flex-direction:column; gap:8px;}
     .btn{
-      display:flex; align-items:center; justify-content:center; gap:.5rem;
-      padding:11px 14px; border-radius:12px; font-weight:700; text-decoration:none;
-      box-shadow:0 8px 22px rgba(0,0,0,.14); transition:transform .15s ease, filter .15s ease;
-      color:#fff; background:var(--grad); text-shadow:0 1px 0 rgba(0,0,0,.18);
+      cursor:pointer;border:none;border-radius:12px;padding:12px 16px;
+      background:var(--grad);color:#fff;font-weight:800;font-size:1rem;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease, filter .15s ease;
+      width:100%; text-decoration: none; text-align: center;
     }
-    .btn:hover{filter:brightness(1.07); transform:translateY(-1px)} .btn:is(:active){transform:translateY(0)}
+    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+
+    .guarantee-box {
+      margin-top: 24px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-weight: 600;
+      color: #111;
+    }
+    .guarantee-box svg { color: #6c5ce7; }
 
     .secure{
-      width:fit-content; margin:8px auto 0; padding:6px 12px; display:flex; align-items:center; gap:8px;
-      color:#111; font-weight:600; border-radius:999px;
-      background:linear-gradient(var(--glass-strong),var(--glass-strong)) padding-box,
-                 linear-gradient(90deg,#6c5ce7,#00cec9) border-box;
-      border:1px solid transparent; box-shadow:var(--shadow);
+      margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px;
+      color:#111; font-weight:600;
     }
     .secure svg{flex:0 0 16px; color:#6c5ce7; opacity:.95}
 
-    .faq{margin-top:16px; padding-top:0; color:#222; position:relative; border-top:none}
-    .faq::before{content:""; display:block; height:2px; margin:14px 0 16px; border-radius:999px; background:linear-gradient(90deg,#6c5ce7,#00cec9); opacity:.85}
-    .faq h3{text-align:center; margin:0 0 10px}
-    .faq-item{padding:8px 0; border-bottom:1px solid rgba(0,0,0,.06)}
-    .faq-item:last-child{border-bottom:none}
-    .faq-item strong{color:#111}
-    .faq-item p{margin:4px 0 0; color:#444}
+    .testimonials-section {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+    }
+    .stars { color: #f59e0b; font-size: 1.1rem; margin-bottom: 8px; }
+    .quote { font-style: italic; color: #2b2b2b; }
+    .author { margin-top: 10px; font-weight: 700; color: #111; }
+    @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
 
-    .login{margin-top:14px; background:rgba(255,255,255,.45); border:1px solid var(--card-border); border-radius:12px; padding:12px; text-align:center; color:#222}
+
+    .faq{
+      margin-top:18px; text-align:left;
+    }
+    .faq h2{text-align:center;}
+    details{border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.84);margin:8px 0}
+    summary{cursor:pointer;font-weight:700;color:#111}
+    details p{margin:8px 0 0 0;color:#2b2b2b}
+
+    .login{margin-top:24px; text-align:center; color:#111}
     .login a{font-weight:700; text-decoration:none; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
     .login a:hover{text-decoration:underline}
 
@@ -125,7 +191,6 @@
 </head>
 <body>
 
-  <!-- Logo -->
   <nav class="topbar" aria-label="Logo">
     <a href="/it/" class="logo-link" title="myHomesBudget">
       <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
@@ -133,79 +198,119 @@
     </a>
   </nav>
 
-  <main class="paywall-panel">
-    <header class="header reveal">
-      <h1>Il tuo periodo di prova è terminato</h1>
-      <p>Continua a usare MyHomesBudget senza limiti scegliendo un piano.</p>
-    </header>
+  <main class="wrap">
+    <section class="panel">
+      <h1 class="reveal">Il tuo periodo di prova è terminato</h1>
+      <p class="reveal">Non perdere il controllo delle tue finanze. Fai il passo successivo per raggiungere i tuoi obiettivi.</p>
 
-    <section class="plans reveal" aria-label="Piani disponibili">
-      <article class="price-card" aria-label="Piano Mensile 2,99 euro al mese">
-        <h2 class="plan-title">
-          <span class="plan-name">Piano Mensile</span>
-          <span class="sep">—</span>
-          <span class="price-inline">2,99€ <small>/ mese</small></span>
-        </h2>
-        <div class="cta-group">
-          <a class="btn" href="/checkout/stripe?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="stripe">Paga con Stripe</a>
-          <a class="btn" href="/checkout/paypal?plan=monthly&utm_source=paywall" data-plan="monthly" data-method="paypal">Paga con PayPal</a>
+      <div class="billing reveal" role="group" aria-label="Seleziona fatturazione">
+        <span>Mensile</span>
+        <label class="switch" title="Attiva fatturazione annuale (risparmia)">
+          <input id="billToggle" type="checkbox" aria-label="Fatturazione annuale">
+          <span class="knob"></span>
+        </label>
+        <span>Annuale</span>
+        <span class="save" id="saveBadge" style="display:none">2 mesi gratis</span>
+      </div>
+
+      <div class="grid">
+        <!-- Plus (popular) -->
+        <article class="card popular reveal">
+          <div class="badge">Più scelto</div>
+          <h2 class="title">Plus</h2>
+          <p class="subtitle">Per una gestione completa e costante</p>
+          <div class="price">
+            <span class="num" data-month="€2,99" data-year="€29,90">€2,99</span>
+            <span class="per">/ mese</span>
+          </div>
+          <ul class="feat">
+            <li><span class="tick">✓</span> Tutto di Starter</li>
+            <li><span class="tick">✓</span> Report dettagliati e filtri avanzati</li>
+            <li><span class="tick">✓</span> Supporto prioritario via email</li>
+          </ul>
+          <div class="cta-group">
+            <a class="btn" href="#" data-plan="plus" data-method="stripe">Paga con Stripe</a>
+            <a class="btn" href="/checkout/paypal?plan=plus_monthly" data-plan="plus" data-method="paypal">Paga con PayPal</a>
+          </div>
+        </article>
+  
+        <!-- Pro -->
+        <article class="card reveal">
+          <h2 class="title">Pro</h2>
+          <p class="subtitle">Per esigenze avanzate e famiglie</p>
+          <div class="price">
+            <span class="num" data-month="€4,99" data-year="€49,90">€4,99</span>
+            <span class="per">/ mese</span>
+          </div>
+          <ul class="feat">
+            <li><span class="tick">✓</span> Tutto di Plus</li>
+            <li><span class="tick">✓</span> Obiettivi multipli e monitor su periodi custom</li>
+            <li><span class="tick">✓</span> Accesso multi-dispositivo senza limiti</li>
+          </ul>
+          <div class="cta-group">
+            <a class="btn" href="#" data-plan="pro" data-method="stripe">Paga con Stripe</a>
+            <a class="btn" href="/checkout/paypal?plan=pro_monthly" data-plan="pro" data-method="paypal">Paga con PayPal</a>
+          </div>
+        </article>
+      </div>
+
+      <div class="guarantee-box reveal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        La tua privacy è la nostra priorità. I dati restano protetti e al sicuro.
+      </div>
+
+      <div class="secure reveal" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
+        Pagamenti sicuri con Stripe e PayPal
+      </div>
+
+      <section class="testimonials-section reveal">
+        <h2 style="margin:0 0 8px 0">Cosa dicono i nostri utenti</h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="stars" aria-label="5 stelle su 5">★★★★★</div>
+            <p class="quote">"Finalmente ho il pieno controllo delle mie finanze. Semplice e potente."</p>
+            <p class="author">- Marco R., Milano</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="stars" aria-label="5 stelle su 5">★★★★★</div>
+            <p class="quote">"L'unica app che sono riuscita a usare con costanza. La consiglio a tutti!"</p>
+            <p class="author">- Giulia S., Roma</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="stars" aria-label="5 stelle su 5">★★★★★</div>
+            <p class="quote">"Indispensabile per il budget familiare. Ora risparmiare è diventato un gioco."</p>
+            <p class="author">- Famiglia Bianchi, Torino</p>
+          </div>
         </div>
-      </article>
+      </section>
 
-      <article class="price-card" aria-label="Una Tantum 19,99 euro per sempre">
-        <h2 class="plan-title">
-          <span class="plan-name">Una Tantum</span>
-          <span class="sep">—</span>
-          <span class="price-inline">19,99€ <small>/ per sempre</small></span>
-        </h2>
-        <div class="cta-group">
-          <a class="btn" href="/checkout/stripe?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="stripe">Paga con Stripe</a>
-          <a class="btn" href="/checkout/paypal?plan=lifetime&utm_source=paywall" data-plan="lifetime" data-method="paypal">Paga con PayPal</a>
-        </div>
-      </article>
+      <section class="faq reveal" aria-label="Domande frequenti">
+        <h2 style="margin:28px 0 8px 0">Domande rapide</h2>
+        <details>
+          <summary>Cosa succede ai dati che ho inserito?</summary>
+          <p>I tuoi dati restano al sicuro e si sbloccano subito dopo l’attivazione. Non cancelliamo nulla.</p>
+        </details>
+        <details>
+          <summary>Quali metodi di pagamento accettate?</summary>
+          <p>Carta tramite Stripe e pagamenti sicuri con conto PayPal.</p>
+        </details>
+        <details>
+          <summary>Posso cancellare il piano quando voglio?</summary>
+          <p>Sì, in qualsiasi momento. Continuerai ad avere accesso fino alla fine del periodo già pagato.</p>
+        </details>
+      </section>
+
+      <p class="login reveal">Hai già un abbonamento attivo? <a href="/it/login.html">Accedi qui</a></p>
+
     </section>
-
-    <div class="secure reveal" aria-hidden="true">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
-      Pagamenti sicuri con Stripe e PayPal
-    </div>
-
-    <section class="faq reveal" aria-labelledby="faq-title">
-      <h3 id="faq-title">Domande rapide</h3>
-      <div class="faq-item">
-        <strong>Cosa succede ai dati che ho inserito?</strong>
-        <p>I tuoi dati restano al sicuro e si sbloccano subito dopo l’attivazione. Non cancelliamo nulla.</p>
-      </div>
-      <div class="faq-item">
-        <strong>Quali metodi di pagamento accettate?</strong>
-        <p>Carta tramite Stripe e pagamenti con conto PayPal. Tutte le transazioni sono sicure.</p>
-      </div>
-      <div class="faq-item">
-        <strong>Posso cancellare il piano mensile quando voglio?</strong>
-        <p>Sì, in qualsiasi momento. Continui ad avere accesso fino a fine periodo già pagato.</p>
-      </div>
-    </section>
-
-    <p class="login reveal">Hai già un abbonamento attivo? <a href="/it/login.html">Accedi qui</a></p>
   </main>
 
   <script>
-    // salva lingua corrente
-    try { localStorage.setItem('mhb_lang','it'); } catch(e) {}
-
     // GA4
-    gtag('event','paywall_viewed');
+    gtag('event','paywall_viewed', {new_design: true, with_social_proof: true});
 
-    // Tracciamento checkout
-    document.querySelectorAll('a[data-plan][data-method]').forEach(a=>{
-      a.addEventListener('click', ()=>{
-        gtag('event','checkout_started',{
-          plan:a.dataset.plan, payment_method:a.dataset.method, source:'paywall'
-        });
-      });
-    });
-
-    // Reveal top→bottom
+    // Reveal animation
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
@@ -214,56 +319,105 @@
       ordered.forEach((el,i)=> el.style.transitionDelay=(i*0.10)+'s');
       requestAnimationFrame(()=> ordered.forEach(el=> el.classList.add('in')));
     })();
+
+    // Toggle fatturazione e aggiornamento link
+    const toggle = document.getElementById('billToggle');
+    const saveBadge = document.getElementById('saveBadge');
+    const cards = document.querySelectorAll('.card');
+
+    function applyBillingMode(){
+      const isAnnual = toggle.checked;
+      cards.forEach(card => {
+        const priceEl = card.querySelector('.price .num');
+        const perEl = card.querySelector('.price .per');
+        const paypalLink = card.querySelector('a[data-method="paypal"]');
+        
+        if (!priceEl || !perEl || !paypalLink) return;
+
+        const plan = paypalLink.dataset.plan;
+        const val = isAnnual ? priceEl.dataset.year : priceEl.dataset.month;
+        priceEl.textContent = val || '';
+        perEl.textContent = isAnnual ? '/ anno' : '/ mese';
+
+        // Aggiorna link PayPal
+        paypalLink.href = `/checkout/paypal?plan=${plan}_${isAnnual ? 'yearly' : 'monthly'}`;
+      });
+      
+      saveBadge.style.display = isAnnual ? 'inline-block' : 'none';
+      gtag('event','paywall_toggle',{mode: isAnnual ? 'annual' : 'monthly', lang:'it'});
+    }
+    toggle.addEventListener('change', applyBillingMode);
+    applyBillingMode(); // Init
   </script>
 
-  <!-- Redirect a Stripe Checkout via Edge Function + header Authorization/apikey + log -->
+  <!-- Logica di pagamento Stripe con Supabase Edge Function -->
   <script type="module">
     const ENDPOINT = "https://upcusjlumfeadgbhziwq.supabase.co/functions/v1/create-checkout-session";
-
     // ⛳️ INCOLLA QUI LA TUA ANON KEY (Settings → API → anon public)
     const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
 
+    // ⛳️ INCOLLA QUI I TUOI PRICE ID DI STRIPE
     const PRICES = {
-      monthly:  { priceId: "price_1S48NcDB9gH9Ve2r35nt7JRQ", mode: "subscription" },
-      lifetime: { priceId: "price_1S48PBDB9gH9Ve2rIMnB6zFd", mode: "payment" }
+      plus: {
+        monthly: { priceId: "price_...plus_monthly", mode: "subscription" },
+        yearly:  { priceId: "price_...plus_yearly", mode: "subscription" }
+      },
+      pro: {
+        monthly: { priceId: "price_...pro_monthly", mode: "subscription" },
+        yearly:  { priceId: "price_...pro_yearly", mode: "subscription" }
+      }
     };
 
     document.querySelectorAll('a[data-method="stripe"][data-plan]').forEach(link => {
       link.addEventListener('click', async (ev) => {
         ev.preventDefault();
+        
         const plan = link.dataset.plan;
-        const cfg  = PRICES[plan];
-        if (!cfg) { alert("Piano non valido."); return; }
+        const isAnnual = document.getElementById('billToggle').checked;
+        const period = isAnnual ? 'yearly' : 'monthly';
+        const cfg = PRICES[plan]?.[period];
+
+        if (!cfg || !cfg.priceId.startsWith('price_')) {
+            alert("Configurazione del piano di pagamento non valida. Per favore, contatta il supporto.");
+            return;
+        }
+
+        gtag('event','checkout_started',{
+          plan: `${plan}_${period}`, payment_method: 'stripe', source:'paywall'
+        });
 
         try {
+          // Aggiungi un feedback visivo (es. loader)
+          link.textContent = 'Caricamento...';
+          link.style.pointerEvents = 'none';
+
           const res = await fetch(ENDPOINT, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwY3Vzamx1bWZlYWRnYmh6aXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTAzMTgsImV4cCI6MjA3MTk4NjMxOH0.U3cukTOaAZCPOF9f0mnyO00ghRgrzxwPx6GwqKuZmCM"}`,
+              // Il token JWT dovrebbe essere ottenuto dinamicamente dopo il login dell'utente
+              'Authorization': `Bearer ${"PASTE_USER_JWT_TOKEN_HERE"}`,
             },
             body: JSON.stringify({ priceId: cfg.priceId, mode: cfg.mode })
           });
 
-          const text = await res.text();
-          console.log("Supabase response:", res.status, text);
-
-          let json = {};
-          try { json = JSON.parse(text); } catch {}
-          const { url, error } = json;
+          const { url, error } = await res.json();
 
           if (error || !url) {
-            alert("Errore pagamento: " + (error || "URL mancante"));
-            return;
+            throw new Error(error || "URL di checkout mancante");
           }
-          window.location = url;
+          window.location.href = url;
+
         } catch (e) {
-          console.error("Errore chiamata Supabase:", e);
-          alert("Impossibile avviare il pagamento. Controlla console.");
+          console.error("Errore durante la creazione della sessione di checkout:", e);
+          alert("Impossibile avviare il pagamento. Riprova o contatta il supporto se il problema persiste.");
+          link.textContent = 'Paga con Stripe'; // Ripristina il testo del bottone
+          link.style.pointerEvents = 'auto';
         }
       });
     });
   </script>
+
 </body>
 </html>
