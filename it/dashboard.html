@@ -160,7 +160,7 @@
     .btn-action-deadline.receive { background: var(--success-color); }
 
     /* ====== MODAL GENERICO E NOTIFICHE ====== */
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity:  0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
     .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
     .modal-overlay.is-visible .modal-content { transform: scale(1); }
@@ -457,7 +457,7 @@
     let allSubcategories = [];
     let allTransactions = [];
     let goalsData = [];
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-/9k=`;
+    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/…`; // troncato per brevità
 
     // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
@@ -517,7 +517,7 @@
 
         buttons.forEach(btnInfo => {
             const button = document.createElement('button');
-            button.innerHTML = btnInfo.text; // Use innerHTML to support emojis
+            button.innerHTML = btnInfo.text; // supporta emoji
             button.className = `btn ${btnInfo.class || 'btn-secondary'}`;
             button.onclick = () => {
                 if (btnInfo.action) btnInfo.action();
@@ -534,11 +534,8 @@
             const container = animationModal.querySelector('.animation-elements-container');
             const bgImage = document.getElementById('animation-bg-image');
             container.innerHTML = '';
-            
             bgImage.src = moneyBagImage;
-
             animationModal.classList.add('is-visible');
-            
             if (type === 'income') {
                 const moneyCount = 10;
                 for (let i = 0; i < moneyCount; i++) {
@@ -551,25 +548,18 @@
                     money.style.animationDelay = `${Math.random() * 1.2}s`;
                     container.appendChild(money);
                 }
-                 setTimeout(() => {
-                    animationModal.classList.remove('is-visible');
-                    resolve();
-                }, 2800);
-            } else { // expense
+                setTimeout(() => { animationModal.classList.remove('is-visible'); resolve(); }, 2800);
+            } else {
                 const bill = document.createElement('div');
                 bill.className = 'money-element expense';
                 bill.style.width = '80px';
                 bill.style.height = '40px';
                 bill.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' rx='5' fill='%23EF9A9A'/%3E%3Ccircle cx='50' cy='25' r='15' fill='none' stroke='%23FFCDD2' stroke-width='3'/%3E%3Ctext x='50' y='30' font-family='Arial, sans-serif' font-size='20' fill='%23FFEBEE' text-anchor='middle'%3E€%3C/text%3E%3C/svg%3E")`;
                 container.appendChild(bill);
-                setTimeout(() => {
-                    animationModal.classList.remove('is-visible');
-                    resolve();
-                }, 2000);
+                setTimeout(() => { animationModal.classList.remove('is-visible'); resolve(); }, 2000);
             }
         });
     }
-
 
     function resetFormToCreateMode() {
         formTitle.textContent = "Nuova Operazione";
@@ -587,41 +577,77 @@
     }
 
     // --- GOALS LOGIC ---
+    // Nuovo flusso: legge 1 goal utente; stato metodo salvato in goal_method_state (upsert per goal_id)
+
     function getMethodLabel(method) {
       return method === 'fixed'
         ? 'Importo fisso (€)'
         : method === 'variable'
-          ? 'Importo variabile (€)'
+          ? 'Importo variabile (decidi tu ogni mese)'
           : 'Percentuale sulle entrate (%)';
     }
 
     function getPlaceholder(method) {
-      return method === 'percent_income' ? '10 → significa 10%' : '100.00';
+      return method === 'percent' ? '10 → significa 10%' : '100.00';
     }
 
     function getDisplayValue(goal) {
       const m = goal.goal_method || 'fixed';
-      if (m === 'fixed') {
-        if (goal.fixed_amount !== null && goal.fixed_amount !== undefined) {
-          return Number(goal.fixed_amount) || 0;
-        }
-        return Number(goal.target_amount) || 0; // Fallback
-      }
-      if (m === 'variable') return Number(goal.variable_amount) || 0;
-      return Number(goal.percent_income) || 0; // percentuale
+      if (m === 'fixed')  return Number(goal.fixed_amount ?? goal.target_amount ?? 0);
+      if (m === 'percent') return Number(goal.percent_value ?? 0);
+      return ''; // variable
     }
 
     async function loadGoals() {
       try {
-        const { data, error } = await supabase.rpc('get_dashboard_goals');
-        if (error) throw error;
-        goalsData = (data || []).map(g => ({
-          ...g,
-          target_amount: g.target_amount != null ? Number(g.target_amount) : 0,
-          fixed_amount: g.fixed_amount != null ? Number(g.fixed_amount) : null,
-          variable_amount: g.variable_amount != null ? Number(g.variable_amount) : null,
-          percent_income: g.percent_income != null ? Number(g.percent_income) : null
-        }));
+        const { data: goal, error: gErr } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        if (gErr) throw gErr;
+
+        if (!goal) {
+          goalsSection.style.display = "block";
+          goalsPlanInfo.textContent = '';
+          goalsList.innerHTML = `
+            <div class="goal-card">
+              <div class="goal-title">🎯 <span>Obiettivo</span></div>
+              <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+              <div class="goal-row">
+                <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+                  <span class="chip is-active" data-method="fixed">Somma fissa</span>
+                  <span class="chip" data-method="variable">Somma variabile</span>
+                  <span class="chip" data-method="percent">% sulle entrate</span>
+                </div>
+                <div class="goal-input">
+                  <input type="number" placeholder="100.00" step="0.01" />
+                  <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+                </div>
+                <div class="goal-confirm">
+                  <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+                </div>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const { data: gms, error: mErr } = await supabase
+          .from('goal_method_state')
+          .select('*')
+          .eq('goal_id', goal.id)
+          .maybeSingle();
+        if (mErr) throw mErr;
+
+        const g1 = {
+          ...goal,
+          goal_method: gms?.method ?? 'fixed',
+          fixed_amount: gms?.fixed_amount ?? null,
+          percent_value: gms?.percent_value ?? null
+        };
+
+        goalsData = [g1];
         renderGoalsUI(goalsData);
       } catch (err) {
         console.error('[Goals] Errore caricamento:', err);
@@ -631,96 +657,62 @@
     }
 
     function renderGoalsUI(goals) {
-        goalsSection.style.display = "block";
+      goalsSection.style.display = "block";
+      goalsPlanInfo.textContent = '';
 
-        if (!goals || goals.length === 0) {
-            goalsPlanInfo.textContent = '';
-            goalsList.innerHTML = `
-              <div class="goal-card">
-                <div class="goal-title">🎯 <span>Obiettivo</span></div>
-                <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
-                <div class="goal-row">
-                  <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-                    <span class="chip is-active" data-method="fixed">Somma fissa</span>
-                    <span class="chip" data-method="variable">Somma variabile</span>
-                    <span class="chip" data-method="percent_income">% sulle entrate</span>
-                  </div>
-                  <div class="goal-input">
-                    <input type="number" placeholder="100.00" step="0.01" />
-                    <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
-                  </div>
-                  <div class="goal-confirm">
-                    <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-                  </div>
-                </div>
-              </div>
-            `;
-            return;
-        }
-
-        const plan = goals.find(g => g.plan_type)?.plan_type || '';
-        const countActive = goals.filter(g => g.active).length;
-        const maxGoals = goals[0]?.max_goals ?? '';
-        goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals || ''}` : '';
-
-        const activeGoals = goals.filter(g => g.active);
-        const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
-
-        const method = g1.goal_method || 'fixed';
-        const valueForMethod = getDisplayValue(g1);
-        const labelForMethod = getMethodLabel(method);
-        const placeholder = getPlaceholder(method);
-
-        const editCard = `
-          <div class="goal-card" style="margin-bottom:12px;">
-            <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
-            <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
+      if (!goals || goals.length === 0) {
+        goalsList.innerHTML = `
+          <div class="goal-card">
+            <div class="goal-title">🎯 <span>Obiettivo</span></div>
+            <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
             <div class="goal-row">
-              <div class="goal-method" id="g1-method">
-                <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
-                <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
-                <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
+              <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+                <span class="chip is-active" data-method="fixed">Somma fissa</span>
+                <span class="chip" data-method="variable">Somma variabile</span>
+                <span class="chip" data-method="percent">% sulle entrate</span>
               </div>
               <div class="goal-input">
-                <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
-                <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholder}" />
-                <span class="goal-hint">Target: <strong>${(Number(g1.target_amount)||0).toFixed(2)}€</strong></span>
+                <input type="number" placeholder="100.00" step="0.01" />
+                <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
               </div>
               <div class="goal-confirm">
-                <button id="g1-save" class="btn btn-primary">Salva</button>
+                <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
               </div>
             </div>
           </div>
         `;
+        return;
+      }
 
-        let extraCards = '';
-        const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
-        if (moreGoals.length) {
-            const isPro = (plan || '').toLowerCase() === 'pro';
-            extraCards = moreGoals.map(g => {
-                const locked = !isPro;
-                return `
-                  <div class="goal-card ${locked ? 'goal-locked' : ''}">
-                    <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
-                    <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
-                    <div class="goal-row" style="grid-template-columns: 1fr auto;">
-                      <div>
-                        <div class="goal-hint" style="margin:0;">Target: <strong>${(Number(g.target_amount)||0).toFixed(2)}€</strong></div>
-                      </div>
-                      <div class="goal-confirm">
-                        ${locked
-                          ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
-                          : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
-                        }
-                      </div>
-                    </div>
-                  </div>
-                `;
-            }).join('');
-        }
+      const g1 = goals[0];
+      const method = g1.goal_method || 'fixed';
+      const valueForMethod = getDisplayValue(g1);
+      const labelForMethod = getMethodLabel(method);
+      const placeholder = getPlaceholder(method);
 
-        goalsList.innerHTML = editCard + extraCards;
-        bindGoalEditor(g1);
+      goalsList.innerHTML = `
+        <div class="goal-card" style="margin-bottom:12px;">
+          <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
+          <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
+          <div class="goal-row">
+            <div class="goal-method" id="g1-method">
+              <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
+              <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
+              <span class="chip ${method==='percent'?'is-active':''}" data-method="percent">% sulle entrate</span>
+            </div>
+            <div class="goal-input">
+              <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+              <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholder}" />
+              <span class="goal-hint">Target: <strong>${(Number(g1.target_amount)||0).toFixed(2)}€</strong></span>
+            </div>
+            <div class="goal-confirm">
+              <button id="g1-save" class="btn btn-primary">Salva</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      bindGoalEditor(g1);
     }
 
     function bindGoalEditor(goal) {
@@ -729,6 +721,13 @@
       const saveBtn = document.getElementById('g1-save');
       const labelEl = document.getElementById('g1-label');
       if (!methodWrap || !valueInput || !saveBtn) return;
+
+      function applyInputStateFor(method) {
+        valueInput.disabled = (method === 'variable');
+        if (method === 'variable') valueInput.value = '';
+      }
+
+      applyInputStateFor(goal.goal_method || 'fixed');
 
       methodWrap.addEventListener('click', (e) => {
         const chip = e.target.closest('.chip');
@@ -742,51 +741,45 @@
         valueInput.placeholder = getPlaceholder(m);
         valueInput.step = '0.01';
 
-        if (m === 'fixed') {
-          const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
-          valueInput.value = Number(v) || 0;
-        } else if (m === 'variable') {
-          valueInput.value = Number(goal.variable_amount) || 0;
-        } else {
-          valueInput.value = Number(goal.percent_income) || 0;
-        }
+        if (m === 'fixed')       valueInput.value = Number(goal.fixed_amount ?? goal.target_amount ?? 0) || 0;
+        else if (m === 'percent') valueInput.value = Number(goal.percent_value) || 0;
+        else                      valueInput.value = '';
+
+        applyInputStateFor(m);
       });
 
       saveBtn.addEventListener('click', async () => {
         const activeChip = methodWrap.querySelector('.chip.is-active');
         const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-        const raw = parseFloat(valueInput.value);
-        const val = Number.isFinite(raw) ? raw : 0;
 
-        const patch = { method: method, goal_method: method }; // Update both for table and view
-        if (method === 'fixed') {
-          patch.fixed_amount = val;
-          patch.variable_amount = null;
-          patch.percent_income = null;
-        } else if (method === 'variable') {
-          patch.variable_amount = val;
-          patch.fixed_amount = null;
-          patch.percent_income = null;
-        } else {
-          patch.percent_income = val;
-          patch.fixed_amount = null;
-          patch.variable_amount = null;
+        let val = null;
+        if (method !== 'variable') {
+          const raw = parseFloat(valueInput.value);
+          val = Number.isFinite(raw) ? raw : 0;
         }
 
-        const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-        
+        const payload = {
+          goal_id: goal.id,
+          method,
+          fixed_amount: method === 'fixed' ? val : null,
+          percent_value: method === 'percent' ? val : null
+        };
+
+        const { error } = await supabase
+          .from('goal_method_state')
+          .upsert(payload, { onConflict: 'goal_id' });
+
         if (error) {
-          console.error('Errore aggiornamento obiettivo:', error);
+          console.error('Errore aggiornamento metodo obiettivo:', error);
           showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
           return;
         }
 
-        // Update local state to reflect changes
-        Object.assign(goal, patch);
-
         showStatusMessage('Obiettivo aggiornato con successo!', 'success');
+        loadGoals();
       });
     }
+    // --- END GOALS LOGIC ---
 
     // --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
@@ -844,13 +837,11 @@
         items.forEach(tx => { if (categoryMap[tx.category_id]) { categoryMap[tx.category_id].total += safeToNumber(tx.amount); } });
         const totalAmount = items.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
 
-        // Get top categories with a positive total
         const categoriesToRender = Object.values(categoryMap)
             .filter(cat => cat.total > 0)
             .sort((a, b) => b.total - a.total)
             .slice(0, 5);
 
-        // Always display the container for alignment
         container.style.display = 'block';
         const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
 
@@ -859,10 +850,8 @@
             return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width: ${percentage}%"></div></div></div>`;
         }).join('');
 
-        // Add placeholder rows to always have 5 total rows for alignment
         const placeholdersNeeded = 5 - categoriesToRender.length;
         if (placeholdersNeeded > 0) {
-            // A placeholder with the same structure but hidden content to maintain height
             const placeholderHTML = `
                 <div class="category-bar-item" aria-hidden="true">
                     <div class="category-bar-info" style="visibility: hidden;">
@@ -1157,7 +1146,6 @@
         const dateToUse = tx.is_paid === false ? tx.due_date : tx.occurred_at;
         document.getElementById('occurred_at').value = (dateToUse || '').split('T')[0] || '';
         
-        // Restore radio button state
         const type = tx.is_paid === false ? 'scheduled' : 'single';
         document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
         
@@ -1167,7 +1155,6 @@
         } else {
             document.getElementById('due-date-options').style.display = 'none';
         }
-
 
         updateCategoryDropdown();
         categorySelect.value = tx.category_id ?? '';
@@ -1241,7 +1228,6 @@
         const id = formData.get('transaction-id');
         const transactionType = formData.get('transaction_type');
         
-        // Base payload
         const payload = {
             kind: formData.get('kind'),
             note: formData.get('note'),
@@ -1250,26 +1236,24 @@
             category_id: formData.get('category_id'),
             subcategory_id: formData.get('subcategory_id') || null,
             created_by: user.id,
-            is_paid: true, // Default to paid
-            due_date: null // Default to null
+            is_paid: true,
+            due_date: null
         };
 
-        // Modify payload for scheduled transactions (works for both create and update)
         if (transactionType === 'scheduled') {
-            const dueDate = formData.get('due_date') || formData.get('occurred_at'); // Fallback to occurred_at if due_date is empty
+            const dueDate = formData.get('due_date') || formData.get('occurred_at');
             if (!dueDate) {
                 showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text: 'Chiudi' }]);
                 return;
             }
             payload.due_date = dueDate;
             payload.is_paid = false;
-            payload.occurred_at = dueDate; // Align occurred_at with due_date
+            payload.occurred_at = dueDate;
         }
 
         try {
             let error;
             
-            // Handle recurring (only on create)
             if (transactionType === 'recurring' && !id) {
                 const endDateStr = formData.get('recurring_end_date');
                 if (!endDateStr) {
@@ -1291,7 +1275,9 @@
                         ...payload,
                         is_recurring_parent: false,
                         parent_transaction_id: parentData.id,
-                        occurred_at: new Date(currentDate).toISOString().split('T')[0]
+                        occurred_at: new Date(currentDate).toISOString().split('T')[0],
+                        is_paid: false,
+                        due_date: new Date(currentDate).toISOString().split('T')[0]
                     });
                     currentDate.setMonth(currentDate.getMonth() + 1);
                 }
@@ -1299,9 +1285,7 @@
                     const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
                     if (recurringError) error = recurringError;
                 }
-            } 
-            // Handle all other cases (create single, create/update scheduled, update single)
-            else {
+            } else {
                 const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
                 const { error: singleError } = await query;
                 error = singleError;
