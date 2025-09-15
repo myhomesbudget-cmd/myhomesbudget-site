@@ -600,10 +600,13 @@
 
     async function loadGoals() {
       try {
+        // FIX: Ensure we get the latest goal deterministically by ordering and limiting.
         const { data: goal, error: gErr } = await supabase
           .from('goals')
           .select('*')
           .eq('user_id', user.id)
+          .order('updated_at', { ascending: false }) // Fallback: 'created_at' if needed
+          .limit(1)
           .maybeSingle();
         if (gErr) throw gErr;
 
@@ -741,7 +744,7 @@
         valueInput.placeholder = getPlaceholder(m);
         valueInput.step = '0.01';
 
-        if (m === 'fixed')       valueInput.value = Number(goal.fixed_amount ?? goal.target_amount ?? 0) || 0;
+        if (m === 'fixed')        valueInput.value = Number(goal.fixed_amount ?? goal.target_amount ?? 0) || 0;
         else if (m === 'percent') valueInput.value = Number(goal.percent_value) || 0;
         else                      valueInput.value = '';
 
