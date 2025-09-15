@@ -599,66 +599,43 @@
     }
 
     async function loadGoals() {
-      try {
-        // FIX: Ensure we get the latest goal deterministically by ordering and limiting.
-        // CHANGE: Switched to created_at for more reliable ordering of the newest goal.
-        const { data: goal, error: gErr } = await supabase
-          .from('goals')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (gErr) throw gErr;
+  try {
+    // prendi l’unico goal dell’utente (vincolo unico su user_id)
+    const { data: goal, error: gErr } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (gErr) throw gErr;
 
-        if (!goal) {
-          goalsSection.style.display = "block";
-          goalsPlanInfo.textContent = '';
-          goalsList.innerHTML = `
-            <div class="goal-card">
-              <div class="goal-title">🎯 <span>Obiettivo</span></div>
-              <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
-              <div class="goal-row">
-                <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-                  <span class="chip is-active" data-method="fixed">Somma fissa</span>
-                  <span class="chip" data-method="variable">Somma variabile</span>
-                  <span class="chip" data-method="percent">% sulle entrate</span>
-                </div>
-                <div class="goal-input">
-                  <input type="number" placeholder="100.00" step="0.01" />
-                  <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
-                </div>
-                <div class="goal-confirm">
-                  <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-                </div>
-              </div>
-            </div>
-          `;
-          return;
-        }
-
-        const { data: gms, error: mErr } = await supabase
-          .from('goal_method_state')
-          .select('*')
-          .eq('goal_id', goal.id)
-          .maybeSingle();
-        if (mErr) throw mErr;
-
-        const g1 = {
-          ...goal,
-          goal_method: gms?.method ?? 'fixed',
-          fixed_amount: gms?.fixed_amount ?? null,
-          percent_value: gms?.percent_value ?? null
-        };
-
-        goalsData = [g1];
-        renderGoalsUI(goalsData);
-      } catch (err) {
-        console.error('[Goals] Errore caricamento:', err);
-        goalsData = [];
-        renderGoalsUI(goalsData);
-      }
+    if (!goal) {
+      renderGoalsUI([]); // mostra card “configura”
+      return;
     }
+
+    const { data: gms, error: sErr } = await supabase
+      .from('goal_method_state')
+      .select('*')
+      .eq('goal_id', goal.id)
+      .maybeSingle();
+    if (sErr) throw sErr;
+
+    const merged = {
+      ...goal,
+      goal_method: gms?.method ?? 'fixed',
+      fixed_amount: gms?.fixed_amount ?? null,
+      percent_value: gms?.percent_value ?? null
+    };
+
+    goalsData = [merged];
+    renderGoalsUI(goalsData);
+  } catch (err) {
+    console.error('[Goals] load error:', err);
+    renderGoalsUI([]);
+  }
+}
 
     function renderGoalsUI(goals) {
       goalsSection.style.display = "block";
