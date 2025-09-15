@@ -70,9 +70,9 @@
     /* ====== Contenuto Principale ====== */
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
     .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
-    .dash-nav a{ text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600; transition: all 0.2s ease; background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
-    .dash-nav a:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
-    .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
+    .dash-nav a, .dash-nav button { text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600; transition: all 0.2s ease; background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); border: none; font-family: var(--font-sans); font-size: 1rem; cursor: pointer;}
+    .dash-nav a:hover, .dash-nav button:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+    .dash-nav a.is-active, .dash-nav button.is-active { filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
     .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
 
     .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
@@ -128,7 +128,7 @@
     .advanced-options-fields { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
 
     /* ====== Lista Transazioni e Scadenze ====== */
-    .list-title { margin: -24px -24px 16px; padding: 12px 24px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; }
+    .list-title { margin: -16px -16px 16px; padding: 12px 16px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; }
     .list-total-amount { font-weight: 800; font-size: 1.2rem; }
     .income .list-total-amount { color: var(--success-color); }
     .expense .list-total-amount { color: var(--danger-color); }
@@ -190,11 +190,31 @@
         color: #333;
     }
 
+    /* ====== MODAL LISTA MOVIMENTI ====== */
+    .modal-content-large { max-width: 90vw; width: 1000px; }
+    .movements-table-container { max-height: 60vh; overflow-y: auto; }
+    .movements-table { width: 100%; border-collapse: collapse; }
+    .movements-table th, .movements-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+    .movements-table th { font-weight: 700; background-color: rgba(0,0,0,0.05); font-size: 0.9rem; position: sticky; top: 0; }
+    .movements-table td { font-size: 0.95rem; }
+    .movements-table .amount-col { text-align: right; font-weight: 700; }
+    .movements-table .income .amount-col { color: var(--success-color); }
+    .movements-table .expense .amount-col { color: var(--danger-color); }
+    .movements-summary { margin-top: 20px; padding-top: 16px; border-top: 2px solid var(--card-border); display: flex; justify-content: space-around; font-weight: 700; }
+    .summary-item { text-align: center; }
+    .summary-label { font-size: 0.9rem; color: #555; }
+    .summary-value { font-size: 1.2rem; }
+    .summary-value.total-income { color: var(--success-color); }
+    .summary-value.total-expense { color: var(--danger-color); }
+    .summary-value.balance { color: var(--fg); }
+    
     /* ====== MODAL ANIMAZIONE ====== */
     .animation-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(10, 25, 47, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -211,52 +231,54 @@
     }
     .animation-container {
       position: relative;
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .animation-svg {
-      width: 120px;
-      height: auto;
-      filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+    .animation-bg-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     }
-    #income-animation-modal .animation-svg { fill: #fff; }
-    
     .animation-elements-container {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      pointer-events: none;
     }
     .money-element {
       position: absolute;
-      top: -50px;
-      left: 50%;
-      opacity: 0;
       background-size: contain;
       background-repeat: no-repeat;
+      pointer-events: none;
     }
-    /* Animazione Entrata */
     .money-element.income {
-        animation: drop-money 1.5s ease-in forwards;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      animation: drop-money-fall 1.8s ease-in forwards;
     }
-    @keyframes drop-money {
-        0% { transform: translateY(-100px) translateX(-50%) rotate(0deg); opacity: 0; }
+    @keyframes drop-money-fall {
+        0% { transform: translateY(-100px) translateX(-50%) rotate(-20deg); opacity: 0; }
         25% { opacity: 1; }
-        100% { transform: translateY(80px) translateX(-50%) rotate(360deg); opacity: 0; }
+        100% { transform: translateY(120px) translateX(-50%) rotate(20deg); opacity: 0; }
     }
-    /* Animazione Uscita */
     .money-element.expense {
-        top: 50%;
-        animation: dematerialize-money 2s forwards;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      animation: dematerialize-money 2s forwards;
     }
     @keyframes dematerialize-money {
-        0% { transform: translateY(-50%) translateX(-50%) scale(1); opacity: 1; filter: blur(0); }
-        50% { transform: translateY(-50%) translateX(-50%) scale(1.2); opacity: 0.8; }
-        100% { transform: translateY(-50%) translateX(-50%) scale(0.5); opacity: 0; filter: blur(20px); }
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -200%) scale(0.3); opacity: 0; filter: blur(10px); }
     }
 
 
@@ -312,6 +334,7 @@
     <nav id="dash-nav" class="dash-nav">
       <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
+      <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
 
     <!-- Sezione Form -->
@@ -397,21 +420,32 @@
     </div>
   </div>
 
-  <!-- Modal Animazione Entrata -->
-  <div id="income-animation-modal" class="animation-modal-overlay">
+  <!-- Modal Animazione Entrata/Uscita -->
+  <div id="animation-modal" class="animation-modal-overlay">
     <div class="animation-container">
-      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M461.2 128H80c-8.84 0-16 7.16-16 16v224c0 8.84 7.16 16 16 16h381.2c8.84 0 16-7.16 16-16V144c0-8.84-7.16-16-16-16zM80 32C35.82 32 0 67.82 0 112v288c0 44.18 35.82 80 80 80h381.2c22.09 0 40-17.91 40-40V144c0-22.09-17.91-40-40-40H128c-17.67 0-32-14.33-32-32s14.33-32 32-32H80z"/></svg>
+      <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/>
       <div class="animation-elements-container"></div>
     </div>
   </div>
-
-  <!-- Modal Animazione Uscita -->
-  <div id="expense-animation-modal" class="animation-modal-overlay">
-      <div class="animation-container">
-        <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M461.2 128H80c-8.84 0-16 7.16-16 16v224c0 8.84 7.16 16 16 16h381.2c8.84 0 16-7.16 16-16V144c0-8.84-7.16-16-16-16zM80 32C35.82 32 0 67.82 0 112v288c0 44.18 35.82 80 80 80h381.2c22.09 0 40-17.91 40-40V144c0-22.09-17.91-40-40-40H128c-17.67 0-32-14.33-32-32s14.33-32 32-32H80z" fill="#FFF"/></svg>
-        <div class="animation-elements-container"></div>
+  
+  <!-- Modal Lista Movimenti -->
+  <div id="movements-modal" class="modal-overlay">
+    <div class="modal-content modal-content-large">
+      <div class="modal-header">
+        <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
       </div>
+      <div id="movements-modal-body" class="modal-body">
+        <div class="movements-table-container">
+            <!-- Table will be injected here -->
+        </div>
+      </div>
+      <div id="movements-modal-footer" class="movements-summary">
+        <!-- Totals will be injected here -->
+      </div>
+    </div>
   </div>
+
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
@@ -423,7 +457,7 @@
     let allSubcategories = [];
     let allTransactions = [];
     let goalsData = [];
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA/9k=`;
+    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA/9k=`;
 
     // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
@@ -451,10 +485,13 @@
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationBadge = document.getElementById('notification-badge');
     const schedulerModal = document.getElementById('scheduler-modal');
+    const movementsModal = document.getElementById('movements-modal');
+    const listMovementsBtn = document.getElementById('list-movements-btn');
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
     const goalsPlanInfo = document.getElementById('goals-plan-info');
     const statusMessage = document.getElementById('status-message');
+    const animationModal = document.getElementById('animation-modal');
 
     // --- UTILITY & HELPER FUNCTIONS ---
     function safeToNumber(v) { 
@@ -492,58 +529,47 @@
         modal.classList.add('is-visible');
     }
 
-    function showIncomeAnimation() {
+    function showTransactionAnimation(type = 'income') {
         return new Promise(resolve => {
-            const modal = document.getElementById('income-animation-modal');
-            const container = modal.querySelector('.animation-elements-container');
-            container.innerHTML = ''; 
-
-            modal.classList.add('is-visible');
-
-            const moneyCount = 15;
-            for (let i = 0; i < moneyCount; i++) {
-                const isCoin = Math.random() > 0.5;
-                const money = document.createElement('div');
-                money.className = 'money-element income';
-                money.style.width = isCoin ? '25px' : '60px';
-                money.style.height = isCoin ? '25px' : '30px';
-                money.style.backgroundImage = isCoin 
-                    ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23FFD700' d='M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200z'/%3E%3Cpath fill='%23F8C51B' d='M256 112c-30.9 0-56 25.1-56 56s25.1 56 56 56 56-25.1 56-56-25.1-56-56-56zm0 80c-13.3 0-24-10.7-24-24s10.7-24 24-24 24 10.7 24 24-10.7 24-24 24z'/%3E%3C/svg%3E")`
-                    : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%234CAF50' d='M624 32H16C7.16 32 0 39.16 0 48v416c0 8.84 7.16 16 16 16h608c8.84 0 16-7.16 16-16V48c0-8.84-7.16-16-16-16zM320 416c-79.53 0-144-64.47-144-144s64.47-144 144-144 144 64.47 144 144-64.47 144-144 144z'/%3E%3C/svg%3E")`;
-                
-                money.style.left = `${Math.random() * 90 + 5}%`;
-                money.style.animationDelay = `${Math.random() * 1}s`;
-                container.appendChild(money);
-            }
-
-            setTimeout(() => {
-                modal.classList.remove('is-visible');
-                resolve();
-            }, 2500); 
-        });
-    }
-
-    function showExpenseAnimation() {
-        return new Promise(resolve => {
-            const modal = document.getElementById('expense-animation-modal');
-            const container = modal.querySelector('.animation-elements-container');
+            const container = animationModal.querySelector('.animation-elements-container');
+            const bgImage = document.getElementById('animation-bg-image');
             container.innerHTML = '';
-
-            modal.classList.add('is-visible');
             
-            const bill = document.createElement('div');
-            bill.className = 'money-element expense';
-            bill.style.width = '80px';
-            bill.style.height = '40px';
-            bill.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%23BDBDBD' d='M624 32H16C7.16 32 0 39.16 0 48v416c0 8.84 7.16 16 16 16h608c8.84 0 16-7.16 16-16V48c0-8.84-7.16-16-16-16zM320 416c-79.53 0-144-64.47-144-144s64.47-144 144-144 144 64.47 144 144-64.47 144-144 144z'/%3E%3C/svg%3E")`;
-            container.appendChild(bill);
+            bgImage.src = moneyBagImage;
 
-            setTimeout(() => {
-                modal.classList.remove('is-visible');
-                resolve();
-            }, 2000);
+            animationModal.classList.add('is-visible');
+            
+            if (type === 'income') {
+                const moneyCount = 10;
+                for (let i = 0; i < moneyCount; i++) {
+                    const money = document.createElement('div');
+                    money.className = 'money-element income';
+                    money.style.width = '80px';
+                    money.style.height = '40px';
+                    money.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' rx='5' fill='%2366BB6A'/%3E%3Ccircle cx='50' cy='25' r='15' fill='none' stroke='%23A5D6A7' stroke-width='3'/%3E%3Ctext x='50' y='30' font-family='Arial, sans-serif' font-size='20' fill='%23E8F5E9' text-anchor='middle'%3E€%3C/text%3E%3C/svg%3E")`;
+                    money.style.left = `${Math.random() * 80 + 10}%`;
+                    money.style.animationDelay = `${Math.random() * 1.2}s`;
+                    container.appendChild(money);
+                }
+                 setTimeout(() => {
+                    animationModal.classList.remove('is-visible');
+                    resolve();
+                }, 2800);
+            } else { // expense
+                const bill = document.createElement('div');
+                bill.className = 'money-element expense';
+                bill.style.width = '80px';
+                bill.style.height = '40px';
+                bill.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' rx='5' fill='%23EF9A9A'/%3E%3Ccircle cx='50' cy='25' r='15' fill='none' stroke='%23FFCDD2' stroke-width='3'/%3E%3Ctext x='50' y='30' font-family='Arial, sans-serif' font-size='20' fill='%23FFEBEE' text-anchor='middle'%3E€%3C/text%3E%3C/svg%3E")`;
+                container.appendChild(bill);
+                setTimeout(() => {
+                    animationModal.classList.remove('is-visible');
+                    resolve();
+                }, 2000);
+            }
         });
     }
+
 
     function resetFormToCreateMode() {
         formTitle.textContent = "Nuova Operazione";
@@ -559,210 +585,194 @@
 
     // --- GOALS LOGIC ---
     function getMethodLabel(method) {
-  return method === 'fixed'
-    ? 'Importo fisso (€)'
-    : method === 'variable'
-      ? 'Importo variabile (€)'
-      : 'Percentuale sulle entrate (%)';
-}
-
-/** Helper: placeholder del metodo */
-function getPlaceholder(method) {
-  return method === 'percent_income' ? '10 → significa 10%' : '100.00';
-}
-
-/** Helper: valore da mostrare con fallback
- *  fixed: se fixed_amount è null → usa target_amount
- *  variable/percent: usa i rispettivi campi o 0
- */
-function getDisplayValue(goal) {
-  const m = goal.goal_method || 'fixed';
-  if (m === 'fixed') {
-    if (goal.fixed_amount !== null && goal.fixed_amount !== undefined) {
-      return Number(goal.fixed_amount) || 0;
+      return method === 'fixed'
+        ? 'Importo fisso (€)'
+        : method === 'variable'
+          ? 'Importo variabile (€)'
+          : 'Percentuale sulle entrate (%)';
     }
-    return Number(goal.target_amount) || 0; // Fallback
-  }
-  if (m === 'variable') return Number(goal.variable_amount) || 0;
-  return Number(goal.percent_income) || 0; // percentuale
-}
 
-async function loadGoals() {
-  try {
-    const { data, error } = await supabase.rpc('get_dashboard_goals');
-    if (error) throw error;
-    goalsData = data || [];
-    renderGoalsUI(goalsData);
-  } catch (error) {
-    console.warn("get_dashboard_goals non disponibile o errore:", error);
-    goalsData = [];
-    renderGoalsUI(goalsData);
-  }
-}
+    function getPlaceholder(method) {
+      return method === 'percent_income' ? '10 → significa 10%' : '100.00';
+    }
 
-function renderGoalsUI(goals) {
-  goalsSection.style.display = "block";
+    function getDisplayValue(goal) {
+      const m = goal.goal_method || 'fixed';
+      if (m === 'fixed') {
+        if (goal.fixed_amount !== null && goal.fixed_amount !== undefined) {
+          return Number(goal.fixed_amount) || 0;
+        }
+        return Number(goal.target_amount) || 0; // Fallback
+      }
+      if (m === 'variable') return Number(goal.variable_amount) || 0;
+      return Number(goal.percent_income) || 0; // percentuale
+    }
 
-  // Nessun dato → card placeholder
-  if (!goals || goals.length === 0) {
-    goalsPlanInfo.textContent = '';
-    goalsList.innerHTML = `
-      <div class="goal-card">
-        <div class="goal-title">🎯 <span>Obiettivo</span></div>
-        <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
-        <div class="goal-row">
-          <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
-            <span class="chip is-active" data-method="fixed">Somma fissa</span>
-            <span class="chip" data-method="variable">Somma variabile</span>
-            <span class="chip" data-method="percent_income">% sulle entrate</span>
-          </div>
-          <div class="goal-input">
-            <input type="number" placeholder="100.00" step="0.01" />
-            <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
-          </div>
-          <div class="goal-confirm">
-            <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
-          </div>
-        </div>
-      </div>
-    `;
-    return;
-  }
+    async function loadGoals() {
+      try {
+        const { data, error } = await supabase.rpc('get_dashboard_goals');
+        if (error) throw error;
+        goalsData = data || [];
+        renderGoalsUI(goalsData);
+      } catch (error) {
+        console.warn('[Goals] RPC non disponibile:', error?.message || error);
+        goalsData = [];
+        renderGoalsUI(goalsData);
+      }
+    }
 
-  // Info piano (ricavo da prima riga)
-  const plan = goals.find(g => g.plan_type)?.plan_type || '';
-  const countActive = goals.filter(g => g.active).length;
-  const maxGoals = goals[0]?.max_goals ?? '';
-  goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals || ''}` : '';
+    function renderGoalsUI(goals) {
+        goalsSection.style.display = "block";
 
-  // Prendo il primo attivo con goal_number=1 (o il primo attivo)
-  const activeGoals = goals.filter(g => g.active);
-  const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
+        if (!goals || goals.length === 0) {
+            goalsPlanInfo.textContent = '';
+            goalsList.innerHTML = `
+              <div class="goal-card">
+                <div class="goal-title">🎯 <span>Obiettivo</span></div>
+                <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
+                <div class="goal-row">
+                  <div class="goal-method" role="tablist" aria-label="Metodo di accantonamento (solo esempio)">
+                    <span class="chip is-active" data-method="fixed">Somma fissa</span>
+                    <span class="chip" data-method="variable">Somma variabile</span>
+                    <span class="chip" data-method="percent_income">% sulle entrate</span>
+                  </div>
+                  <div class="goal-input">
+                    <input type="number" placeholder="100.00" step="0.01" />
+                    <span class="goal-hint">Imposta o modifica dall’Onboarding.</span>
+                  </div>
+                  <div class="goal-confirm">
+                    <a class="btn btn-primary" href="/it/onboarding.html?edit=1">Configura</a>
+                  </div>
+                </div>
+              </div>
+            `;
+            return;
+        }
 
-  const method = g1.goal_method || 'fixed';
-  const valueForMethod = getDisplayValue(g1);
-  const labelForMethod = getMethodLabel(method);
-  const placeholder = getPlaceholder(method);
+        const plan = goals.find(g => g.plan_type)?.plan_type || '';
+        const countActive = goals.filter(g => g.active).length;
+        const maxGoals = goals[0]?.max_goals ?? '';
+        goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals || ''}` : '';
 
-  // Card editor Obiettivo 1 (editabile)
-  const editCard = `
-    <div class="goal-card" style="margin-bottom:12px;">
-      <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
-      <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
-      <div class="goal-row">
-        <div class="goal-method" id="g1-method">
-          <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
-          <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
-          <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
-        </div>
-        <div class="goal-input">
-          <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
-          <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholder}" />
-          <span class="goal-hint">Target: <strong>${(Number(g1.target_amount)||0).toFixed(2)}€</strong></span>
-        </div>
-        <div class="goal-confirm">
-          <button id="g1-save" class="btn btn-primary">Salva</button>
-        </div>
-      </div>
-    </div>
-  `;
+        const activeGoals = goals.filter(g => g.active);
+        const g1 = activeGoals.find(g => String(g.goal_number || '1') === '1') || activeGoals[0];
 
-  // Altre card (bloccate se non PRO)
-  let extraCards = '';
-  const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
-  if (moreGoals.length) {
-    const isPro = (plan || '').toLowerCase() === 'pro';
-    extraCards = moreGoals.map(g => {
-      const locked = !isPro;
-      return `
-        <div class="goal-card ${locked ? 'goal-locked' : ''}">
-          <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
-          <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
-          <div class="goal-row" style="grid-template-columns: 1fr auto;">
-            <div>
-              <div class="goal-hint" style="margin:0;">Target: <strong>${(Number(g.target_amount)||0).toFixed(2)}€</strong></div>
-            </div>
-            <div class="goal-confirm">
-              ${locked
-                ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
-                : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
-              }
+        const method = g1.goal_method || 'fixed';
+        const valueForMethod = getDisplayValue(g1);
+        const labelForMethod = getMethodLabel(method);
+        const placeholder = getPlaceholder(method);
+
+        const editCard = `
+          <div class="goal-card" style="margin-bottom:12px;">
+            <div class="goal-title">🎯 <span>Obiettivo 1</span></div>
+            <p class="goal-subtitle">${g1.name || 'Risparmio'}</p>
+            <div class="goal-row">
+              <div class="goal-method" id="g1-method">
+                <span class="chip ${method==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
+                <span class="chip ${method==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
+                <span class="chip ${method==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
+              </div>
+              <div class="goal-input">
+                <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+                <input id="g1-value" type="number" step="0.01" value="${valueForMethod}" placeholder="${placeholder}" />
+                <span class="goal-hint">Target: <strong>${(Number(g1.target_amount)||0).toFixed(2)}€</strong></span>
+              </div>
+              <div class="goal-confirm">
+                <button id="g1-save" class="btn btn-primary">Salva</button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    }).join('');
-  }
+        `;
 
-  goalsList.innerHTML = editCard + extraCards;
+        let extraCards = '';
+        const moreGoals = activeGoals.filter(g => String(g.id) !== String(g1.id));
+        if (moreGoals.length) {
+            const isPro = (plan || '').toLowerCase() === 'pro';
+            extraCards = moreGoals.map(g => {
+                const locked = !isPro;
+                return `
+                  <div class="goal-card ${locked ? 'goal-locked' : ''}">
+                    <div class="goal-title">🎯 <span>Obiettivo ${g.goal_number || ''}</span></div>
+                    <p class="goal-subtitle">${g.name || 'Risparmio'}</p>
+                    <div class="goal-row" style="grid-template-columns: 1fr auto;">
+                      <div>
+                        <div class="goal-hint" style="margin:0;">Target: <strong>${(Number(g.target_amount)||0).toFixed(2)}€</strong></div>
+                      </div>
+                      <div class="goal-confirm">
+                        ${locked
+                          ? `<a class="btn btn-primary" href="/it/pricing.html">Sblocca con PRO</a>`
+                          : `<a class="link" href="/it/onboarding.html?edit=1">Modifica</a>`
+                        }
+                      </div>
+                    </div>
+                  </div>
+                `;
+            }).join('');
+        }
 
-  // Bind editor Obiettivo 1
-  bindGoalEditor(g1);
-}
-
-function bindGoalEditor(goal) {
-  const methodWrap = document.getElementById('g1-method');
-  const valueInput = document.getElementById('g1-value');
-  const saveBtn = document.getElementById('g1-save');
-  const labelEl = document.getElementById('g1-label');
-  if (!methodWrap || !valueInput || !saveBtn) return;
-
-  // click sui chip: aggiorno UI + valore predefinito del metodo
-  methodWrap.addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-
-    Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
-    chip.classList.add('is-active');
-
-    const m = chip.dataset.method; // 'fixed' | 'variable' | 'percent_income'
-    labelEl.textContent = getMethodLabel(m);
-    valueInput.placeholder = getPlaceholder(m);
-    valueInput.step = '0.01';
-
-    // valore da mostrare in base al metodo scelto (con fallback per fixed)
-    if (m === 'fixed') {
-      const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
-      valueInput.value = Number(v) || 0;
-    } else if (m === 'variable') {
-      valueInput.value = Number(goal.variable_amount) || 0;
-    } else {
-      valueInput.value = Number(goal.percent_income) || 0;
-    }
-  });
-
-  // Salva: aggiorna il campo coerente col metodo selezionato
-  saveBtn.addEventListener('click', async () => {
-    const activeChip = methodWrap.querySelector('.chip.is-active');
-    const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
-    const raw = parseFloat(valueInput.value);
-    const val = Number.isFinite(raw) ? raw : 0;
-
-    const patch = { goal_method: method };
-    if (method === 'fixed') {
-      patch.fixed_amount = val;
-    } else if (method === 'variable') {
-      patch.variable_amount = val;
-    } else {
-      patch.percent_income = val; // <— nome campo corretto
+        goalsList.innerHTML = editCard + extraCards;
+        bindGoalEditor(g1);
     }
 
-    const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
-    if (error) {
-      console.error('Errore aggiornamento obiettivo:', error);
-      alert('Impossibile salvare. Riprova.');
-      return;
+    function bindGoalEditor(goal) {
+        const methodWrap = document.getElementById('g1-method');
+        const valueInput = document.getElementById('g1-value');
+        const saveBtn = document.getElementById('g1-save');
+        const labelEl = document.getElementById('g1-label');
+        if (!methodWrap || !valueInput || !saveBtn) return;
+
+        methodWrap.addEventListener('click', (e) => {
+            const chip = e.target.closest('.chip');
+            if (!chip) return;
+
+            Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+            chip.classList.add('is-active');
+
+            const m = chip.dataset.method;
+            labelEl.textContent = getMethodLabel(m);
+            valueInput.placeholder = getPlaceholder(m);
+            valueInput.step = '0.01';
+
+            if (m === 'fixed') {
+                const v = (goal.fixed_amount ?? goal.target_amount ?? 0);
+                valueInput.value = Number(v) || 0;
+            } else if (m === 'variable') {
+                valueInput.value = Number(goal.variable_amount) || 0;
+            } else {
+                valueInput.value = Number(goal.percent_income) || 0;
+            }
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            const activeChip = methodWrap.querySelector('.chip.is-active');
+            const method = activeChip ? activeChip.dataset.method : (goal.goal_method || 'fixed');
+            const raw = parseFloat(valueInput.value);
+            const val = Number.isFinite(raw) ? raw : 0;
+
+            const patch = { goal_method: method };
+            if (method === 'fixed') {
+                patch.fixed_amount = val;
+            } else if (method === 'variable') {
+                patch.variable_amount = val;
+            } else {
+                patch.percent_income = val;
+            }
+
+            const { error } = await supabase.from('goals').update(patch).eq('id', goal.id);
+            if (error) {
+                console.error('Errore aggiornamento obiettivo:', error);
+                showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
+                return;
+            }
+
+            goal.goal_method = method;
+            if (method === 'fixed') goal.fixed_amount = val;
+            if (method === 'variable') goal.variable_amount = val;
+            if (method === 'percent_income') goal.percent_income = val;
+
+            showStatusMessage('Obiettivo aggiornato con successo!', 'success');
+        });
     }
-
-    // sync stato locale
-    goal.goal_method = method;
-    if (method === 'fixed') goal.fixed_amount = val;
-    if (method === 'variable') goal.variable_amount = val;
-    if (method === 'percent_income') goal.percent_income = val;
-
-    alert('Obiettivo aggiornato!');
-  });
-}
 
     // --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
@@ -945,6 +955,90 @@ function bindGoalEditor(goal) {
             `);
         });
     }
+
+    function renderMovementsListModal(transactions, months) {
+        const modalBody = document.getElementById('movements-modal-body').querySelector('.movements-table-container');
+        const modalFooter = document.getElementById('movements-modal-footer');
+        const modalTitle = document.getElementById('movements-modal-title');
+        const selectedMonthName = months[monthSelector.value];
+        const selectedYear = yearSelector.value;
+        modalTitle.textContent = `Estratto Conto - ${selectedMonthName} ${selectedYear}`;
+
+        if (!transactions || transactions.length === 0) {
+            modalBody.innerHTML = '<div class="empty-state"><p>Nessun movimento per il periodo selezionato.</p></div>';
+            modalFooter.innerHTML = '';
+            return;
+        }
+
+        const sortedTx = [...transactions].sort((a, b) => new Date(a.occurred_at) - new Date(b.occurred_at));
+
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        const tableRows = sortedTx.map(tx => {
+            const amount = safeToNumber(tx.amount);
+            const isIncome = tx.kind === 'income';
+            if (isIncome) {
+                totalIncome += amount;
+            } else {
+                totalExpense += amount;
+            }
+
+            const date = new Date(tx.occurred_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const type = isIncome ? 'Entrata' : 'Uscita';
+            const note = tx.note || '-';
+            const category = tx.categories?.name || 'N/A';
+            const subcategory = tx.subcategories?.name || '-';
+            const amountFormatted = `${isIncome ? '+' : '-'} ${amount.toFixed(2)} €`;
+
+            return `
+                <tr class="${tx.kind}">
+                    <td>${date}</td>
+                    <td>${type}</td>
+                    <td>${note}</td>
+                    <td class="amount-col">${amountFormatted}</td>
+                    <td>${category}</td>
+                    <td>${subcategory}</td>
+                </tr>
+            `;
+        }).join('');
+
+        modalBody.innerHTML = `
+            <table class="movements-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Nota</th>
+                        <th class="amount-col">Importo</th>
+                        <th>Categoria</th>
+                        <th>Sottocategoria</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        `;
+        
+        const balance = totalIncome - totalExpense;
+        
+        modalFooter.innerHTML = `
+            <div class="summary-item">
+                <div class="summary-label">Totale Entrate</div>
+                <div class="summary-value total-income">+ ${totalIncome.toFixed(2)} €</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Totale Uscite</div>
+                <div class="summary-value total-expense">- ${totalExpense.toFixed(2)} €</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Saldo</div>
+                <div class="summary-value balance">${balance.toFixed(2)} €</div>
+            </div>
+        `;
+    }
+
 
     async function updateNotifications() {
         const today = new Date();
@@ -1184,10 +1278,10 @@ function bindGoalEditor(goal) {
             if(error) throw error;
             
             if (payload.kind === 'income' && !id) {
-                await showIncomeAnimation();
+                await showTransactionAnimation('income');
                 showStatusMessage('Entrata registrata!', 'success');
             } else if (payload.kind === 'expense' && !id) {
-                await showExpenseAnimation();
+                await showTransactionAnimation('expense');
                 showStatusMessage('Uscita registrata!', 'success');
             }
             else {
@@ -1291,6 +1385,12 @@ function bindGoalEditor(goal) {
       deadlinesList.addEventListener('click', handleDeadlineActions);
       schedulerModal.addEventListener('click', handleDeadlineActions);
       
+      listMovementsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        renderMovementsListModal(allTransactions, months);
+        movementsModal.classList.add('is-visible');
+      });
+
       document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
           radio.addEventListener('change', (e) => {
               recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
