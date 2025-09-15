@@ -202,6 +202,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
+      overflow: hidden;
     }
     .animation-modal-overlay.is-visible {
       display: flex;
@@ -210,20 +211,19 @@
     }
     .animation-container {
       position: relative;
-      width: 150px;
-      height: 150px;
+      width: 200px;
+      height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .animation-svg {
-      width: 100px;
+      width: 120px;
       height: auto;
       filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
     }
     #income-animation-modal .animation-svg { fill: #fff; }
-    #expense-animation-modal .animation-svg { stroke: #fff; stroke-width: 2px; fill: none; }
-
+    
     .animation-elements-container {
       position: absolute;
       top: 0;
@@ -231,48 +231,32 @@
       width: 100%;
       height: 100%;
     }
-    .coin {
+    .money-element {
       position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: #ffd700;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ffd700, inset 0 0 5px rgba(0,0,0,0.2);
-      top: -30px;
+      top: -50px;
+      left: 50%;
       opacity: 0;
-      animation: drop-coin 1s ease-in forwards;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #b38600;
-      font-size: 14px;
-      font-weight: bold;
+      background-size: contain;
+      background-repeat: no-repeat;
     }
-    @keyframes drop-coin {
-      0% { transform: translateY(-50px) scale(0.8); opacity: 0; }
-      25% { opacity: 1; }
-      100% { transform: translateY(50px) scale(1); opacity: 0; }
+    /* Animazione Entrata */
+    .money-element.income {
+        animation: drop-money 1.5s ease-in forwards;
     }
-
-    .bill {
-        position: absolute;
-        width: 60px;
-        height: 30px;
-        background: #e0e0e0;
-        border: 2px solid #b0b0b0;
-        border-radius: 4px;
-        opacity: 0;
-        animation: fly-out-bill 1.5s ease-out forwards;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        color: #888;
-        font-weight: bold;
+    @keyframes drop-money {
+        0% { transform: translateY(-100px) translateX(-50%) rotate(0deg); opacity: 0; }
+        25% { opacity: 1; }
+        100% { transform: translateY(80px) translateX(-50%) rotate(360deg); opacity: 0; }
     }
-    @keyframes fly-out-bill {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(-150px) rotate(720deg) scale(0); opacity: 0; }
+    /* Animazione Uscita */
+    .money-element.expense {
+        top: 50%;
+        animation: dematerialize-money 2s forwards;
+    }
+    @keyframes dematerialize-money {
+        0% { transform: translateY(-50%) translateX(-50%) scale(1); opacity: 1; filter: blur(0); }
+        50% { transform: translateY(-50%) translateX(-50%) scale(1.2); opacity: 0.8; }
+        100% { transform: translateY(-50%) translateX(-50%) scale(0.5); opacity: 0; filter: blur(20px); }
     }
 
 
@@ -416,20 +400,17 @@
   <!-- Modal Animazione Entrata -->
   <div id="income-animation-modal" class="animation-modal-overlay">
     <div class="animation-container">
-      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-          <path d="M90,30H10C7.2,30,5,32.2,5,35v40c0,2.8,2.2,5,5,5h80c2.8,0,5-2.2,5-5V35C95,32.2,92.8,30,90,30z M87,72H13 c-1.7,0-3-1.3-3-3V50h77v19C90,70.7,88.7,72,87,72z M90,45H10v-5c0-1.7,1.3-3,3-3h74c1.7,0,3,1.3,3,3V45z"/>
-          <circle cx="78" cy="40" r="4"/>
-      </svg>
+      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M461.2 128H80c-8.84 0-16 7.16-16 16v224c0 8.84 7.16 16 16 16h381.2c8.84 0 16-7.16 16-16V144c0-8.84-7.16-16-16-16zM80 32C35.82 32 0 67.82 0 112v288c0 44.18 35.82 80 80 80h381.2c22.09 0 40-17.91 40-40V144c0-22.09-17.91-40-40-40H128c-17.67 0-32-14.33-32-32s14.33-32 32-32H80z"/></svg>
       <div class="animation-elements-container"></div>
     </div>
   </div>
 
   <!-- Modal Animazione Uscita -->
   <div id="expense-animation-modal" class="animation-modal-overlay">
-    <div class="animation-container">
-      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 16V8h16v8H4z"/><path d="M6 10h4v4H6z"/></svg>
-      <div class="animation-elements-container"></div>
-    </div>
+      <div class="animation-container">
+        <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M461.2 128H80c-8.84 0-16 7.16-16 16v224c0 8.84 7.16 16 16 16h381.2c8.84 0 16-7.16 16-16V144c0-8.84-7.16-16-16-16zM80 32C35.82 32 0 67.82 0 112v288c0 44.18 35.82 80 80 80h381.2c22.09 0 40-17.91 40-40V144c0-22.09-17.91-40-40-40H128c-17.67 0-32-14.33-32-32s14.33-32 32-32H80z" fill="#FFF"/></svg>
+        <div class="animation-elements-container"></div>
+      </div>
   </div>
 
   <script type="module">
@@ -514,24 +495,30 @@
         return new Promise(resolve => {
             const modal = document.getElementById('income-animation-modal');
             const container = modal.querySelector('.animation-elements-container');
-            container.innerHTML = ''; // Clear previous coins
+            container.innerHTML = ''; 
 
             modal.classList.add('is-visible');
 
-            const coinCount = 10;
-            for (let i = 0; i < coinCount; i++) {
-                const coin = document.createElement('div');
-                coin.className = 'coin';
-                coin.textContent = '€';
-                coin.style.left = `${Math.random() * 80 + 10}%`; // Random horizontal position
-                coin.style.animationDelay = `${Math.random() * 0.8}s`;
-                container.appendChild(coin);
+            const moneyCount = 15;
+            for (let i = 0; i < moneyCount; i++) {
+                const isCoin = Math.random() > 0.5;
+                const money = document.createElement('div');
+                money.className = 'money-element income';
+                money.style.width = isCoin ? '25px' : '60px';
+                money.style.height = isCoin ? '25px' : '30px';
+                money.style.backgroundImage = isCoin 
+                    ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23FFD700' d='M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200z'/%3E%3Cpath fill='%23F8C51B' d='M256 112c-30.9 0-56 25.1-56 56s25.1 56 56 56 56-25.1 56-56-25.1-56-56-56zm0 80c-13.3 0-24-10.7-24-24s10.7-24 24-24 24 10.7 24 24-10.7 24-24 24z'/%3E%3C/svg%3E")`
+                    : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%234CAF50' d='M624 32H16C7.16 32 0 39.16 0 48v416c0 8.84 7.16 16 16 16h608c8.84 0 16-7.16 16-16V48c0-8.84-7.16-16-16-16zM320 416c-79.53 0-144-64.47-144-144s64.47-144 144-144 144 64.47 144 144-64.47 144-144 144z'/%3E%3C/svg%3E")`;
+                
+                money.style.left = `${Math.random() * 90 + 5}%`;
+                money.style.animationDelay = `${Math.random() * 1}s`;
+                container.appendChild(money);
             }
 
             setTimeout(() => {
                 modal.classList.remove('is-visible');
                 resolve();
-            }, 2000); // Animation duration + a little extra
+            }, 2500); 
         });
     }
 
@@ -539,19 +526,21 @@
         return new Promise(resolve => {
             const modal = document.getElementById('expense-animation-modal');
             const container = modal.querySelector('.animation-elements-container');
-            container.innerHTML = ''; // Clear previous elements
+            container.innerHTML = '';
 
             modal.classList.add('is-visible');
             
             const bill = document.createElement('div');
-            bill.className = 'bill';
-            bill.textContent = '€';
+            bill.className = 'money-element expense';
+            bill.style.width = '80px';
+            bill.style.height = '40px';
+            bill.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%23BDBDBD' d='M624 32H16C7.16 32 0 39.16 0 48v416c0 8.84 7.16 16 16 16h608c8.84 0 16-7.16 16-16V48c0-8.84-7.16-16-16-16zM320 416c-79.53 0-144-64.47-144-144s64.47-144 144-144 144 64.47 144 144-64.47 144-144 144z'/%3E%3C/svg%3E")`;
             container.appendChild(bill);
 
             setTimeout(() => {
                 modal.classList.remove('is-visible');
                 resolve();
-            }, 2000); // Animation duration
+            }, 2000);
         });
     }
 
