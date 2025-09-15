@@ -190,12 +190,12 @@
         color: #333;
     }
 
-    /* ====== MODAL ANIMAZIONE ENTRATA ====== */
+    /* ====== MODAL ANIMAZIONE ====== */
     .animation-modal-overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.7);
-      display: none; /* Initially hidden */
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 2000;
@@ -208,7 +208,7 @@
       opacity: 1;
       pointer-events: auto;
     }
-    .wallet-container {
+    .animation-container {
       position: relative;
       width: 150px;
       height: 150px;
@@ -216,13 +216,15 @@
       align-items: center;
       justify-content: center;
     }
-    .wallet-svg {
+    .animation-svg {
       width: 100px;
       height: auto;
-      fill: #fff;
       filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
     }
-    .coins-container {
+    #income-animation-modal .animation-svg { fill: #fff; }
+    #expense-animation-modal .animation-svg { stroke: #fff; stroke-width: 2px; fill: none; }
+
+    .animation-elements-container {
       position: absolute;
       top: 0;
       left: 0;
@@ -236,7 +238,7 @@
       background-color: #ffd700;
       border-radius: 50%;
       box-shadow: 0 0 10px #ffd700, inset 0 0 5px rgba(0,0,0,0.2);
-      top: -30px; /* Start above the screen */
+      top: -30px;
       opacity: 0;
       animation: drop-coin 1s ease-in forwards;
       display: flex;
@@ -247,18 +249,32 @@
       font-weight: bold;
     }
     @keyframes drop-coin {
-      0% {
-        transform: translateY(-50px) scale(0.8);
-        opacity: 0;
-      }
-      25% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(50px) scale(1);
-        opacity: 0;
-      }
+      0% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+      25% { opacity: 1; }
+      100% { transform: translateY(50px) scale(1); opacity: 0; }
     }
+
+    .bill {
+        position: absolute;
+        width: 60px;
+        height: 30px;
+        background: #e0e0e0;
+        border: 2px solid #b0b0b0;
+        border-radius: 4px;
+        opacity: 0;
+        animation: fly-out-bill 1.5s ease-out forwards;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #888;
+        font-weight: bold;
+    }
+    @keyframes fly-out-bill {
+        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-150px) rotate(720deg) scale(0); opacity: 0; }
+    }
+
 
     /* Messaggi di stato */
     .status-message { padding: 12px 16px; border-radius: 10px; margin-top: 16px; text-align: center; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; grid-column: 1 / -1; }
@@ -399,12 +415,20 @@
 
   <!-- Modal Animazione Entrata -->
   <div id="income-animation-modal" class="animation-modal-overlay">
-    <div class="wallet-container">
-      <svg class="wallet-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <div class="animation-container">
+      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
           <path d="M90,30H10C7.2,30,5,32.2,5,35v40c0,2.8,2.2,5,5,5h80c2.8,0,5-2.2,5-5V35C95,32.2,92.8,30,90,30z M87,72H13 c-1.7,0-3-1.3-3-3V50h77v19C90,70.7,88.7,72,87,72z M90,45H10v-5c0-1.7,1.3-3,3-3h74c1.7,0,3,1.3,3,3V45z"/>
           <circle cx="78" cy="40" r="4"/>
       </svg>
-      <div class="coins-container"></div>
+      <div class="animation-elements-container"></div>
+    </div>
+  </div>
+
+  <!-- Modal Animazione Uscita -->
+  <div id="expense-animation-modal" class="animation-modal-overlay">
+    <div class="animation-container">
+      <svg class="animation-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM4 16V8h16v8H4z"/><path d="M6 10h4v4H6z"/></svg>
+      <div class="animation-elements-container"></div>
     </div>
   </div>
 
@@ -489,7 +513,7 @@
     function showIncomeAnimation() {
         return new Promise(resolve => {
             const modal = document.getElementById('income-animation-modal');
-            const container = modal.querySelector('.coins-container');
+            const container = modal.querySelector('.animation-elements-container');
             container.innerHTML = ''; // Clear previous coins
 
             modal.classList.add('is-visible');
@@ -508,6 +532,26 @@
                 modal.classList.remove('is-visible');
                 resolve();
             }, 2000); // Animation duration + a little extra
+        });
+    }
+
+    function showExpenseAnimation() {
+        return new Promise(resolve => {
+            const modal = document.getElementById('expense-animation-modal');
+            const container = modal.querySelector('.animation-elements-container');
+            container.innerHTML = ''; // Clear previous elements
+
+            modal.classList.add('is-visible');
+            
+            const bill = document.createElement('div');
+            bill.className = 'bill';
+            bill.textContent = '€';
+            container.appendChild(bill);
+
+            setTimeout(() => {
+                modal.classList.remove('is-visible');
+                resolve();
+            }, 2000); // Animation duration
         });
     }
 
@@ -1111,7 +1155,11 @@
             if (payload.kind === 'income' && !id) {
                 await showIncomeAnimation();
                 showStatusMessage('Entrata registrata!', 'success');
-            } else {
+            } else if (payload.kind === 'expense' && !id) {
+                await showExpenseAnimation();
+                showStatusMessage('Uscita registrata!', 'success');
+            }
+            else {
                 showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
             }
             
