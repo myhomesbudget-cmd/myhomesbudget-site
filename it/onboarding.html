@@ -75,7 +75,6 @@
     .option-label strong{display:block;font-size:1.05rem}
     .option-label span{font-size:.92rem;color:#444}
     
-    /* MODIFICA: Ottimizzazione mobile per i campi extra. Ora si impilano sempre verticalmente. */
     .option-details{display:none;grid-template-columns:1fr;gap:10px;padding:10px 14px 0}
     input[type="radio"]:checked ~ .option-details{display:grid}
     
@@ -87,9 +86,8 @@
     .category-columns{display:grid;gap:24px}
     @media(min-width:768px){.category-columns{grid-template-columns:1fr 1fr}}
     .column h3{text-align:center;margin:0 0 8px}
-    /* Richiesta: Entrate verde, Uscite rosso */
-    .category-columns .column:first-child h3{ color: var(--success-color); } /* Entrate */
-    .category-columns .column:last-child  h3{ color: var(--danger-color); }  /* Uscite  */
+    .category-columns .column:first-child h3{ color: var(--success-color); }
+    .category-columns .column:last-child  h3{ color: var(--danger-color); }
 
     .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;display:none}
     .error-message.show{display:block}
@@ -103,7 +101,6 @@
     .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
-    /* ====== Toolbar categorie: una riga + bottoni in gradiente ====== */
     #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
     #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     #cats-toolbar .cats-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
@@ -116,7 +113,6 @@
   </style>
 </head>
 <body>
-  <!-- Topbar uguale alla Dashboard -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
@@ -204,7 +200,6 @@
         <h2 class="step-title">Scegli le tue categorie</h2>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
 
-        <!-- Toolbar: contatori + ricerca + preset (una riga, bottoni gradiente) -->
         <div id="cats-toolbar">
           <div class="cats-counts">
             <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
@@ -231,7 +226,6 @@
           </div>
         </fieldset>
 
-        <!-- Riepilogo -->
         <div id="review-card" class="panel-header" style="margin-top:12px;">
           <div style="font-weight:800;margin-bottom:8px;">Riepilogo</div>
           <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:.95rem;">
@@ -475,19 +469,49 @@
       return true;
     }
 
-    /* ====== Salvataggio (identico al legacy) ====== */
+    /* ====== Salvataggio (esteso): goals + budgets (legacy) + goal_method_state (nuovo) ====== */
     async function saveOnboardingToSupabase(user, existingUserCategories){
       nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
       try{
+        // 1) Salvataggio legacy su GOALS
         await supabase.from('goals').upsert({
           user_id:user.id, goal_type:state.goal_type, name:state.goal_name, target_amount:state.goal_target_amount
         }, { onConflict:'user_id' });
 
+        // 1.1) Recupero id goal (BIGINT) dell'utente
+        const goalSel = await supabase.from('goals').select('id').eq('user_id', user.id).maybeSingle();
+        if(goalSel.error) throw goalSel.error;
+        const goalId = goalSel.data?.id;
+        if(goalId == null) throw new Error('ID obiettivo non trovato dopo upsert');
+
+        // 1.2) Mappa metodo IT → EN e parametri
+        const methodIT = (state.contribution_method || '').toLowerCase();
+        const method =
+          methodIT.includes('percent') ? 'percent' :
+          methodIT.includes('variabil') ? 'variable' : 'fixed';
+
+        const fixed_amount  = method==='fixed'   ? state.contribution_amount : null;
+        const percent_value = method==='percent' ? state.contribution_amount : null;
+
+        // 1.3) Upsert in GOAL_METHOD_STATE (nuovo)
+        const gms = await supabase.from('goal_method_state')
+          .upsert({
+            goal_id: goalId,
+            method,
+            fixed_amount,
+            percent_value
+          }, { onConflict: 'goal_id' })
+          .select('goal_id')
+          .maybeSingle();
+        if(gms.error) throw gms.error;
+
+        // 2) Salvataggio legacy BUDGETS (lasciato per compatibilità)
         const currentMonth = new Date().toISOString().slice(0,7)+'-01';
         await supabase.from('budgets').upsert({
           user_id:user.id, month:currentMonth, macro_category:'Risparmi', amount:state.contribution_amount
         }, { onConflict:'user_id, month, macro_category' });
 
+        // 3) Categorie (come tuo legacy)
         const existingNames = existingUserCategories.map(c=>c.name);
         const selectedObjects = state.categories;
         const selectedNames = selectedObjects.map(c=>c.name);
@@ -519,7 +543,9 @@
           if(subpayload.length>0){ await supabase.from('subcategories').insert(subpayload); }
         }
 
+        // 4) Flag profilo onboarded
         await supabase.from('profiles').update({ onboarded:true }).eq('id', user.id);
+
         return true;
       }catch(err){
         console.error('Errore nel salvataggio:', err);
@@ -554,7 +580,6 @@
         const budget = budgetRes.data && budgetRes.data.length>0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
-        
         if(profile && profile.onboarded && !isEditing){
           location.replace(itPrefix()+'dashboard.html'); return;
         }
