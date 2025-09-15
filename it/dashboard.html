@@ -73,7 +73,7 @@
     .dash-nav a{ text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600; transition: all 0.2s ease; background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
     .dash-nav a:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
     .dash-nav a.is-active{ filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
-    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
 
     .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
     .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
@@ -281,7 +281,7 @@
     </section>
 
     <!-- 🎯 Sezione Obiettivi -->
-    <section id="goals-section" class="content-section" style="margin-top: 16px;">
+    <section id="goals-section" class="content-section" style="margin-top: 12px;">
       <div class="header">
         <h3 style="margin:0; display:flex; align-items:center; gap:8px;">🎯 <span>Obiettivi</span></h3>
         <span id="goals-plan-info"></span>
@@ -290,13 +290,13 @@
     </section>
 
     <!-- Sezione Scadenze e Voci Future -->
-    <section id="deadlines-section" class="content-section" style="margin-top: 24px; display: none;">
+    <section id="deadlines-section" class="content-section" style="margin-top: 12px; display: none;">
         <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
         <div id="deadlines-list" class="transaction-list"></div>
     </section>
 
     <!-- Pannello Principale Dati -->
-    <div class="dashboard-panel" style="margin-top: 24px;">
+    <div class="dashboard-panel" style="margin-top: 12px;">
       <div class="dashboard-grid">
         <div class="flow-column income"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="content-section transaction-list"></div></div>
         <div class="flow-column expense"><h2>❌ Uscite Recenti</h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="content-section transaction-list"></div></div>
@@ -1147,3 +1147,6 @@
   </script>
 </body>
 </html>
+
+
+
