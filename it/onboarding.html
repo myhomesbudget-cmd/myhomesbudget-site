@@ -255,8 +255,6 @@
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
-    // Rende disponibile anche come window.supabase per lo script non-module
-    window.supabase = supabase;
 
     /* ====== Topbar mobile toggle ====== */
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -387,7 +385,7 @@
       });
     }
 
-    /* ====== Preselezione dati (lasciata come legacy UI) ====== */
+    /* ====== Preselezione dati ====== */
     function preselectFormData(goal,budget,userCategories){
       if(goal){
         const typeRadio=document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
@@ -477,39 +475,19 @@
       return true;
     }
 
-    /* ====== Salvataggio (NUOVO): Goal + Metodo, poi Categorie + onboarded ====== */
+    /* ====== Salvataggio (identico al legacy) ====== */
     async function saveOnboardingToSupabase(user, existingUserCategories){
       nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
       try{
-        // 1) Mappa IT → DB
-        const catMap = (v)=>{
-          const s=(v||'').toLowerCase();
-          if(s.includes('debiti')) return 'debito';
-          if(s.includes('risparmio')) return 'risparmio';
-          // "Obiettivo specifico" lo trattiamo come risparmio
-          return 'risparmio';
-        };
-        const methodMap = (v)=>{
-          const s=(v||'').toLowerCase();
-          if(s.includes('percent')) return 'percent';
-          if(s.includes('variabil')) return 'variable';
-          return 'fixed';
-        };
-        const goalCategory = catMap(state.goal_type);         // 'risparmio' | 'debito' (| 'spesa' in futuro)
-        const periodIT = 'annuale';                           // richiesta: Risparmio ANNUALE
-        const methodEN = methodMap(state.contribution_method);// 'fixed' | 'variable' | 'percent'
+        await supabase.from('goals').upsert({
+          user_id:user.id, goal_type:state.goal_type, name:state.goal_name, target_amount:state.goal_target_amount
+        }, { onConflict:'user_id' });
 
-        // 2) Salva Obiettivo + Metodo (tabella goals + goal_method_state)
-        await window.mhbSaveOnboardingGoal({
-          title: state.goal_name || 'Obiettivo 1',
-          category: goalCategory,        // 'risparmio'/'debito' → mappa interna
-          period: periodIT,              // 'annuale'
-          method: methodEN,              // 'fixed' | 'variable' | 'percent'
-          fixed_amount: methodEN==='fixed' ? state.contribution_amount : null,
-          percent_value: methodEN==='percent' ? state.contribution_amount : null
-        });
+        const currentMonth = new Date().toISOString().slice(0,7)+'-01';
+        await supabase.from('budgets').upsert({
+          user_id:user.id, month:currentMonth, macro_category:'Risparmi', amount:state.contribution_amount
+        }, { onConflict:'user_id, month, macro_category' });
 
-        // 3) Categorie (come tuo legacy)
         const existingNames = existingUserCategories.map(c=>c.name);
         const selectedObjects = state.categories;
         const selectedNames = selectedObjects.map(c=>c.name);
@@ -541,9 +519,7 @@
           if(subpayload.length>0){ await supabase.from('subcategories').insert(subpayload); }
         }
 
-        // 4) Flag profilo onboarded
         await supabase.from('profiles').update({ onboarded:true }).eq('id', user.id);
-
         return true;
       }catch(err){
         console.error('Errore nel salvataggio:', err);
@@ -578,6 +554,7 @@
         const budget = budgetRes.data && budgetRes.data.length>0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
+        
         if(profile && profile.onboarded && !isEditing){
           location.replace(itPrefix()+'dashboard.html'); return;
         }
@@ -604,242 +581,5 @@
     }
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
-
-  <!-- === Funzione globale Step 2: salva Obiettivo + Metodo (goals + goal_method_state) === -->
-  <script>
-  (function(){
-    'use strict';
-
-    const MAP_ITALIANO = {
-      category: { 'risparmio':'savings', 'spesa':'spending_cap', 'debito':'debt_paydown' },
-      period:   { 'mensile':'monthly', 'annuale':'annual', 'una_tantum':'oneoff', 'una tantum':'oneoff' },
-      method:   { 'fixed':'fixed', 'variable':'variable', 'percent':'percent',
-                  'somma fissa':'fixed','fisso':'fixed',
-                  'somma variabile':'variable','variabile':'variable',
-                  '% sulle entrate':'percent','percentuale':'percent' }
-    };
-    const normStr = (x)=> (x ?? '').toString().trim().toLowerCase();
-
-    function strictValidateAndNormalize(raw){
-      if (!raw || typeof raw !== 'object') throw new Error('Payload mancante');
-
-      const title = (raw.title ?? 'Obiettivo 1').toString().trim() || 'Obiettivo 1';
-
-      const catKey = normStr(raw.category);
-      const perKey = normStr(raw.period);
-      const metKey = normStr(raw.method);
-
-      const goal_type = MAP_ITALIANO.category[catKey] || null;
-      const period    = MAP_ITALIANO.period[perKey]   || null;
-      const method    = MAP_ITALIANO.method[metKey]   || null;
-
-      if (!goal_type) throw new Error('category non valida o mancante');
-      if (!period)    throw new Error('period non valido o mancante');
-      if (!method)    throw new Error('method non valido o mancante');
-
-      let fixed_amount = null, percent_value = null;
-
-      if (method === 'fixed') {
-        const v = raw.fixed_amount ?? raw.amount ?? raw.target_amount;
-        if (v == null || isNaN(Number(v))) throw new Error('fixed_amount mancante/non numerico');
-        fixed_amount = Number(v);
-      }
-      if (method === 'percent') {
-        const p = raw.percent_value ?? raw.percent ?? raw.target_percent;
-        if (p == null || isNaN(Number(p))) throw new Error('percent_value mancante/non numerico');
-        percent_value = Number(p);
-      }
-      // variable → nessun parametro obbligatorio
-
-      return { title, goal_type, period, method, fixed_amount, percent_value };
-    }
-
-    async function ensureActiveGoal(sb, user_id, title, goal_type, period){
-      const q = await sb.from('goals')
-        .select('id')
-        .eq('user_id', user_id)
-        .eq('is_active', true)
-        .limit(1)
-        .maybeSingle();
-      if (q.error) throw q.error;
-      if (q.data && q.data.id != null) return q.data.id; // BIGINT
-
-      const ins = await sb.from('goals').insert({
-        user_id, title, goal_type, period, is_active: true
-      }).select('id').maybeSingle();
-      if (ins.error) throw ins.error;
-      if (!ins.data || ins.data.id == null) throw new Error('Creazione goal fallita');
-      return ins.data.id; // BIGINT
-    }
-
-    async function upsertMethodState(sb, goal_id, method, fixed_amount, percent_value){
-      const upd = await sb.from('goal_method_state')
-        .update({
-          method,
-          fixed_amount: method === 'fixed' ? fixed_amount : null,
-          percent_value: method === 'percent' ? percent_value : null
-        })
-        .eq('goal_id', goal_id);
-      if (upd.error) throw upd.error;
-
-      // se nessuna riga aggiornata → insert
-      if ((upd.count ?? 0) === 0 && (!upd.data || upd.data.length === 0)) {
-        const ins = await sb.from('goal_method_state').insert({
-          goal_id, method,
-          fixed_amount: method === 'fixed' ? fixed_amount : null,
-          percent_value: method === 'percent' ? percent_value : null
-        }).select('goal_id').maybeSingle();
-        if (ins.error) throw ins.error;
-      }
-    }
-
-    async function saveOnboardingGoal(raw){
-      const sb = window.supabase;
-      if (!sb) throw new Error('Supabase non inizializzato');
-
-      const { data: { user }, error: userErr } = await sb.auth.getUser();
-      if (userErr) throw userErr;
-      if (!user) throw new Error('Utente non autenticato');
-
-      const n = strictValidateAndNormalize(raw);
-      const goal_id = await ensureActiveGoal(sb, user.id, n.title, n.goal_type, n.period);
-      await upsertMethodState(sb, goal_id, n.method, n.fixed_amount, n.percent_value);
-
-      console.info('[Onboarding] goal salvato', { goal_id, method: n.method, fixed_amount: n.fixed_amount, percent_value: n.percent_value });
-      return { goal_id, ...n };
-    }
-
-    // Espone la funzione per l'uso dal modulo
-    window.mhbSaveOnboardingGoal = saveOnboardingGoal;
-  })();
-  </script>
-<script>
-/* HOTFIX — sostituisce window.mhbSaveOnboardingGoal con versione robusta */
-(function(){
-  'use strict';
-
-  const MAP_ITALIANO = {
-    category: { 'risparmio':'savings', 'spesa':'spending_cap', 'debito':'debt_paydown' },
-    period:   { 'mensile':'monthly', 'annuale':'annual', 'una_tantum':'oneoff', 'una tantum':'oneoff' },
-    method:   { 'fixed':'fixed', 'variable':'variable', 'percent':'percent',
-                'somma fissa':'fixed','fisso':'fixed',
-                'somma variabile':'variable','variabile':'variable',
-                '% sulle entrate':'percent','percentuale':'percent' }
-  };
-  const normStr = (x)=> (x ?? '').toString().trim().toLowerCase();
-
-  function strictNormalize(raw){
-    if (!raw || typeof raw !== 'object') throw new Error('Payload mancante');
-
-    const title = (raw.title ?? 'Obiettivo 1').toString().trim() || 'Obiettivo 1';
-
-    const catKey = normStr(raw.category);
-    const perKey = normStr(raw.period);
-    const metKey = normStr(raw.method);
-
-    const goal_type = MAP_ITALIANO.category[catKey] || null;
-    const period    = MAP_ITALIANO.period[perKey]   || null;
-    const method    = MAP_ITALIANO.method[metKey]   || null;
-
-    if (!goal_type) throw new Error(`category non valida/mancante (ricevuto: "${raw.category}")`);
-    if (!period)    throw new Error(`period non valido/mancante (ricevuto: "${raw.period}")`);
-    if (!method)    throw new Error(`method non valido/mancante (ricevuto: "${raw.method}")`);
-
-    let fixed_amount = null, percent_value = null;
-
-    if (method === 'fixed') {
-      const v = raw.fixed_amount ?? raw.amount ?? raw.target_amount;
-      if (v == null || isNaN(Number(v))) throw new Error('fixed_amount mancante/non numerico per metodo "fixed"');
-      fixed_amount = Number(v);
-    }
-    if (method === 'percent') {
-      const p = raw.percent_value ?? raw.percent ?? raw.target_percent;
-      if (p == null || isNaN(Number(p))) throw new Error('percent_value mancante/non numerico per metodo "percent"');
-      percent_value = Number(p);
-    }
-    // variable → nessun parametro obbligatorio
-
-    const normalized = { title, goal_type, period, method, fixed_amount, percent_value };
-    console.groupCollapsed('[Onboarding][normalize]');
-    console.table(normalized);
-    console.groupEnd();
-    return normalized;
-  }
-
-  async function ensureActiveGoal(sb, user_id, title, goal_type, period){
-    const q = await sb
-      .from('goals')
-      .select('id, goal_type, period, is_active')
-      .eq('user_id', user_id)
-      .eq('is_active', true)
-      .limit(1)
-      .maybeSingle();
-
-    if (q.error) throw q.error;
-    if (q.data && q.data.id != null) {
-      // opzionale: puoi aggiornare tipo/periodo se vuoi riflettere l’onboarding
-      if (q.data.goal_type !== goal_type || q.data.period !== period) {
-        const up = await sb.from('goals').update({ goal_type, period }).eq('id', q.data.id);
-        if (up.error) throw up.error;
-      }
-      return q.data.id; // BIGINT
-    }
-
-    const ins = await sb.from('goals').insert({
-      user_id, title, goal_type, period, is_active: true
-    }).select('id').maybeSingle();
-    if (ins.error) throw ins.error;
-    if (!ins.data || ins.data.id == null) throw new Error('Creazione goal fallita');
-    return ins.data.id;
-  }
-
-  async function upsertMethodState(sb, goal_id, method, fixed_amount, percent_value){
-    // upsert atomico su PK (goal_id) → evita duplicati
-    const row = {
-      goal_id,
-      method,
-      fixed_amount: method === 'fixed' ? fixed_amount : null,
-      percent_value: method === 'percent' ? percent_value : null
-    };
-    const up = await sb.from('goal_method_state').upsert(row, { onConflict: 'goal_id' }).select('goal_id').maybeSingle();
-    if (up.error) throw up.error;
-  }
-
-  async function mhbSaveOnboardingGoal(raw){
-    const sb = window.supabase;
-    if (!sb) throw new Error('Supabase non inizializzato');
-
-    const { data: { user }, error: userErr } = await sb.auth.getUser();
-    if (userErr) throw userErr;
-    if (!user) throw new Error('Utente non autenticato');
-
-    // 1) Normalizza/valida
-    const n = strictNormalize(raw);
-
-    try {
-      // 2) goal attivo (BIGINT)
-      const goal_id = await ensureActiveGoal(sb, user.id, n.title, n.goal_type, n.period);
-
-      // 3) metodo corrente (upsert sicuro)
-      await upsertMethodState(sb, goal_id, n.method, n.fixed_amount, n.percent_value);
-
-      console.info('[Onboarding] Salvataggio OK', { goal_id, ...n });
-      return { goal_id, ...n };
-    } catch (e) {
-      // log verbose
-      console.group('[Onboarding] ERRORE salvataggio');
-      console.error(e);
-      console.groupEnd();
-      // messaggio leggibile
-      const msg = (e && (e.message || e.error_description || e.hint)) || 'Errore sconosciuto';
-      throw new Error(msg);
-    }
-  }
-
-  // Sovrascrive la versione precedente
-  window.mhbSaveOnboardingGoal = mhbSaveOnboardingGoal;
-})();
-</script>
-  
 </body>
 </html>
