@@ -601,11 +601,12 @@
     async function loadGoals() {
       try {
         // FIX: Ensure we get the latest goal deterministically by ordering and limiting.
+        // CHANGE: Switched to created_at for more reliable ordering of the newest goal.
         const { data: goal, error: gErr } = await supabase
           .from('goals')
           .select('*')
           .eq('user_id', user.id)
-          .order('updated_at', { ascending: false }) // Fallback: 'created_at' if needed
+          .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
         if (gErr) throw gErr;
