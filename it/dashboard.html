@@ -59,87 +59,35 @@
     .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
     .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 
-    /* ====== Layout Principale e Stili Globali ====== */
-    main.container{
-        padding: 84px 16px 24px;
-        max-width: 1400px;
-        margin: 0 auto;
-        display: grid;
-        gap: 16px;
-        grid-template-columns: 1fr;
+    @media (max-width: 960px) {
+      .mobile-menu-toggle { display: block; }
+      .top-actions { position: fixed; top: 70px; right: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
+      .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+      .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
+      #scheduler-btn, #notifications-btn { width: 100%; }
     }
-    
-    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:8px; grid-column: 1 / -1;}
+
+    /* ====== Contenuto Principale ====== */
+    main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
     .dash-nav a, .dash-nav button { text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600; transition: all 0.2s ease; background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); border: none; font-family: var(--font-sans); font-size: 1rem; cursor: pointer;}
     .dash-nav a:hover, .dash-nav button:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
     .dash-nav a.is-active, .dash-nav button.is-active { filter: brightness(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2); }
-    
-    .content-section{
-        background:rgba(255,255,255,.8);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        border-radius:var(--radius-lg);
-        padding:20px;
-        border:1px solid var(--card-border);
-        box-shadow:var(--shadow)
-    }
-    h2, h3 { margin-top: 0; }
+    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
 
-    /* ====== Struttura a Griglia Responsiva ====== */
-    .dashboard-main-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
+    .dashboard-panel { background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--card-border); box-shadow: var(--shadow); }
+    .dashboard-panel .content-section, .dashboard-panel .summary-card { box-shadow: none; border: none; }
+    .dashboard-panel .content-section { background: rgba(255,255,255,0.7); }
 
-    @media (min-width: 768px) {
-        main.container { padding-left: 24px; padding-right: 24px; }
-        .dashboard-main-grid {
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-areas:
-                "form form"
-                "goals deadlines"
-                "data data";
-        }
-        .form-section { grid-area: form; }
-        #goals-section { grid-area: goals; }
-        #deadlines-section { grid-area: deadlines; }
-        .dashboard-data-panel { grid-area: data; }
-    }
-
-    @media (min-width: 1100px) {
-        .dashboard-main-grid {
-            grid-template-columns: 380px 1fr;
-            grid-template-areas:
-                "sidebar main";
-        }
-        .dashboard-sidebar { grid-area: sidebar; display: flex; flex-direction: column; gap: 16px; }
-        .dashboard-data-panel { grid-area: main; }
-        .form-section, #goals-section, #deadlines-section { grid-area: unset; }
-    }
-
-    /* ====== Pannelli Dati (Entrate/Uscite) ====== */
-    .dashboard-data-panel {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-    @media (min-width: 500px) {
-        .dashboard-data-panel { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (min-width: 1100px) {
-        .dashboard-data-panel { grid-template-columns: 1fr; }
-    }
-    @media (min-width: 1300px) {
-        .dashboard-data-panel { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.3rem;margin:0 0 16px; padding: 0 8px;}
+    /* ====== Layout Dashboard & Colonne ====== */
+    .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media(min-width: 1024px){.dashboard-grid{grid-template-columns:repeat(2, 1fr);}}
+    .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px; padding: 0 8px;}
     .flow-column.income h2{color:var(--success-color)}
     .flow-column.expense h2{color:var(--danger-color)}
 
     /* ====== Riepilogo Grafico con Barre ====== */
-    .summary-card{background:rgba(255,255,255,0.7);padding:16px;border-radius:var(--radius-lg);margin-bottom:16px}
+    .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);margin-bottom:16px}
     .summary-card h3 { display: flex; justify-content: space-between; align-items: center; margin: 0 0 12px; font-size: 1rem; color: #555; }
     .summary-total-amount { font-weight: 800; font-size: 1.2rem; }
     .income .summary-total-amount { color: var(--success-color); }
@@ -172,15 +120,15 @@
     .form-buttons.is-editing { display: flex; gap: 12px; }
     .form-buttons.is-editing #submit-btn { flex-grow: 1; }
     
-    @media(min-width: 500px){.transaction-form{grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));}}
+    @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
     
-    #advanced-options-wrapper { grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
+    #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
     .advanced-options-controls { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 12px; }
     .advanced-options-controls label { display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; }
     .advanced-options-fields { display: none; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
 
     /* ====== Lista Transazioni e Scadenze ====== */
-    .list-title { margin: -20px -20px 16px; padding: 12px 20px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+    .list-title { margin: -16px -16px 16px; padding: 12px 16px; font-size: 1.1rem; font-weight: 700; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; }
     .list-total-amount { font-weight: 800; font-size: 1.2rem; }
     .income .list-total-amount { color: var(--success-color); }
     .expense .list-total-amount { color: var(--danger-color); }
@@ -343,11 +291,10 @@
     /* ====== GOALS (UI) ====== */
     #goals-section .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     #goals-plan-info { font-weight:700; color:#666; }
-    .goal-card { background:rgba(255,255,255,0.7); border:1px solid var(--card-border); border-radius:12px; padding:16px; }
+    .goal-card { background:#fff; border:1px solid var(--card-border); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
     .goal-title { font-weight:800; color:#444; margin:0 0 4px; }
     .goal-subtitle { margin:0 0 12px; color:#666; }
-    .goal-row { display:grid; grid-template-columns: 1fr auto; gap:12px; align-items:center; }
-    .goal-method-group { display: flex; flex-direction: column; gap: 8px;}
+    .goal-row { display:grid; grid-template-columns: 1fr 1fr auto; gap:12px; align-items:center; }
     .chip { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:rgba(0,0,0,.05); font-weight:700; cursor:pointer; user-select:none; }
     .chip.is-active { background: var(--grad); color:#fff; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
     .goal-method { display:flex; gap:8px; flex-wrap:wrap; }
@@ -356,9 +303,6 @@
     .goal-confirm { text-align:right; }
     .goal-card .link { color: var(--primary-color); font-weight:700; text-decoration:none; }
     .goal-locked { opacity: .7; }
-    @media (min-width: 768px) {
-        .goal-row { grid-template-columns: 1fr 1fr auto; }
-    }
   </style>
 </head>
 <body>
@@ -392,65 +336,64 @@
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
       <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
-    
-    <div class="dashboard-main-grid">
-        <div class="dashboard-sidebar">
-            <!-- Sezione Form -->
-            <section class="content-section form-section">
-                <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
-                <form id="transaction-form" class="transaction-form">
-                <input type="hidden" id="transaction-id" name="transaction-id">
-                <div class="form-group kind" style="grid-column: 1 / -1;"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
-                <div class="form-group note" style="grid-column: 1 / -1;"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required></div>
-                <div class="form-group amount"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
-                <div class="form-group date"><label for="occurred_at">Data</label><input type="date" id="occurred_at" name="occurred_at" required></div>
-                <div class="form-group category" style="grid-column: 1 / -1;"><label for="category_id">Categoria</label><select id="category_id" name="category_id" required></select></div>
-                <div class="form-group subcategory" style="grid-column: 1 / -1;"><label for="subcategory_id">Sottocategoria</label><select id="subcategory_id" name="subcategory_id"></select></div>
-                
-                <!-- Opzioni Avanzate -->
-                <div id="advanced-options-wrapper">
-                    <div class="advanced-options-controls">
-                        <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
-                        <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
-                        <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
-                    </div>
-                    <div id="recurring-options" class="advanced-options-fields">
-                        <div class="form-group"><label for="recurring_frequency">Frequenza</label><select id="recurring_frequency" name="recurring_frequency"><option value="monthly">Mensile</option></select></div>
-                        <div class="form-group"><label for="recurring_end_date">Termina il</label><input type="date" id="recurring_end_date" name="recurring_end_date"></div>
-                    </div>
-                    <div id="due-date-options" class="advanced-options-fields">
-                        <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
-                    </div>
-                </div>
-                <div id="form-buttons-container" class="form-buttons">
-                    <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%;">Aggiungi</button>
-                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display: none;">Annulla</button>
-                </div>
-                <!-- Contenitore per messaggi di stato -->
-                <div id="status-message" class="status-message" aria-live="polite"></div>
-                </form>
-            </section>
 
-            <!-- 🎯 Sezione Obiettivi -->
-            <section id="goals-section" class="content-section">
-                <div class="header">
-                <h3 style="margin:0; display:flex; align-items:center; gap:8px;">🎯 <span>Obiettivi</span></h3>
-                <span id="goals-plan-info"></span>
-                </div>
-                <div id="goals-list"></div>
-            </section>
-
-            <!-- Sezione Scadenze e Voci Future -->
-            <section id="deadlines-section" class="content-section" style="display: none;">
-                <h3>🔔 Scadenze & Voci Future</h3>
-                <div id="deadlines-list" class="transaction-list"></div>
-            </section>
+    <!-- Sezione Form -->
+    <section class="content-section form-section">
+      <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
+      <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
+        <div class="form-group kind"><label for="kind">Tipo</label><select id="kind" name="kind" required><option value="expense">Uscita</option><option value="income">Entrata</option></select></div>
+        <div class="form-group note"><label for="note">Nota</label><input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required></div>
+        <div class="form-group amount"><label for="amount">Importo (€)</label><input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required></div>
+        <div class="form-group date"><label for="occurred_at">Data</label><input type="date" id="occurred_at" name="occurred_at" required></div>
+        <div class="form-group category"><label for="category_id">Categoria</label><select id="category_id" name="category_id" required></select></div>
+        <div class="form-group subcategory"><label for="subcategory_id">Sottocategoria</label><select id="subcategory_id" name="subcategory_id"></select></div>
+        
+        <!-- Opzioni Avanzate -->
+        <div id="advanced-options-wrapper">
+            <div class="advanced-options-controls">
+                <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
+                <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
+                <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+            </div>
+            <div id="recurring-options" class="advanced-options-fields">
+                <div class="form-group"><label for="recurring_frequency">Frequenza</label><select id="recurring_frequency" name="recurring_frequency"><option value="monthly">Mensile</option></select></div>
+                <div class="form-group"><label for="recurring_end_date">Termina il</label><input type="date" id="recurring_end_date" name="recurring_end_date"></div>
+            </div>
+            <div id="due-date-options" class="advanced-options-fields">
+                <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
+            </div>
         </div>
-
-        <div class="dashboard-data-panel">
-            <div class="flow-column income content-section"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="transaction-list"></div></div>
-            <div class="flow-column expense content-section"><h2>❌ Uscite Recenti</h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="transaction-list"></div></div>
+        <div id="form-buttons-container" class="form-buttons">
+            <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%;">Aggiungi</button>
+            <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display: none;">Annulla</button>
         </div>
+        <!-- Contenitore per messaggi di stato -->
+        <div id="status-message" class="status-message" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- 🎯 Sezione Obiettivi -->
+    <section id="goals-section" class="content-section" style="margin-top: 12px;">
+      <div class="header">
+        <h3 style="margin:0; display:flex; align-items:center; gap:8px;">🎯 <span>Obiettivi</span></h3>
+        <span id="goals-plan-info"></span>
+      </div>
+      <div id="goals-list"></div>
+    </section>
+
+    <!-- Sezione Scadenze e Voci Future -->
+    <section id="deadlines-section" class="content-section" style="margin-top: 12px; display: none;">
+        <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
+        <div id="deadlines-list" class="transaction-list"></div>
+    </section>
+
+    <!-- Pannello Principale Dati -->
+    <div class="dashboard-panel" style="margin-top: 12px;">
+      <div class="dashboard-grid">
+        <div class="flow-column income"><h2>✅ Entrate Recenti</h2><div id="income-summary" class="summary-card"></div><div id="income-list" class="content-section transaction-list"></div></div>
+        <div class="flow-column expense"><h2>❌ Uscite Recenti</h2><div id="expense-summary" class="summary-card"></div><div id="expense-list" class="content-section transaction-list"></div></div>
+      </div>
     </div>
   </main>
   
@@ -514,10 +457,10 @@
     let allSubcategories = [];
     let allTransactions = [];
     let goalsData = [];
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-/9k=`;
+    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-/9k=`;
 
     // --- DOM ELEMENTS ---
-    const transactionForm = document.getElementById('transaction--form');
+    const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
     const subcategorySelect = document.getElementById('subcategory_id');
