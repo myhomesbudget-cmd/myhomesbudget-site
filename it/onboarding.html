@@ -8,91 +8,47 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="/favicon.ico">
   <style>
-    :root{
-      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
-      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
-      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
-      --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
-    }
-    *{box-sizing:border-box}
-    html{font-family:var(--font-sans);background-color:var(--bg)}
+    :root{--fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);--card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);--radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;--font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;--grad: linear-gradient(135deg, #6c5ce7, #00cec9);--grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);}
+    *{box-sizing:border-box} html{font-family:var(--font-sans);background-color:var(--bg)}
     body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
-
-    /* ====== TOPBAR (uguale alla Dashboard) ====== */
-    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
-      display:flex;align-items:center;justify-content:space-between;
-      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--card-border);z-index:100}
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link{
-      color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
-      font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
-    .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+    .top-link{color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .top-link:hover{transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
     .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:101;box-shadow:0 4px 12px rgba(0,0,0,.15)}
     .mobile-menu-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
-    @media (max-width: 768px){
-      .mobile-menu-toggle{display:block}
-      .top-actions{
-        position:absolute;top:70px;right:16px;background:rgba(255,255,255,0.8);
-        backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);
-        box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;
-        transform:translateY(-20px) scale(0.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:100;border:1px solid var(--card-border)}
-      .top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-      .top-actions .top-link{width:100%;text-align:center}
-    }
-
-    /* ====== Contenuto (coerente con Dashboard) ====== */
+    @media (max-width: 768px){.mobile-menu-toggle{display:block}.top-actions{position:absolute;top:70px;right:16px;background:rgba(255,255,255,0.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;transform:translateY(-20px) scale(0.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:100;border:1px solid var(--card-border)}.top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}.top-actions .top-link{width:100%;text-align:center}}
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
-    .content-card{
-      background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)
-    }
-
-    /* ====== Testo / Step ====== */
+    .content-card{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
     .panel-header{background:rgba(255,255,255,.75);border-radius:12px;padding:14px;border:1px solid var(--card-border)}
     .progress-bar{width:100%;height:8px;background:rgba(0,0,0,.1);border-radius:999px;overflow:hidden}
     .progress-bar-inner{width:0%;height:100%;background:var(--primary-color);transition:width .4s ease}
     .step-indicator{font-size:.9rem;font-weight:700;color:#555;margin-top:8px;text-align:right}
-    .step{display:none}
-    .step.is-active{display:block;animation:fadeIn .45s ease}
+    .step{display:none}.step.is-active{display:block;animation:fadeIn .45s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     .step-title{text-align:center;margin:6px 0 8px;font-size:clamp(1.6rem,4vw,1.9rem);color:#111}
     .step-description{text-align:center;color:#333;margin:0 auto 16px;max-width:560px}
-
-    /* ====== Opzioni ====== */
     .options-grid{display:grid;gap:12px}
-
     .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,.9);transition:.18s ease;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .option-label:hover{background:#fff;transform:translateY(-1px)}
     input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
-    input[type="radio"]:checked + .option-label,
-    input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
-    .option-label strong{display:block;font-size:1.05rem}
-    .option-label span{font-size:.92rem;color:#444}
-    
+    input[type="radio"]:checked + .option-label, input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
+    .option-label strong{display:block;font-size:1.05rem}.option-label span{font-size:.92rem;color:#444}
     .option-details{display:none;grid-template-columns:1fr;gap:10px;padding:10px 14px 0}
     input[type="radio"]:checked ~ .option-details{display:grid}
-    
     .input-field{width:100%;border:1px solid #ccc;background:#fff;padding:10px;border-radius:10px;font-size:1rem}
     .input-field::placeholder{color:#999}
     .hint{font-size:.9rem;color:#555}
-
-    /* ====== Colonne Categorie ====== */
     .category-columns{display:grid;gap:24px}
     @media(min-width:768px){.category-columns{grid-template-columns:1fr 1fr}}
     .column h3{text-align:center;margin:0 0 8px}
     .category-columns .column:first-child h3{ color: var(--success-color); }
     .category-columns .column:last-child  h3{ color: var(--danger-color); }
-
     .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;display:none}
     .error-message.show{display:block}
-
-    /* ====== Footer ====== */
     .panel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
     .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
@@ -100,24 +56,17 @@
     .btn-primary:hover{box-shadow:0 14px 28px rgba(0,0,0,.22)}
     .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
-
     #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
     #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     #cats-toolbar .cats-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
     #cats-toolbar .cats-actions .input-field{max-width:220px;min-width:180px}
     #cats-toolbar .btn.btn-primary{white-space:nowrap;padding:10px 14px}
-    @media (max-width: 420px){
-      #cats-toolbar{flex-wrap:wrap}
-      #cats-toolbar .cats-actions{flex-wrap:wrap}
-    }
+    @media (max-width: 420px){#cats-toolbar{flex-wrap:wrap}#cats-toolbar .cats-actions{flex-wrap:wrap}}
   </style>
 </head>
 <body>
   <nav class="topbar">
-    <a href="/it/" class="logo-link">
-      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
-      <span class="logo-text">MyHomesBudget</span>
-    </a>
+    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -132,9 +81,7 @@
   <main class="container">
     <section class="content-card">
       <div class="panel-header">
-        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar-inner"></div>
-        </div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar-inner"></div></div>
         <div id="step-indicator" class="step-indicator"></div>
       </div>
 
@@ -178,19 +125,19 @@
         <p class="step-description">Definisci il tuo contributo mensile. Questo diventerà la base per il tuo budget di risparmio.</p>
         <fieldset class="options-grid">
           <div>
-            <input type="radio" id="method-fixed" name="contribution_method" value="fixed">
+            <input type="radio" id="method-fixed" name="contribution_method" value="Cifra fissa">
             <label for="method-fixed" class="option-label"><strong>🗓️ Cifra fissa mensile</strong><span>Destina un importo prestabilito ogni mese.</span></label>
             <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
           </div>
           <div>
-            <input type="radio" id="method-variable" name="contribution_method" value="variable">
+            <input type="radio" id="method-variable" name="contribution_method" value="Importo variabile">
             <label for="method-variable" class="option-label"><strong>🎛️ Importo variabile</strong><span>Decidi quanto accantonare in base alle tue spese.</span></label>
-            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="(opzionale)" step="10" disabled></div>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
           </div>
           <div>
-            <input type="radio" id="method-percentage" name="contribution_method" value="percent">
+            <input type="radio" id="method-percentage" name="contribution_method" value="Percentuale sulle entrate">
             <label for="method-percentage" class="option-label"><strong>📊 Percentuale sulle entrate</strong><span>Imposta una percentuale fissa del tuo reddito.</span></label>
-            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="0.1"></div>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="1"></div>
           </div>
         </fieldset>
       </section>
@@ -276,12 +223,9 @@
     const steps = document.querySelectorAll('.step');
 
     const itPrefix = () => (location.pathname.match(/^\/(it|ita)(\/|$)/i) ? `/${location.pathname.split('/')[1]}/` : "/it/");
-    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
+    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); console.error('[Onboarding] ', msg); };
 
-    /* ====== Helper: label metodo ====== */
-    const METHOD_LABEL = { fixed: 'Somma fissa', variable: 'Somma variabile', percent: '% sulle entrate' };
-
-    /* ====== Suggerimento quota per “Obiettivo specifico” ====== */
+    /* ====== Utility ====== */
     function monthsBetween(a,b){
       const A=new Date(a), B=new Date(b); if(isNaN(A)||isNaN(B)) return null;
       let m=(B.getFullYear()-A.getFullYear())*12+(B.getMonth()-A.getMonth());
@@ -302,13 +246,8 @@
       const perMonth = Math.ceil((amount / m)*100)/100;
       box.textContent = `Suggerimento: ~€${perMonth}/mese per raggiungere il target entro ${date}.`;
     }
-    document.addEventListener('input', (e)=>{
-      const names = ['goal_target_amount','goal_target_date'];
-      if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion();
-    });
-    document.addEventListener('change', (e)=>{
-      if(e.target.name==='goal_type') updateGoalSuggestion();
-    });
+    document.addEventListener('input', (e)=>{ const names = ['goal_target_amount','goal_target_date']; if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion(); });
+    document.addEventListener('change', (e)=>{ if(e.target.name==='goal_type') updateGoalSuggestion(); });
 
     /* ====== Rendering step ====== */
     function renderStep(n){
@@ -320,29 +259,8 @@
       backBtn.style.visibility = (n>1) ? 'visible' : 'hidden';
       nextBtn.textContent = (n===TOTAL_STEPS) ? 'Fine' : 'Avanti';
       showError('');
-      if(n===2) syncMethodInputState();
       if(n===3) renderReview();
     }
-
-    /* ====== Abilita/disabilita input Step 2 in base al metodo ====== */
-    function syncMethodInputState() {
-      const fixed = document.querySelector('#method-fixed ~ .option-details input[name="contribution_amount"]');
-      const variable = document.querySelector('#method-variable ~ .option-details input[name="contribution_amount"]');
-      const percent = document.querySelector('#method-percentage ~ .option-details input[name="contribution_amount"]');
-
-      const checked = document.querySelector('input[name="contribution_method"]:checked')?.value;
-
-      if (fixed)    fixed.disabled    = (checked !== 'fixed');
-      if (percent)  percent.disabled  = (checked !== 'percent');
-
-      if (variable) {
-        variable.disabled = true; // sempre disabilitato: parametro non richiesto
-        if (checked === 'variable') variable.value = ''; // nessun valore
-      }
-    }
-    document.addEventListener('change', (e)=>{
-      if(e.target && e.target.name==='contribution_method') syncMethodInputState();
-    });
 
     /* ====== Categorie ====== */
     function populateCategoriesFromDB(defaultCategories){
@@ -400,8 +318,8 @@
       });
     }
 
-    /* ====== Preselezione dati (goals + goal_method_state) ====== */
-    function preselectFormData(goal, goalMethod, userCategories){
+    /* ====== Preselezione dati (INCLUDE goal_method_state) ====== */
+    function preselectFormData(goal, goalMethodState, budget, userCategories){
       if(goal){
         const typeRadio=document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
         if(typeRadio){
@@ -414,22 +332,32 @@
         }
       }
 
-      // Metodo (fixed/variable/percent) + parametri
-      const method = goalMethod?.method ?? 'fixed';
-      const methodRadio = document.querySelector(`input[name="contribution_method"][value="${method}"]`);
-      if(methodRadio){
-        methodRadio.checked = true;
-        const parentDiv = methodRadio.closest('div');
-        const amountInput = parentDiv.querySelector('input[name="contribution_amount"]');
-        if(method === 'fixed'){
-          if(amountInput) amountInput.value = goalMethod?.fixed_amount ?? '';
-        } else if(method === 'percent'){
-          if(amountInput) amountInput.value = goalMethod?.percent_value ?? '';
-        } else { // variable
-          if(amountInput){ amountInput.value=''; amountInput.disabled = true; }
+      // metodo: se esiste stato specifico → usa quello; altrimenti fallback budget legacy
+      if(goalMethodState){
+        const m = goalMethodState.method; // 'fixed' | 'variable' | 'percent'
+        const mRadio = m==='percent' ? 'Percentuale sulle entrate'
+                    : m==='variable' ? 'Importo variabile'
+                    : 'Cifra fissa';
+        const radio=document.querySelector(`input[name="contribution_method"][value="${mRadio}"]`);
+        if(radio){
+          radio.checked=true;
+          const wrap=radio.closest('div');
+          const input=wrap.querySelector('input[name="contribution_amount"]');
+          if(input){
+            if(m==='fixed')      input.value = goalMethodState.fixed_amount ?? '';
+            else if(m==='percent') input.value = goalMethodState.percent_value ?? '';
+            else                  input.value = ''; // variabile: nessun parametro
+          }
+        }
+      } else if(budget){ // fallback legacy
+        const radio=document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
+        if(radio){
+          radio.checked=true;
+          const wrap=radio.closest('div');
+          const input=wrap.querySelector('input[name="contribution_amount"]');
+          if(input) input.value = budget.amount ?? '';
         }
       }
-      syncMethodInputState();
 
       const selectedNames=(userCategories||[]).map(c=>c.name);
       document.querySelectorAll('input[name="category"]').forEach(checkbox=>{
@@ -448,12 +376,7 @@
       const date=tDiv?.querySelector('input[name="goal_target_date"]')?.value || '';
       const method=document.querySelector('input[name="contribution_method"]:checked')?.value || null;
       const mDiv=document.querySelector('input[name="contribution_method"]:checked')?.closest('div');
-      let amount = null;
-      if(method !== 'variable'){
-        const raw = parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value||'');
-        amount = Number.isFinite(raw) ? raw : null;
-      }
-
+      const amount=parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value||'') || null;
       const selected=[...document.querySelectorAll('input[name="category"]:checked')].map(i=>JSON.parse(i.value));
       const inc=selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
       const exp=selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
@@ -467,11 +390,8 @@
 
       if(revGoal) revGoal.textContent = type || '—';
       if(revTarget) revTarget.textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — ${date}`:'') || '—';
-      if(revMethod) revMethod.textContent = method ? METHOD_LABEL[method] : '—';
-      if(revParam) {
-        if(!method || method==='variable') revParam.textContent = '—';
-        else revParam.textContent = method==='percent' ? `${(amount ?? 0)}%` : `€${(amount ?? 0).toFixed(2)}/mese`;
-      }
+      if(revMethod) revMethod.textContent = method || '—';
+      if(revParam) revParam.textContent = (amount!=null && !Number.isNaN(amount)) ? (method==='Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/mese`) : '—';
       if(revInc) revInc.textContent = inc;
       if(revExp) revExp.textContent = exp;
     }
@@ -494,17 +414,15 @@
       } else if(n===2){
         const methodRadio=document.querySelector('input[name="contribution_method"]:checked');
         if(!methodRadio){ showError('Per favore, scegli un metodo.'); return false; }
-        state.contribution_method = methodRadio.value; // fixed | variable | percent
+        state.contribution_method = methodRadio.value;
         const parentDiv=methodRadio.closest('div');
         const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
-        if(state.contribution_method === 'variable'){
-          state.contribution_amount = null; // nessun parametro richiesto
-        } else {
-          if(!amountInput || amountInput.value==='' || parseFloat(amountInput.value)<=0){
-            showError('Per favore, inserisci un importo o percentuale valida.');
-            return false;
-          }
+        // per "variabile" consento vuoto
+        if(methodRadio.value!=='Importo variabile'){
+          if(!amountInput || amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Per favore, inserisci un importo o percentuale valida.'); return false; }
           state.contribution_amount = parseFloat(amountInput.value);
+        }else{
+          state.contribution_amount = null;
         }
       } else if(n===3){
         const sel=[...document.querySelectorAll('input[name="category"]:checked')].map(e=>JSON.parse(e.value));
@@ -514,87 +432,75 @@
       return true;
     }
 
-    /* ====== Salvataggio: goals + goal_method_state + (legacy) budgets + categorie ====== */
+    /* ====== Salvataggio ====== */
     async function saveOnboardingToSupabase(user, existingUserCategories){
       nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
       try{
-        // 1) Upsert su GOALS (unica riga per user_id)
+        // 1) GOALS (upsert per utente)
         const up = await supabase.from('goals').upsert({
-          user_id:user.id,
-          goal_type:state.goal_type,
-          name:state.goal_name,
-          target_amount:state.goal_target_amount,
-          is_active: true,
-          updated_at: new Date().toISOString()
+          user_id:user.id, goal_type:state.goal_type, name:state.goal_name, target_amount:state.goal_target_amount
         }, { onConflict:'user_id' }).select('id').maybeSingle();
         if(up.error) throw up.error;
+        const goalId = up.data?.id;
+        if(goalId == null) throw new Error('ID obiettivo non trovato dopo upsert');
 
-        // 1.1) id goal
-        const goalId = up.data?.id ?? (await supabase.from('goals').select('id').eq('user_id', user.id).single()).data.id;
+        // 2) Metodo
+        const methodIT = (state.contribution_method || '').toLowerCase();
+        const method =
+          methodIT.includes('percent') ? 'percent' :
+          methodIT.includes('variabil') ? 'variable' : 'fixed';
 
-        // 2) goal_method_state (upsert completo)
-        const method = state.contribution_method; // fixed | variable | percent
         const fixed_amount  = method==='fixed'   ? state.contribution_amount : null;
         const percent_value = method==='percent' ? state.contribution_amount : null;
 
         const gms = await supabase.from('goal_method_state')
-          .upsert({
-            goal_id: goalId,
-            method,
-            fixed_amount,
-            percent_value,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'goal_id' })
-          .select('goal_id')
-          .maybeSingle();
+          .upsert({ goal_id: goalId, method, fixed_amount, percent_value }, { onConflict: 'goal_id' })
+          .select('goal_id').maybeSingle();
         if(gms.error) throw gms.error;
 
-        // 3) (Legacy) budget mensile risparmi — se metodo variable, scriviamo 0
-        const currentMonth = new Date().toISOString().slice(0,7)+'-01';
-        const legacyAmount = method==='variable' ? 0 : (state.contribution_amount || 0);
-        await supabase.from('budgets').upsert({
-          user_id:user.id, month:currentMonth, macro_category:'Risparmi', amount:legacyAmount
-        }, { onConflict:'user_id, month, macro_category' });
+        // 3) Categorie (come legacy) — best-effort
+        try{
+          const existingNames = existingUserCategories.map(c=>c.name);
+          const selectedObjects = state.categories;
+          const selectedNames = selectedObjects.map(c=>c.name);
+          const categoriesToInsert = selectedObjects.filter(obj=>!existingNames.includes(obj.name));
+          const categoriesToDelete = existingUserCategories.filter(cat=>!selectedNames.includes(cat.name));
 
-        // 4) Categorie utente (come prima)
-        const existingNames = existingUserCategories.map(c=>c.name);
-        const selectedObjects = state.categories;
-        const selectedNames = selectedObjects.map(c=>c.name);
-        const categoriesToInsert = selectedObjects.filter(obj=>!existingNames.includes(obj.name));
-        const categoriesToDelete = existingUserCategories.filter(cat=>!selectedNames.includes(cat.name));
-
-        if(categoriesToDelete.length>0){
-          const idsToDelete = categoriesToDelete.map(c=>c.id);
-          await supabase.from('categories').delete().in('id', idsToDelete);
-        }
-
-        let createdCategories=[];
-        if(categoriesToInsert.length>0){
-          const payload = categoriesToInsert.map(obj=>({ name:obj.name, icon:obj.icon, kind:obj.kind, created_by:user.id }));
-          const { data, error } = await supabase.from('categories').insert(payload).select();
-          if(error) throw error;
-          createdCategories = data;
-        }
-
-        if(createdCategories.length>0){
-          const { data: defaults, error: defaultsError } = await supabase
-            .from('default_subcategories').select(`name, icon, default_categories ( name )`);
-          if(defaultsError) throw defaultsError;
-          const subpayload=[];
-          for(const cat of createdCategories){
-            const matches = (defaults||[]).filter(def=>def.default_categories.name===cat.name);
-            for(const sub of matches){ subpayload.push({ name:sub.name, icon:sub.icon, category_id:cat.id }); }
+          if(categoriesToDelete.length>0){
+            const idsToDelete = categoriesToDelete.map(c=>c.id);
+            await supabase.from('categories').delete().in('id', idsToDelete);
           }
-          if(subpayload.length>0){ await supabase.from('subcategories').insert(subpayload); }
-        }
 
-        // 5) Flag profilo onboarded
-        await supabase.from('profiles').update({ onboarded:true }).eq('id', user.id);
+          if(categoriesToInsert.length>0){
+            const payload = categoriesToInsert.map(obj=>({ name:obj.name, icon:obj.icon, kind:obj.kind, created_by:user.id }));
+            const ins = await supabase.from('categories').insert(payload).select('id,name');
+            if(ins.error) console.warn('[Onboarding] Insert categorie non critico:', ins.error);
+          }
+        }catch(catErr){ console.warn('[Onboarding] Categorie (non bloccante):', catErr); }
+
+        // 4) Budget legacy — best-effort e non bloccante
+        try{
+          const currentMonth = new Date().toISOString().slice(0,7)+'-01';
+          const amountForBudget = method==='percent' ? null : (fixed_amount ?? state.contribution_amount ?? null);
+          if(amountForBudget){
+            const br = await supabase.from('budgets').upsert({
+              user_id:user.id, month:currentMonth, macro_category:'Risparmi', amount:amountForBudget
+            }, { onConflict:'user_id, month, macro_category' });
+            if(br.error) console.warn('[Onboarding] Budget (non bloccante):', br.error);
+          }
+        }catch(budErr){ console.warn('[Onboarding] Budget (non bloccante):', budErr); }
+
+        // 5) Flag profilo — best-effort
+        try{
+          const pr = await supabase.from('profiles').update({ onboarded:true }).eq('id', user.id);
+          if(pr.error) console.warn('[Onboarding] Update profile (non bloccante):', pr.error);
+        }catch(pErr){ console.warn('[Onboarding] Profile (non bloccante):', pErr); }
 
         return true;
       }catch(err){
         console.error('Errore nel salvataggio:', err);
-        showError('Si è verificato un errore critico. Riprova.');
+        const msg = err?.message || err?.error_description || 'Si è verificato un errore critico. Riprova.';
+        showError(msg);
         nextBtn.disabled=false; nextBtn.textContent='Fine';
         return false;
       }
@@ -606,13 +512,13 @@
         const { data:{ user } } = await supabase.auth.getUser();
         if(!user){ location.replace(itPrefix()+'login.html'); return; }
 
+        // carico parallelo base
         const [profileRes, userCatRes, defaultCatRes, goalRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
           supabase.from('categories').select('*').eq('created_by', user.id),
           supabase.from('default_categories').select('name, icon, kind').order('id'),
           supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle()
         ]);
-
         for(const res of [profileRes,userCatRes,defaultCatRes,goalRes]){
           if(res.error){ console.error('Errore durante il caricamento dati:', res.error); showError('Impossibile caricare i dati. Ricarica la pagina.'); return; }
         }
@@ -620,14 +526,21 @@
         const profile = profileRes.data;
         const userCategories = userCatRes.data || [];
         const defaultCategories = defaultCatRes.data || [];
-        const goal = goalRes.data;
+        const goal = goalRes.data || null;
 
-        // carica eventuale metodo
-        let goalMethod = null;
+        // se c'è un goal, prova a leggere anche goal_method_state
+        let goalMethodState = null;
         if(goal?.id){
-          const { data: gms, error: gErr } = await supabase.from('goal_method_state').select('*').eq('goal_id', goal.id).maybeSingle();
-          if(!gErr) goalMethod = gms;
+          const gms = await supabase.from('goal_method_state').select('*').eq('goal_id', goal.id).maybeSingle();
+          if(!gms.error) goalMethodState = gms.data;
         }
+
+        // budget legacy (best effort)
+        let budget = null;
+        try{
+          const br = await supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category','Risparmi');
+          if(!br.error && br.data?.length) budget = br.data[0];
+        }catch(_){}
 
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
         if(profile && profile.onboarded && !isEditing){
@@ -635,7 +548,7 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-        preselectFormData(goal, goalMethod, userCategories);
+        preselectFormData(goal, goalMethodState, budget, userCategories);
         renderStep(1);
 
         nextBtn.addEventListener('click', async ()=>{
