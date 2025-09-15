@@ -108,12 +108,18 @@
     .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
     .btn-primary{background: var(--grad);box-shadow: 0 10px 24px rgba(0,0,0,.18);}
     .btn-primary:hover {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
+    .btn-secondary { background: #f0f0f0; color: #555; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+    .btn-secondary:hover { background: #e5e5e5; border-color: #ccc; color: #333; }
+
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
     .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
     .form-group.full-width{grid-column:1 / -1}
-    .transaction-form button{grid-column:1 / -1;margin-top:10px}
+    .form-buttons { grid-column: 1 / -1; margin-top: 10px; }
+    .form-buttons.is-editing { display: flex; gap: 12px; }
+    .form-buttons.is-editing #submit-btn { flex-grow: 1; }
+    
     @media(min-width: 1024px){.transaction-form{grid-template-columns:repeat(6, 1fr);gap:16px}.form-group.kind{grid-column:span 1}.form-group.note{grid-column:span 3}.form-group.amount{grid-column:span 2}.form-group.date{grid-column:span 2}.form-group.category{grid-column:span 2}.form-group.subcategory{grid-column:span 2}}
     
     #advanced-options-wrapper { display: none; grid-column: 1 / -1; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 10px; margin-top: 8px; }
@@ -265,7 +271,10 @@
                 <div class="form-group full-width"><label for="due_date">Data di Scadenza/Incasso</label><input type="date" id="due_date" name="due_date"></div>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Aggiungi</button>
+        <div id="form-buttons-container" class="form-buttons">
+            <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%;">Aggiungi</button>
+            <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display: none;">Annulla</button>
+        </div>
         <!-- Contenitore per messaggi di stato -->
         <div id="status-message" class="status-message" aria-live="polite"></div>
       </form>
@@ -336,6 +345,9 @@
     const subcategorySelect = document.getElementById('subcategory_id');
     const transactionIdInput = document.getElementById('transaction-id');
     const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const formButtonsContainer = document.getElementById('form-buttons-container');
     const logoutBtn = document.getElementById('logout-btn');
     const incomeList = document.getElementById('income-list');
     const expenseList = document.getElementById('expense-list');
@@ -393,32 +405,31 @@
         modal.classList.add('is-visible');
     }
 
+    function resetFormToCreateMode() {
+        formTitle.textContent = "Nuova Operazione";
+        submitBtn.textContent = "Aggiungi";
+        submitBtn.style.width = '100%';
+        transactionIdInput.value = "";
+        cancelEditBtn.style.display = 'none';
+        formButtonsContainer.classList.remove('is-editing');
+        transactionForm.reset();
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        updateCategoryDropdown();
+    }
+
     // --- GOALS LOGIC ---
     async function loadGoals() {
-  try {
-    // 1) prima provo l'RPC
-    const { data, error } = await supabase.rpc('get_dashboard_goals');
-    if (error) throw error;
-    goalsData = data || [];
-  } catch (e1) {
-    console.warn('[Goals] RPC non disponibile:', e1?.message || e1);
-
-    // 2) fallback: vista nello schema "app"
-    try {
-      const { data: vData, error: vErr } = await supabase
-        .schema('app')                 // <- questa è la chiave!
-        .from('v_dashboard_goals')     // NON "app.v_dashboard_goals"
-        .select('*');
-      if (vErr) throw vErr;
-      goalsData = vData || [];
-    } catch (e2) {
-      console.error('[Goals] Vista schema app non raggiungibile:', e2?.message || e2);
-      goalsData = []; // 3) fallback finale: placeholder
+      try {
+        const { data, error } = await supabase.rpc('get_dashboard_goals');
+        if (error) throw error;
+        goalsData = data || [];
+        renderGoalsUI(goalsData);
+      } catch(error) {
+        console.warn("get_dashboard_goals non disponibile o errore:", error);
+        goalsData = [];
+        renderGoalsUI(goalsData);
+      }
     }
-  }
-
-  renderGoalsUI(goalsData);
-}
 
     function renderGoalsUI(goals) {
         goalsSection.style.display = "block";
@@ -845,6 +856,11 @@
         }
 
         formTitle.textContent = "✍️ Modifica Operazione";
+        submitBtn.textContent = "Aggiorna";
+        submitBtn.style.width = 'auto';
+        cancelEditBtn.style.display = 'inline-block';
+        formButtonsContainer.classList.add('is-editing');
+
         transactionIdInput.value = tx.id;
         document.getElementById('kind').value = tx.kind;
         document.getElementById('note').value = tx.note ?? '';
@@ -901,8 +917,32 @@
         e.preventDefault();
         const formData = new FormData(transactionForm);
         const id = formData.get('transaction-id');
-        const transactionType = formData.get('transaction_type');
+        const kind = formData.get('kind');
 
+        // If it's an update, show confirmation modal
+        if (id) {
+            const kindText = kind === 'income' ? 'entrata' : 'spesa';
+            showModal(
+                `Conferma Aggiornamento`,
+                `<p>Sei sicuro di voler aggiornare questa ${kindText}?</p>`,
+                [
+                    { text: 'Annulla', class: 'btn-secondary' },
+                    {
+                        text: 'Aggiorna',
+                        class: 'btn-primary',
+                        action: () => saveTransaction(formData) 
+                    }
+                ]
+            );
+        } else {
+            // If it's a new transaction, save directly
+            saveTransaction(formData);
+        }
+    }
+
+    async function saveTransaction(formData) {
+        const id = formData.get('transaction-id');
+        const transactionType = formData.get('transaction_type');
         const payload = {
             kind: formData.get('kind'),
             note: formData.get('note'),
@@ -916,7 +956,7 @@
 
         try {
             let error;
-            if (transactionType === 'recurring') {
+            if (transactionType === 'recurring' && !id) { // Recurring only on create
                 const endDateStr = formData.get('recurring_end_date');
                 if (!endDateStr) {
                     showModal('Dati mancanti', `<p>Seleziona una data di fine valida per l'operazione ricorrente.</p>`, [{ text: 'Chiudi' }]);
@@ -945,7 +985,7 @@
                     const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
                     if (recurringError) error = recurringError;
                 }
-            } else if (transactionType === 'scheduled') {
+            } else if (transactionType === 'scheduled' && !id) { // Scheduled only on create
                 payload.due_date = formData.get('due_date');
                 payload.is_paid = false;
                 payload.occurred_at = payload.due_date;
@@ -963,11 +1003,7 @@
             if(error) throw error;
             
             showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
-            transactionForm.reset();
-            formTitle.textContent = "Nuova Operazione";
-            transactionIdInput.value = "";
-            document.getElementById('occurred_at').valueAsDate = new Date();
-            updateCategoryDropdown();
+            resetFormToCreateMode(); // This will reset the form and buttons
             loadAllDataForMonth();
 
         } catch (error) {
@@ -1048,6 +1084,7 @@
       kindSelect.addEventListener('change', updateCategoryDropdown);
       categorySelect.addEventListener('change', () => updateSubcategories());
       transactionForm.addEventListener('submit', handleFormSubmit);
+      cancelEditBtn.addEventListener('click', resetFormToCreateMode);
       logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
       monthSelector.addEventListener('change', loadAllDataForMonth);
       yearSelector.addEventListener('change', loadAllDataForMonth);
