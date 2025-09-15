@@ -1465,157 +1465,107 @@
 
     document.addEventListener('DOMContentLoaded', initializePage);
 
-    <script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const SUPABASE_URL  = window.__SUPABASE_URL__  || "https://upcusjlumfeadgbhziwq.supabase.co";
-const SUPABASE_ANON = window.__SUPABASE_ANON__ || "ANON_KEY_QUI"; // <-- tu ce l'hai già
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-/** 1) Helper auth: ottieni user id */
-async function getUserId() {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) throw new Error("Utente non autenticato");
-  return user.id;
-}
-
-/** 2) Sorgente dati onboarding:
- *    - prova prima da localStorage (es. 'mhb.pendingGoals')
- *    - in alternativa puoi leggere da una temp table 'onboarding_goals_draft'
- */
-function readOnboardingDraftFromLocalStorage() {
+    <script>
+(function(){
+  'use strict';
   try {
-    const raw = localStorage.getItem("mhb.pendingGoals");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
+    // 0) Usa l'istanza già esistente: NON importo nulla, NON creo nuova client
+    var sb = window.supabase;
+    if (!sb) { console.warn('[goals] supabase non trovato — skip'); return; }
 
-/** 3) Normalizzazione payload → record tabellare */
-function normalizeGoalPayload(g) {
-  // mapping sicuro per evitare il “solo annuale / cifra_fissa”
-  const mapType = { risparmio: "savings", spesa: "spending_cap", debito: "debt_paydown" };
-  const mapPeriod = { mensile: "monthly", annuale: "annual", una_tantum: "oneoff" };
-  const mapMethod = { cifra_fissa: "fixed", percentuale: "percent", snowball: "snowball", avalanche: "avalanche" };
-
-  const goal_type = mapType[g?.category] || "savings";
-  const period    = mapPeriod[g?.period] || "monthly";
-  const method    = mapMethod[g?.method] || "fixed";
-
-  // title fallback
-  const title = (g?.title || g?.name || `${goal_type} (${period})`).toString().slice(0, 120);
-
-  // valori coerenti col metodo
-  let target_amount = null, target_percent = null, target_months = null;
-
-  if (method === "fixed" || method === "snowball" || method === "avalanche") {
-    target_amount = Number(g?.amount ?? g?.target_amount ?? 0) || null;
-  }
-  if (method === "percent") {
-    target_percent = Number(g?.percent ?? g?.target_percent ?? 0) || null;
-  }
-  if (g?.months != null) {
-    target_months = Number(g.months) || null;
-  }
-
-  return {
-    title,
-    goal_type,
-    period,
-    method,
-    target_amount,
-    target_percent,
-    target_months,
-    is_active: g?.is_active !== false
-  };
-}
-
-/** 4) Upsert in public.goals (tutti gli obiettivi) */
-async function upsertGoalsFromOnboarding() {
-  const user_id = await getUserId();
-  const incoming = readOnboardingDraftFromLocalStorage();
-  if (!incoming.length) return { inserted: 0 };
-
-  const rows = incoming.map(g => {
-    const n = normalizeGoalPayload(g);
-    return { user_id, ...n };
-  });
-
-  // upsert senza id: creerà nuovi record; se il tuo draft include id, aggiungi onConflict: 'id'
-  const { data, error } = await supabase.from("goals").insert(rows).select("id");
-  if (error) throw error;
-
-  // pulizia del draft locale SOLO se tutto ok
-  localStorage.removeItem("mhb.pendingGoals");
-
-  return { inserted: data?.length || 0 };
-}
-
-/** 5) Lettura goals per render UI attuale */
-async function fetchGoals() {
-  const user_id = await getUserId();
-  const { data, error } = await supabase
-    .from("goals")
-    .select("*")
-    .eq("user_id", user_id)
-    .eq("is_active", true)
-    .order("created_at", { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-}
-
-/** 6) Inizializzazione “idempotente”:
- *    - prova a salvare quello che arriva dall’Onboarding
- *    - poi ricarica e renderizza
- */
-async function initGoals() {
-  try {
-    await upsertGoalsFromOnboarding();
-  } catch (e) {
-    console.warn("Upsert goals skipped:", e?.message || e);
-  }
-
-  try {
-    const goals = await fetchGoals();
-    // TODO: collega qui la tua UI esistente di render
-    // Esempio minimal: popola un <ul id="goalsList">
-    const ul = document.getElementById("goalsList");
-    if (ul) {
-      ul.innerHTML = "";
-      goals.forEach(g => {
-        const li = document.createElement("li");
-        const valueStr = g.method === "percent" ? `${g.target_percent ?? '-'}%` : `€ ${g.target_amount ?? '-'}`;
-        li.textContent = `${g.title} — ${g.goal_type}/${g.period}/${g.method} — ${valueStr}`;
-        ul.appendChild(li);
-      });
+    // 1) Lettura bozza dall'Onboarding (non rompe se non esiste o non è JSON valido)
+    function readDraft(){
+      try {
+        var raw = localStorage.getItem('mhb.pendingGoals');
+        if (!raw) return [];
+        var arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      } catch(e) {
+        console.warn('[goals] draft parse', e);
+        return [];
+      }
     }
-  } catch (e) {
-    console.error("Fetch goals error:", e?.message || e);
-  }
-}
 
-/** 7) Avvio quando l’utente è loggato */
-(async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session?.user) {
-    initGoals();
-  } else {
-    // aspetta login
-    supabase.auth.onAuthStateChange((_event, sess) => {
-      if (sess?.user) initGoals();
+    // 2) Normalizzazione payload → formato tabellare coerente
+    function normalize(g){
+      var mapType   = { risparmio:'savings', spesa:'spending_cap', debito:'debt_paydown' };
+      var mapPeriod = { mensile:'monthly', annuale:'annual', una_tantum:'oneoff' };
+      var mapMethod = { cifra_fissa:'fixed', percentuale:'percent', snowball:'snowball', avalanche:'avalanche' };
+
+      var goal_type = mapType[g && g.category] || 'savings';
+      var period    = mapPeriod[g && g.period]  || 'monthly';
+      var method    = mapMethod[g && g.method]  || 'fixed';
+      var title     = String((g && (g.title || g.name)) || (goal_type + ' (' + period + ')')).slice(0,120);
+
+      var target_amount = null, target_percent = null, target_months = null;
+      if (method === 'fixed' || method === 'snowball' || method === 'avalanche') {
+        var a = g && (g.amount ?? g.target_amount);
+        target_amount = a != null ? Number(a) : null;
+        if (isNaN(target_amount)) target_amount = null;
+      }
+      if (method === 'percent') {
+        var p = g && (g.percent ?? g.target_percent);
+        target_percent = p != null ? Number(p) : null;
+        if (isNaN(target_percent)) target_percent = null;
+      }
+      if (g && g.months != null) {
+        var m = Number(g.months);
+        target_months = isNaN(m) ? null : m;
+      }
+
+      return {
+        title,
+        goal_type,
+        period,
+        method,
+        target_amount,
+        target_percent,
+        target_months,
+        is_active: g && g.is_active === false ? false : true
+      };
+    }
+
+    // 3) Esegue UN solo tentativo di salvataggio quando c'è una sessione
+    async function runOnce(sess){
+      try {
+        if (!sess || !sess.user) return;                 // non autenticato → non fare nulla
+        var user_id = sess.user.id;
+        var incoming = readDraft();
+        if (!incoming.length) return;                    // niente da salvare
+
+        var rows = incoming.map(function(g){
+          var n = normalize(g);
+          n.user_id = user_id;
+          return n;
+        });
+
+        var res = await sb.from('goals').insert(rows).select('id');
+        if (res.error) {
+          console.warn('[goals] insert error:', res.error.message);
+          return;
+        }
+        localStorage.removeItem('mhb.pendingGoals');     // pulizia solo se tutto ok
+        console.info('[goals] salvati:', (res.data && res.data.length) || 0);
+      } catch(e) {
+        console.warn('[goals] runOnce error:', e && e.message || e);
+      }
+    }
+
+    // 4) Avvio non-bloccante: prova subito se c'è sessione, altrimenti aggancia l'evento
+    sb.auth.getSession().then(function({ data }){
+      var sess = data && data.session;
+      if (sess && sess.user) runOnce(sess);
+    }).catch(function(e){ console.warn('[goals] getSession', e && e.message || e); });
+
+    sb.auth.onAuthStateChange(function(_ev, sess){
+      if (sess && sess.user) runOnce(sess);
     });
+
+  } catch(e) {
+    console.warn('[goals] guard error:', e && e.message || e);
   }
 })();
 </script>
 
-<!-- (opzionale) placeholder minimale per vedere i goal -->
-<ul id="goalsList" style="display:none"></ul>
-<script>document.getElementById('goalsList').style.display='block'</script>
-
-  </script>
 </body>
 </html>
