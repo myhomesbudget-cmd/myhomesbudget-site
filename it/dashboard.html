@@ -1465,5 +1465,95 @@
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
+
+<script type="module">
+/* === Popola box Obiettivo in Dashboard === */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL  = window.__SUPABASE_URL__  || "https://upcusjlumfeadgbhziwq.supabase.co";  // <-- il tuo
+const SUPABASE_ANON = window.__SUPABASE_ANON__ || "INSERISCI_ANON_KEY";                           // <-- la tua anon key
+
+const sb = window.__sb || createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+});
+window.__sb = sb;
+
+// === helper DOM
+const $ = (sel) => document.querySelector(sel);
+const on = (el,ev,fn)=> el && el.addEventListener(ev,fn);
+
+// === ID/selector richiesti nel markup
+const elStatus   = $("#goal-status");     // <span id="goal-status"></span>
+const btnFixed   = $("#btn-fixed");       // <button id="btn-fixed">
+const btnVar     = $("#btn-variable");    // <button id="btn-variable">
+const btnPerc    = $("#btn-percent");     // <button id="btn-percent">
+const inpAmount  = $("#goal-amount");     // <input id="goal-amount" type="number">
+const linkConfig = $("#goal-configure");  // <a id="goal-configure" href="/it/onboarding.html">
+
+function setActive(btn){
+  [btnFixed, btnVar, btnPerc].forEach(b=> b && b.classList.remove("active"));
+  btn && btn.classList.add("active");
+}
+
+function formatAmount(g){
+  // decide cosa mostrare nell'input in base al metodo
+  if (!g) return "";
+  if (g.goal_method === "fixed")     return g.fixed_amount ?? "";
+  if (g.goal_method === "variable")  return g.variable_amount ?? "";
+  if (g.goal_method === "percent")   return g.percent_income ?? "";
+  return "";
+}
+
+(async ()=>{
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      if (elStatus) elStatus.textContent = "Non sei autenticato. Accedi per vedere l'obiettivo.";
+      return;
+    }
+
+    // Carico obiettivi
+    const { data, error } = await sb.rpc("get_dashboard_goals");
+    if (error) throw error;
+
+    // Seleziono obiettivo attivo o il primo
+    const goal = (data || []).find(r => r.active) || (data || [])[0];
+
+    if (!goal) {
+      if (elStatus) elStatus.textContent = "Nessun obiettivo configurato. Puoi impostarlo dall’Onboarding.";
+      // opzionale: preset link
+      if (linkConfig) linkConfig.href = "/it/onboarding.html";
+      return;
+    }
+
+    // Stato
+    if (elStatus) {
+      const name = goal.name || "Obiettivo senza nome";
+      elStatus.innerHTML = `Obiettivo attivo: <strong>${name}</strong> — Piano: <strong>${goal.plan_type || "?"}</strong>`;
+    }
+
+    // Pulsanti metodo
+    if (goal.goal_method === "fixed")      setActive(btnFixed);
+    else if (goal.goal_method === "variable") setActive(btnVar);
+    else if (goal.goal_method === "percent")  setActive(btnPerc);
+
+    // Input valore coerente al metodo
+    if (inpAmount) {
+      inpAmount.value = formatAmount(goal);
+      inpAmount.placeholder = (goal.goal_method === "percent") ? "% sul reddito" : "Importo mensile";
+    }
+
+    // Link configura
+    if (linkConfig && !linkConfig.href) linkConfig.href = "/it/onboarding.html";
+
+    // (facoltativo) esponi in window per debug rapido
+    window.__MHB_LAST_GOAL__ = goal;
+
+  } catch (e) {
+    console.error("[MHB] goal populate error:", e);
+    if (elStatus) elStatus.textContent = "Errore nel caricamento dell’obiettivo.";
+  }
+})();
+</script>
 </body>
 </html>
