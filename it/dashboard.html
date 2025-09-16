@@ -613,7 +613,7 @@
 
     async function loadGoals() {
       try {
-        const { data, error } = await supabase.rpc('get_dashboard_goals');
+        const { data, error } = await sb.rpc("get_dashboard_goals")
         if (error) throw error;
         goalsData = (data || []).map(g => ({
           ...g,
