@@ -485,7 +485,11 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA--iigA-i-iigA-iigA-iigA-iigA--iigA-i-i-iigA-iigA-i-iigA-i-i-iigA-iigA-i-iigA-i-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-"
+    const moneyBagImage = `data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
+  <circle cx='60' cy='60' r='52' fill='%23fdd835'/>
+  <text x='60' y='72' font-size='48' text-anchor='middle' font-family='Arial' fill='%23444'>€</text>
+</svg>`;
 
 // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
@@ -750,10 +754,10 @@
         }
         
         function calculatePercentage() {
-            const totalIncomes = updateTotalIncome();
-            const percentage = parseFloat(percentageInput.value) || 0;
-            const calculatedAmount = (totalIncomes * percentage) / 100;
-            valueInput.value = fmt(calculatedAmount);
+            const percentage = Number(percentageInput.value);
+const pct = Number.isFinite(percentage) ? percentage : 0;
+const calculatedAmount = (totalIncomes * pct) / 100;
+valueInput.value = fmt(calculatedAmount);
         }
 
         function toggleUI(locked) {
@@ -1109,12 +1113,13 @@
         futureDate.setDate(today.getDate() + 7);
         const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
         
-        if(upcomingDeadlines.length > 0) {
-            notificationBadge.textContent = upcomingDeadlines.length;
-            notificationBadge.classList.add('is-visible');
-        } else {
-            notificationBadge.classList.remove('is-visible');
-        }
+        if (upcomingDeadlines.length > 0) {
+  notificationBadge.textContent = upcomingDeadlines.length;
+  notificationBadge.classList.add('is-visible');
+} else {
+  notificationBadge.textContent = '';
+  notificationBadge.classList.remove('is-visible');
+}
     }
     
     async function loadAllDataForMonth() {
@@ -1142,16 +1147,20 @@
         const selectedMonth = monthSelector.value;
         const selectedYear = yearSelector.value;
         
-        const startDate = new Date(selectedYear, selectedMonth, 1);
-        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
-        
-        try {
-            const { data, error } = await supabase.from('transactions')
-                .select(`*, categories(name, icon), subcategories(name, icon)`)
-                .eq('created_by', user.id)
-                .gte('occurred_at', startDate.toISOString())
-                .lte('occurred_at', endDate.toISOString())
-                .order('occurred_at', { ascending: false });
+        const m = parseInt(monthSelector.value, 10);
+const y = parseInt(yearSelector.value, 10);
+const monthStart = new Date(Date.UTC(y, m, 1));          // 00:00 UTC
+const nextMonthStart = new Date(Date.UTC(y, m + 1, 1));  // 00:00 UTC primo giorno mese successivo
+
+const startStr = monthStart.toISOString().split('T')[0];      // "YYYY-MM-DD"
+const nextStartStr = nextMonthStart.toISOString().split('T')[0];
+
+const { data, error } = await supabase.from('transactions')
+  .select(`*, categories(name, icon), subcategories(name, icon)`)
+  .eq('created_by', user.id)
+  .gte('occurred_at', startStr)  // inclusivo
+  .lt('occurred_at', nextStartStr) // esclusivo
+  .order('occurred_at', { ascending: false });
 
             if (error) throw error;
             allTransactions = data || [];
@@ -1179,6 +1188,13 @@
           });
         } else {
           populateAndShowEditForm(tx);
+          if(type === 'scheduled') {
+  document.getElementById('due-date-options').style.display = 'grid';
+  const dd = (tx.due_date || '').toString();
+  document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
+} else {
+  document.getElementById('due-date-options').style.display = 'none';
+}
         }
     }
 
@@ -1222,6 +1238,8 @@
         categorySelect.value = tx.category_id ?? '';
         updateSubcategories(tx.subcategory_id ?? null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+      - advancedOptionsWrapper.style.display = 'block';
++ // Lascia la visibilità gestita dai radio "transaction_type"
     }
     
     async function handleDelete(id) {
@@ -1350,14 +1368,15 @@
                 currentDate.setMonth(currentDate.getMonth() + 1);
 
                 while (currentDate <= endDate) {
-                    transactionsToCreate.push({
-                        ...payload,
-                        is_recurring_parent: false,
-                        parent_transaction_id: parentData.id,
-                        occurred_at: new Date(currentDate).toISOString().split('T')[0]
-                    });
-                    currentDate.setMonth(currentDate.getMonth() + 1);
-                }
+  const d = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
+  transactionsToCreate.push({
+    ...payload,
+    is_recurring_parent: false,
+    parent_transaction_id: parentData.id,
+    occurred_at: d.toISOString().split('T')[0]
+  });
+  currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
+}
                 if (transactionsToCreate.length > 0) {
                     const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
                     if (recurringError) error = recurringError;
