@@ -267,7 +267,7 @@
       goal_type: null, 
       goal_name: null, 
       goal_target_amount: null,
-      goal_target_date: null, // FIX 1: Aggiunto stato per la data
+      goal_target_date: null,
       contribution_method: null, 
       contribution_amount: null,
       categories: []
@@ -465,7 +465,6 @@
         state.goal_name = nameInput.value.trim();
         state.goal_target_amount = parseFloat(amountInput.value);
         
-        // FIX 2: Cattura e valida la data se l'obiettivo è specifico
         state.goal_target_date = null;
         if(state.goal_type === 'Obiettivo Specifico'){
             const dateInput = parentDiv.querySelector('input[name="goal_target_date"]');
@@ -492,12 +491,11 @@
       return true;
     }
 
-    /* ====== Salvataggio (MODIFICATO) ====== */
+    /* ====== Salvataggio (MODIFICATO CON ERRORI SPECIFICI) ====== */
     async function saveOnboardingToSupabase(user, existingUserCategories){
       nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
-      try{
-        
-        // FIX 3: Salva tutte le informazioni su Obiettivo e Contribuzione nella tabella 'profiles'
+      try {
+        // --- 1. Aggiornamento Profilo ---
         const profileUpdateData = {
             onboarded: true,
             goal_type: state.goal_type,
@@ -509,62 +507,79 @@
         };
 
         const { error: profileError } = await supabase.from('profiles').update(profileUpdateData).eq('id', user.id);
-        if (profileError) throw profileError;
-        
-        /* * Le vecchie chiamate a 'goals' e 'budgets' sono state rimosse.
-         * Questo approccio è più pulito: il profilo dell'utente contiene le *regole*
-         * e la logica principale dell'app potrà usare queste regole per creare
-         * budget mensili o tracciare gli obiettivi.
-        */
+        if (profileError) {
+          console.error('Errore Supabase (profiles.update):', profileError);
+          if (profileError.message.includes("does not exist")) {
+             throw new Error("Errore DB: una colonna in 'profiles' manca. Controlla la console.");
+          }
+          throw new Error("Errore durante l'aggiornamento del profilo.");
+        }
 
-        // La gestione delle categorie era già corretta e rimane invariata
+        // --- 2. Gestione Categorie ---
         const existingNames = existingUserCategories.map(c=>c.name);
         const selectedObjects = state.categories;
         const selectedNames = selectedObjects.map(c=>c.name);
         const categoriesToInsert = selectedObjects.filter(obj=>!existingNames.includes(obj.name));
         const categoriesToDelete = existingUserCategories.filter(cat=>!selectedNames.includes(cat.name));
 
-        if(categoriesToDelete.length>0){
+        if(categoriesToDelete.length > 0){
           const idsToDelete = categoriesToDelete.map(c=>c.id);
-          await supabase.from('categories').delete().in('id', idsToDelete);
+          const { error: deleteError } = await supabase.from('categories').delete().in('id', idsToDelete);
+          if (deleteError) {
+              console.error('Errore Supabase (categories.delete):', deleteError);
+              throw new Error("Errore durante l'eliminazione delle vecchie categorie.");
+          }
         }
 
         let createdCategories=[];
-        if(categoriesToInsert.length>0){
+        if(categoriesToInsert.length > 0){
           const payload = categoriesToInsert.map(obj=>({ name:obj.name, icon:obj.icon, kind:obj.kind, created_by:user.id }));
-          const { data, error } = await supabase.from('categories').insert(payload).select();
-          if(error) throw error;
+          const { data, error: insertError } = await supabase.from('categories').insert(payload).select();
+          if(insertError) {
+              console.error('Errore Supabase (categories.insert):', insertError);
+              throw new Error("Errore durante l'inserimento delle nuove categorie.");
+          }
           createdCategories = data;
         }
 
-        if(createdCategories.length>0){
+        // --- 3. Gestione Sottocategorie ---
+        if(createdCategories.length > 0){
           const { data: defaults, error: defaultsError } = await supabase
             .from('default_subcategories').select(`name, icon, default_categories ( name )`);
-          if(defaultsError) throw defaultsError;
+          if(defaultsError) {
+              console.error('Errore Supabase (default_subcategories.select):', defaultsError);
+              throw new Error("Errore nel caricamento delle sottocategorie predefinite.");
+          }
           const subpayload=[];
           for(const cat of createdCategories){
             const matches = (defaults||[]).filter(def=>def.default_categories.name===cat.name);
             for(const sub of matches){ subpayload.push({ name:sub.name, icon:sub.icon, category_id:cat.id }); }
           }
-          if(subpayload.length>0){ await supabase.from('subcategories').insert(subpayload); }
+          if(subpayload.length>0){ 
+            const { error: subInsertError } = await supabase.from('subcategories').insert(subpayload);
+            if (subInsertError) {
+                console.error('Errore Supabase (subcategories.insert):', subInsertError);
+                throw new Error("Errore nell'inserimento delle sottocategorie.");
+            }
+          }
         }
         
         return true;
-      }catch(err){
+
+      } catch(err) {
         console.error('Errore nel salvataggio:', err);
-        showError('Si è verificato un errore critico. Riprova.');
+        showError(err.message || 'Si è verificato un errore critico. Riprova.');
         nextBtn.disabled=false; nextBtn.textContent='Fine';
         return false;
       }
     }
 
-    /* ====== Init (MODIFICATO) ====== */
+    /* ====== Init ====== */
     async function initializePage(){
       try{
         const { data:{ user } } = await supabase.auth.getUser();
         if(!user){ location.replace(itPrefix()+'login.html'); return; }
 
-        // MODIFICA: Semplificato il caricamento dati, ora si basa principalmente su 'profiles'
         const [profileRes, userCatRes, defaultCatRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
           supabase.from('categories').select('*').eq('created_by', user.id),
@@ -572,7 +587,7 @@
         ]);
 
         for(const res of [profileRes,userCatRes,defaultCatRes]){
-          if(res.error && res.error.code !== 'PGRST116'){ // Ignora l'errore "nessuna riga trovata" per il profilo
+          if(res.error && res.error.code !== 'PGRST116'){ 
              console.error('Errore durante il caricamento dati:', res.error); 
              showError('Impossibile caricare i dati. Ricarica la pagina.'); 
              return; 
@@ -590,7 +605,6 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-        // MODIFICA: La preselezione ora usa solo il profilo e le categorie
         preselectFormData(profile, userCategories);
         renderStep(1);
 
