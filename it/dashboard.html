@@ -155,7 +155,7 @@
     .btn-action-deadline.pay{background:var(--warning-color)}
     .btn-action-deadline.receive{background:var(--success-color)}
 
-    /* modals + animation (omessi i commenti qui per brevità: invariati) */
+    /* modals + animation */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s}
     .modal-overlay.is-visible{opacity:1;pointer-events:auto}
     .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s}
@@ -175,6 +175,17 @@
     .movements-summary{margin-top:20px;padding-top:16px;border-top:2px solid var(--card-border);display:flex;justify-content:space-around;font-weight:700}
     .summary-item{text-align:center}.summary-label{font-size:.9rem;color:#555}.summary-value{font-size:1.2rem}
     .summary-value.total-income{color:var(--success-color)}.summary-value.total-expense{color:var(--danger-color)}
+    
+    .animation-modal-overlay { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity .3s; }
+    .animation-modal-overlay.is-visible { opacity: 1; }
+    .animation-container { position: relative; width: 300px; height: 300px; }
+    .animation-bg-image { width: 100%; height: 100%; object-fit: contain; }
+    .animation-elements-container { position: absolute; inset: 0; }
+    .money-element { position: absolute; background-size: contain; background-repeat: no-repeat; }
+    .money-element.income { animation: rain-in 1.5s ease-out forwards; }
+    .money-element.expense { animation: fly-out 1.2s ease-in forwards; }
+    @keyframes rain-in { 0% { transform: translateY(-150px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    @keyframes fly-out { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(180px) scale(0.5); opacity: 0; } }
 
     /* status message */
     .status-message{padding:12px 16px;border-radius:10px;margin-top:16px;text-align:center;font-weight:600;opacity:0;transition:opacity .3s;grid-column:1 / -1}
@@ -217,7 +228,8 @@
         <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
           <span>🔔</span><span id="notification-badge" class="notification-badge"></span>
         </button>
-        <a href="#" id="logout-btn" class="top-link">Esci</a>
+        <!-- MIGLIORIA: Usato <button> per un'azione, semanticamente più corretto -->
+        <button id="logout-btn" class="top-btn">Esci</button>
       </div>
     </div>
   </nav>
@@ -296,49 +308,65 @@
   <div id="animation-modal" class="animation-modal-overlay"><div class="animation-container"><img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/><div class="animation-elements-container"></div></div></div>
   <div id="movements-modal" class="modal-overlay"><div class="modal-content modal-content-large"><div class="modal-header"><h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3><button class="modal-close" aria-label="Chiudi modale">&times;</button></div><div id="movements-modal-body" class="modal-body"><div class="movements-table-container"></div></div><div id="movements-modal-footer" class="movements-summary"></div></div></div>
 
-  <!-- =========================== PAGE LOGIC (UNIFICATA) =========================== -->
+  <!-- =========================== PAGE LOGIC (RIFACTORIZZATA) =========================== -->
   <script type="module">
     // usa sempre il client singleton
     const { sb, session } = await window.__sbReady;
     window.sb = sb; // opzionale per debug
 
-    // ----- STATE / DOM -----
+    // ----- CONSTANTS & CONFIG -----
+    const KIND_INCOME = 'income';
+    const KIND_EXPENSE = 'expense';
+    const TYPE_SINGLE = 'single';
+    const TYPE_RECURRING = 'recurring';
+    const TYPE_SCHEDULED = 'scheduled';
+    const CLASS_VISIBLE = 'is-visible';
+    const MONTHS = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+    
+    // ----- STATE -----
     let user = session.user;
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
-    const transactionForm = document.getElementById('transaction-form');
-    const kindSelect = document.getElementById('kind');
-    const categorySelect = document.getElementById('category_id');
-    const subcategorySelect = document.getElementById('subcategory_id');
-    const transactionIdInput = document.getElementById('transaction-id');
-    const formTitle = document.getElementById('form-title');
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelEditBtn = document.getElementById('cancel-edit-btn');
-    const formButtonsContainer = document.getElementById('form-buttons-container');
-    const logoutBtn = document.getElementById('logout-btn');
-    const incomeList = document.getElementById('income-list');
-    const expenseList = document.getElementById('expense-list');
-    const incomeSummary = document.getElementById('income-summary');
-    const expenseSummary = document.getElementById('expense-summary');
-    const monthSelector = document.getElementById('month-selector');
-    const yearSelector = document.getElementById('year-selector');
-    const advancedOptionsWrapper = document.getElementById('advanced-options-wrapper');
-    const recurringOptions = document.getElementById('recurring-options');
-    const dueDateOptions = document.getElementById('due-date-options');
-    const deadlinesSection = document.getElementById('deadlines-section');
-    const deadlinesList = document.getElementById('deadlines-list');
-    const schedulerBtn = document.getElementById('scheduler-btn');
-    const notificationsBtn = document.getElementById('notifications-btn');
-    const notificationBadge = document.getElementById('notification-badge');
-    const schedulerModal = document.getElementById('scheduler-modal');
-    const movementsModal = document.getElementById('movements-modal');
-    const listMovementsBtn = document.getElementById('list-movements-btn');
-    const goalsSection = document.getElementById('goals-section');
-    const goalsList = document.getElementById('goals-list');
-    const goalsPlanInfo = document.getElementById('goals-plan-info');
-    const statusMessage = document.getElementById('status-message');
-    const animationModal = document.getElementById('animation-modal');
+
+    // ----- DOM ELEMENTS (Miglioria: Raggruppati per pulizia) -----
+    const DOM = {
+      transactionForm: document.getElementById('transaction-form'),
+      kindSelect: document.getElementById('kind'),
+      categorySelect: document.getElementById('category_id'),
+      subcategorySelect: document.getElementById('subcategory_id'),
+      transactionIdInput: document.getElementById('transaction-id'),
+      formTitle: document.getElementById('form-title'),
+      submitBtn: document.getElementById('submit-btn'),
+      cancelEditBtn: document.getElementById('cancel-edit-btn'),
+      formButtonsContainer: document.getElementById('form-buttons-container'),
+      logoutBtn: document.getElementById('logout-btn'),
+      incomeList: document.getElementById('income-list'),
+      expenseList: document.getElementById('expense-list'),
+      incomeSummary: document.getElementById('income-summary'),
+      expenseSummary: document.getElementById('expense-summary'),
+      monthSelector: document.getElementById('month-selector'),
+      yearSelector: document.getElementById('year-selector'),
+      advancedOptionsWrapper: document.getElementById('advanced-options-wrapper'),
+      recurringOptions: document.getElementById('recurring-options'),
+      dueDateOptions: document.getElementById('due-date-options'),
+      deadlinesSection: document.getElementById('deadlines-section'),
+      deadlinesList: document.getElementById('deadlines-list'),
+      schedulerBtn: document.getElementById('scheduler-btn'),
+      notificationsBtn: document.getElementById('notifications-btn'),
+      notificationBadge: document.getElementById('notification-badge'),
+      schedulerModal: document.getElementById('scheduler-modal'),
+      movementsModal: document.getElementById('movements-modal'),
+      listMovementsBtn: document.getElementById('list-movements-btn'),
+      goalsSection: document.getElementById('goals-section'),
+      goalsList: document.getElementById('goals-list'),
+      goalsPlanInfo: document.getElementById('goals-plan-info'),
+      statusMessage: document.getElementById('status-message'),
+      animationModal: document.getElementById('animation-modal'),
+      dashboardPanel: document.querySelector('.dashboard-panel'),
+      mobileMenuBtn: document.getElementById('mobile-menu-btn'),
+      topActions: document.querySelector('.top-actions')
+    };
 
     // ----- UTILS -----
     const fmt = (n)=>Number(n||0).toFixed(2);
@@ -346,17 +374,17 @@
 
     function safeToNumber(v){const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
     function showStatusMessage(message,type='success',duration=3000){
-      statusMessage.textContent=message;
-      statusMessage.className=`status-message ${type} is-visible`;
-      setTimeout(()=>statusMessage.classList.remove('is-visible'),duration);
+      DOM.statusMessage.textContent=message;
+      DOM.statusMessage.className=`status-message ${type} ${CLASS_VISIBLE}`;
+      setTimeout(()=>DOM.statusMessage.classList.remove(CLASS_VISIBLE),duration);
     }
     function showModal(title,bodyHtml,buttons=[]){
       const modal=document.getElementById('generic-modal');
       document.getElementById('generic-modal-title').textContent=title;
       document.getElementById('generic-modal-body').innerHTML=bodyHtml;
       const footer=document.getElementById('generic-modal-footer');footer.innerHTML='';
-      buttons.forEach(info=>{const b=document.createElement('button');b.innerHTML=info.text;b.className=`btn ${info.class||'btn-secondary'}`;b.onclick=()=>{info.action&&info.action();modal.classList.remove('is-visible')};footer.appendChild(b)});
-      modal.classList.add('is-visible');
+      buttons.forEach(info=>{const b=document.createElement('button');b.innerHTML=info.text;b.className=`btn ${info.class||'btn-secondary'}`;b.onclick=()=>{info.action&&info.action();modal.classList.remove(CLASS_VISIBLE)};footer.appendChild(b)});
+      modal.classList.add(CLASS_VISIBLE);
     }
 
     // ----- GOALS -----
@@ -377,11 +405,11 @@
     }
 
     function renderGoalsUI(goals){
-      goalsSection.style.display="block";
+      DOM.goalsSection.style.display="block";
 
       if(!goals || goals.length===0){
-        goalsPlanInfo.textContent='';
-        goalsList.innerHTML=`
+        DOM.goalsPlanInfo.textContent='';
+        DOM.goalsList.innerHTML=`
           <div class="goal-card">
             <div class="goal-title">🎯 <span>Obiettivo</span></div>
             <p class="goal-subtitle">Nessun obiettivo recuperato. Puoi configurarlo adesso.</p>
@@ -405,7 +433,7 @@
       const activeGoals = goals.filter(g=>g.active);
       const countActive = activeGoals.length;
       const maxGoals = goals[0]?.max_goals ?? '';
-      goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
+      DOM.goalsPlanInfo.textContent = plan ? `Piano: ${plan.toUpperCase()} • Attivi: ${countActive}/${maxGoals||''}` : '';
 
       const g1 = activeGoals[0] || goals[0];
       const method = g1.goal_method || 'fixed';
@@ -443,7 +471,7 @@
           </div>`;
       });
 
-      goalsList.innerHTML = editCard + extraCards;
+      DOM.goalsList.innerHTML = editCard + extraCards;
       bindGoalEditor(g1);
     }
 
@@ -498,28 +526,28 @@
       }catch(e){ console.error("Errore caricamento categorie:",e); showModal('Errore','<p>Impossibile caricare le categorie.</p>',[{text:'Chiudi'}]); }
     }
     function updateCategoryDropdown(){
-      const selectedKind=kindSelect.value;
-      advancedOptionsWrapper.style.display='block';
+      const selectedKind=DOM.kindSelect.value;
+      DOM.advancedOptionsWrapper.style.display='block';
       const filtered=allCategories.filter(c=>c.kind===selectedKind);
-      categorySelect.innerHTML='<option value="">Scegli categoria...</option>';
-      filtered.forEach(c=>categorySelect.add(new Option(`${c.icon||''} ${c.name}`,c.id)));
+      DOM.categorySelect.innerHTML='<option value="">Scegli categoria...</option>';
+      filtered.forEach(c=>DOM.categorySelect.add(new Option(`${c.icon||''} ${c.name}`,c.id)));
       updateSubcategories();
     }
     function updateSubcategories(selected=null){
-      const categoryId=categorySelect.value;
-      subcategorySelect.innerHTML='<option value="">Nessuna</option>'; subcategorySelect.disabled=true;
+      const categoryId=DOM.categorySelect.value;
+      DOM.subcategorySelect.innerHTML='<option value="">Nessuna</option>'; DOM.subcategorySelect.disabled=true;
       if(!categoryId) return;
       const relevant=allSubcategories.filter(s=>String(s.category_id)===String(categoryId));
-      if(relevant.length){ subcategorySelect.disabled=false; relevant.forEach(s=>subcategorySelect.add(new Option(`${s.icon||''} ${s.name}`,s.id))); if(selected) subcategorySelect.value=selected; }
+      if(relevant.length){ DOM.subcategorySelect.disabled=false; relevant.forEach(s=>DOM.subcategorySelect.add(new Option(`${s.icon||''} ${s.name}`,s.id))); if(selected) DOM.subcategorySelect.value=selected; }
     }
-
+    // ----- DATA RENDERING -----
     function renderSummary(items,container,kind){
       container.innerHTML='';
-      const catMap=allCategories.filter(c=>c.kind===kind).reduce((a,c)=>{a[c.id]={name:c.name,icon:c.icon||(kind==='income'?'💰':'💸'),total:0};return a;}, {});
+      const catMap=allCategories.filter(c=>c.kind===kind).reduce((a,c)=>{a[c.id]={name:c.name,icon:c.icon||(kind===KIND_INCOME?'💰':'💸'),total:0};return a;}, {});
       items.forEach(tx=>{ if(catMap[tx.category_id]) catMap[tx.category_id].total += safeToNumber(tx.amount); });
       const total = items.reduce((s,tx)=>s+safeToNumber(tx.amount),0);
       const top = Object.values(catMap).filter(c=>c.total>0).sort((a,b)=>b.total-a.total).slice(0,5);
-      const title = kind==='income'?'🏆 Top 5 Entrate':'🏆 Top 5 Uscite';
+      const title = kind===KIND_INCOME ?'🏆 Top 5 Entrate':'🏆 Top 5 Uscite';
       let bars = top.map(c=>{
         const perc = total>0 ? (c.total/total)*100 : 0;
         return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${c.icon}</span><span>${c.name}</span></span><span class="category-bar-amount">${fmt(c.total)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width:${perc}%"></div></div></div>`;
@@ -536,7 +564,7 @@
       const total = items.reduce((s,tx)=>s+safeToNumber(tx.amount),0);
       const head = document.createElement('div');
       head.className='list-title';
-      head.innerHTML = `<span>${kind==='income'?'Movimenti in Entrata':'Movimenti in Uscita'}</span><span class="list-total-amount ${kind}">${fmt(total)}€</span>`;
+      head.innerHTML = `<span>${kind===KIND_INCOME?'Movimenti in Entrata':'Movimenti in Uscita'}</span><span class="list-total-amount ${kind}">${fmt(total)}€</span>`;
       container.appendChild(head);
       if(!items.length){ container.insertAdjacentHTML('beforeend','<div class="empty-state"><p>Nessun movimento qui.</p></div>'); return; }
       items.forEach(tx=>{
@@ -549,18 +577,18 @@
           <div class="item">
             <div class="item-icon">${icon}</div>
             <div class="item-details"><span class="note">${tx.note??''}${recurringIcon}</span><span class="category">${categoryText}</span></div>
-            <div class="item-amount ${tx.kind}">${tx.kind==='expense'?'-':+'+'}${amountNum.toFixed(2)} €</div>
+            <div class="item-amount ${tx.kind}">${tx.kind===KIND_EXPENSE?'-':'+'}${amountNum.toFixed(2)} €</div>
             <div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}">🗑️ Elimina</button></div>
           </div>`);
       });
     }
     function renderDashboard(transactions){
-      const incomes=transactions.filter(t=>t.kind==='income' && t.is_paid!==false);
-      const expenses=transactions.filter(t=>t.kind==='expense' && t.is_paid!==false);
-      renderSummary(incomes,incomeSummary,'income'); renderList(incomes,incomeList,'income');
-      renderSummary(expenses,expenseSummary,'expense'); renderList(expenses,expenseList,'expense');
+      const incomes=transactions.filter(t=>t.kind===KIND_INCOME && t.is_paid!==false);
+      const expenses=transactions.filter(t=>t.kind===KIND_EXPENSE && t.is_paid!==false);
+      renderSummary(incomes,DOM.incomeSummary,KIND_INCOME); renderList(incomes,DOM.incomeList,KIND_INCOME);
+      renderSummary(expenses,DOM.expenseSummary,KIND_EXPENSE); renderList(expenses,DOM.expenseList,KIND_EXPENSE);
     }
-
+    
     async function getScheduledTransactions(startDate,endDate){
       try{
         const { data, error } = await sb.from('transactions')
@@ -578,7 +606,7 @@
       if(transactions.length===0){ container.innerHTML='<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
       container.innerHTML=''; const today=new Date(); today.setHours(0,0,0,0);
       transactions.forEach(tx=>{
-        const isIncome=tx.kind==='income'; const dueDate=new Date(tx.due_date);
+        const isIncome=tx.kind===KIND_INCOME; const dueDate=new Date(tx.due_date);
         const diffDays=Math.ceil((dueDate - today)/(1000*60*60*24));
         const daysLeft=diffDays<0?'Scaduta':(diffDays===0?'Oggi':`${diffDays} giorni`);
         container.insertAdjacentHTML('beforeend',`
@@ -599,14 +627,14 @@
       const modalBody=document.getElementById('movements-modal-body').querySelector('.movements-table-container');
       const modalFooter=document.getElementById('movements-modal-footer');
       const modalTitle=document.getElementById('movements-modal-title');
-      const selMonthName=months[monthSelector.value]; const selYear=yearSelector.value;
+      const selMonthName=months[DOM.monthSelector.value]; const selYear=DOM.yearSelector.value;
       modalTitle.textContent=`Estratto Conto - ${selMonthName} ${selYear}`;
       if(!transactions||!transactions.length){ modalBody.innerHTML='<div class="empty-state"><p>Nessun movimento per il periodo selezionato.</p></div>'; modalFooter.innerHTML=''; return; }
 
       const sorted=[...transactions].sort((a,b)=>new Date(a.occurred_at)-new Date(b.occurred_at));
       let totIn=0, totOut=0;
       const rows=sorted.map(tx=>{
-        const amount=safeToNumber(tx.amount); const isIn=tx.kind==='income'; if(isIn) totIn+=amount; else totOut+=amount;
+        const amount=safeToNumber(tx.amount); const isIn=tx.kind===KIND_INCOME; if(isIn) totIn+=amount; else totOut+=amount;
         const date=new Date(tx.occurred_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
         return `<tr class="${tx.kind}"><td>${date}</td><td>${isIn?'Entrata':'Uscita'}</td><td>${tx.note||'-'}</td><td class="amount-col">${isIn?'+':'-'} ${fmt(amount)} €</td><td>${tx.categories?.name||'N/A'}</td><td>${tx.subcategories?.name||'-'}</td></tr>`;
       }).join('');
@@ -615,57 +643,86 @@
       modalFooter.innerHTML=`<div class="summary-item"><div class="summary-label">Totale Entrate</div><div class="summary-value total-income">+ ${fmt(totIn)} €</div></div><div class="summary-item"><div class="summary-label">Totale Uscite</div><div class="summary-value total-expense">- ${fmt(totOut)} €</div></div><div class="summary-item"><div class="summary-label">Saldo</div><div class="summary-value balance">${fmt(balance)} €</div></div>`;
     }
 
-    // ----- Animazione (breve) -----
-    function showTransactionAnimation(type='income'){
+    // ----- Animazione -----
+    function showTransactionAnimation(type=KIND_INCOME){
       return new Promise(resolve=>{
-        const container=animationModal.querySelector('.animation-elements-container');
+        const container=DOM.animationModal.querySelector('.animation-elements-container');
         const bg=document.getElementById('animation-bg-image'); container.innerHTML=''; bg.src=moneyBagImage;
-        animationModal.classList.add('is-visible');
-        if(type==='income'){
+        DOM.animationModal.classList.add(CLASS_VISIBLE);
+        if(type===KIND_INCOME){
           for(let i=0;i<10;i++){ const d=document.createElement('div'); d.className='money-element income'; d.style.width='80px'; d.style.height='40px'; d.style.backgroundImage=`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' rx='5' fill='%2366BB6A'/%3E%3Ccircle cx='50' cy='25' r='15' fill='none' stroke='%23A5D6A7' stroke-width='3'/%3E%3Ctext x='50' y='30' font-family='Arial' font-size='20' fill='%23E8F5E9' text-anchor='middle'%3E€%3C/text%3E%3C/svg%3E")`; d.style.left=`${Math.random()*80+10}%`; d.style.animationDelay=`${Math.random()*1.2}s`; container.appendChild(d);}
-          setTimeout(()=>{animationModal.classList.remove('is-visible');resolve();},2800);
+          setTimeout(()=>{DOM.animationModal.classList.remove(CLASS_VISIBLE);resolve();},2800);
         }else{
           const d=document.createElement('div'); d.className='money-element expense'; d.style.width='80px'; d.style.height='40px'; d.style.backgroundImage=`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Crect width='100' height='50' rx='5' fill='%23EF9A9A'/%3E%3Ccircle cx='50' cy='25' r='15' fill='none' stroke='%23FFCDD2' stroke-width='3'/%3E%3Ctext x='50' y='30' font-family='Arial' font-size='20' fill='%23FFEBEE' text-anchor='middle'%3E€%3C/text%3E%3C/svg%3E")`; container.appendChild(d);
-          setTimeout(()=>{animationModal.classList.remove('is-visible');resolve();},2000);
+          setTimeout(()=>{DOM.animationModal.classList.remove(CLASS_VISIBLE);resolve();},2000);
         }
       });
     }
 
     // ----- CRUD Transazioni -----
     function resetFormToCreateMode(){
-      formTitle.textContent="Nuova Operazione"; submitBtn.textContent="Aggiungi"; submitBtn.style.width='100%';
-      transactionIdInput.value=""; cancelEditBtn.style.display='none'; formButtonsContainer.classList.remove('is-editing');
-      transactionForm.reset(); document.getElementById('occurred_at').valueAsDate=new Date();
-      document.querySelector('input[name="transaction_type"][value="single"]').checked=true;
-      document.getElementById('recurring-options').style.display='none';
-      document.getElementById('due-date-options').style.display='none';
+      DOM.formTitle.textContent="Nuova Operazione"; DOM.submitBtn.textContent="Aggiungi"; DOM.submitBtn.style.width='100%';
+      DOM.transactionIdInput.value=""; DOM.cancelEditBtn.style.display='none'; DOM.formButtonsContainer.classList.remove('is-editing');
+      DOM.transactionForm.reset(); document.getElementById('occurred_at').valueAsDate=new Date();
+      document.querySelector(`input[name="transaction_type"][value="${TYPE_SINGLE}"]`).checked=true;
+      DOM.recurringOptions.style.display='none';
+      DOM.dueDateOptions.style.display='none';
       updateCategoryDropdown();
     }
 
+    // Miglioria: La funzione ora ritorna i dati per essere usata con Promise.all
     async function loadTransactions(){
-      monthSelector.disabled=true; yearSelector.disabled=true; renderDashboard([]);
-      const m=Number(monthSelector.value), y=Number(yearSelector.value);
-      const start=new Date(y,m,1); const end=new Date(y,m+1,0,23,59,59);
-      try{
+      const m = Number(DOM.monthSelector.value), y = Number(DOM.yearSelector.value);
+      const start = new Date(y, m, 1);
+      const end = new Date(y, m + 1, 0, 23, 59, 59);
+      try {
         const { data, error } = await sb.from('transactions')
           .select(`*, categories(name, icon), subcategories(name, icon)`)
-          .eq('created_by',user.id)
-          .gte('occurred_at',start.toISOString())
-          .lte('occurred_at',end.toISOString())
-          .order('occurred_at',{ascending:false});
-        if(error) throw error;
-        allTransactions=data||[]; renderDashboard(allTransactions);
-      }catch(e){ console.error("Errore transazioni:",e); showModal('Errore','<p>Impossibile caricare le transazioni.</p>',[{text:'Chiudi'}]); }
-      finally{ monthSelector.disabled=false; yearSelector.disabled=false; }
+          .eq('created_by', user.id)
+          .gte('occurred_at', start.toISOString())
+          .lte('occurred_at', end.toISOString())
+          .order('occurred_at', { ascending: false });
+        if (error) throw error;
+        return data || [];
+      } catch (e) {
+        console.error("Errore transazioni:", e);
+        showModal('Errore', '<p>Impossibile caricare le transazioni.</p>', [{ text: 'Chiudi' }]);
+        return []; // Ritorna array vuoto in caso di errore
+      }
     }
-
-    async function loadAllDataForMonth(){
-      await loadTransactions();
-      const today=new Date(); const future=new Date(); future.setDate(today.getDate()+30);
-      const imminent=await getScheduledTransactions(today,future);
-      if(imminent.length){ deadlinesSection.style.display='block'; renderDeadlinesList(deadlinesList,imminent); }
-      else deadlinesSection.style.display='none';
-      updateNotifications();
+    
+    // Miglioria: Caricamento dati ottimizzato con Promise.all
+    async function loadAllDataForMonth() {
+      DOM.monthSelector.disabled = true;
+      DOM.yearSelector.disabled = true;
+      renderDashboard([]); // Pulisce la dashboard durante il caricamento
+    
+      const today = new Date();
+      const future = new Date();
+      future.setDate(today.getDate() + 30);
+    
+      try {
+        const [transactions, imminent] = await Promise.all([
+          loadTransactions(),
+          getScheduledTransactions(today, future)
+        ]);
+    
+        allTransactions = transactions; // Aggiorna lo stato globale
+        renderDashboard(allTransactions);
+    
+        if (imminent.length) {
+          DOM.deadlinesSection.style.display = 'block';
+          renderDeadlinesList(DOM.deadlinesList, imminent);
+        } else {
+          DOM.deadlinesSection.style.display = 'none';
+        }
+        updateNotifications();
+      } catch (e) {
+        console.error("Errore nel caricamento dati del mese:", e);
+      } finally {
+        DOM.monthSelector.disabled = false;
+        DOM.yearSelector.disabled = false;
+      }
     }
 
     function handleEdit(id){
@@ -681,16 +738,16 @@
       if(tx.is_recurring_parent){
         showModal('Azione non permessa','<p>La modifica delle operazioni ricorrenti non è ancora supportata.</p>',[{text:'Ho capito'}]); return;
       }
-      formTitle.textContent="✍️ Modifica Operazione"; submitBtn.textContent="Aggiorna"; submitBtn.style.width='auto';
-      cancelEditBtn.style.display='inline-block'; formButtonsContainer.classList.add('is-editing');
-      transactionIdInput.value=tx.id; document.getElementById('kind').value=tx.kind;
+      DOM.formTitle.textContent="✍️ Modifica Operazione"; DOM.submitBtn.textContent="Aggiorna"; DOM.submitBtn.style.width='auto';
+      DOM.cancelEditBtn.style.display='inline-block'; DOM.formButtonsContainer.classList.add('is-editing');
+      DOM.transactionIdInput.value=tx.id; DOM.kindSelect.value=tx.kind;
       document.getElementById('note').value=tx.note??''; document.getElementById('amount').value=safeToNumber(tx.amount);
       const dateToUse=tx.is_paid===false?tx.due_date:tx.occurred_at; document.getElementById('occurred_at').value=(dateToUse||'').split('T')[0]||'';
-      const type=tx.is_paid===false?'scheduled':'single';
+      const type=tx.is_paid===false?TYPE_SCHEDULED:TYPE_SINGLE;
       document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked=true;
-      if(type==='scheduled'){ document.getElementById('due-date-options').style.display='grid'; document.getElementById('due_date').value=tx.due_date; }
-      else document.getElementById('due-date-options').style.display='none';
-      updateCategoryDropdown(); categorySelect.value=tx.category_id ?? ''; updateSubcategories(tx.subcategory_id ?? null);
+      if(type===TYPE_SCHEDULED){ DOM.dueDateOptions.style.display='grid'; document.getElementById('due_date').value=tx.due_date; }
+      else DOM.dueDateOptions.style.display='none';
+      updateCategoryDropdown(); DOM.categorySelect.value=tx.category_id ?? ''; updateSubcategories(tx.subcategory_id ?? null);
       window.scrollTo({top:0,behavior:'smooth'});
     }
     async function handleDelete(id){
@@ -710,9 +767,9 @@
     }
     async function handleFormSubmit(e){
       e.preventDefault();
-      const fd=new FormData(transactionForm); const id=fd.get('transaction-id'); const kind=fd.get('kind');
+      const fd=new FormData(DOM.transactionForm); const id=fd.get('transaction-id'); const kind=fd.get('kind');
       if(id){
-        showModal('Conferma Aggiornamento',`<p>Sei sicuro di voler aggiornare questa ${kind==='income'?'entrata':'spesa'}?</p>`,[
+        showModal('Conferma Aggiornamento',`<p>Sei sicuro di voler aggiornare questa ${kind===KIND_INCOME?'entrata':'spesa'}?</p>`,[
           {text:'Annulla',class:'btn-secondary'},
           {text:'Aggiorna',class:'btn-primary',action:()=>saveTransaction(fd)}
         ]);
@@ -725,14 +782,14 @@
         category_id:fd.get('category_id'), subcategory_id:fd.get('subcategory_id')||null,
         created_by:user.id, is_paid:true, due_date:null
       };
-      if(txType==='scheduled'){
+      if(txType===TYPE_SCHEDULED){
         const due=fd.get('due_date')||fd.get('occurred_at');
         if(!due){ showModal('Dati mancanti','<p>Seleziona una data valida.</p>',[{text:'Chiudi'}]); return; }
         payload.due_date=due; payload.is_paid=false; payload.occurred_at=due;
       }
       try{
         let error;
-        if(txType==='recurring' && !id){
+        if(txType===TYPE_RECURRING && !id){
           const endStr=fd.get('recurring_end_date'); if(!endStr){ showModal('Dati mancanti','<p>Seleziona una data di fine valida.</p>',[{text:'Chiudi'}]); return; }
           const endDate=new Date(endStr); payload.is_recurring_parent=true;
           const { data:parent, error:pe } = await sb.from('transactions').insert(payload).select().single(); if(pe) throw pe;
@@ -745,8 +802,8 @@
         }
         if(error) throw error;
 
-        if(payload.kind==='income' && !id && txType!=='scheduled') await showTransactionAnimation('income');
-        else if(payload.kind==='expense' && !id && txType!=='scheduled') await showTransactionAnimation('expense');
+        if(payload.kind===KIND_INCOME && !id && txType!==TYPE_SCHEDULED) await showTransactionAnimation(KIND_INCOME);
+        else if(payload.kind===KIND_EXPENSE && !id && txType!==TYPE_SCHEDULED) await showTransactionAnimation(KIND_EXPENSE);
 
         showStatusMessage(id?'Operazione aggiornata!':'Operazione aggiunta!','success');
         resetFormToCreateMode(); loadAllDataForMonth();
@@ -755,9 +812,9 @@
     function handleDeadlineActions(e){
       const btn=e.target.closest('button[data-id]'); if(!btn) return;
       const id=btn.dataset.id; const isModal=btn.closest('.modal-overlay');
-      if(btn.classList.contains('edit-btn')){ handleEdit(id); if(isModal) isModal.classList.remove('is-visible'); }
+      if(btn.classList.contains('edit-btn')){ handleEdit(id); if(isModal) isModal.classList.remove(CLASS_VISIBLE); }
       else if(btn.classList.contains('delete-btn')) handleDelete(id);
-      else if(btn.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if(isModal) isModal.classList.remove('is-visible'); }
+      else if(btn.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if(isModal) isModal.classList.remove(CLASS_VISIBLE); }
     }
     async function handleConfirmDeadline(id){
       showModal('Conferma Operazione','<p>Vuoi registrare questa operazione con la data di oggi?</p>',[
@@ -771,53 +828,121 @@
     async function updateNotifications(){
       const today=new Date(); const future=new Date(); future.setDate(today.getDate()+7);
       const upcoming=await getScheduledTransactions(today,future);
-      if(upcoming.length){ notificationBadge.textContent=upcoming.length; notificationBadge.classList.add('is-visible'); }
-      else notificationBadge.classList.remove('is-visible');
+      if(upcoming.length){ DOM.notificationBadge.textContent=upcoming.length; DOM.notificationBadge.classList.add(CLASS_VISIBLE); }
+      else DOM.notificationBadge.classList.remove(CLASS_VISIBLE);
     }
 
-    // ----- INIT PAGE -----
-    async function initializePage(){
-      const { data: { session } } = await sb.auth.getSession();
-      if(!session){ location.replace('/it/login.html'); return; }
-      user=session.user;
+    // ----- PAGE INITIALIZATION (Miglioria: Suddiviso in funzioni più piccole) -----
+    
+    /** Popola i selettori di data (mese e anno) */
+    function populateDateSelectors() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        
+        MONTHS.forEach((m, i) => DOM.monthSelector.add(new Option(m, i)));
+        for (let y = currentYear - 2; y <= currentYear + 5; y++) {
+            DOM.yearSelector.add(new Option(y, y));
+        }
+        
+        DOM.monthSelector.value = currentMonth;
+        DOM.yearSelector.value = currentYear;
+        document.getElementById('occurred_at').valueAsDate = new Date();
+    }
+    
+    /** Associa tutti gli event listener agli elementi del DOM */
+    function setupEventListeners() {
+      DOM.kindSelect.addEventListener('change', updateCategoryDropdown);
+      DOM.categorySelect.addEventListener('change', () => updateSubcategories());
+      DOM.transactionForm.addEventListener('submit', handleFormSubmit);
+      DOM.cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+      DOM.logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await sb.auth.signOut(); location.replace('/it/'); });
+      DOM.monthSelector.addEventListener('change', loadAllDataForMonth);
+      DOM.yearSelector.addEventListener('change', loadAllDataForMonth);
 
-      const { data:profile } = await sb.from('profiles').select('onboarded').eq('id',user.id).single();
-      if(profile && !profile.onboarded){ location.replace('/it/onboarding.html'); return; }
+      DOM.dashboardPanel.addEventListener('click', (ev) => {
+        const t = ev.target.closest('.action-btn'); if (!t) return;
+        const id = t.dataset.id;
+        if (t.classList.contains('edit-btn')) handleEdit(id);
+        else if (t.classList.contains('delete-btn')) handleDelete(id);
+      });
 
-      // selettori mese/anno
-      const now=new Date(), currentYear=now.getFullYear(), currentMonth=now.getMonth();
-      const months=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-      months.forEach((m,i)=>monthSelector.add(new Option(m,i))); for(let y=currentYear-2;y<=currentYear+5;y++) yearSelector.add(new Option(y,y));
-      monthSelector.value=currentMonth; yearSelector.value=currentYear;
-      document.getElementById('occurred_at').valueAsDate=new Date();
+      DOM.deadlinesList.addEventListener('click', handleDeadlineActions);
+      DOM.schedulerModal.addEventListener('click', handleDeadlineActions);
 
-      // dati iniziali
+      DOM.listMovementsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        renderMovementsListModal(allTransactions, MONTHS);
+        DOM.movementsModal.classList.add(CLASS_VISIBLE);
+      });
+
+      document.querySelectorAll('input[name="transaction_type"]').forEach(r => r.addEventListener('change', e => {
+        DOM.recurringOptions.style.display = e.target.value === TYPE_RECURRING ? 'grid' : 'none';
+        DOM.dueDateOptions.style.display = e.target.value === TYPE_SCHEDULED ? 'grid' : 'none';
+      }));
+
+      DOM.schedulerBtn.addEventListener('click', async () => {
+        const m = DOM.monthSelector.value, y = DOM.yearSelector.value;
+        const start = new Date(y, m, 1);
+        const end = new Date(y, Number(m) + 1, 0);
+        const scheduled = await getScheduledTransactions(start, end);
+        DOM.schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${MONTHS[m]} ${y}`;
+        renderDeadlinesList(DOM.schedulerModal.querySelector('.modal-body'), scheduled);
+        DOM.schedulerModal.classList.add(CLASS_VISIBLE);
+      });
+
+      DOM.notificationsBtn.addEventListener('click', async () => {
+        const today = new Date();
+        const future = new Date();
+        future.setDate(today.getDate() + 7);
+        const upcoming = await getScheduledTransactions(today, future);
+        DOM.schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+        renderDeadlinesList(DOM.schedulerModal.querySelector('.modal-body'), upcoming);
+        DOM.schedulerModal.classList.add(CLASS_VISIBLE);
+      });
+
+      document.body.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal-overlay');
+        if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))) {
+          modal.classList.remove(CLASS_VISIBLE);
+        }
+      });
+      
+      if (DOM.mobileMenuBtn && DOM.topActions) {
+        DOM.mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); DOM.topActions.classList.toggle('is-open'); });
+        document.addEventListener('click', (e) => { if (!DOM.topActions.contains(e.target) && !DOM.mobileMenuBtn.contains(e.target)) DOM.topActions.classList.remove('is-open'); });
+      }
+    }
+    
+    /** Funzione principale di avvio della pagina */
+    async function initializePage() {
+      // 1. Verifica sessione e profilo utente
+      const { data: { session: currentSession } } = await sb.auth.getSession();
+      if (!currentSession) { location.replace('/it/login.html'); return; }
+      user = currentSession.user;
+
+      const { data: profile } = await sb.from('profiles').select('onboarded').eq('id', user.id).single();
+      if (profile && !profile.onboarded) { location.replace('/it/onboarding.html'); return; }
+
+      // 2. Setup della UI statica
+      populateDateSelectors();
+
+      // 3. Carica dati essenziali per il form
       await loadInitialData();
       updateCategoryDropdown();
-      await loadGoals();
-      await loadAllDataForMonth();
 
-      // listeners
-      kindSelect.addEventListener('change',updateCategoryDropdown);
-      categorySelect.addEventListener('change',()=>updateSubcategories());
-      transactionForm.addEventListener('submit',handleFormSubmit);
-      cancelEditBtn.addEventListener('click',resetFormToCreateMode);
-      logoutBtn.addEventListener('click',async(e)=>{e.preventDefault(); await sb.auth.signOut(); location.replace('/it/');});
-      monthSelector.addEventListener('change',loadAllDataForMonth);
-      yearSelector.addEventListener('change',loadAllDataForMonth);
-      document.querySelector('.dashboard-panel').addEventListener('click',(ev)=>{const t=ev.target.closest('.action-btn'); if(!t) return; const id=t.dataset.id; if(t.classList.contains('edit-btn')) handleEdit(id); else if(t.classList.contains('delete-btn')) handleDelete(id);});
-      deadlinesList.addEventListener('click',handleDeadlineActions);
-      schedulerModal.addEventListener('click',handleDeadlineActions);
-
-      listMovementsBtn.addEventListener('click',(e)=>{e.preventDefault(); renderMovementsListModal(allTransactions,months); movementsModal.classList.add('is-visible');});
-      document.querySelectorAll('input[name="transaction_type"]').forEach(r=>r.addEventListener('change',e=>{recurringOptions.style.display=e.target.value==='recurring'?'grid':'none'; dueDateOptions.style.display=e.target.value==='scheduled'?'grid':'none';}));
-      schedulerBtn.addEventListener('click',async()=>{const m=monthSelector.value,y=yearSelector.value;const start=new Date(y,m,1);const end=new Date(y,Number(m)+1,0);const scheduled=await getScheduledTransactions(start,end);schedulerModal.querySelector('.modal-title').textContent=`Scadenziario per ${months[m]} ${y}`;renderDeadlinesList(schedulerModal.querySelector('.modal-body'),scheduled);schedulerModal.classList.add('is-visible');});
-      notificationsBtn.addEventListener('click',async()=>{const today=new Date();const future=new Date();future.setDate(today.getDate()+7);const upcoming=await getScheduledTransactions(today,future);schedulerModal.querySelector('.modal-title').textContent=`Notifiche (Prossimi 7 giorni)`;renderDeadlinesList(schedulerModal.querySelector('.modal-body'),upcoming);schedulerModal.classList.add('is-visible');});
-      document.body.addEventListener('click',(e)=>{const modal=e.target.closest('.modal-overlay'); if(modal && (e.target.classList.contains('modal-overlay')||e.target.closest('.modal-close'))) modal.classList.remove('is-visible'); });
-      const mobileMenuBtn=document.getElementById('mobile-menu-btn'); const topActions=document.querySelector('.top-actions');
-      if(mobileMenuBtn && topActions){ mobileMenuBtn.addEventListener('click',(e)=>{e.stopPropagation();topActions.classList.toggle('is-open');}); document.addEventListener('click',(e)=>{ if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) topActions.classList.remove('is-open');}); }
+      // 4. Carica i dati principali in parallelo per velocità (Miglioria)
+      await Promise.all([
+          loadGoals(),
+          loadAllDataForMonth()
+      ]);
+      
+      // 5. Attacca tutti gli event listeners
+      setupEventListeners();
     }
-    document.addEventListener('DOMContentLoaded',initializePage);
+
+    // Avvia l'applicazione quando il DOM è pronto
+    document.addEventListener('DOMContentLoaded', initializePage);
   </script>
 </body>
 </html>
