@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
 
   <style>
     :root{
@@ -1218,10 +1218,10 @@ async function loadTransactions() {
         const type = tx.is_paid === false ? 'scheduled' : 'single';
         document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
         
-        if(type === 'scheduled') {
+        if (type === 'scheduled') {
   document.getElementById('due-date-options').style.display = 'grid';
-+ const dd = (tx.due_date || '').toString();
-+ document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
+  const dd = (tx.due_date || '').toString();
+  document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
 } else {
   document.getElementById('due-date-options').style.display = 'none';
 }
