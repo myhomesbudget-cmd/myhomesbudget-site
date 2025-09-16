@@ -457,43 +457,43 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null; // Aggiunto stato per il profilo
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-i/9k=`;
+    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACiiigA-iigAooooAKKKKACii-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA--iigA-i-iigA-iigA-iigA-iigA--iigA-i-i-iigA-iigA-i-iigA-i-i-iigA-iigA-i-iigA-i-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-"
 
-    // --- DOM ELEMENTS ---
-    const transactionForm = document.getElementById('transaction-form');
+// --- DOM ELEMENTS ---
+    const transactionForm = document.getElementById('transaction--form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
     const subcategorySelect = document.getElementById('subcategory_id');
-    const transactionIdInput = document.getElementById('transaction-id');
+    const transactionIdInput = document.getElementById('transaction--id');
     const formTitle = document.getElementById('form-title');
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelEditBtn = document.getElementById('cancel-edit-btn');
-    const formButtonsContainer = document.getElementById('form-buttons-container');
-    const logoutBtn = document.getElementById('logout-btn');
+    const submitBtn = document.getElementById('submit--btn');
+    const cancelEditBtn = document.getElementById('cancel-edit--btn');
+    const formButtonsContainer = document.getElementById('form-buttons--container');
+    const logoutBtn = document.getElementById('logout--btn');
     const incomeList = document.getElementById('income-list');
     const expenseList = document.getElementById('expense-list');
-    const incomeSummary = document.getElementById('income-summary');
-    const expenseSummary = document.getElementById('expense-summary');
+    const incomeSummary = document.getElementById('income--summary');
+    const expenseSummary = document.getElementById('expense--summary');
     const monthSelector = document.getElementById('month-selector');
     const yearSelector = document.getElementById('year-selector');
-    const advancedOptionsWrapper = document.getElementById('advanced-options-wrapper');
-    const recurringOptions = document.getElementById('recurring-options');
-    const dueDateOptions = document.getElementById('due-date-options');
-    const deadlinesSection = document.getElementById('deadlines-section');
+    const advancedOptionsWrapper = document.getElementById('advanced-options--wrapper');
+    const recurringOptions = document.getElementById('recurring--options');
+    const dueDateOptions = document.getElementById('due-date--options');
+    const deadlinesSection = document.getElementById('deadlines--section');
     const deadlinesList = document.getElementById('deadlines-list');
-    const schedulerBtn = document.getElementById('scheduler-btn');
-    const notificationsBtn = document.getElementById('notifications-btn');
-    const notificationBadge = document.getElementById('notification-badge');
+    const schedulerBtn = document.getElementById('scheduler--btn');
+    const notificationsBtn = document.getElementById('notifications--btn');
+    const notificationBadge = document.getElementById('notification--badge');
     const schedulerModal = document.getElementById('scheduler-modal');
     const movementsModal = document.getElementById('movements-modal');
-    const listMovementsBtn = document.getElementById('list-movements-btn');
+    const listMovementsBtn = document.getElementById('list-movements--btn');
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
-    const goalsPlanInfo = document.getElementById('goals-plan-info');
+    const goalsPlanInfo = document.getElementById('goals-plan--info');
     const statusMessage = document.getElementById('status-message');
     const animationModal = document.getElementById('animation-modal');
 
-    // --- UTILITY & HELPER FUNCTIONS ---
+// --- UTILITY & HELPER FUNCTIONS ---
     function safeToNumber(v) { 
         const n = (typeof v === 'number') ? v : parseFloat(v);
         return Number.isFinite(n) ? n : 0;
@@ -531,8 +531,8 @@
 
     function showTransactionAnimation(type = 'income') {
         return new Promise(resolve => {
-            const container = animationModal.querySelector('.animation-elements-container');
-            const bgImage = document.getElementById('animation-bg-image');
+            const container = animationModal.querySelector('.animation--elements--container');
+            const bgImage = document.getElementById('animation-bg--image');
             container.innerHTML = '';
             
             bgImage.src = moneyBagImage;
@@ -581,12 +581,12 @@
         transactionForm.reset();
         document.getElementById('occurred_at').valueAsDate = new Date();
         document.querySelector('input[name="transaction_type"][value="single"]').checked = true;
-        document.getElementById('recurring-options').style.display = 'none';
-        document.getElementById('due-date-options').style.display = 'none';
+        document.getElementById('recurring--options').style.display = 'none';
+        document.getElementById('due-date--options').style.display = 'none';
         updateCategoryDropdown();
     }
 
-    // --- GOALS LOGIC ---
+// --- GOALS LOGIC ---
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Importo variabile') return 'variable';
@@ -668,18 +668,18 @@
             <div class="goal-title">🎯 <span>${profile.goal_type}</span></div>
             <p class="goal-subtitle">${goal.name || 'Risparmio'}</p>
             <div class="goal-row">
-              <div class="goal-method" id="g1-method">
+              <div class="goal-method" id="g1--method">
                 <span class="chip ${goal.method ==='fixed'?'is-active':''}" data-method="fixed">Somma fissa</span>
                 <span class="chip ${goal.method ==='variable'?'is-active':''}" data-method="variable">Somma variabile</span>
                 <span class="chip ${goal.method ==='percent_income'?'is-active':''}" data-method="percent_income">% sulle entrate</span>
               </div>
               <div class="goal-input">
-                <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
-                <input id="g1-value" type="number" step="0.01" value="${goal.value || 0}" placeholder="${placeholder}" />
+                <label id="g1--label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
+                <input id="g1--value" type="number" step="0.01" value="${goal.value || 0}" placeholder="${placeholder}" />
                 <span class="goal-hint">${targetHint}</span>
               </div>
               <div class="goal-confirm">
-                <button id="g1-save" class="btn btn-primary">Salva</button>
+                <button id="g1--save" class="btn btn-primary">Salva</button>
               </div>
             </div>
           </div>
@@ -738,7 +738,7 @@
       });
     }
 
-    // --- TRANSACTIONS LOGIC ---
+// --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
       try {
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
@@ -804,23 +804,23 @@
 
         let barsHTML = categoriesToRender.map(cat => {
             const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0;
-            return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width: ${percentage}%"></div></div></div>`;
+            return `<div class="category-bar--item"><div class="category-bar--info"><span class="category-bar--label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar--amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar--bg"><div class="progress-bar--fg" style="width: ${percentage}%"></div></div></div>`;
         }).join('');
 
         const placeholdersNeeded = 5 - categoriesToRender.length;
         if (placeholdersNeeded > 0) {
             const placeholderHTML = `
-                <div class="category-bar-item" aria-hidden="true">
-                    <div class="category-bar-info" style="visibility: hidden;">
-                        <span class="category-bar-label"><span class="icon">&nbsp;</span><span>-</span></span>
-                        <span class="category-bar-amount">&nbsp;</span>
+                <div class="category-bar--item" aria-hidden="true">
+                    <div class="category-bar--info" style="visibility: hidden;">
+                        <span class="category-bar--label"><span class="icon">&nbsp;</span><span>-</span></span>
+                        <span class="category-bar--amount">&nbsp;</span>
                     </div>
-                    <div class="progress-bar-bg" style="visibility: hidden;"><div class="progress-bar-fg" style="width: 0%;"></div></div>
+                    <div class="progress-bar--bg" style="visibility: hidden;"><div class="progress-bar--fg" style="width: 0%;"></div></div>
                 </div>`;
             barsHTML += placeholderHTML.repeat(placeholdersNeeded);
         }
 
-        container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
+        container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total--amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary--bars">${barsHTML}</div>`;
     }
 
     function renderList(items, container, kind) {
@@ -829,7 +829,7 @@
         const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
         const titleEl = document.createElement('div');
         titleEl.className = 'list-title';
-        titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
+        titleEl.innerHTML = `<span>${titleText}</span><span class="list-total--amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
         container.appendChild(titleEl);
 
         if (!items.length) {
@@ -909,7 +909,7 @@
                     <div class="item-actions">
                       <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
                       <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
-                      <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                      <button class="btn btn-action--deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
                     </div>
                 </div>
             `);
@@ -917,8 +917,8 @@
     }
 
     function renderMovementsListModal(transactions, months) {
-        const modalBody = document.getElementById('movements-modal-body').querySelector('.movements-table-container');
-        const modalFooter = document.getElementById('movements-modal-footer');
+        const modalBody = document.getElementById('movements-modal-body').querySelector('.movements-table--container');
+        const modalFooter = document.getElementById('movements-modal--footer');
         const modalTitle = document.getElementById('movements-modal-title');
         const selectedMonthName = months[monthSelector.value];
         const selectedYear = yearSelector.value;
@@ -1062,7 +1062,7 @@
         }
     }
 
-    // --- EVENT HANDLERS ---
+// --- EVENT HANDLERS ---
     function handleEdit(id) {
         const tx = allTransactions.find(t => String(t.id) === String(id)) || {}; 
 
@@ -1108,10 +1108,10 @@
         document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
         
         if(type === 'scheduled') {
-            document.getElementById('due-date-options').style.display = 'grid';
+            document.getElementById('due-date--options').style.display = 'grid';
             document.getElementById('due_date').value = tx.due_date;
         } else {
-            document.getElementById('due-date-options').style.display = 'none';
+            document.getElementById('due-date--options').style.display = 'none';
         }
 
 
@@ -1122,13 +1122,23 @@
     }
     
     async function handleDelete(id) {
-        const { data: txToDelete } = await supabase.from('transactions').select('is_recurring_parent').eq('id', id).single();
-        if (!txToDelete) return;
+        const { data: txToDelete, error: fetchError } = await supabase
+            .from('transactions')
+            .select('is_recurring_parent')
+            .eq('id', id)
+            .single();
+        
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("Errore nel recupero della transazione da eliminare:", fetchError);
+            showModal('Errore', 'Impossibile trovare l\'operazione da eliminare.', [{ text: 'Chiudi' }]);
+            return;
+        }
+        if (!txToDelete) return; 
 
         let title = "Conferma eliminazione";
         let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
         if (txToDelete.is_recurring_parent) {
-            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong> non ancora pagate.</p><p>Vuoi procedere?</p>";
+            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong>.</p><p>Vuoi procedere?</p>";
         }
 
         showModal(title, message, [
@@ -1138,25 +1148,22 @@
                 class: 'delete', 
                 action: async () => {
                     try {
-                        let error;
-                        if (txToDelete.is_recurring_parent) {
-                            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
-                            if (childrenError) error = childrenError;
-                        }
-                        if (error) throw error;
+                        const { error } = await supabase.rpc('delete_transaction_and_children', {
+                            transaction_id_to_delete: id
+                        });
 
-                        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
-                        if (deleteError) throw deleteError;
+                        if (error) {
+                            throw error;
+                        }
                         
+                        showStatusMessage('Operazione eliminata con successo!', 'success');
                         loadAllDataForMonth();
+
                     } catch (error) {
-                        // FIX 2: Migliorata la gestione degli errori per l'eliminazione
-                        console.error("Errore durante l'eliminazione:", error);
+                        console.error("Errore durante l'eliminazione via RPC:", error);
                         let userMessage = "Impossibile completare l'eliminazione. Riprova.";
-                        if (error.message.includes('violates foreign key constraint')) {
-                            userMessage = "Errore: Impossibile eliminare l'operazione perché è collegata ad altri dati.";
-                        } else if (error.message.includes('permission denied for table')) {
-                            userMessage = "Errore: Permessi non sufficienti per eliminare. Potrebbe essere un problema con le policy di sicurezza (RLS) del database.";
+                        if (error.message.includes('permission denied')) {
+                            userMessage = "Errore: Permessi non sufficienti. Controlla le policy di sicurezza (RLS) per la funzione e per la tabella `transactions`.";
                         }
                         showModal('Errore', `<p>${userMessage}</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text: 'Chiudi' }]);
                     }
@@ -1279,7 +1286,31 @@
         }
     }
 
-    // --- PAGE INITIALIZATION ---
+    async function handleConfirmDeadline(id) {
+        showModal(
+            'Conferma Operazione',
+            '<p>Vuoi registrare questa operazione con la data di oggi?</p>',
+            [
+                { text: 'Annulla', class: 'btn-secondary' },
+                {
+                    text: 'Conferma',
+                    class: 'btn-primary',
+                    action: async () => {
+                        try {
+                            const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+                            if (error) throw error;
+                            loadAllDataForMonth();
+                        } catch (error) {
+                             console.error("Errore nell'aggiornamento dell'operazione:", error);
+                             showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                        }
+                    }
+                }
+            ]
+        );
+    }
+
+// --- PAGE INITIALIZATION ---
     async function initializePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { location.replace("/it/login.html"); return; }
@@ -1307,7 +1338,6 @@
 
       // --- EVENT LISTENERS ---
       
-      // FIX 1: Listener di eventi unificato per tutte le azioni
       function handleActionClicks(e) {
           const target = e.target.closest('button[data-id]');
           if (!target) return;
