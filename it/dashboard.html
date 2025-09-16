@@ -105,11 +105,12 @@
 
     /* ====== Form e Bottoni ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color: #fff; transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.08);}
+    .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08);}
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-primary{background: var(--grad);box-shadow: 0 10px 24px rgba(0,0,0,.18);}
-    .btn-primary:hover {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
+    .btn-primary:hover:not(:disabled) {box-shadow: 0 14px 28px rgba(0,0,0,.22);}
     .btn-secondary { background: #f0f0f0; color: #555; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-    .btn-secondary:hover { background: #e5e5e5; border-color: #ccc; color: #333; }
+    .btn-secondary:hover:not(:disabled) { background: #e5e5e5; border-color: #ccc; color: #333; }
 
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
@@ -292,17 +293,39 @@
     #goals-section .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
     #goals-plan-info { font-weight:700; color:#666; }
     .goal-card { background:#fff; border:1px solid var(--card-border); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
+    .goal-card.is-locked .chip, .goal-card.is-locked input { pointer-events: none; background-color: #f8f9fa; }
     .goal-title { font-weight:800; color:#444; margin:0 0 4px; }
     .goal-subtitle { margin:0 0 12px; color:#666; }
-    .goal-row { display:grid; grid-template-columns: 1fr 1fr auto; gap:12px; align-items:center; }
+    .goal-row { display:grid; grid-template-columns: 1fr; gap:12px; align-items:center; }
+    @media (min-width: 768px) { .goal-row { grid-template-columns: 1fr 1fr auto; } }
     .chip { display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:rgba(0,0,0,.05); font-weight:700; cursor:pointer; user-select:none; }
     .chip.is-active { background: var(--grad); color:#fff; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
     .goal-method { display:flex; gap:8px; flex-wrap:wrap; }
+    .goal-input { display: flex; flex-direction: column; }
     .goal-input input { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; font-size:1rem; background:#fff; }
     .goal-hint { display:block; margin-top:6px; font-size:.85rem; color:#777; }
-    .goal-confirm { text-align:right; }
+    .goal-confirm { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
     .goal-card .link { color: var(--primary-color); font-weight:700; text-decoration:none; }
     .goal-locked { opacity: .7; }
+    
+    /* Nuovo Stile per il box percentuale */
+    .percentage-input-group {
+        display: none; /* Nascosto di default */
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .percentage-input-group.is-visible {
+        display: flex;
+    }
+    .percentage-input-group input {
+        width: 80px;
+        text-align: right;
+    }
+    .percentage-input-group span {
+        font-weight: 700;
+    }
+
   </style>
 </head>
 <body>
@@ -456,10 +479,10 @@
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
-    let userProfile = null; // Aggiunto stato per il profilo
-    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA//Z==`;
+    let userProfile = null;
+    const moneyBagImage = `data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAJgAmADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA--iigA-i-iigA-iigA-iigA-iigA--iigA-i-i-iigA-iigA-i-iigA-i-i-iigA-iigA-i-iigA-i-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-iigA-iigA-iigA-iigA-iigA-iigA-i-iigA-"
 
-    // --- DOM ELEMENTS ---
+// --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -493,7 +516,7 @@
     const statusMessage = document.getElementById('status-message');
     const animationModal = document.getElementById('animation-modal');
 
-    // --- UTILITY & HELPER FUNCTIONS ---
+// --- UTILITY & HELPER FUNCTIONS ---
     function safeToNumber(v) { 
         const n = (typeof v === 'number') ? v : parseFloat(v);
         return Number.isFinite(n) ? n : 0;
@@ -586,17 +609,14 @@
         updateCategoryDropdown();
     }
 
-    // --- GOALS LOGIC (MODIFICATA) ---
-
-    // Funzione per mappare il metodo di contribuzione dal DB a un nome interno
+// --- GOALS LOGIC ---
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Importo variabile') return 'variable';
         if (method === 'Percentuale sulle entrate') return 'percent_income';
-        return 'fixed'; // Default
+        return 'fixed';
     }
 
-    // Funzione per mappare il nome interno al testo visualizzato per il DB
     function mapInternalToContributionMethod(internalMethod) {
         if (internalMethod === 'fixed') return 'Cifra fissa';
         if (internalMethod === 'variable') return 'Importo variabile';
@@ -609,30 +629,29 @@
         ? 'Importo fisso (€)'
         : method === 'variable'
           ? 'Importo variabile (€)'
-          : 'Percentuale sulle entrate (%)';
+          : 'Accantonamento calcolato (€)'; // Cambiato per la nuova logica
     }
 
     function getPlaceholder(method) {
-      return method === 'percent_income' ? '10 → significa 10%' : '100.00';
+      return method === 'percent_income' ? '' : '100.00';
     }
     
     async function loadGoals() {
       try {
-        // FIX 1: Leggiamo i dati dell'obiettivo direttamente dalla tabella 'profiles'
         const { data: profile, error } = await supabase
             .from('profiles')
             .select('goal_type, goal_name, goal_target_amount, goal_target_date, contribution_method, contribution_amount')
             .eq('id', user.id)
             .single();
 
-        if (error && error.code !== 'PGRST116') throw error; // Ignora errore "nessuna riga"
+        if (error && error.code !== 'PGRST116') throw error;
 
-        userProfile = profile; // Salviamo il profilo per dopo
+        userProfile = profile;
         renderGoalsUI(profile);
 
       } catch (err) {
         console.error('[Goals] Errore caricamento:', err);
-        renderGoalsUI(null); // Mostra lo stato di default in caso di errore
+        renderGoalsUI(null);
       }
     }
 
@@ -653,14 +672,12 @@
             return;
         }
 
-        goalsPlanInfo.textContent = ''; // Rimosso perché non abbiamo più piani multipli
+        goalsPlanInfo.textContent = '';
 
-        // FIX 2: Creiamo un oggetto "goal" unificato dai dati del profilo
         const goal = {
-            id: user.id, // Usiamo l'ID utente come riferimento al profilo
+            id: user.id,
             name: profile.goal_name,
             target_amount: profile.goal_target_amount,
-            // Mappiamo il metodo salvato ("Cifra fissa") con il nostro nome interno ("fixed")
             method: mapContributionMethodToInternal(profile.contribution_method),
             value: profile.contribution_amount
         };
@@ -670,7 +687,7 @@
         const targetHint = goal.target_amount ? `Target: <strong>${fmt(goal.target_amount)}€</strong>` : '';
 
         const editCard = `
-          <div class="goal-card">
+          <div id="goal-card" class="goal-card">
             <div class="goal-title">🎯 <span>${profile.goal_type}</span></div>
             <p class="goal-subtitle">${goal.name || 'Risparmio'}</p>
             <div class="goal-row">
@@ -682,10 +699,15 @@
               <div class="goal-input">
                 <label id="g1-label" style="font-weight:700; display:block; margin-bottom:6px;">${labelForMethod}</label>
                 <input id="g1-value" type="number" step="0.01" value="${goal.value || 0}" placeholder="${placeholder}" />
+                <div id="g1-percentage-box" class="percentage-input-group">
+                    <input id="g1-percentage-input" type="number" step="0.1" value="${goal.value || 0}" />
+                    <span>% di <span id="g1-total-income">0.00</span>€</span>
+                </div>
                 <span class="goal-hint">${targetHint}</span>
               </div>
               <div class="goal-confirm">
-                <button id="g1-save" class="btn btn-primary">Salva</button>
+                <button id="g1-confirm-btn" class="btn btn-primary">Conferma</button>
+                <button id="g1-edit-btn" class="btn btn-secondary" style="display: none;">Modifica</button>
               </div>
             </div>
           </div>
@@ -696,57 +718,116 @@
     }
 
     function bindGoalEditor(goal) {
-      const methodWrap = document.getElementById('g1-method');
-      const valueInput = document.getElementById('g1-value');
-      const saveBtn = document.getElementById('g1-save');
-      const labelEl = document.getElementById('g1-label');
-      if (!methodWrap || !valueInput || !saveBtn) return;
+        const card = document.getElementById('goal-card');
+        const methodWrap = document.getElementById('g1-method');
+        const valueInput = document.getElementById('g1-value');
+        const labelEl = document.getElementById('g1-label');
+        const confirmBtn = document.getElementById('g1-confirm-btn');
+        const editBtn = document.getElementById('g1-edit-btn');
+        const percentageBox = document.getElementById('g1-percentage-box');
+        const percentageInput = document.getElementById('g1-percentage-input');
+        const totalIncomeEl = document.getElementById('g1-total-income');
 
-      methodWrap.addEventListener('click', (e) => {
-        const chip = e.target.closest('.chip');
-        if (!chip) return;
+        if (!card || !methodWrap || !valueInput || !confirmBtn || !editBtn) return;
 
-        Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
-        chip.classList.add('is-active');
+        let isLocked = false;
+        let currentMethod = goal.method;
 
-        const m = chip.dataset.method;
-        labelEl.textContent = getMethodLabel(m);
-        valueInput.placeholder = getPlaceholder(m);
-        valueInput.step = '0.01';
-      });
-
-      saveBtn.addEventListener('click', async () => {
-        const activeChip = methodWrap.querySelector('.chip.is-active');
-        const method = activeChip ? activeChip.dataset.method : goal.method;
-        const raw = parseFloat(valueInput.value);
-        const val = Number.isFinite(raw) ? raw : 0;
-
-        // FIX 3: Prepariamo e salviamo i dati nella tabella 'profiles'
-        const updatePayload = {
-            contribution_method: mapInternalToContributionMethod(method),
-            contribution_amount: val
-        };
-
-        const { error } = await supabase
-            .from('profiles')
-            .update(updatePayload)
-            .eq('id', user.id);
+        function updateTotalIncome() {
+            const totalIncomes = allTransactions
+                .filter(tx => tx.kind === 'income' && tx.is_paid !== false)
+                .reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            totalIncomeEl.textContent = fmt(totalIncomes);
+            return totalIncomes;
+        }
         
-        if (error) {
-          console.error('Errore aggiornamento obiettivo:', error);
-          showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
-          return;
+        function calculatePercentage() {
+            const totalIncomes = updateTotalIncome();
+            const percentage = parseFloat(percentageInput.value) || 0;
+            const calculatedAmount = (totalIncomes * percentage) / 100;
+            valueInput.value = fmt(calculatedAmount);
         }
 
-        // Aggiorna lo stato locale per coerenza
-        userProfile.contribution_method = updatePayload.contribution_method;
-        userProfile.contribution_amount = updatePayload.contribution_amount;
+        function toggleUI(locked) {
+            isLocked = locked;
+            card.classList.toggle('is-locked', locked);
+            confirmBtn.style.display = locked ? 'none' : 'block';
+            editBtn.style.display = locked ? 'block' : 'none';
+            valueInput.readOnly = (currentMethod === 'percent_income'); // Sempre bloccato per la percentuale
+        }
+        
+        function updateDisplayForMethod(method) {
+            currentMethod = method;
+            labelEl.textContent = getMethodLabel(method);
+            valueInput.placeholder = getPlaceholder(method);
+            
+            const isPercent = method === 'percent_income';
+            percentageBox.classList.toggle('is-visible', isPercent);
+            valueInput.readOnly = isPercent; // Blocca l'input se è calcolato
+            valueInput.style.display = isPercent ? 'block' : 'block'; // Assicurati sia sempre visibile
 
-        showStatusMessage('Obiettivo aggiornato con successo!', 'success');
-      });
+            if (isPercent) {
+                calculatePercentage();
+            } else {
+                 valueInput.value = goal.value || 0;
+            }
+        }
+        
+        // --- Event Listeners ---
+        methodWrap.addEventListener('click', (e) => {
+            if (isLocked) return;
+            const chip = e.target.closest('.chip');
+            if (!chip) return;
+
+            Array.from(methodWrap.querySelectorAll('.chip')).forEach(c => c.classList.remove('is-active'));
+            chip.classList.add('is-active');
+            updateDisplayForMethod(chip.dataset.method);
+        });
+
+        percentageInput.addEventListener('input', calculatePercentage);
+
+        confirmBtn.addEventListener('click', async () => {
+            const activeChip = methodWrap.querySelector('.chip.is-active');
+            const method = activeChip ? activeChip.dataset.method : goal.method;
+            const raw = (method === 'percent_income') ? parseFloat(percentageInput.value) : parseFloat(valueInput.value);
+            const val = Number.isFinite(raw) ? raw : 0;
+            
+            const updatePayload = {
+                contribution_method: mapInternalToContributionMethod(method),
+                contribution_amount: val
+            };
+
+            // Simula salvataggio (sostituire con la chiamata a Supabase)
+            const { error } = await supabase
+                .from('profiles')
+                .update(updatePayload)
+                .eq('id', user.id);
+            
+            if (error) {
+              console.error('Errore aggiornamento obiettivo:', error);
+              showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text: 'Chiudi' }]);
+              return;
+            }
+
+            userProfile.contribution_method = updatePayload.contribution_method;
+            userProfile.contribution_amount = updatePayload.contribution_amount;
+            goal.method = method;
+            goal.value = val;
+            
+            showStatusMessage('Obiettivo confermato!', 'success');
+            toggleUI(true);
+        });
+
+        editBtn.addEventListener('click', () => {
+            toggleUI(false);
+        });
+
+        // Init
+        updateDisplayForMethod(goal.method);
+        toggleUI(false); // Parte in modalità modifica
     }
 
-    // --- TRANSACTIONS LOGIC ---
+// --- TRANSACTIONS LOGIC ---
     async function loadInitialData() {
       try {
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
@@ -794,6 +875,10 @@
         renderList(incomes, incomeList, 'income');
         renderSummary(expenses, expenseSummary, 'expense');
         renderList(expenses, expenseList, 'expense');
+        // Ricalcola la percentuale se il metodo è attivo
+        if (document.getElementById('g1-percentage-box')?.classList.contains('is-visible')) {
+            document.getElementById('g1-percentage-input')?.dispatchEvent(new Event('input'));
+        }
     }
     
     function renderSummary(items, container, kind) {
@@ -1070,7 +1155,7 @@
         }
     }
 
-    // --- EVENT HANDLERS ---
+// --- EVENT HANDLERS ---
     function handleEdit(id) {
         const tx = allTransactions.find(t => String(t.id) === String(id)) || {}; 
 
@@ -1130,13 +1215,23 @@
     }
     
     async function handleDelete(id) {
-        const { data: txToDelete } = await supabase.from('transactions').select('is_recurring_parent').eq('id', id).single();
-        if (!txToDelete) return;
+        const { data: txToDelete, error: fetchError } = await supabase
+            .from('transactions')
+            .select('is_recurring_parent')
+            .eq('id', id)
+            .single();
+        
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("Errore nel recupero della transazione da eliminare:", fetchError);
+            showModal('Errore', 'Impossibile trovare l\'operazione da eliminare.', [{ text: 'Chiudi' }]);
+            return;
+        }
+        if (!txToDelete) return; 
 
         let title = "Conferma eliminazione";
         let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
         if (txToDelete.is_recurring_parent) {
-            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong> non ancora pagate.</p><p>Vuoi procedere?</p>";
+            message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong>.</p><p>Vuoi procedere?</p>";
         }
 
         showModal(title, message, [
@@ -1146,20 +1241,24 @@
                 class: 'delete', 
                 action: async () => {
                     try {
-                        let error;
-                        if (txToDelete.is_recurring_parent) {
-                            const { error: childrenError } = await supabase.from('transactions').delete().eq('parent_transaction_id', id);
-                            if (childrenError) error = childrenError;
-                        }
-                        if (error) throw error;
+                        const { error } = await supabase.rpc('delete_transaction_and_children', {
+                            transaction_id_to_delete: id
+                        });
 
-                        const { error: deleteError } = await supabase.from('transactions').delete().eq('id', id);
-                        if (deleteError) throw deleteError;
+                        if (error) {
+                            throw error;
+                        }
                         
+                        showStatusMessage('Operazione eliminata con successo!', 'success');
                         loadAllDataForMonth();
+
                     } catch (error) {
-                        console.error("Errore durante l'eliminazione:", error);
-                        showModal('Errore', `<p>Impossibile completare l'eliminazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
+                        console.error("Errore durante l'eliminazione via RPC:", error);
+                        let userMessage = "Impossibile completare l'eliminazione. Riprova.";
+                        if (error.message.includes('permission denied')) {
+                            userMessage = "Errore: Permessi non sufficienti. Controlla le policy di sicurezza (RLS) per la funzione e per la tabella `transactions`.";
+                        }
+                        showModal('Errore', `<p>${userMessage}</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text: 'Chiudi' }]);
                     }
                 }
             }
@@ -1280,24 +1379,6 @@
         }
     }
 
-    function handleDeadlineActions(e) {
-        const target = e.target.closest('button[data-id]');
-        if (!target) return;
-
-        const id = target.dataset.id;
-        const isModal = target.closest('.modal-overlay');
-
-        if (target.classList.contains('edit-btn')) {
-            handleEdit(id);
-            if (isModal) isModal.classList.remove('is-visible');
-        } else if (target.classList.contains('delete-btn')) {
-            handleDelete(id);
-        } else if (target.classList.contains('btn-action-deadline')) {
-            handleConfirmDeadline(id);
-            if (isModal) isModal.classList.remove('is-visible');
-        }
-    }
-
     async function handleConfirmDeadline(id) {
         showModal(
             'Conferma Operazione',
@@ -1322,98 +1403,119 @@
         );
     }
 
-    // --- PAGE INITIALIZATION ---
+// --- PAGE INITIALIZATION ---
     async function initializePage() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { location.replace("/it/login.html"); return; }
-      user = session.user;
-      
-      const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
-      if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace("/it/login.html"); return; }
+        user = session.user;
+        
+        const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
 
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
-      const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
-      months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-      for (let i = currentYear - 2; i <= currentYear + 5; i++) {
-          yearSelector.add(new Option(i, i));
-      }
-      monthSelector.value = currentMonth;
-      yearSelector.value = currentYear;
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+        months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+        for (let i = currentYear - 2; i <= currentYear + 5; i++) {
+            yearSelector.add(new Option(i, i));
+        }
+        monthSelector.value = currentMonth;
+        yearSelector.value = currentYear;
 
-      document.getElementById('occurred_at').valueAsDate = new Date();
-      await loadInitialData();
-      updateCategoryDropdown();
-      await loadGoals();
-      await loadAllDataForMonth();
+        document.getElementById('occurred_at').valueAsDate = new Date();
+        await loadInitialData();
+        updateCategoryDropdown();
+        await loadGoals();
+        await loadAllDataForMonth();
 
-      // --- EVENT LISTENERS ---
-      kindSelect.addEventListener('change', updateCategoryDropdown);
-      categorySelect.addEventListener('change', () => updateSubcategories());
-      transactionForm.addEventListener('submit', handleFormSubmit);
-      cancelEditBtn.addEventListener('click', resetFormToCreateMode);
-      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
-      monthSelector.addEventListener('change', loadAllDataForMonth);
-      yearSelector.addEventListener('change', loadAllDataForMonth);
+        // --- EVENT LISTENERS ---
+        
+        function handleActionClicks(e) {
+            const target = e.target.closest('button[data-id]');
+            if (!target) return;
 
-      document.querySelector('.dashboard-panel').addEventListener('click', (ev) => {
-          const t = ev.target.closest('.action-btn');
-          if (!t) return;
-          const id = t.dataset.id;
-          if (t.classList.contains('edit-btn')) handleEdit(id);
-          else if (t.classList.contains('delete-btn')) handleDelete(id);
-      });
-      
-      deadlinesList.addEventListener('click', handleDeadlineActions);
-      schedulerModal.addEventListener('click', handleDeadlineActions);
-      
-      listMovementsBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        renderMovementsListModal(allTransactions, months);
-        movementsModal.classList.add('is-visible');
-      });
+            const id = target.dataset.id;
+            const isModal = target.closest('.modal-overlay');
 
-      document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
-          radio.addEventListener('change', (e) => {
-              recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
-              dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
-          });
-      });
+            if (target.classList.contains('edit-btn')) {
+                handleEdit(id);
+                if (isModal) isModal.classList.remove('is-visible');
+            } else if (target.classList.contains('delete-btn')) {
+                handleDelete(id);
+            } else if (target.classList.contains('btn-action-deadline')) {
+                handleConfirmDeadline(id);
+                if (isModal) isModal.classList.remove('is-visible');
+            }
+        }
 
-      schedulerBtn.addEventListener('click', async () => {
-          const selectedMonth = monthSelector.value;
-          const selectedYear = yearSelector.value;
-          const startDate = new Date(selectedYear, selectedMonth, 1);
-          const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
-          const scheduled = await getScheduledTransactions(startDate, endDate);
-          schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
-          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-          schedulerModal.classList.add('is-visible');
-      });
+        const mainContainer = document.querySelector('main.container');
+        mainContainer.addEventListener('click', handleActionClicks);
+        schedulerModal.addEventListener('click', handleActionClicks);
 
-      notificationsBtn.addEventListener('click', async () => {
-          const today = new Date();
-          const futureDate = new Date();
-          futureDate.setDate(today.getDate() + 7);
-          const upcoming = await getScheduledTransactions(today, futureDate);
-          schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
-          schedulerModal.classList.add('is-visible');
-      });
 
-      document.body.addEventListener('click', (e) => {
-          const modal = e.target.closest('.modal-overlay');
-          if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))) {
-              modal.classList.remove('is-visible');
-          }
-      });
-      
-      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-      const topActions = document.querySelector('.top-actions');
-      if (mobileMenuBtn && topActions) {
-          mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
-          document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+        kindSelect.addEventListener('change', updateCategoryDropdown);
+        categorySelect.addEventListener('change', () => updateSubcategories());
+        transactionForm.addEventListener('submit', handleFormSubmit);
+        cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+        monthSelector.addEventListener('change', loadAllDataForMonth);
+        yearSelector.addEventListener('change', loadAllDataForMonth);
+        
+        listMovementsBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          renderMovementsListModal(allTransactions, months);
+          movementsModal.classList.add('is-visible');
+        });
+
+        document.querySelectorAll('input[name="transaction_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                recurringOptions.style.display = e.target.value === 'recurring' ? 'grid' : 'none';
+                dueDateOptions.style.display = e.target.value === 'scheduled' ? 'grid' : 'none';
+            });
+        });
+
+        schedulerBtn.addEventListener('click', async () => {
+            const selectedMonth = monthSelector.value;
+            const selectedYear = yearSelector.value;
+            const startDate = new Date(selectedYear, selectedMonth, 1);
+            const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
+            const scheduled = await getScheduledTransactions(startDate, endDate);
+            schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+            renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+            schedulerModal.classList.add('is-visible');
+        });
+
+        notificationsBtn.addEventListener('click', async () => {
+            const today = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(today.getDate() + 7);
+            const upcoming = await getScheduledTransactions(today, futureDate);
+            schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+            renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
+            schedulerModal.classList.add('is-visible');
+        });
+
+        document.body.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal-overlay');
+            if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))) {
+                modal.classList.remove('is-visible');
+            }
+        });
+        
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const topActions = document.querySelector('.top-actions');
+        if (mobileMenuBtn && topActions) {
+            mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+            document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+        }
+      } catch (err) {
+        console.error("Errore critico durante l'inizializzazione:", err);
+        const body = document.querySelector('body');
+        if (body) {
+          body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;"><h2>Errore Critico</h2><p>Impossibile caricare la dashboard. L'applicazione si è bloccata.</p><p><strong>Dettaglio:</strong> ${err.message}</p><p>Prova a ricaricare la pagina.</p></div>`;
+        }
       }
     }
 
