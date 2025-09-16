@@ -655,7 +655,6 @@ window.__sbReady = (async () => {
       return Number(goal.percent_income) || 0; // percentuale
     }
 
-    <script type="module">
 async function loadGoals() {
   // ASPETTA il bootstrap (evita 401/race)
   const { sb /*, session*/ } = await window.__sbReady;
@@ -695,7 +694,6 @@ async function loadGoals() {
 document.addEventListener("DOMContentLoaded", () => {
   loadGoals().catch(e => console.error("[MHB] goal populate error:", e));
 });
-</script>
 
     function renderGoalsUI(goals) {
         goalsSection.style.display = "block";
