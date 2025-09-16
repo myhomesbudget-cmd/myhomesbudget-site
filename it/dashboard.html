@@ -485,11 +485,12 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
-    const moneyBagImage = `data:image/svg+xml;utf8,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>
-  <circle cx='60' cy='60' r='52' fill='%23fdd835'/>
-  <text x='60' y='72' font-size='48' text-anchor='middle' font-family='Arial' fill='%23444'>€</text>
-</svg>`;
+    const moneyBagImage = "data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>\
+  <defs><filter id='s'><feDropShadow dx='0' dy='2' stdDeviation='2' flood-opacity='.3'/></filter></defs>\
+  <circle cx='60' cy='60' r='52' fill='%23fdd835' filter='url(%23s)'/>\
+  <text x='60' y='72' font-size='48' text-anchor='middle' font-family='Arial' fill='%23444'>€</text>\
+</svg>";
 
 // --- DOM ELEMENTS ---
     const transactionForm = document.getElementById('transaction-form');
