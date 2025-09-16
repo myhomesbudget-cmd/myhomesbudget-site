@@ -75,7 +75,6 @@
     .option-label strong{display:block;font-size:1.05rem}
     .option-label span{font-size:.92rem;color:#444}
     
-    /* MODIFICA: Ottimizzazione mobile per i campi extra. Ora si impilano sempre verticalmente. */
     .option-details{display:none;grid-template-columns:1fr;gap:10px;padding:10px 14px 0}
     input[type="radio"]:checked ~ .option-details{display:grid}
     
@@ -87,9 +86,8 @@
     .category-columns{display:grid;gap:24px}
     @media(min-width:768px){.category-columns{grid-template-columns:1fr 1fr}}
     .column h3{text-align:center;margin:0 0 8px}
-    /* Richiesta: Entrate verde, Uscite rosso */
-    .category-columns .column:first-child h3{ color: var(--success-color); } /* Entrate */
-    .category-columns .column:last-child  h3{ color: var(--danger-color); }  /* Uscite  */
+    .category-columns .column:first-child h3{ color: var(--success-color); }
+    .category-columns .column:last-child  h3{ color: var(--danger-color); }
 
     .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;display:none}
     .error-message.show{display:block}
@@ -103,7 +101,7 @@
     .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
-    /* ====== Toolbar categorie: una riga + bottoni in gradiente ====== */
+    /* ====== Toolbar categorie ====== */
     #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
     #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     #cats-toolbar .cats-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
@@ -204,7 +202,6 @@
         <h2 class="step-title">Scegli le tue categorie</h2>
         <p class="step-description">Seleziona le voci di entrata e uscita che usi più spesso. Potrai sempre modificarle in seguito.</p>
 
-        <!-- Toolbar: contatori + ricerca + preset (una riga, bottoni gradiente) -->
         <div id="cats-toolbar">
           <div class="cats-counts">
             <strong>Entrate:</strong> <span id="count-income">0 selezionate</span>
@@ -267,9 +264,13 @@
     /* ====== Stato Onboarding ====== */
     const TOTAL_STEPS = 3;
     const state = {
-      goal_type:null, goal_name:null, goal_target_amount:null,
-      contribution_method:null, contribution_amount:null,
-      categories:[]
+      goal_type: null, 
+      goal_name: null, 
+      goal_target_amount: null,
+      goal_target_date: null, // FIX 1: Aggiunto stato per la data
+      contribution_method: null, 
+      contribution_amount: null,
+      categories: []
     };
     let currentStep = 1;
 
@@ -336,7 +337,7 @@
         const id='cat-'+i;
         const w=document.createElement('div');
         w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'>
-                          <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
+                       <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
         (cat.kind==='income' ? incomeContainer : expenseContainer).appendChild(w);
       });
       updateCategoryCounters();
@@ -386,27 +387,31 @@
     }
 
     /* ====== Preselezione dati ====== */
-    function preselectFormData(goal,budget,userCategories){
-      if(goal){
-        const typeRadio=document.querySelector(`input[name="goal_type"][value="${goal.goal_type}"]`);
+    function preselectFormData(profile, userCategories){
+      if(profile){
+         // Preselezione Goal
+        const typeRadio=document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
         if(typeRadio){
           typeRadio.checked=true;
           const parentDiv=typeRadio.closest('div');
           const nameInput=parentDiv.querySelector('input[name="goal_name"]');
           const amountInput=parentDiv.querySelector('input[name="goal_target_amount"]');
-          if(nameInput) nameInput.value = goal.name ?? '';
-          if(amountInput) amountInput.value = (goal.target_amount ?? '');
+          const dateInput=parentDiv.querySelector('input[name="goal_target_date"]');
+          if(nameInput) nameInput.value = profile.goal_name ?? '';
+          if(amountInput) amountInput.value = profile.goal_target_amount ?? '';
+          if(dateInput) dateInput.value = profile.goal_target_date ?? '';
         }
-      }
-      if(budget){
-        const methodRadio=document.querySelector(`input[name="contribution_method"][value="Cifra fissa"]`);
-        if(methodRadio){
+
+        // Preselezione Metodo Contribuzione
+        const methodRadio=document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
+         if(methodRadio){
           methodRadio.checked=true;
           const parentDiv=methodRadio.closest('div');
           const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
-          if(amountInput) amountInput.value = budget.amount ?? '';
+          if(amountInput) amountInput.value = profile.contribution_amount ?? '';
         }
       }
+     
       const selectedNames=(userCategories||[]).map(c=>c.name);
       document.querySelectorAll('input[name="category"]').forEach(checkbox=>{
         try{ const catObj=JSON.parse(checkbox.value); if(selectedNames.includes(catObj.name)) checkbox.checked=true; }catch(e){}
@@ -459,6 +464,18 @@
         if(amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Per favore, inserisci un importo valido.'); return false; }
         state.goal_name = nameInput.value.trim();
         state.goal_target_amount = parseFloat(amountInput.value);
+        
+        // FIX 2: Cattura e valida la data se l'obiettivo è specifico
+        state.goal_target_date = null;
+        if(state.goal_type === 'Obiettivo Specifico'){
+            const dateInput = parentDiv.querySelector('input[name="goal_target_date"]');
+            if(!dateInput || !dateInput.value){
+                showError('Per favore, inserisci una data di scadenza per il tuo obiettivo.');
+                return false;
+            }
+            state.goal_target_date = dateInput.value;
+        }
+
       } else if(n===2){
         const methodRadio=document.querySelector('input[name="contribution_method"]:checked');
         if(!methodRadio){ showError('Per favore, scegli un metodo.'); return false; }
@@ -475,19 +492,32 @@
       return true;
     }
 
-    /* ====== Salvataggio (identico al legacy) ====== */
+    /* ====== Salvataggio (MODIFICATO) ====== */
     async function saveOnboardingToSupabase(user, existingUserCategories){
       nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
       try{
-        await supabase.from('goals').upsert({
-          user_id:user.id, goal_type:state.goal_type, name:state.goal_name, target_amount:state.goal_target_amount
-        }, { onConflict:'user_id' });
+        
+        // FIX 3: Salva tutte le informazioni su Obiettivo e Contribuzione nella tabella 'profiles'
+        const profileUpdateData = {
+            onboarded: true,
+            goal_type: state.goal_type,
+            goal_name: state.goal_name,
+            goal_target_amount: state.goal_target_amount,
+            goal_target_date: state.goal_target_date,
+            contribution_method: state.contribution_method,
+            contribution_amount: state.contribution_amount
+        };
 
-        const currentMonth = new Date().toISOString().slice(0,7)+'-01';
-        await supabase.from('budgets').upsert({
-          user_id:user.id, month:currentMonth, macro_category:'Risparmi', amount:state.contribution_amount
-        }, { onConflict:'user_id, month, macro_category' });
+        const { error: profileError } = await supabase.from('profiles').update(profileUpdateData).eq('id', user.id);
+        if (profileError) throw profileError;
+        
+        /* * Le vecchie chiamate a 'goals' e 'budgets' sono state rimosse.
+         * Questo approccio è più pulito: il profilo dell'utente contiene le *regole*
+         * e la logica principale dell'app potrà usare queste regole per creare
+         * budget mensili o tracciare gli obiettivi.
+        */
 
+        // La gestione delle categorie era già corretta e rimane invariata
         const existingNames = existingUserCategories.map(c=>c.name);
         const selectedObjects = state.categories;
         const selectedNames = selectedObjects.map(c=>c.name);
@@ -518,8 +548,7 @@
           }
           if(subpayload.length>0){ await supabase.from('subcategories').insert(subpayload); }
         }
-
-        await supabase.from('profiles').update({ onboarded:true }).eq('id', user.id);
+        
         return true;
       }catch(err){
         console.error('Errore nel salvataggio:', err);
@@ -529,29 +558,30 @@
       }
     }
 
-    /* ====== Init ====== */
+    /* ====== Init (MODIFICATO) ====== */
     async function initializePage(){
       try{
         const { data:{ user } } = await supabase.auth.getUser();
         if(!user){ location.replace(itPrefix()+'login.html'); return; }
 
-        const [profileRes, userCatRes, defaultCatRes, goalRes, budgetRes] = await Promise.all([
+        // MODIFICA: Semplificato il caricamento dati, ora si basa principalmente su 'profiles'
+        const [profileRes, userCatRes, defaultCatRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
           supabase.from('categories').select('*').eq('created_by', user.id),
           supabase.from('default_categories').select('name, icon, kind').order('id'),
-          supabase.from('goals').select('*').eq('user_id', user.id).maybeSingle(),
-          supabase.from('budgets').select('*').eq('user_id', user.id).eq('macro_category','Risparmi')
         ]);
 
-        for(const res of [profileRes,userCatRes,defaultCatRes,goalRes,budgetRes]){
-          if(res.error){ console.error('Errore durante il caricamento dati:', res.error); showError('Impossibile caricare i dati. Ricarica la pagina.'); return; }
+        for(const res of [profileRes,userCatRes,defaultCatRes]){
+          if(res.error && res.error.code !== 'PGRST116'){ // Ignora l'errore "nessuna riga trovata" per il profilo
+             console.error('Errore durante il caricamento dati:', res.error); 
+             showError('Impossibile caricare i dati. Ricarica la pagina.'); 
+             return; 
+          }
         }
 
         const profile = profileRes.data;
         const userCategories = userCatRes.data || [];
         const defaultCategories = defaultCatRes.data || [];
-        const goal = goalRes.data;
-        const budget = budgetRes.data && budgetRes.data.length>0 ? budgetRes.data[0] : null;
 
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
         
@@ -560,7 +590,8 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-        preselectFormData(goal,budget,userCategories);
+        // MODIFICA: La preselezione ora usa solo il profilo e le categorie
+        preselectFormData(profile, userCategories);
         renderStep(1);
 
         nextBtn.addEventListener('click', async ()=>{
