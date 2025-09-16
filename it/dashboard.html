@@ -655,24 +655,47 @@ window.__sbReady = (async () => {
       return Number(goal.percent_income) || 0; // percentuale
     }
 
-    async function loadGoals() {
-      try {
-        const { data, error } = await sb.rpc("get_dashboard_goals")
-        if (error) throw error;
-        goalsData = (data || []).map(g => ({
-          ...g,
-          target_amount: g.target_amount != null ? Number(g.target_amount) : 0,
-          fixed_amount: g.fixed_amount != null ? Number(g.fixed_amount) : null,
-          variable_amount: g.variable_amount != null ? Number(g.variable_amount) : null,
-          percent_income: g.percent_income != null ? Number(g.percent_income) : null
-        }));
-        renderGoalsUI(goalsData);
-      } catch (err) {
-        console.error('[Goals] Errore caricamento:', err);
-        goalsData = [];
-        renderGoalsUI(goalsData);
-      }
-    }
+    <script type="module">
+async function loadGoals() {
+  // ASPETTA il bootstrap (evita 401/race)
+  const { sb /*, session*/ } = await window.__sbReady;
+
+  const { data, error, status } = await sb.rpc("get_dashboard_goals");
+  if (error) {
+    console.error("[Goals] RPC error", { error, status });
+    // messaggio utente
+    const el = document.getElementById("goal-status");
+    if (el) el.textContent = "Errore nel caricamento dell’obiettivo.";
+    return;
+  }
+
+  const goal = (data || []).find(r => r.active) || (data || [])[0];
+  const elStatus = document.getElementById("goal-status");
+  const inpAmount = document.getElementById("goal-amount");
+
+  if (!goal) {
+    if (elStatus) elStatus.textContent = "Nessun obiettivo recuperato. Puoi configurarlo adesso.";
+    return;
+  }
+
+  if (elStatus) {
+    elStatus.innerHTML = `Obiettivo attivo: <strong>${goal.name || "Senza nome"}</strong> — Piano: <strong>${goal.plan_type || "-"}</strong>`;
+  }
+  if (inpAmount) {
+    inpAmount.value =
+      goal.goal_method === "fixed"    ? (goal.fixed_amount ?? "")
+    : goal.goal_method === "variable" ? (goal.variable_amount ?? "")
+    : goal.goal_method === "percent"  ? (goal.percent_income ?? "")
+    : "";
+    inpAmount.placeholder = (goal.goal_method === "percent") ? "% sul reddito" : "Importo mensile";
+  }
+}
+
+// Avvio pagina (dopo DOM pronto)
+document.addEventListener("DOMContentLoaded", () => {
+  loadGoals().catch(e => console.error("[MHB] goal populate error:", e));
+});
+</script>
 
     function renderGoalsUI(goals) {
         goalsSection.style.display = "block";
