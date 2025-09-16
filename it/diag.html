@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="it" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diagnostica — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <!-- CSP minima per i test -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline' https://esm.sh https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://*.supabase.co https://*.supabase.in">
+  <style>
+    :root{ --fg:#111; --bg:#f4f7fa; --card:#fff; --border:rgba(0,0,0,.08); --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.08);}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--fg);background:var(--bg);margin:0;padding:24px;}
+    .wrap{max-width:920px;margin:0 auto;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px;}
+    h1{font-size:22px;margin:0 0 12px}
+    h2{font-size:18px;margin:18px 0 8px}
+    p, li{line-height:1.5}
+    code{background:#f3f4f8;border:1px solid #e5e7f0;padding:2px 6px;border-radius:8px}
+    .ok{color:#2e7d32;font-weight:600}
+    .warn{color:#f39c12;font-weight:600}
+    .bad{color:#d32f2f;font-weight:600}
+    pre{white-space:pre-wrap;font-size:12px;background:#fafbff;border:1px solid #e8eaf6;padding:10px;border-radius:10px;max-height:420px;overflow:auto}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Diagnostica MyHomesBudget</h1>
+      <p>Questa pagina verifica: connessione a Supabase, sessione, RPC chiave, e permessi RLS su tabelle.</p>
+      <div class="grid">
+        <div>
+          <h2>Esiti rapidi</h2>
+          <ul id="checks"></ul>
+        </div>
+        <div>
+          <h2>Dettagli ambiente</h2>
+          <pre id="env"></pre>
+        </div>
+      </div>
+      <h2>Output Diagnostica</h2>
+      <pre id="out">Esecuzione in corso…</pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    // 🔧 SOSTITUISCI con i dati del TUO progetto (quelli reali attualmente in uso)
+    const SUPABASE_URL  = "https://upcusjlumfeadgbhziwq.supabase.co";   // <-- METTI QUI IL TUO
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwY3Vzamx1bWZlYWRnYmh6aXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTAzMTgsImV4cCI6MjA3MTk4NjMxOH0.U3cukTOaAZCPOF9f0mnyO00ghRgrzxwPx6GwqKuZmCM";                          // <-- METTI QUI IL TUO
+
+    const checksEl = document.getElementById("checks");
+    const envEl    = document.getElementById("env");
+    const outEl    = document.getElementById("out");
+
+    function li(status, text){
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="${status}">${status.toUpperCase()}</span> — ${text}`;
+      checksEl.appendChild(li);
+    }
+    function log(obj){ outEl.textContent += (typeof obj === "string" ? obj : JSON.stringify(obj,null,2)) + "\n"; }
+
+    (async () => {
+      const env = {
+        location: location.href,
+        ts: new Date().toISOString(),
+        SUPABASE_URL,
+        ANON_KEY_LEN: SUPABASE_ANON?.length || 0,
+        has_https: location.protocol === "https:",
+      };
+      envEl.textContent = JSON.stringify(env, null, 2);
+
+      // 1) Creazione client
+      let sb;
+      try {
+        sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        });
+        li("ok", "Client Supabase creato");
+      } catch (e) {
+        li("bad", "Errore creazione client Supabase");
+        log(e);
+        return;
+      }
+
+      // 2) Sessione
+      try {
+        const { data: { session }, error } = await sb.auth.getSession();
+        if (error) throw error;
+        if (session) {
+          li("ok", "Sessione utente attiva");
+          log({ sessionUserId: session.user?.id, email: session.user?.email });
+        } else {
+          li("warn", "Nessuna sessione: utente non loggato");
+        }
+      } catch (e) {
+        li("bad", "Errore lettura sessione");
+        log(e);
+      }
+
+      // 3) RPC (proviamo quelle più usate)
+      const rpcNames = ["get_dashboard_goals","get_dashboard"];
+      for (const name of rpcNames) {
+        try {
+          const { data, error, status } = await sb.rpc(name);
+          if (error) {
+            if ((error.code === "PGRST116") || /not found/i.test(error.message || "")) {
+              li("warn", `RPC ${name} non trovata (status ${status})`);
+            } else if (error.code === "PGRST301" || /permission/i.test(error.message||"")) {
+              li("warn", `RPC ${name} trovata ma vietata dalle policy (status ${status})`);
+            } else {
+              li("bad", `RPC ${name} errore (status ${status})`);
+            }
+            log({ rpc: name, error });
+          } else {
+            li("ok", `RPC ${name} ok`);
+            log({ rpc: name, sample: data?.slice?.(0,3) ?? data });
+          }
+        } catch (e) {
+          li("bad", `RPC ${name} eccezione`);
+          log(e);
+        }
+      }
+
+      // 4) SELECT su tabelle chiave per test RLS
+      const tables = ["profiles","goals"];
+      for (const t of tables) {
+        try {
+          const { data, error, status } = await sb.from(t).select("*").limit(3);
+          if (error) {
+            if (status === 401 || status === 403) {
+              li("warn", `Tabella ${t}: vietata da RLS/policy (status ${status})`);
+            } else if (status === 404) {
+              li("warn", `Tabella ${t}: non esiste (status ${status})`);
+            } else {
+              li("bad", `Tabella ${t}: errore (status ${status})`);
+            }
+            log({ table: t, error });
+          } else {
+            li("ok", `Tabella ${t}: accesso ok`);
+            log({ table: t, rows: data });
+          }
+        } catch (e) {
+          li("bad", `Tabella ${t}: eccezione`);
+          log(e);
+        }
+      }
+
+      log("\nDiagnostica terminata.");
+    })();
+  </script>
+</body>
+</html>
