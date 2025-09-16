@@ -861,7 +861,6 @@
     
     function updateCategoryDropdown(){
       const selectedKind = kindSelect.value;
-      advancedOptionsWrapper.style.display = 'block';
       const filtered = allCategories.filter(cat => cat.kind === selectedKind);
       categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
       filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon} ${cat.name}`, cat.id)));
@@ -1188,15 +1187,7 @@ async function loadTransactions() {
             populateAndShowEditForm(data);
           });
         } else {
-          populateAndShowEditForm(tx);
-          if(type === 'scheduled') {
-  document.getElementById('due-date-options').style.display = 'grid';
-  const dd = (tx.due_date || '').toString();
-  document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
-} else {
-  document.getElementById('due-date-options').style.display = 'none';
-}
-        }
+  populateAndShowEditForm(tx);
     }
 
     function populateAndShowEditForm(tx) {
@@ -1228,19 +1219,17 @@ async function loadTransactions() {
         document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
         
         if(type === 'scheduled') {
-            document.getElementById('due-date-options').style.display = 'grid';
-            document.getElementById('due_date').value = tx.due_date;
-        } else {
-            document.getElementById('due-date-options').style.display = 'none';
-        }
-
+  document.getElementById('due-date-options').style.display = 'grid';
++ const dd = (tx.due_date || '').toString();
++ document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
+} else {
+  document.getElementById('due-date-options').style.display = 'none';
+}
 
         updateCategoryDropdown();
         categorySelect.value = tx.category_id ?? '';
         updateSubcategories(tx.subcategory_id ?? null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      - advancedOptionsWrapper.style.display = 'block';
-+ // Lascia la visibilità gestita dai radio "transaction_type"
     }
     
     async function handleDelete(id) {
