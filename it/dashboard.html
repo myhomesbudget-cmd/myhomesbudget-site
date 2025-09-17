@@ -1239,12 +1239,13 @@
             const dd = String(current.getUTCDate()).padStart(2,'0');
             const iso = `${yyyy}-${mm}-${dd}`;
             children.push({
-              ...payload,
-              is_recurring_parent: false,
-              parent_transaction_id: parentData.id,
-              occurred_at: iso,
-              due_date: null // se vuoi renderle scadenze mensili, imposta due_date: iso e is_paid:false
-            });
+  ...payload,
+  is_recurring_parent: false,
+  parent_transaction_id: parentData.id,
+  occurred_at: iso,   // resta utile come “data prevista”
+  due_date: iso,      // la scadenza è quel giorno
+  is_paid: false      // finché non la confermi, non entra nei totali
+});
           }
 
           if (children.length){
