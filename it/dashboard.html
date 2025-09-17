@@ -119,7 +119,8 @@
       .form-group.subcategory{grid-column:span 2}
     }
 
-    #advanced-options-wrapper{display:none;grid-column:1 / -1;background:rgba(0,0,0,0.03);padding:12px;border-radius:10px;margin-top:8px}
+    /* AVANZATE: wrapper sempre visibile */
+    #advanced-options-wrapper{display:block;grid-column:1 / -1;background:rgba(0,0,0,0.03);padding:12px;border-radius:10px;margin-top:8px}
     .advanced-options-controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin-bottom:12px}
     .advanced-options-controls label{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
     .advanced-options-fields{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
@@ -539,7 +540,8 @@
       transactionForm.reset();
       document.getElementById('occurred_at').valueAsDate = new Date();
       document.querySelector('input[name="transaction_type"][value="single"]').checked = true;
-      advancedOptionsWrapper.style.display = 'none';
+      /* wrapper sempre visibile, campi interni nascosti */
+      advancedOptionsWrapper.style.display = 'block';
       recurringOptions.style.display = 'none';
       dueDateOptions.style.display = 'none';
       updateCategoryDropdown();
@@ -895,7 +897,7 @@
           .order('due_date', { ascending:true });
         if (error) throw error;
 
-        // map categorie localmente
+        // mappa categorie localmente
         return (data || []).map(tx=>({
           ...tx,
           categories: allCategories.find(c => String(c.id) === String(tx.category_id)) || null
@@ -1096,6 +1098,7 @@
         document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
 
         if (type === 'scheduled'){
+          /* wrapper visibile + campi scadenza */
           advancedOptionsWrapper.style.display = 'block';
           document.getElementById('due-date-options').style.display = 'grid';
           const dd = (tx.due_date || '').toString();
@@ -1104,7 +1107,7 @@
         } else {
           document.getElementById('due-date-options').style.display = 'none';
           recurringOptions.style.display = 'none';
-          advancedOptionsWrapper.style.display = 'none';
+          advancedOptionsWrapper.style.display = 'block';
         }
 
         updateCategoryDropdown();
@@ -1112,7 +1115,7 @@
         updateSubcategories(tx.subcategory_id ?? null);
         window.scrollTo({ top:0, behavior:'smooth' });
       }
-    } // <- CHIUSURA CORRETTA DI handleEdit
+    } // CHIUSURA handleEdit
 
     async function handleDelete(id){
       const { data: txToDelete, error: fetchError } = await supabase
@@ -1221,43 +1224,35 @@
           const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
           if (parentError) throw parentError;
 
-          // Date in UTC coerenti
+          // genera occorrenze mensili fino a endDate (incluso se stessa data)
           const [y0,m0,d0] = payload.occurred_at.split('-').map(n=>parseInt(n,10));
-          let currentDate = new Date(Date.UTC(y0, m0-1, d0));
-          currentDate.setUTCMonth(currentDate.getUTCMonth()+1);
+          const endParts = endDateStr.split('-').map(n=>parseInt(n,10));
+          const endDate = new Date(Date.UTC(endParts[0], endParts[1]-1, endParts[2]));
 
-          const endDate = new Date(endDateStr);
-
-          const transactionsToCreate = [];
-          while (currentDate <= endDate) {
-            // ISO solo data (YYYY-MM-DD)
-            const isoDate = new Date(
-              Date.UTC(
-                currentDate.getUTCFullYear(),
-                currentDate.getUTCMonth(),
-                currentDate.getUTCDate()
-              )
-            ).toISOString().split('T')[0];
-
-            transactionsToCreate.push({
+          let current = new Date(Date.UTC(y0, m0-1, d0));
+          const children = [];
+          while (true){
+            current.setUTCMonth(current.getUTCMonth()+1);
+            if (current > endDate) break;
+            const yyyy = current.getUTCFullYear();
+            const mm = String(current.getUTCMonth()+1).padStart(2,'0');
+            const dd = String(current.getUTCDate()).padStart(2,'0');
+            const iso = `${yyyy}-${mm}-${dd}`;
+            children.push({
               ...payload,
               is_recurring_parent: false,
               parent_transaction_id: parentData.id,
-              occurred_at: isoDate,
-              due_date: null,     // le occorrenze figlie sono movimenti normali già pagati
-              is_paid: true
+              occurred_at: iso,
+              due_date: null // se vuoi renderle scadenze mensili, imposta due_date: iso e is_paid:false
             });
-
-            // step mensile
-            currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
           }
 
-          if (transactionsToCreate.length > 0) {
-            const { error: recurringError } = await supabase.from('transactions').insert(transactionsToCreate);
-            if (recurringError) error = recurringError;
+          if (children.length){
+            const { error: chErr } = await supabase.from('transactions').insert(children);
+            if (chErr) error = chErr;
           }
         } else {
-          // Create / Update standard
+          // Create/Update single o scheduled
           const query = id
             ? supabase.from('transactions').update(payload).eq('id', id)
             : supabase.from('transactions').insert(payload);
@@ -1267,10 +1262,10 @@
 
         if (error) throw error;
 
-        // Animazioni solo per nuove operazioni non "scheduled"
-        if (!id && transactionType !== 'scheduled') {
+        // animazione solo per singole non scheduled in create
+        if (!id && transactionType !== 'scheduled'){
           if (payload.kind === 'income') await showTransactionAnimation('income');
-          else await showTransactionAnimation('expense');
+          if (payload.kind === 'expense') await showTransactionAnimation('expense');
         }
 
         showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
@@ -1279,10 +1274,7 @@
 
       } catch (error){
         console.error("Errore nel salvataggio:", error);
-        showModal('Errore di Salvataggio',
-          `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>Dettaglio: ${error.message}</small></p>`,
-          [{ text:'Chiudi' }]
-        );
+        showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text:'Chiudi' }]);
       }
     }
 
@@ -1291,21 +1283,20 @@
         'Conferma Operazione',
         '<p>Vuoi registrare questa operazione con la data di oggi?</p>',
         [
-          { text:'Annulla', class:'btn-secondary' },
+          { text: 'Annulla', class: 'btn-secondary' },
           {
-            text:'Conferma', class:'btn-primary',
-            action: async ()=>{
-              try{
-                const todayIso = new Date().toISOString().split('T')[0];
-                const { error } = await supabase
-                  .from('transactions')
-                  .update({ is_paid:true, occurred_at: todayIso })
+            text: 'Conferma',
+            class: 'btn-primary',
+            action: async () => {
+              try {
+                const { error } = await supabase.from('transactions')
+                  .update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] })
                   .eq('id', id);
                 if (error) throw error;
-                await loadAllDataForMonth();
-              } catch (error){
+                loadAllDataForMonth();
+              } catch (error) {
                 console.error("Errore nell'aggiornamento dell'operazione:", error);
-                showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text:'Chiudi' }]);
+                showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]);
               }
             }
           }
@@ -1317,117 +1308,98 @@
     async function initializePage(){
       try{
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session){ location.replace("/it/login.html"); return; }
+        if (!session) { location.replace("/it/login.html"); return; }
         user = session.user;
 
-        // Se l'utente non ha completato l'onboarding
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarded')
-          .eq('id', user.id)
-          .single();
-        if (profile && !profile.onboarded){ location.replace("/it/onboarding.html"); return; }
+        const { data: profile } = await supabase.from('profiles').select('onboarded').eq('id', user.id).single();
+        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
 
-        // Popola selettori mese/anno
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth();
         const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-        months.forEach((m, idx)=> monthSelector.add(new Option(m, idx)));
-        for (let y=currentYear-2; y<=currentYear+5; y++){
-          yearSelector.add(new Option(y, y));
+        months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+        for (let i = currentYear - 2; i <= currentYear + 5; i++) {
+          yearSelector.add(new Option(i, i));
         }
-        monthSelector.value = String(currentMonth);
-        yearSelector.value = String(currentYear);
+        monthSelector.value = currentMonth;
+        yearSelector.value = currentYear;
 
-        // Data default nel form
         document.getElementById('occurred_at').valueAsDate = new Date();
 
-        // Caricamenti iniziali
         await loadInitialData();
         updateCategoryDropdown();
         await loadGoals();
         await loadAllDataForMonth();
 
-        // --- EVENTI GLOBALI ---
+        // LISTENERS
+        const mainContainer = document.querySelector('main.container');
 
-        // Azioni su item (edit/delete/pay)
         function handleActionClicks(e){
-          const btn = e.target.closest('button[data-id]');
-          if (!btn) return;
-          const id = btn.dataset.id;
-          const isModal = btn.closest('.modal-overlay');
+          const target = e.target.closest('button[data-id]');
+          if (!target) return;
 
-          if (btn.classList.contains('edit-btn')){
+          const id = target.dataset.id;
+          const isModal = target.closest('.modal-overlay');
+
+          if (target.classList.contains('edit-btn')){
             handleEdit(id);
             if (isModal) isModal.classList.remove('is-visible');
-          } else if (btn.classList.contains('delete-btn')){
+          } else if (target.classList.contains('delete-btn')){
             handleDelete(id);
-          } else if (btn.classList.contains('btn-action-deadline')){
+          } else if (target.classList.contains('btn-action-deadline')){
             handleConfirmDeadline(id);
             if (isModal) isModal.classList.remove('is-visible');
           }
         }
-        document.querySelector('main.container').addEventListener('click', handleActionClicks);
+
+        mainContainer.addEventListener('click', handleActionClicks);
         schedulerModal.addEventListener('click', handleActionClicks);
 
-        // Form
         kindSelect.addEventListener('change', updateCategoryDropdown);
-        categorySelect.addEventListener('change', ()=>updateSubcategories());
+        categorySelect.addEventListener('change', () => updateSubcategories());
         transactionForm.addEventListener('submit', handleFormSubmit);
         cancelEditBtn.addEventListener('click', resetFormToCreateMode);
-
-        // Logout
-        logoutBtn.addEventListener('click', async (e)=>{
-          e.preventDefault();
-          await supabase.auth.signOut();
-          location.replace("/it/");
-        });
-
-        // Selettori mese/anno
+        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
         monthSelector.addEventListener('change', loadAllDataForMonth);
         yearSelector.addEventListener('change', loadAllDataForMonth);
 
-        // Lista movimenti (modale)
-        listMovementsBtn.addEventListener('click', (e)=>{
+        listMovementsBtn.addEventListener('click', (e) => {
           e.preventDefault();
           renderMovementsListModal(allTransactions, months);
           movementsModal.classList.add('is-visible');
         });
 
-        // Toggle opzioni avanzate
         document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
           radio.addEventListener('change', (e)=>{
             const v = e.target.value;
-            advancedOptionsWrapper.style.display = (v === 'recurring' || v === 'scheduled') ? 'block' : 'none';
+            // wrapper sempre visibile
+            advancedOptionsWrapper.style.display = 'block';
             recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none';
             dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none';
           });
         });
 
-        // Scadenziario
-        schedulerBtn.addEventListener('click', async ()=>{
-          const selectedMonth = parseInt(monthSelector.value, 10);
-          const selectedYear = parseInt(yearSelector.value, 10);
+        schedulerBtn.addEventListener('click', async () => {
+          const selectedMonth = monthSelector.value;
+          const selectedYear = yearSelector.value;
           const startDate = new Date(selectedYear, selectedMonth, 1);
-          const endDate = new Date(selectedYear, selectedMonth + 1, 0);
+          const endDate = new Date(selectedYear, parseInt(selectedMonth)+1, 0);
           const scheduled = await getScheduledTransactions(startDate, endDate);
           schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
           renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
           schedulerModal.classList.add('is-visible');
         });
 
-        // Notifiche (7 giorni)
-        notificationsBtn.addEventListener('click', async ()=>{
+        notificationsBtn.addEventListener('click', async () => {
           const today = new Date();
-          const futureDate = new Date(); futureDate.setDate(today.getDate() + 7);
+          const futureDate = new Date(); futureDate.setDate(today.getDate()+7);
           const upcoming = await getScheduledTransactions(today, futureDate);
           schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
           renderDeadlinesList(schedulerModal.querySelector('.modal-body'), upcoming);
           schedulerModal.classList.add('is-visible');
         });
 
-        // Chiusura modali clic fuori / X
         document.body.addEventListener('click', (e)=>{
           const modal = e.target.closest('.modal-overlay');
           if (modal && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){
@@ -1435,32 +1407,21 @@
           }
         });
 
-        // Mobile menu
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const topActions = document.querySelector('.top-actions');
-        if (mobileMenuBtn && topActions){
-          mobileMenuBtn.addEventListener('click', (e)=>{
-            e.stopPropagation();
-            topActions.classList.toggle('is-open');
-          });
-          document.addEventListener('click', (e)=>{
-            if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)){
-              topActions.classList.remove('is-open');
-            }
-          });
+        if (mobileMenuBtn && topActions) {
+          mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+          document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
         }
-
       } catch (err){
         console.error("Errore critico durante l'inizializzazione:", err);
         const body = document.querySelector('body');
         if (body){
-          body.innerHTML = `
-            <div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:560px;">
-              <h2>Errore Critico</h2>
-              <p>Impossibile caricare la dashboard. L'applicazione si è bloccata.</p>
-              <p><strong>Dettaglio:</strong> ${err.message}</p>
-              <p>Prova a ricaricare la pagina.</p>
-            </div>`;
+          body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;">
+            <h2>Errore Critico</h2>
+            <p>Impossibile caricare la dashboard. L'applicazione si è bloccata.</p>
+            <p><strong>Dettaglio:</strong> ${err.message}</p>
+            <p>Prova a ricaricare la pagina.</p></div>`;
         }
       }
     }
