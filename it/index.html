@@ -11,94 +11,518 @@
         content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
-                 script-src 'self' https://www.googletagmanager.com;
-                 connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 font-src 'self' https: data:;
                  frame-ancestors 'none';
                  base-uri 'self';
                  form-action 'self'">
 
-  <!-- Canonical & hreflang -->
-  <link rel="canonical" href="https://www.myhomesbudget.com/it/" />
-  <link rel="alternate" hreflang="it" href="https://www.myhomesbudget.com/it/" />
-  <link rel="alternate" hreflang="en" href="https://www.myhomesbudget.com/en/" />
-  <link rel="alternate" hreflang="es" href="https://www.myhomesbudget.com/es/" />
-  <link rel="alternate" hreflang="x-default" href="https://www.myhomesbudget.com/" />
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
+  </script>
 
-  <!-- Open Graph -->
+  <!-- Redirect dopo verifica email -->
+  <script>
+    (function(){
+      function itPrefix(){
+        var m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
+        return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
+      }
+      var prefix = itPrefix();
+      var q = new URLSearchParams(location.search);
+      var hash = location.hash || '';
+      var verified =
+        q.get('verified') === '1' ||
+        q.get('status') === 'verified' ||
+        q.get('confirmed') === '1' ||
+        hash.includes('verified');
+      if (!verified) return;
+
+      try {
+        localStorage.setItem('email_verified','1');
+        localStorage.setItem('last_verified', String(Date.now()));
+      } catch(e){}
+      var done = false;
+      try { done = (localStorage.getItem('onboarding_completed') === '1'); } catch(e){}
+      var dest = done ? 'dashboard.html' : 'onboarding.html';
+      try { if (typeof gtag === 'function') gtag('event','verified_entry_redirect',{ dest: done ? 'dashboard' : 'onboarding', lang:'it' }); } catch(e){}
+      location.replace(prefix + dest);
+    })();
+  </script>
+
+  <!-- Social/SEO -->
+  <link rel="canonical" href="https://www.myhomesbudget.com/it/"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/it/" hreflang="it"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es"/>
+  <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default"/>
   <meta property="og:title" content="MyHomesBudget — Gestisci il tuo bilancio domestico in modo semplice e intuitivo"/>
-  <!-- 🔧 Corretto: og:description ora è identico alla meta description -->
-  <meta property="og:description" content="Gestisci entrate, spese e risparmi in modo semplice. Prova gratis per 30 giorni."/>
+  <meta property="og:description" content="Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo. Prova gratis per 30 giorni."/>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://www.myhomesbudget.com/it/"/>
   <meta property="og:image" content="https://www.myhomesbudget.com/social.png"/>
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image"/>
-  <!-- 🔧 Aggiunti: twitter:title + twitter:description -->
-  <meta name="twitter:title" content="MyHomesBudget — Bilancio familiare semplice" />
-  <meta name="twitter:description" content="Gestisci entrate, spese e risparmi in modo semplice. Prova gratis per 30 giorni." />
-  <meta name="twitter:image" content="https://www.myhomesbudget.com/social.png"/>
-
-  <!-- Icons -->
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
   <!-- Perf -->
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp"/>
-  <link rel="preconnect" href="https://www.googletagmanager.com">
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-
-  <!-- GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WTTK8R02XQ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-WTTK8R02XQ', { 'anonymize_ip': true });
-  </script>
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+  <link rel="preconnect" href="https://region1.google-analytics.com" crossorigin>
+  <link rel="icon" href="/favicon.ico">
+  <meta name="theme-color" content="#0f0f10">
+  <meta name="color-scheme" content="light dark">
 
   <style>
     :root{
-      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
-      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
-      --warning-color:#f39c12;
-      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+      font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad: linear-gradient(135deg,#6c5ce7,#00cec9);
+      --card-border: rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--font-sans);
-      color:var(--fg);
-      background:#f4f7fa url('/bg.webp') no-repeat center/cover fixed;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    }
-    a{color:var(--primary-color);text-decoration:none}
-    a:hover{text-decoration:underline}
+    a:focus-visible,button:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
 
-    /* --- Full-screen hero minimal come nell’originale --- */
+    /* Sfondo */
+    body{
+      margin:0;padding:0;color:#fff;
+      background:url("/bg.webp") no-repeat center/cover fixed;
+    }
+    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
+
+    /* ——— TOPBAR (come privacy/terms/pricing) ——— */
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo-link,.top-actions{pointer-events:auto}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-image{height:32px}
+    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{
+      text-decoration:none;padding:6px 12px;border-radius:10px;font-weight:800;
+      background-image:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .top-link:hover{background:rgba(255,255,255,.14)}
+    .lang-selector{font-size:22px;display:flex;gap:8px}
+    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
+    .lang-selector a:hover{background:rgba(255,255,255,.12)}
+
+    /* WRAP */
+    .wrap{width:min(1100px,calc(100% - 40px)); margin:110px auto 24px auto;}
+
+    /* HERO */
     .hero{
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
-      text-align:center;padding:24px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;gap:12px;padding:0 20px;margin:0;
     }
     .hero h1{
-      font-size:clamp(28px,6vw,56px);
-      margin:0 8px 12px;
-      line-height:1.1;
-      text-shadow:0 1px 0 rgba(255,255,255,.6);
+      font-size:clamp(2rem,5vw,3rem);line-height:1.15;margin:0 0 2px 0;
+      color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.35);
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .05s;
     }
-    .hero p{margin:0 8px 18px;font-size:clamp(14px,2.2vw,18px)}
-    .hero .cta{display:inline-block;padding:12px 20px;border-radius:999px;background:rgba(255,255,255,.85);box-shadow:var(--shadow)}
-    .hero .cta:hover{background:#fff}
+    .hero p{
+      max-width:760px;margin:4px 0 0;font-size:clamp(1rem,2vw,1.15rem);
+      text-shadow:0 1px 3px rgba(0,0,0,.35);
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .25s;
+    }
+    .hero .cta-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .cta{
+      display:inline-block;padding:12px 18px;border-radius:12px;font-weight:800;text-decoration:none;
+      background:var(--grad);color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18);
+      transition:transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .45s;
+    }
+    .cta:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.22)}
+    .microcopy{font-size:.95rem;color:#f0f0f0;opacity:.95; margin-top:2px;
+      opacity:0;transform:translateY(24px);animation:fadeInUp .8s ease forwards .55s;}
+
+    @keyframes fadeInUp { to { opacity:1; transform:none; } }
+    @media (prefers-reduced-motion:reduce){
+      .hero h1,.hero p,.cta,.microcopy{animation:none;opacity:1;transform:none}
+    }
+
+    /* Cards / grid */
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;margin-top:18px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:rgba(255,255,255,0.50);
+      backdrop-filter:saturate(1.1) blur(5px);
+      -webkit-backdrop-filter:saturate(1.1) blur(2px);
+      color:#111;padding:18px;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+    }
+    .card h3{margin:0 0 6px}
+    .card p{margin:0}
+
+    /* Steps */
+    .steps{margin-top:18px}
+    .steps h3{margin:0 0 16px;text-align:center}
+    .steps-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:900px){.steps-grid{grid-template-columns:1fr}}
+    .step{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,0.7);border-radius:12px;padding:14px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+    .nbr{
+      flex:0 0 38px;height:38px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;
+      background:var(--grad);box-shadow:0 6px 16px rgba(0,0,0,.15);
+    }
+    .step h4{margin:0 0 4px;font-size:1.05rem}
+    .step p{margin:0;color:#444;font-size:.95rem}
+
+    /* HOWTO (3 step) */
+    .howto { padding: 18px; }
+    .howto-title{
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .howto-grid{
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+    @media (max-width: 900px){ .howto-grid{ grid-template-columns: 1fr; } }
+
+    .howto-item{
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .howto-item:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.12);
+      background: rgba(255,255,255,.92);
+    }
+    .howto-icon{
+      margin: 4px auto 8px;
+      width: 48px; height: 48px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.12));
+    }
+    .howto-item h4{
+      margin: 6px 0 4px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #111;
+    }
+    .howto-item p{
+      margin: 0;
+      color: #2b2b2b;
+      font-size: .95rem;
+      line-height: 1.35;
+    }
+
+    /* STACCHI tra sezioni */
+    .grid + .howto { margin-top: 18px; }
+    .howto + .pricing { margin-top: 18px; }
+    @media (min-width:1100px){
+      .grid + .howto,
+      .howto + .pricing { margin-top: 22px; }
+    }
+
+    /* Pricing teaser */
+    .pricing{margin-top:20px}
+    .pricing-grid{display:grid;gap:16px;grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:900px){.pricing-grid{grid-template-columns:1fr}}
+    .price-card{
+      position:relative;background:rgba(255,255,255,.55);
+      backdrop-filter:saturate(1.1) blur(6px);-webkit-backdrop-filter:saturate(1.1) blur(3px);
+      color:#111;border-radius:16px;padding:28px 18px 18px; /* leggermente più top padding */
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      display:flex;flex-direction:column;gap:10px;text-align:center;min-height:160px;
+    }
+    .price-card.popular{ padding-top:42px; } /* abbasso di più la card Plus */
+
+    /* Badge centrato sopra la card (solo per pricing) */
+    .price-card .badge{
+      position:absolute;
+      top:-14px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:900;
+      color:#fff;
+      background:var(--grad);
+      box-shadow:0 10px 22px rgba(0,0,0,.20);
+      z-index:2;
+    }
+
+    .plan-title{margin:0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:baseline;justify-content:center;font-size:1.12rem}
+    .plan-title .plan-name{font-weight:800}
+    .plan-title .sep{opacity:.45}
+    .plan-title .price-inline{
+      font-weight:900;font-size:1.25rem;line-height:1;
+      background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .plan-title .price-inline small{font-weight:600;font-size:.9rem;color:#333}
+    .features{margin:4px 0 6px;color:#333;font-size:.95rem;line-height:1.45}
+    .features ul{margin:0;padding:0;list-style:none}
+    .features li{display:flex;gap:8px;align-items:flex-start;justify-content:center}
+    .features li::before{content:"✓"; color:#2e7d32; font-weight:900}
+
+    .btn-secondary{
+      display:inline-block;background:var(--grad);color:#fff;text-decoration:none;font-weight:800;border-radius:12px;padding:10px 14px;
+      box-shadow:0 8px 22px rgba(0,0,0,.15);align-self:center;transition:transform .15s ease, filter .15s ease;
+    }
+    .btn-secondary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+    /* Footer */
+    .footer{margin:22px 0 10px;text-align:center;color:#e6e6e6;font-size:.9rem}
+    .footer a{color:#fff}
+
+    /* Reveal (per card/steps) */
+    .reveal{--d:0s;opacity:0;transform:translateY(16px) scale(.995);transform-origin:50% 100%;filter:saturate(.98);
+      transition:opacity .85s ease,transform .85s cubic-bezier(.22,1,.36,1),filter .85s ease;will-change:opacity,transform}
+    .reveal.in{opacity:1;transform:none;filter:none}
+    @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{transition:none;opacity:1;transform:none;filter:none}}
+
+    /* iOS: evita jank con background fixed */
+    @supports (-webkit-touch-callout: none){ body{background-attachment:scroll} }
+
+    /* ▼ Sposta più in basso la griglia dei piani dentro al box */
+.card.pricing.pricing-panel{
+  padding-top: 38px;       /* più aria sopra */
+  padding-bottom: 26px;    /* e un filo sotto per equilibrio */
+}
+.card.pricing.pricing-panel > h3{
+  margin: 0 0 18px;        /* spazio tra titolo e griglia */
+}
+.card.pricing.pricing-panel .pricing-grid{
+  margin-top: 22px;        /* fa “slittare” giù le card */
+}
+
+/* ▼ “Più scelto” centrato sul Plus, con aria */
+.pricing .price-card:nth-child(2){    /* la card PLUS */
+  padding-top: 22px;                  /* spazio interno per il bollino */
+}
+.pricing .price-card:nth-child(2) .badge{
+  position: absolute;
+  top: -18px;                         /* sollevato ma dentro il box */
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);        /* centrato orizzontalmente */
+}
+
+/* ▼ Schermi stretti: evita sovrapposizioni */
+@media (max-width: 900px){
+  .card.pricing.pricing-panel{ padding-top: 34px; }
+  .pricing .price-card:nth-child(2) .badge{ top: -14px; }
+}
   </style>
 </head>
 <body>
-  <main class="hero">
-    <div>
-      <h1><strong>MyHomesBudget</strong></h1>
-      <p>Benvenuto nella versione italiana di MyHomesBudget.</p>
-      <p><a class="cta" href="/it/dashboard.html">Vai alla Dashboard</a></p>
+  <!-- TOPBAR -->
+  <nav class="topbar" aria-label="Barra superiore">
+    <a href="/it/" class="logo-link" title="MyHomesBudget">
+      <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="lazy">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-actions">
+      <a class="top-link" href="/it/login.html">Accedi</a>
+      <a class="top-link" href="/it/pricing.html">Prezzi</a>
+      <span class="lang-selector" aria-label="Selettore lingue">
+        <a href="/it/" title="Italiano" lang="it">🇮🇹</a>
+        <a href="/en/" title="English" lang="en">🇬🇧</a>
+        <a href="/es/" title="Español" lang="es">🇪🇸</a>
+      </span>
     </div>
+  </nav>
+
+  <main class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <h1>Gestisci il tuo bilancio domestico in modo semplice e intuitivo</h1>
+      <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
+
+      <div class="cta-row">
+        <a class="cta" href="signup.html?plan=starter"
+           onclick="gtag('event','cta_click',{lang:'it',placement:'hero_trial'});">
+          Prova gratis per 30 giorni
+        </a>
+        <a class="cta" href="/it/pricing.html"
+           onclick="gtag('event','cta_click',{placement:'hero_secondary',lang:'it'});">
+          Scopri i piani
+        </a>
+      </div>
+
+      <div class="microcopy" aria-hidden="true">Nessuna carta di credito richiesta. Cancella quando vuoi.</div>
+    </section>
+
+    <!-- BENEFIT -->
+    <section class="grid" aria-label="Benefici principali">
+      <div class="card reveal"><h3>Zero complicazioni</h3><p>Niente fogli di calcolo. Tutto chiaro e rapido.</p></div>
+      <div class="card reveal"><h3>Sempre con te</h3><p>iPhone, Android e PC. Presto installabile come PWA.</p></div>
+      <div class="card reveal"><h3>Privacy UE</h3><p>Dati in Europa e sotto il tuo controllo.</p></div>
+    </section>
+
+    <!-- COME FUNZIONA (3 passi) -->
+    <section class="card howto" aria-label="Inizia in 3 semplici passi">
+      <h3 class="reveal howto-title">Inizia in 3 semplici passi</h3>
+
+      <div class="howto-grid">
+        <!-- Passo 1 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-user" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <circle cx="12" cy="8" r="4" fill="url(#grad-user)"></circle>
+              <path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="url(#grad-user)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h4>Crea il tuo account</h4>
+          <p>Registrati gratis in 30 secondi con la tua email o account Google.</p>
+        </article>
+
+        <!-- Passo 2 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-plus" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <path d="M12 5v14M5 12h14" stroke="url(#grad-plus)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h4>Aggiungi le operazioni</h4>
+          <p>Inserisci entrate e uscite con categorie personalizzate in pochi click.</p>
+        </article>
+
+        <!-- Passo 3 -->
+        <article class="howto-item reveal">
+          <div class="howto-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="48" height="48" role="img" focusable="false">
+              <defs>
+                <linearGradient id="grad-cart" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6c5ce7"/>
+                  <stop offset="1" stop-color="#00cec9"/>
+                </linearGradient>
+              </defs>
+              <path d="M3 5h2l2.5 12h11l2-8H7" fill="none" stroke="url(#grad-cart)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="20" r="1.6" fill="url(#grad-cart)"/>
+              <circle cx="18" cy="20" r="1.6" fill="url(#grad-cart)"/>
+            </svg>
+          </div>
+          <h4>Raggiungi i tuoi obiettivi</h4>
+          <p>Monitora i progressi con grafici intuitivi e resta sempre nel tuo budget.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PIANI E PREZZI — teaser -->
+    <section class="card pricing pricing-panel" aria-label="Piani e prezzi">
+      <h3 class="reveal">UN PIANO ADATTO AD OGNI ESIGENZA - SCEGLI IL TUO</h3>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <h4 class="plan-title">
+            <span class="plan-name">Starter</span>
+            <span class="sep">—</span>
+            <span class="price-inline">Gratis <small>/ 30 giorni</small></span>
+          </h4>
+          <div class="features">
+            <ul>
+              <li>Budget e obiettivi personali</li>
+              <li>Categorie e sottocategorie personalizzate</li>
+              <li>Report base mensili</li>
+            </ul>
+          </div>
+          <a class="btn-secondary" href="signup.html?plan=starter"
+             onclick="gtag('event','select_pricing',{plan:'starter',placement:'pricing_grid'});">Avvia la prova</a>
+        </div>
+
+        <!-- PLUS con badge centrato -->
+        <div class="price-card popular reveal">
+          <div class="badge" aria-hidden="true">Più scelto</div>
+          <h4 class="plan-title">
+            <span class="plan-name">Plus</span>
+            <span class="sep">—</span>
+            <span class="price-inline">2,99€ <small>/ mese</small></span>
+          </h4>
+          <div class="features">
+            <ul>
+              <li>Tutto di Starter</li>
+              <li>Report dettagliati e filtri avanzati</li>
+              <li>Supporto prioritario via email</li>
+            </ul>
+          </div>
+          <a class="btn-secondary" href="/it/paywall.html?plan=plus"
+             onclick="gtag('event','select_pricing',{plan:'plus',placement:'pricing_grid'});">Passa a Plus</a>
+        </div>
+
+        <div class="price-card reveal">
+          <h4 class="plan-title">
+            <span class="plan-name">Pro</span>
+            <span class="sep">—</span>
+            <span class="price-inline">4,99€ <small>/ mese</small></span>
+          </h4>
+          <div class="features">
+            <ul>
+              <li>Tutto di Plus</li>
+              <li>Obiettivi multipli</li>
+              <li>Accesso multi-dispositivo senza limiti</li>
+            </ul>
+          </div>
+          <a class="btn-secondary" href="/it/paywall.html?plan=pro"
+             onclick="gtag('event','select_pricing',{plan:'pro',placement:'pricing_grid'});">Passa a Pro</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      © MyHomesBudget —
+      <a href="/it/pricing.html" onclick="gtag('event','cta_click',{placement:'footer_pricing',lang:'it'});">Piani & Prezzi</a> ·
+      <a href="/it/privacy.html" rel="noopener">Privacy</a> ·
+      <a href="/it/terms.html" rel="noopener">Termini</a>
+    </footer>
   </main>
+
+  <!-- Reveal (cards/steps) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      gtag('event','view_landing',{ lang:'it' });
+      const targets = document.querySelectorAll('.reveal');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        targets.forEach(el => el.classList.add('in')); return;
+      }
+      const sorted = [...targets].map(el => ({el, r: el.getBoundingClientRect()}))
+        .sort((a,b)=> (a.r.top - b.r.top) || (a.r.left - b.r.left)).map(x=>x.el);
+      sorted.forEach((el,i)=> el.style.setProperty('--d',(0.12*i)+'s'));
+      const io = new IntersectionObserver((entries,obs)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            const el=e.target;
+            el.style.transitionDelay=getComputedStyle(el).getPropertyValue('--d')||'0s';
+            el.classList.add('in'); obs.unobserve(el);
+          }
+        });
+      },{threshold:0.1, rootMargin:'0px 0px -10% 0px'});
+      targets.forEach(el=>io.observe(el));
+    });
+  </script>
 </body>
 </html>
