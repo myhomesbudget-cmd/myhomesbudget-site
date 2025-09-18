@@ -29,93 +29,56 @@
       background:url("/bg.webp") no-repeat center center fixed;
       background-size:cover;
     }
-    body::before{
-      content:""; position:fixed; inset:0;
-      background:rgba(0,0,0,.05);
-      z-index:-1;
-    }
+    body::before{ content:""; position:fixed; inset:0; background:rgba(0,0,0,.05); z-index:-1; }
 
     .page{ max-width:960px; margin:0 auto; padding:24px; }
 
-    .bar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:16px; margin-bottom:8px;
-    }
-    .brand{
-      display:flex; gap:10px; align-items:center; text-decoration:none; color:#fff;
-    }
+    .bar{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:8px; }
+    .brand{ display:flex; gap:10px; align-items:center; text-decoration:none; color:#fff; }
     .brand img{ height:26px; border-radius:6px; }
     .brand span{ font-weight:700; letter-spacing:.2px; }
-
-    .top-link a{
-      color:#fff; text-decoration:none; opacity:.9;
-      padding:6px 10px; border-radius:8px;
-    }
+    .top-link a{ color:#fff; text-decoration:none; opacity:.9; padding:6px 10px; border-radius:8px; }
     .top-link a:hover{ background:rgba(255,255,255,.12); }
 
-    h1{
-      margin:6px 0 6px; font-size:clamp(1.9rem, 3.8vw, 2.6rem); font-weight:800;
-      text-shadow:0 1px 3px rgba(0,0,0,.4);
-    }
-    .subtitle{
-      margin:0 0 16px; color:#e9eef6; opacity:.95;
-      text-shadow:0 1px 3px rgba(0,0,0,.4);
-    }
+    h1{ margin:6px 0 6px; font-size:clamp(1.9rem, 3.8vw, 2.6rem); font-weight:800; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+    .subtitle{ margin:0 0 16px; color:#e9eef6; opacity:.95; text-shadow:0 1px 3px rgba(0,0,0,.4); }
 
     .card{
       background:rgba(255,255,255,.50);
       backdrop-filter:saturate(1.1) blur(5px);
       -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      padding:18px 18px 20px; border-radius:16px;
+      color:#111; padding:18px 18px 20px; border-radius:16px;
       box-shadow:0 10px 30px rgba(0,0,0,.08);
     }
 
-    .grid{
-      display:grid; gap:12px;
-      grid-template-columns:1fr;
-    }
-    @media(min-width:820px){
-      .grid{ grid-template-columns:1fr 1fr; }
-    }
+    .grid{ display:grid; gap:12px; grid-template-columns:1fr; }
+    @media(min-width:820px){ .grid{ grid-template-columns:1fr 1fr; } }
     .full{ grid-column:1 / -1; }
 
     label{ display:block; margin:10px 0 6px; font-weight:700; color:#111; }
     .helper{ margin-top:6px; color:#666; font-size:.95rem; }
 
     input[type="text"], input[type="email"], input[type="password"]{
-      width:100%;
-      padding:12px 14px; border-radius:10px;
-      border:1px solid #ddd;
-      background:#fff; color:#111; font-size:1rem;
-      outline:none;
+      width:100%; padding:12px 14px; border-radius:10px; border:1px solid #ddd;
+      background:#fff; color:#111; font-size:1rem; outline:none;
     }
     input:focus{ box-shadow:0 0 0 3px rgba(0,0,0,.06); }
 
-    hr.sep{
-      border:0; height:1px; margin:16px 0;
-      background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent);
-    }
+    hr.sep{ border:0; height:1px; margin:16px 0;
+      background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent); }
 
     .plans{ display:grid; gap:12px; padding:0; border:0; }
     .plan{ display:flex; align-items:flex-start; gap:10px; }
     .plan input{ margin-top:4px; }
     .plan .box{
-      flex:1; padding:12px; border-radius:12px;
-      border:1px solid rgba(0,0,0,.08);
+      flex:1; padding:12px; border-radius:12px; border:1px solid rgba(0,0,0,.08);
       background:rgba(255,255,255,.50);
       backdrop-filter:saturate(1.1) blur(5px);
       -webkit-backdrop-filter:saturate(1.1) blur(2px);
-      color:#111;
-      transition:.18s ease;
-      box-shadow:0 10px 30px rgba(0,0,0,.06);
+      color:#111; transition:.18s ease; box-shadow:0 10px 30px rgba(0,0,0,.06);
     }
     .plan strong{ display:block; margin-bottom:2px; }
-    .plan input:checked + .box{
-      border-color: rgba(0,0,0,.2);
-      box-shadow:0 14px 32px rgba(0,0,0,.12);
-      background:rgba(255,255,255,.62);
-    }
+    .plan input:checked + .box{ border-color: rgba(0,0,0,.2); box-shadow:0 14px 32px rgba(0,0,0,.12); background:rgba(255,255,255,.62); }
 
     .actions{ display:flex; justify-content:flex-end; margin-top:12px; }
     .btn{
@@ -126,10 +89,7 @@
     }
     .btn:hover{ filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 14px 28px rgba(0,0,0,.2); }
 
-    .msg{
-      margin-top:12px; font-size:.95rem; font-weight:600;
-      padding:10px 12px; border-radius:8px;
-    }
+    .msg{ margin-top:12px; font-size:.95rem; font-weight:600; padding:10px 12px; border-radius:8px; }
     .msg.ok  { color:#0f5132; background:#d1e7dd; border:1px solid #badbcc; }
     .msg.err { color:#842029; background:#f8d7da; border:1px solid #f5c2c7; }
 
@@ -175,30 +135,31 @@
 
       <hr class="sep">
 
+      <!-- Piani allineati a Index: starter | plus | pro -->
       <fieldset class="plans">
         <legend class="sr-only" style="position:absolute;left:-9999px">Scegli il tuo piano</legend>
 
         <label class="plan">
-          <input type="radio" name="plan" value="trial" checked />
+          <input type="radio" name="plan" value="starter" checked />
           <div class="box">
-            <strong>Prova Gratuita — 30 giorni</strong>
-            Nessuna carta richiesta. Potrai scegliere un piano dopo la prova.
+            <strong>Starter — 30 giorni gratis</strong>
+            Nessuna carta. Potrai scegliere un piano dopo la prova.
           </div>
         </label>
 
         <label class="plan">
-          <input type="radio" name="plan" value="monthly" />
+          <input type="radio" name="plan" value="plus" />
           <div class="box">
-            <strong>Mensile — 2,99€ / mese</strong>
-            Accesso completo. Disdici quando vuoi.
+            <strong>Plus — 2,99€ / mese</strong>
+            Report dettagliati e supporto prioritario.
           </div>
         </label>
 
         <label class="plan">
-          <input type="radio" name="plan" value="lifetime" />
+          <input type="radio" name="plan" value="pro" />
           <div class="box">
-            <strong>Una tantum — 19,99€ per sempre</strong>
-            Paghi una sola volta. Aggiornamenti inclusi.
+            <strong>Pro — 4,99€ / mese</strong>
+            Obiettivi multipli e accesso senza limiti.
           </div>
         </label>
       </fieldset>
@@ -229,7 +190,13 @@
       return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
     };
 
-    function postAuthRedirect(){
+    function postAuthRedirect(intentPlan){
+      // Se l'utente ha scelto Plus/Pro alla SignUp ⇒ porta alla paywall
+      if (intentPlan === 'plus' || intentPlan === 'pro') {
+        location.replace(`${itPrefix()}paywall.html?plan=${encodeURIComponent(intentPlan)}`);
+        return;
+      }
+      // Starter ⇒ onboarding/dashboard
       try {
         if (localStorage.getItem('onboarding_completed') === '1') {
           location.replace(itPrefix() + 'dashboard.html');
@@ -243,9 +210,10 @@
 
     (async () => {
       const { data:{ session } } = await supabase.auth.getSession();
-      if (session?.user) postAuthRedirect();
+      if (session?.user) postAuthRedirect('starter');
     })();
 
+    // Pre-seleziona piano da querystring ?plan=starter|plus|pro
     (function presetPlanFromQuery(){
       const plan = new URLSearchParams(location.search).get('plan');
       if (!plan) return;
@@ -264,7 +232,7 @@
       const full_name = document.getElementById('name').value.trim();
       const email     = document.getElementById('email').value.trim();
       const password  = document.getElementById('password').value.trim();
-      const billing_choice = form.plan.value;   // trial | monthly | lifetime (solo intent, NON plan_type)
+      const billing_choice = form.plan.value;   // starter | plus | pro (intent commerciale)
 
       const okLen  = password.length >= 8;
       const okChar = /[A-Za-z]/.test(password);
@@ -278,7 +246,9 @@
 
       const emailRedirectTo = `${window.location.origin}${itPrefix()}index.html?verified=1`;
 
-      // 🔐 CHANGES: metadata sicuri e coerenti con il CHECK del DB
+      // Metadata coerenti con il CHECK del DB:
+      // - plan_type: 'starter' (il DB può comunque forzarlo via trigger)
+      // - billing_choice: l'intento scelto dall'utente (per flusso paywall post-signup)
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -286,8 +256,8 @@
           emailRedirectTo,
           data: {
             full_name,
-            billing_choice,        // intento commerciale per il post-signup
-            plan_type: 'starter'   // coerente col CHECK e col default nel DB
+            billing_choice,
+            plan_type: 'starter'
           }
         }
       });
@@ -297,8 +267,9 @@
         return;
       }
 
+      // Se la sessione esiste (email non richiesta) → prosegui subito
       if (data?.session?.access_token) {
-        postAuthRedirect();
+        postAuthRedirect(billing_choice);
         return;
       }
 
