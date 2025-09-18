@@ -22,9 +22,8 @@
 
   <style>
     :root{ font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif; }
-    *{ box-sizing:border-box; }            /* evita sporgenze */
+    *{ box-sizing:border-box; }
 
-    /* ===== background (uguale alla Home) ===== */
     body{
       margin:0; color:#fff;
       background:url("/bg.webp") no-repeat center center fixed;
@@ -32,11 +31,10 @@
     }
     body::before{
       content:""; position:fixed; inset:0;
-      background:rgba(0,0,0,.05);       /* overlay leggero come Home */
+      background:rgba(0,0,0,.05);
       z-index:-1;
     }
 
-    /* ===== layout (uguale alla Home) ===== */
     .page{ max-width:960px; margin:0 auto; padding:24px; }
 
     .bar{
@@ -57,14 +55,13 @@
 
     h1{
       margin:6px 0 6px; font-size:clamp(1.9rem, 3.8vw, 2.6rem); font-weight:800;
-      text-shadow:0 1px 3px rgba(0,0,0,.4);     /* come Home */
+      text-shadow:0 1px 3px rgba(0,0,0,.4);
     }
     .subtitle{
       margin:0 0 16px; color:#e9eef6; opacity:.95;
       text-shadow:0 1px 3px rgba(0,0,0,.4);
     }
 
-    /* ===== pannello form (stesso “vetro” della Home) ===== */
     .card{
       background:rgba(255,255,255,.50);
       backdrop-filter:saturate(1.1) blur(5px);
@@ -74,7 +71,6 @@
       box-shadow:0 10px 30px rgba(0,0,0,.08);
     }
 
-    /* Griglia campi: 2 colonne su desktop, 1 su mobile */
     .grid{
       display:grid; gap:12px;
       grid-template-columns:1fr;
@@ -101,7 +97,6 @@
       background:linear-gradient(90deg, transparent, rgba(0,0,0,.12), transparent);
     }
 
-    /* ===== piani (coerenti con card Home) ===== */
     .plans{ display:grid; gap:12px; padding:0; border:0; }
     .plan{ display:flex; align-items:flex-start; gap:10px; }
     .plan input{ margin-top:4px; }
@@ -122,7 +117,6 @@
       background:rgba(255,255,255,.62);
     }
 
-    /* ===== azioni / messaggi ===== */
     .actions{ display:flex; justify-content:flex-end; margin-top:12px; }
     .btn{
       cursor:pointer; background:#111; color:#fff; font-weight:700;
@@ -221,23 +215,20 @@
     </div>
   </div>
 
-  <!-- JS: identico (signUp + messaggi) con minime aggiunte funzionali -->
+  <!-- JS -->
   <script type="module">
     import { supabase } from '/it/supabase-client.js';
 
     const form = document.getElementById('signup-form');
     const msg  = document.getElementById('form-msg');
 
-    // (Facoltativo) allinea la lingua al resto dell'app
     try { localStorage.setItem('mhb_lang','it'); } catch(e){}
 
-    // Helper: prefisso lingua coerente /it/ o /ita/
     const itPrefix = () => {
       const m = location.pathname.match(/^\/(it|ita)(\/|$)/i);
       return m ? ("/" + m[1].toLowerCase() + "/") : "/it/";
     };
 
-    // Redirect post-auth: onboarding se non completata, altrimenti dashboard
     function postAuthRedirect(){
       try {
         if (localStorage.getItem('onboarding_completed') === '1') {
@@ -250,13 +241,11 @@
       }
     }
 
-    // Se già autenticato, porta subito a onboarding/dashboard
     (async () => {
       const { data:{ session } } = await supabase.auth.getSession();
       if (session?.user) postAuthRedirect();
     })();
 
-    // Pre-seleziona piano da querystring ?plan=monthly|lifetime|trial
     (function presetPlanFromQuery(){
       const plan = new URLSearchParams(location.search).get('plan');
       if (!plan) return;
@@ -272,12 +261,11 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const name     = document.getElementById('name').value.trim();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const plan     = form.plan.value;
+      const full_name = document.getElementById('name').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const password  = document.getElementById('password').value.trim();
+      const billing_choice = form.plan.value;   // trial | monthly | lifetime (solo intent, NON plan_type)
 
-      // validazione rapida lato client
       const okLen  = password.length >= 8;
       const okChar = /[A-Za-z]/.test(password);
       const okNum  = /[0-9]/.test(password);
@@ -288,14 +276,19 @@
 
       show('ok','Creazione account in corso...');
 
-      // Imposta redirect della mail verso index con ?verified=1
       const emailRedirectTo = `${window.location.origin}${itPrefix()}index.html?verified=1`;
 
+      // 🔐 CHANGES: metadata sicuri e coerenti con il CHECK del DB
       const { data, error } = await supabase.auth.signUp({
-        email, password,
+        email,
+        password,
         options: {
-          data: { name, plan },
-          emailRedirectTo
+          emailRedirectTo,
+          data: {
+            full_name,
+            billing_choice,        // intento commerciale per il post-signup
+            plan_type: 'starter'   // coerente col CHECK e col default nel DB
+          }
         }
       });
 
@@ -304,7 +297,6 @@
         return;
       }
 
-      // Se la policy NON richiede conferma email e la sessione esiste, vai subito
       if (data?.session?.access_token) {
         postAuthRedirect();
         return;
