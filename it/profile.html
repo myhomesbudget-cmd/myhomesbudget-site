@@ -20,7 +20,15 @@
       }
       *{box-sizing:border-box}
       html{font-family:var(--font-sans);background-color:var(--bg)}
-      body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+      body{
+        margin:0;color:var(--fg);
+        background:url("/bg.webp") no-repeat center/cover fixed;
+        min-height:100vh;
+        /* Modifica per layout a schermo intero */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Previene lo scorrimento del body */
+      }
       body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
       /* ====== TOPBAR ====== */
@@ -41,50 +49,99 @@
       }
 
       /* ====== Contenuto Principale ====== */
-      main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
+      main.container{
+        padding: 24px;
+        padding-top: 84px; /* 60px topbar + 24px spazio */
+        width:100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        /* Modifica per layout a schermo intero */
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centra verticalmente */
+      }
       .dash-nav{display:flex;flex-wrap: wrap;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
       .dash-nav a{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:rgba(255,255,255,.7);color:var(--fg);border:1px solid var(--card-border);box-shadow:0 4px 12px rgba(0,0,0,.05);}
       .dash-nav a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
       .dash-nav a.is-active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 2px rgba(255,255,255,0.2)}
       
-      .dashboard-panel{background:rgba(255,255,255,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow); max-width: 800px; margin: 0 auto;}
+      /* ====== ANIMAZIONI E MIGLIORAMENTI GRAFICI ====== */
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-      /* Stili specifici per la pagina profilo */
+      .skeleton{
+        animation: shimmer 1.5s linear infinite;
+        background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+        background-size: 800px 104px;
+        height: 1.5rem; width: 60%; border-radius: 8px;
+        display: inline-block;
+      }
+      .skeleton.skeleton-text { height: 1em; }
+      .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
+      .skeleton.skeleton-avatar { width: 128px; height: 128px; border-radius: 50%; }
+      
+      .dashboard-panel{
+        background:rgba(255,255,255,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);
+        box-shadow:var(--shadow); max-width: 800px; width: 100%; margin: 0 auto;
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+
+      /* ====== Stili Profilo con Miglioramenti ====== */
       .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:-90px;}
       .profile-avatar{position:relative;width:128px;height:128px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow);}
-      .profile-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
-      .profile-avatar label{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .2s ease;}
-      .profile-avatar label:hover{opacity:1;}
+      .profile-avatar img, .profile-avatar .skeleton-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+      .profile-avatar .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .3s ease;}
+      .profile-avatar:hover .avatar-overlay{opacity:1;}
+      .profile-avatar .avatar-overlay.is-loading{opacity:1; cursor:progress;}
+      .profile-avatar .avatar-loader{width:32px; height:32px; border:4px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 1s linear infinite; display:none;}
+      .profile-avatar .avatar-overlay.is-loading .avatar-loader{display:block;}
+      .profile-avatar .avatar-overlay.is-loading svg{display:none;}
       .profile-avatar input{display:none;}
-      .profile-name{font-size:2rem;font-weight:700;margin:16px 0 8px;}
-      .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border);}
+      .profile-name{font-size:2rem;font-weight:700;margin:16px 0 8px; min-height: 2.5rem;}
+      .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem;}
 
       .profile-content{margin-top:40px;display:grid;gap:30px;}
       .profile-section-title{text-align:center;font-weight:600;color:#555;margin-bottom:12px;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px;}
-      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px;}
+      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px; transition: box-shadow .3s ease;}
+      .profile-info-row:hover { box-shadow: 0 4px 15px rgba(0,0,0,.07); }
       .info-label{font-weight:600;color:#444;}
-      .info-value{font-weight:500;font-size:1.1rem;}
+      .info-value{font-weight:500;font-size:1.1rem; min-height: 1.5rem;}
 
       .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;}
       @media(min-width: 640px) { .personal-info-grid{grid-template-columns:1fr 1fr;} }
-      .info-field{background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px;}
+      .info-field{background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px; transition: box-shadow .3s ease;}
+      .info-field:hover { box-shadow: 0 4px 15px rgba(0,0,0,.07); }
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:block;margin-bottom:4px;}
-      .info-field .data-display{font-size:1.1rem;font-weight:500;color:#333;min-height:24px;} /* min-height evita scatti del layout */
+      .info-field .data-display{font-size:1.1rem;font-weight:500;color:#333;min-height:24px; transition: opacity .3s ease;}
       .info-field .data-display.is-empty{color:#888;font-style:italic;}
-      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans);}
+      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease;}
+      .is-editing .info-field .data-display { display: none; }
+      .is-editing .info-field .data-input { display: block; }
 
       .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:32px;}
       .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:1rem;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
       .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
+      .btn:active:not(:disabled){transform:translateY(-1px) scale(0.98);}
       .btn:disabled{opacity:.6;cursor:not-allowed;}
       .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18)}
       .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,.22)}
       .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
       .btn-secondary:hover:not(:disabled){background:#e5e5e5;border-color:#ccc;color:#333}
       #save-button{display:none;}
+      
+      /* ====== Notifica TOAST ====== */
+      .status-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:999px;color:#fff;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:1001;opacity:0;visibility:hidden;transition:opacity .3s ease, top .3s ease, visibility .3s ease;}
+      .status-toast.show{top:90px;opacity:1;visibility:visible;}
+      .status-toast.success{background:var(--success-color);}
+      .status-toast.error{background:var(--danger-color);}
     </style>
 </head>
 <body>
+    <div id="status-toast" class="status-toast"></div>
+
     <nav class="topbar">
       <a href="/it/dashboard.html" class="logo-link">
           <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
@@ -110,22 +167,18 @@
 
         <div class="dashboard-panel">
             <div class="profile-header">
-                <div class="profile-avatar">
-                    <img id="profile-pic" src="https://placehold.co/128x128/eeeeee/333333?text=..." alt="Immagine del profilo">
-                    <label for="avatar-upload">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
-                        <input type="file" id="avatar-upload" accept="image/*">
-                    </label>
+                <div id="avatar-container" class="profile-avatar">
+                    <div class="skeleton skeleton-avatar"></div>
                 </div>
-                <h1 id="user-name" class="profile-name">Caricamento...</h1>
-                <div id="plan-type" class="profile-plan">...</div>
+                <h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1>
+                <div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div>
             </div>
 
             <div class="profile-content">
                 <section>
                     <div class="profile-info-row">
                         <span class="info-label">Mail di Registrazione</span>
-                        <span id="user-email" class="info-value">...</span>
+                        <span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span>
                     </div>
                 </section>
 
@@ -134,11 +187,11 @@
                   <div style="display:grid; gap:12px;">
                     <div class="profile-info-row">
                         <span class="info-label">Abbonamento</span>
-                        <span id="plan-type-detail" class="info-value">...</span>
+                        <span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span>
                     </div>
                     <div class="profile-info-row">
                         <span class="info-label">Obiettivo Configurato</span>
-                        <span id="goal-name" class="info-value">...</span>
+                        <span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span>
                     </div>
                   </div>
                 </section>
@@ -148,7 +201,7 @@
                     <div id="personal-info-form" class="personal-info-grid">
                         <div class="info-field">
                             <label>Genere</label>
-                            <div class="data-display is-empty">...</div>
+                            <div class="data-display"><span class="skeleton skeleton-text"></span></div>
                             <select class="data-input" id="gender-input">
                                 <option value="">Non specificato</option>
                                 <option value="Uomo">Uomo</option>
@@ -158,17 +211,17 @@
                         </div>
                         <div class="info-field">
                             <label>Data di Nascita</label>
-                            <div class="data-display is-empty">...</div>
+                            <div class="data-display"><span class="skeleton skeleton-text"></span></div>
                             <input type="date" class="data-input" id="birthdate-input">
                         </div>
                         <div class="info-field">
                             <label>Paese</label>
-                            <div class="data-display is-empty">...</div>
+                            <div class="data-display"><span class="skeleton skeleton-text"></span></div>
                             <input type="text" placeholder="Es. Italia" class="data-input" id="country-input">
                         </div>
                         <div class="info-field">
                             <label>Numero di Telefono</label>
-                            <div class="data-display is-empty">...</div>
+                            <div class="data-display"><span class="skeleton skeleton-text"></span></div>
                             <input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input">
                         </div>
                     </div>
@@ -185,23 +238,35 @@
     <script type="module">
         import { supabase } from "/it/supabase-client.js";
         
-        // --- VARIABILI GLOBALI ---
         let currentUser = null;
         const emptyPlaceholder = 'Non impostato';
+        const toast = document.getElementById('status-toast');
 
-        // --- FUNZIONI DI RENDER ---
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `status-toast ${type} show`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
         function renderProfileData(profile, details) {
-            // Dati dalla tabella 'profiles'
+            document.getElementById('avatar-container').innerHTML = `
+                <img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo">
+                <label for="avatar-upload" class="avatar-overlay">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                    <div class="avatar-loader"></div>
+                </label>
+                <input type="file" id="avatar-upload" accept="image/*">`;
+            
+            document.getElementById('avatar-upload').addEventListener('change', uploadAvatar);
+
             document.getElementById('user-name').textContent = profile?.name || 'Utente';
             document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD';
             document.getElementById('user-email').textContent = currentUser?.email || '...';
             document.getElementById('plan-type-detail').textContent = profile?.plan_type || 'STANDARD';
             document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo';
-            document.getElementById('profile-pic').src = profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`;
             
-            // Dati dalla tabella 'personal_details'
             const form = document.getElementById('personal-info-form');
-            const detailsData = details || {}; // Oggetto vuoto se i dettagli sono null
+            const detailsData = details || {};
 
             const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display');
             genderDisplay.textContent = detailsData.gender || emptyPlaceholder;
@@ -223,8 +288,54 @@
             phoneDisplay.classList.toggle('is-empty', !detailsData.phone);
             document.getElementById('phone-input').value = detailsData.phone || '';
         }
+        
+        async function uploadAvatar(event) {
+            if (!currentUser || !event.target.files || event.target.files.length === 0) return;
+            
+            const file = event.target.files[0];
+            const fileExt = file.name.split('.').pop();
+            const filePath = `public/${currentUser.id}.${fileExt}`;
+            
+            const overlay = document.querySelector('.avatar-overlay');
+            overlay.classList.add('is-loading');
 
-        // --- LOGICA DI INTERAZIONE ---
+            try {
+                // Carica l'immagine su Supabase Storage, sovrascrivendo se esiste già
+                const { error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(filePath, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                // Ottieni l'URL pubblico dell'immagine
+                const { data: urlData } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+
+                if (!urlData || !urlData.publicUrl) throw new Error("URL non trovato");
+
+                const publicUrl = urlData.publicUrl;
+
+                // Aggiorna la tabella 'profiles' con il nuovo URL
+                const { error: dbError } = await supabase
+                    .from('profiles')
+                    .update({ avatar_url: publicUrl })
+                    .eq('id', currentUser.id);
+                
+                if (dbError) throw dbError;
+
+                // Aggiorna l'immagine nella pagina
+                document.getElementById('profile-pic').src = publicUrl;
+                showToast('Immagine del profilo aggiornata!', 'success');
+
+            } catch (error) {
+                console.error("Errore durante l'upload dell'avatar:", error);
+                showToast("Errore nell'aggiornamento dell'immagine.", 'error');
+            } finally {
+                overlay.classList.remove('is-loading');
+            }
+        }
+
         async function saveUserData() {
             if (!currentUser) return;
             
@@ -233,32 +344,26 @@
             saveButton.textContent = 'Salvataggio...';
 
             const dataToSave = {
-                id: currentUser.id, // Chiave primaria per l'upsert
+                id: currentUser.id,
                 gender: document.getElementById('gender-input').value || null,
                 birthdate: document.getElementById('birthdate-input').value || null,
                 country: document.getElementById('country-input').value || null,
                 phone: document.getElementById('phone-input').value || null,
             };
             
-            // Usa upsert per inserire se non esiste, o aggiornare se esiste
-            const { data, error } = await supabase
-                .from('personal_details')
-                .upsert(dataToSave)
-                .select()
-                .single();
+            const { data, error } = await supabase.from('personal_details').upsert(dataToSave).select().single();
 
             saveButton.disabled = false;
             saveButton.textContent = 'Salva Modifiche';
 
             if (error) {
                 console.error('Errore durante il salvataggio:', error);
-                alert('Si è verificato un errore. Riprova.');
+                showToast('Errore durante il salvataggio.', 'error');
                 return;
             }
 
-            console.log("Dati salvati con successo!", data);
+            showToast('Profilo aggiornato con successo!', 'success');
             
-            // Aggiorna la UI con i dati del profilo e i nuovi dettagli salvati
             const { data: currentProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
             renderProfileData(currentProfile, data);
 
@@ -266,19 +371,12 @@
         }
 
         function toggleEditMode(isEditing) {
-            const infoFields = document.querySelectorAll('.info-field');
+            document.getElementById('personal-info-form').classList.toggle('is-editing', isEditing);
             document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block';
             document.getElementById('save-button').style.display = isEditing ? 'block' : 'none';
-
-            infoFields.forEach(field => {
-                field.querySelector('.data-display').style.display = isEditing ? 'none' : 'block';
-                field.querySelector('.data-input').style.display = isEditing ? 'block' : 'none';
-            });
         }
         
-        // --- INIZIALIZZAZIONE PAGINA ---
         async function initializePage() {
-            // 1. Controlla l'autenticazione dell'utente
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             if (sessionError || !session) {
                 window.location.href = '/it/login.html';
@@ -286,26 +384,22 @@
             }
             currentUser = session.user;
 
-            // 2. Carica i dati in parallelo da 'profiles' e 'personal_details'
             const [profileResponse, detailsResponse] = await Promise.all([
                 supabase.from('profiles').select('*').eq('id', currentUser.id).single(),
                 supabase.from('personal_details').select('*').eq('id', currentUser.id).single()
             ]);
 
-            // Gestione errori di caricamento
             if (profileResponse.error && profileResponse.error.code !== 'PGRST116') {
                  console.error("Errore caricamento profilo:", profileResponse.error);
-                 alert("Impossibile caricare il profilo.");
+                 showToast("Impossibile caricare il profilo.", "error");
                  return;
             }
              if (detailsResponse.error && detailsResponse.error.code !== 'PGRST116') {
                  console.error("Errore caricamento dettagli personali:", detailsResponse.error);
             }
             
-            // 3. Mostra i dati caricati sulla pagina
             renderProfileData(profileResponse.data, detailsResponse.data);
 
-            // 4. Aggiungi gli event listener
             document.getElementById('edit-button').addEventListener('click', () => toggleEditMode(true));
             document.getElementById('save-button').addEventListener('click', saveUserData);
             document.getElementById('logout-btn').addEventListener('click', async (e) => { 
@@ -314,7 +408,6 @@
                 window.location.href = "/it/"; 
             });
 
-            // Gestione menu mobile
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const topActions = document.querySelector('.top-actions');
             if (mobileMenuBtn && topActions) {
@@ -323,7 +416,6 @@
             }
         }
 
-        // Avvia l'inizializzazione al caricamento del DOM
         document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
