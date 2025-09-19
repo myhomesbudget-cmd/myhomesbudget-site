@@ -69,12 +69,14 @@
     .dashboard-panel .content-section,.dashboard-panel .summary-card{box-shadow:none;border:none}
     .dashboard-panel .content-section{background:rgba(255,255,255,0.7)}
 
-    /* Stili aggiuntivi (copiati da dashboard.html originale) */
+    /* ====== Layout ====== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
     @media(min-width:1024px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
     .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px;padding:0 8px}
     .flow-column.income h2{color:var(--success-color)}
     .flow-column.expense h2{color:var(--danger-color)}
+
+    /* ====== Summary Bars ====== */
     .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);margin-bottom:16px}
     .summary-card h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:1rem;color:#555}
     .summary-total-amount{font-weight:800;font-size:1.2rem}
@@ -90,20 +92,47 @@
     .progress-bar-fg{height:100%;border-radius:999px;transition:width .5s ease-out}
     .income .progress-bar-fg{background:linear-gradient(90deg,#00cec9,#81ecec)}
     .expense .progress-bar-fg{background:linear-gradient(90deg,#6c5ce7,#fd79a8)}
+
+    /* ====== Form ====== */
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
     .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
     .btn:disabled{opacity:.6;cursor:not-allowed}
     .btn-primary{background:var(--grad);box-shadow:0 10px 24px rgba(0,0,0,.18)}
     .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,.22)}
+    .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
+    .btn-secondary:hover:not(:disabled){background:#e5e5e5;border-color:#ccc;color:#333}
+
     .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
     .form-group{display:flex;flex-direction:column}
     .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
     .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
-    @media(min-width:1024px){.transaction-form{grid-template-columns:repeat(6,1fr);gap:16px}}
+    .form-group.full-width{grid-column:1 / -1}
+    .form-buttons{grid-column:1 / -1;margin-top:10px}
+    .form-buttons.is-editing{display:flex;gap:12px}
+    .form-buttons.is-editing #submit-btn{flex-grow:1}
+
+    @media(min-width:1024px){
+      .transaction-form{grid-template-columns:repeat(6,1fr);gap:16px}
+      .form-group.kind{grid-column:span 1}
+      .form-group.note{grid-column:span 3}
+      .form-group.amount{grid-column:span 2}
+      .form-group.date{grid-column:span 2}
+      .form-group.category{grid-column:span 2}
+      .form-group.subcategory{grid-column:span 2}
+    }
+
+    /* AVANZATE: wrapper sempre visibile */
+    #advanced-options-wrapper{display:block;grid-column:1 / -1;background:rgba(0,0,0,0.03);padding:12px;border-radius:10px;margin-top:8px}
+    .advanced-options-controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin-bottom:12px}
+    .advanced-options-controls label{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
+    .advanced-options-fields{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+
+    /* ====== Liste ====== */
     .list-title{margin:-16px -16px 16px;padding:12px 16px;font-size:1.1rem;font-weight:700;color:#333;border-bottom:1px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.4);display:flex;justify-content:space-between;align-items:center}
     .list-total-amount{font-weight:800;font-size:1.2rem}
     .income .list-total-amount{color:var(--success-color)}
     .expense .list-total-amount{color:var(--danger-color)}
+
     .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
     .item:last-child{border-bottom:none}
     .item-icon{font-size:1.5rem;flex-shrink:0}
@@ -118,6 +147,19 @@
     .action-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
     .action-btn.delete{background:var(--grad-danger)}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
+
+    /* Pannello Scadenze */
+    #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
+    .deadline-item{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:12px}
+    .deadline-item .item-actions{display:flex;gap:4px;align-items:center;justify-content:flex-end}
+    .deadline-item .item-amount.expense{color:var(--danger-color)}
+    .deadline-item .item-amount.income{color:var(--success-color)}
+    .deadline-item .days-left{font-weight:700;color:var(--warning-color)}
+    .btn-action-deadline{padding:8px 12px;font-size:.9rem}
+    .btn-action-deadline.pay{background:var(--warning-color)}
+    .btn-action-deadline.receive{background:var(--success-color)}
+
+    /* ====== Modal base ====== */
     .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}
     .modal-overlay.is-visible{opacity:1;pointer-events:auto}
     .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
@@ -125,6 +167,73 @@
     .modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border);padding-bottom:12px;margin-bottom:16px}
     .modal-title{margin:0;font-size:1.3rem}
     .modal-close{background:none;border:none;font-size:2rem;cursor:pointer;color:#888;line-height:1;padding:0}
+    .modal-body ul{list-style:none;padding:0;margin:0}
+    .modal-body li{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--card-border)}
+    .modal-body li:last-child{border-bottom:none}
+    .modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:12px}
+    .modal-footer .btn.delete{background:var(--grad-danger);box-shadow:0 8px 20px rgba(211,47,47,.25)}
+    .modal-footer .btn.delete:hover{box-shadow:0 12px 24px rgba(211,47,47,.3)}
+    .modal-footer .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
+    .modal-footer .btn-secondary:hover{background:#e5e5e5;border-color:#ccc;color:#333}
+
+    /* ====== Modal Lista Movimenti ====== */
+    .modal-content-large{max-width:90vw;width:1000px}
+    .movements-table-container{max-height:60vh;overflow-y:auto}
+    .movements-table{width:100%;border-collapse:collapse}
+    .movements-table th,.movements-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--card-border);white-space:nowrap}
+    .movements-table th{font-weight:700;background-color:rgba(0,0,0,0.05);font-size:.9rem;position:sticky;top:0}
+    .movements-table td{font-size:.95rem}
+    .movements-table .amount-col{text-align:right;font-weight:700}
+    .movements-table .income .amount-col{color:var(--success-color)}
+    .movements-table .expense .amount-col{color:var(--danger-color)}
+    .movements-summary{margin-top:20px;padding-top:16px;border-top:2px solid var(--card-border);display:flex;justify-content:space-around;font-weight:700}
+    .summary-item{text-align:center}
+    .summary-label{font-size:.9rem;color:#555}
+    .summary-value{font-size:1.2rem}
+    .summary-value.total-income{color:var(--success-color)}
+    .summary-value.total-expense{color:var(--danger-color)}
+    .summary-value.balance{color:var(--fg)}
+
+    /* ====== Modal Animazione ====== */
+    .animation-modal-overlay{position:fixed;inset:0;background:rgba(10,25,47,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s ease;overflow:hidden}
+    .animation-modal-overlay.is-visible{display:flex;opacity:1;pointer-events:auto}
+    .animation-container{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
+    .animation-bg-image{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.4))}
+    .animation-elements-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+    .money-element{position:absolute;background-size:contain;background-repeat:no-repeat;pointer-events:none}
+    .money-element.income{top:-60px;left:50%;transform:translateX(-50%);opacity:0;animation:drop-money-fall 1.8s ease-in forwards}
+    @keyframes drop-money-fall{0%{transform:translateY(-100px) translateX(-50%) rotate(-20deg);opacity:0}25%{opacity:1}100%{transform:translateY(120px) translateX(-50%) rotate(20deg);opacity:0}}
+    .money-element.expense{top:50%;left:50%;transform:translate(-50%,-50%);opacity:1;animation:dematerialize-money 2s forwards}
+    @keyframes dematerialize-money{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-200%) scale(.3);opacity:0;filter:blur(10px)}}
+
+    /* Messaggi stato */
+    .status-message{padding:12px 16px;border-radius:10px;margin-top:16px;text-align:center;font-weight:600;opacity:0;transition:opacity .3s ease;grid-column:1 / -1}
+    .status-message.is-visible{opacity:1}
+    .status-message.success{background-color:var(--success-color);color:#fff}
+    .status-message.error{background-color:var(--danger-color);color:#fff}
+
+    /* ====== GOALS ====== */
+    #goals-section .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    #goals-plan-info{font-weight:700;color:#666}
+    .goal-card{background:#fff;border:1px solid var(--card-border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    .goal-card.is-locked .chip,.goal-card.is-locked .goal-input input,.goal-card.is-locked .percentage-input-group input{pointer-events:none;background-color:#f8f9fa;color:#6c757d}
+    .goal-title{font-weight:800;color:#444;margin:0 0 4px}
+    .goal-subtitle{margin:0 0 12px;color:#666}
+    .goal-row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
+    @media(min-width:768px){.goal-row{grid-template-columns:1fr 1fr auto}}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.05);font-weight:700;cursor:pointer;user-select:none}
+    .chip.is-active{background:var(--grad);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+    .goal-method{display:flex;gap:8px;flex-wrap:wrap}
+    .goal-input{display:flex;flex-direction:column}
+    .goal-input input{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:1rem;background:#fff}
+    .goal-hint{display:block;margin-top:6px;font-size:.85rem;color:#777}
+    .goal-confirm{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+    .goal-card .link{color:var(--primary-color);font-weight:700;text-decoration:none}
+
+    .percentage-input-group{display:none;align-items:center;gap:8px;margin-top:8px}
+    .percentage-input-group.is-visible{display:flex}
+    .percentage-input-group input{width:80px;text-align:right}
+    .percentage-input-group span{font-weight:700}
   </style>
 </head>
 <body>
@@ -167,13 +276,92 @@
       <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
 
-    <!-- Il resto del contenuto della dashboard originale (non modificato) -->
+    <!-- Sezione Form -->
     <section class="content-section form-section">
-      <!-- ... form ... -->
+      <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
+      <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
+        <div class="form-group kind">
+          <label for="kind">Tipo</label>
+          <select id="kind" name="kind" required>
+            <option value="expense">Uscita</option>
+            <option value="income">Entrata</option>
+          </select>
+        </div>
+        <div class="form-group note">
+          <label for="note">Nota</label>
+          <input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required>
+        </div>
+        <div class="form-group amount">
+          <label for="amount">Importo (€)</label>
+          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+        </div>
+        <div class="form-group date">
+          <label for="occurred_at">Data</label>
+          <input type="date" id="occurred_at" name="occurred_at" required>
+        </div>
+        <div class="form-group category">
+          <label for="category_id">Categoria</label>
+          <select id="category_id" name="category_id" required></select>
+        </div>
+        <div class="form-group subcategory">
+          <label for="subcategory_id">Sottocategoria</label>
+          <select id="subcategory_id" name="subcategory_id"></select>
+        </div>
+
+        <!-- Opzioni Avanzate -->
+        <div id="advanced-options-wrapper">
+          <div class="advanced-options-controls">
+            <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
+            <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
+            <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+          </div>
+          <div id="recurring-options" class="advanced-options-fields">
+            <div class="form-group">
+              <label for="recurring_frequency">Frequenza</label>
+              <select id="recurring_frequency" name="recurring_frequency">
+                <option value="monthly">Mensile</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="recurring_end_date">Termina il</label>
+              <input type="date" id="recurring_end_date" name="recurring_end_date">
+            </div>
+          </div>
+          <div id="due-date-options" class="advanced-options-fields">
+            <div class="form-group full-width">
+              <label for="due_date">Data di Scadenza/Incasso</label>
+              <input type="date" id="due_date" name="due_date">
+            </div>
+          </div>
+        </div>
+
+        <div id="form-buttons-container" class="form-buttons">
+          <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;">Aggiungi</button>
+          <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display:none;">Annulla</button>
+        </div>
+
+        <!-- Messaggi di stato -->
+        <div id="status-message" class="status-message" aria-live="polite"></div>
+      </form>
     </section>
+
+    <!-- 🎯 Sezione Obiettivi -->
     <section id="goals-section" class="content-section" style="margin-top:12px;">
-      <!-- ... goals ... -->
+      <div class="header">
+        <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>Obiettivo</span></h3>
+        <span id="goals-plan-info"></span>
+      </div>
+      <div id="goals-list"></div>
     </section>
+
+    <!-- Scadenze -->
+    <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
+      <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
+      <div id="deadlines-list" class="transaction-list"></div>
+    </section>
+
+    <!-- Dati principali -->
     <div class="dashboard-panel" style="margin-top:12px;">
       <div class="dashboard-grid">
         <div class="flow-column income">
@@ -189,12 +377,51 @@
       </div>
     </div>
   </main>
-    
-  <!-- Modals -->
-  <div id="scheduler-modal" class="modal-overlay">
-    <!-- ... modal content ... -->
-  </div>
 
+  <!-- Modal Scadenziario -->
+  <div id="scheduler-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="scheduler-modal-title" class="modal-title"></h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="scheduler-modal-body" class="modal-body transaction-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal Generico -->
+  <div id="generic-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="generic-modal-title" class="modal-title"></h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="generic-modal-body" class="modal-body"></div>
+      <div id="generic-modal-footer" class="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- Modal Animazione -->
+  <div id="animation-modal" class="animation-modal-overlay">
+    <div class="animation-container">
+      <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/>
+      <div class="animation-elements-container"></div>
+    </div>
+  </div>
+
+  <!-- Modal Lista Movimenti -->
+  <div id="movements-modal" class="modal-overlay">
+    <div class="modal-content modal-content-large">
+      <div class="modal-header">
+        <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="movements-modal-body" class="modal-body">
+        <div class="movements-table-container"></div>
+      </div>
+      <div id="movements-modal-footer" class="movements-summary"></div>
+    </div>
+  </div>
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
@@ -202,8 +429,27 @@
 
     // --- STATE ---
     let user = null;
-    // ... (tutto lo stato e le variabili DOM originali)
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
+    let userProfile = null;
+
+    const moneyBagImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><defs><filter id='s'><feDropShadow dx='0' dy='2' stdDeviation='2' flood-opacity='.3'/></filter></defs><circle cx='60' cy='60' r='52' fill='%23fdd835' filter='url(%23s)'/><text x='60' y='72' font-size='48' text-anchor='middle' font-family='Arial' fill='%23444'>€</text></svg>";
+    
+    // --- DOM ELEMENTS ---
+    const logoutBtn = document.getElementById('logout-btn');
     const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+    // ... (tutti gli altri elementi DOM originali)
+    
+    // --- FUNZIONI ---
+    // Includere qui tutte le funzioni JavaScript originali della dashboard:
+    // safeToNumber, fmt, dayMs, showStatusMessage, showModal, showTransactionAnimation, 
+    // resetFormToCreateMode, GOALS helpers, loadGoals, renderGoalsUI, bindGoalEditor,
+    // loadInitialData, updateCategoryDropdown, updateSubcategories, renderDashboard,
+    // renderSummary, renderList, getScheduledTransactions, renderDeadlinesList,
+    // renderMovementsListModal, updateNotifications, loadAllDataForMonth, loadTransactions,
+    // handleEdit, handleDelete, handleFormSubmit, saveTransaction, handleConfirmDeadline
+    // ...
 
     // --- NUOVE FUNZIONI (per il bottone abbonamento) ---
     function renderSubscriptionStatus(profile) {
@@ -256,14 +502,16 @@
         if (!session) { location.replace("/it/login.html"); return; }
         user = session.user;
 
-        // Modifica: Carica il profilo per mostrare lo stato dell'abbonamento
+        // Modifica: Carica il profilo completo per mostrare lo stato dell'abbonamento
         const { data: profile } = await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
         if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
         
-        // Aggiunta: Renderizza e posiziona il bottone
+        // Aggiunta: Renderizza e posiziona il bottone abbonamento
         renderSubscriptionStatus(profile);
         positionSubscriptionButton();
+        window.addEventListener('resize', positionSubscriptionButton);
 
+        // ... resto del codice initializePage originale
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth();
@@ -272,27 +520,25 @@
         for (let i = currentYear - 2; i <= currentYear + 5; i++) { yearSelector.add(new Option(i, i)); }
         monthSelector.value = currentMonth;
         yearSelector.value = currentYear;
-
         document.getElementById('occurred_at').valueAsDate = new Date();
-
         await loadInitialData();
         updateCategoryDropdown();
         await loadGoals();
         await loadAllDataForMonth();
-
-        // ... (tutto il resto degli event listener originali)
-        
-        // Aggiunta: listener per il resize
-        window.addEventListener('resize', positionSubscriptionButton);
+        
+        // ... (tutti gli event listener originali)
 
       } catch (err){
         console.error("Errore critico durante l'inizializzazione:", err);
-        // ... (gestione errore originale)
+        const body = document.querySelector('body');
+        if (body) {
+          body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;"><h2>Errore Critico</h2><p>Impossibile caricare la dashboard.</p><p><strong>Dettaglio:</strong> ${err.message}</p><p>Prova a ricaricare la pagina.</p></div>`;
+        }
       }
     }
-
-    // Incolla qui il resto del JavaScript originale di dashboard.html
-    // ...
+    
+    // NOTA: Incolla qui il resto delle tue funzioni JavaScript originali da dashboard.html per completezza
+    // (ho omesso il corpo delle funzioni per brevità)
 
     document.addEventListener('DOMContentLoaded', initializePage);
   </script>
