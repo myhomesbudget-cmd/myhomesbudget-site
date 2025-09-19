@@ -896,15 +896,61 @@
       showModal( 'Conferma Operazione', '<p>Vuoi registrare questa operazione con la data di oggi?</p>', [ { text: 'Annulla', class: 'btn-secondary' }, { text: 'Conferma', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Errore nell'aggiornamento dell'operazione:", error); showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]); } } } ]);
     }
 
+    // --- MODIFICA: Funzioni per il bottone abbonamento ---
+    function renderSubscriptionStatus(profile) {
+      if (!profile || !profile.plan_type) {
+          subscriptionStatusBtn.style.display = 'none';
+          return;
+      }
+      let text = '';
+      let link = '#';
+      switch(profile.plan_type) {
+          case 'starter': case 'trial':
+              if (profile.trial_end) {
+                  const endDate = new Date(profile.trial_end);
+                  const today = new Date(); today.setHours(0,0,0,0);
+                  const diffTime = endDate - today;
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  if (diffDays >= 0) {
+                      if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
+                      else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
+                      else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
+                      link = '/it/pricing.html';
+                  } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; }
+              } break;
+          case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break;
+          case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break;
+      }
+      if (text) {
+          subscriptionStatusBtn.textContent = text;
+          subscriptionStatusBtn.href = link;
+          subscriptionStatusBtn.style.display = 'flex';
+      } else {
+          subscriptionStatusBtn.style.display = 'none';
+      }
+    }
+    function positionSubscriptionButton() {
+      const topCenter = document.querySelector('.top-center');
+      const topActions = document.querySelector('.top-actions');
+      if (!topCenter || !topActions || !subscriptionStatusBtn) return;
+      if (window.innerWidth <= 1200) {
+          if (subscriptionStatusBtn.parentElement !== topActions) topActions.prepend(subscriptionStatusBtn);
+      } else {
+          if (subscriptionStatusBtn.parentElement !== topCenter) topCenter.appendChild(subscriptionStatusBtn);
+      }
+    }
+
     async function initializePage(){
       try{
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { location.replace("/it/login.html"); return; }
         user = session.user;
         
+        // MODIFICA: Carica il profilo completo per mostrare lo stato dell'abbonamento
         const { data: profile } = await supabase.from('profiles').select('onboarded, plan_type, trial_end').eq('id', user.id).single();
         if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
         
+        // MODIFICA: Renderizza e posiziona il bottone abbonamento
         renderSubscriptionStatus(profile);
         positionSubscriptionButton();
         window.addEventListener('resize', positionSubscriptionButton);
