@@ -7,6 +7,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
 
+    <!-- Stile unificato dall'app -->
     <style>
       :root{
         --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
@@ -41,7 +42,7 @@
 
       /* ====== Contenuto Principale ====== */
       main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
-      .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
+      .dash-nav{display:flex;flex-wrap: wrap;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
       .dash-nav a{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:rgba(255,255,255,.7);color:var(--fg);border:1px solid var(--card-border);box-shadow:0 4px 12px rgba(0,0,0,.05);}
       .dash-nav a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
       .dash-nav a.is-active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 2px rgba(255,255,255,0.2)}
@@ -65,18 +66,17 @@
       .info-value{font-weight:500;font-size:1.1rem;}
 
       .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;}
-      @media(min-width: 640px) {
-        .personal-info-grid{grid-template-columns:1fr 1fr;}
-      }
+      @media(min-width: 640px) { .personal-info-grid{grid-template-columns:1fr 1fr;} }
       .info-field{background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px;}
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:block;margin-bottom:4px;}
-      .info-field .data-display{font-size:1.1rem;font-weight:500;color:#333;}
+      .info-field .data-display{font-size:1.1rem;font-weight:500;color:#333;min-height:24px;} /* min-height evita scatti del layout */
       .info-field .data-display.is-empty{color:#888;font-style:italic;}
       .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans);}
 
       .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:32px;}
       .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:1rem;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
       .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
+      .btn:disabled{opacity:.6;cursor:not-allowed;}
       .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18)}
       .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,.22)}
       .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
@@ -109,24 +109,23 @@
         </nav>
 
         <div class="dashboard-panel">
-            
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <img id="profile-pic" src="https://placehold.co/128x128/6c5ce7/ffffff?text=U" alt="Immagine del profilo">
+                    <img id="profile-pic" src="https://placehold.co/128x128/eeeeee/333333?text=..." alt="Immagine del profilo">
                     <label for="avatar-upload">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
                         <input type="file" id="avatar-upload" accept="image/*">
                     </label>
                 </div>
-                <h1 id="user-name" class="profile-name">NOME UTENTE</h1>
-                <div id="plan-type" class="profile-plan">PRO</div>
+                <h1 id="user-name" class="profile-name">Caricamento...</h1>
+                <div id="plan-type" class="profile-plan">...</div>
             </div>
 
             <div class="profile-content">
                 <section>
                     <div class="profile-info-row">
                         <span class="info-label">Mail di Registrazione</span>
-                        <span id="user-email" class="info-value">utente@email.com</span>
+                        <span id="user-email" class="info-value">...</span>
                     </div>
                 </section>
 
@@ -135,11 +134,11 @@
                   <div style="display:grid; gap:12px;">
                     <div class="profile-info-row">
                         <span class="info-label">Abbonamento</span>
-                        <span id="plan-type-detail" class="info-value">PRO</span>
+                        <span id="plan-type-detail" class="info-value">...</span>
                     </div>
                     <div class="profile-info-row">
                         <span class="info-label">Obiettivo Configurato</span>
-                        <span id="goal-name" class="info-value">Risparmiare per una casa</span>
+                        <span id="goal-name" class="info-value">...</span>
                     </div>
                   </div>
                 </section>
@@ -149,8 +148,8 @@
                     <div id="personal-info-form" class="personal-info-grid">
                         <div class="info-field">
                             <label>Genere</label>
-                            <div class="data-display is-empty">Non impostato</div>
-                            <select class="data-input">
+                            <div class="data-display is-empty">...</div>
+                            <select class="data-input" id="gender-input">
                                 <option value="">Non specificato</option>
                                 <option value="Uomo">Uomo</option>
                                 <option value="Donna">Donna</option>
@@ -159,18 +158,18 @@
                         </div>
                         <div class="info-field">
                             <label>Data di Nascita</label>
-                            <div class="data-display is-empty">Non impostata</div>
-                            <input type="date" class="data-input">
+                            <div class="data-display is-empty">...</div>
+                            <input type="date" class="data-input" id="birthdate-input">
                         </div>
                         <div class="info-field">
                             <label>Paese</label>
-                            <div class="data-display is-empty">Non impostato</div>
-                            <input type="text" placeholder="Es. Italia" class="data-input">
+                            <div class="data-display is-empty">...</div>
+                            <input type="text" placeholder="Es. Italia" class="data-input" id="country-input">
                         </div>
                         <div class="info-field">
                             <label>Numero di Telefono</label>
-                            <div class="data-display is-empty">Non impostato</div>
-                            <input type="tel" placeholder="Es. +39 123..." class="data-input">
+                            <div class="data-display is-empty">...</div>
+                            <input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input">
                         </div>
                     </div>
                 </section>
@@ -183,142 +182,149 @@
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { supabase } from "/it/supabase-client.js";
+        
+        // --- VARIABILI GLOBALI ---
+        let currentUser = null;
         const emptyPlaceholder = 'Non impostato';
 
-        function loadUserData() {
-            console.log("Caricamento dati utente da Supabase...");
+        // --- FUNZIONI DI RENDER ---
+        function renderProfileData(profile, details) {
+            // Dati dalla tabella 'profiles'
+            document.getElementById('user-name').textContent = profile?.name || 'Utente';
+            document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD';
+            document.getElementById('user-email').textContent = currentUser?.email || '...';
+            document.getElementById('plan-type-detail').textContent = profile?.plan_type || 'STANDARD';
+            document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo';
+            document.getElementById('profile-pic').src = profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`;
             
-            // DATI READ-ONLY (Dalla tabella 'profiles')
-            const readOnlyData = {
-                name: 'Mario Rossi',
-                email: 'mario.rossi@example.com',
-                plan_type: 'PRO',
-                goal_name: 'Acquisto auto nuova',
-                avatar: 'https://placehold.co/128x128/6c5ce7/FFFFFF?text=MR'
-            };
-
-            // DATI EDITABILI (Da una nuova tabella, es. 'personal_details')
-            // Inizialmente i valori sono null per simulare un profilo non compilato
-            const editableData = {
-                gender: null, // 'Uomo'
-                birthdate: null, // '1990-01-01'
-                country: null, // 'Italia'
-                phone: null // '+39 333 1234567'
-            };
-
-            // Popolamento dati read-only
-            document.getElementById('user-name').textContent = readOnlyData.name;
-            document.getElementById('plan-type').textContent = readOnlyData.plan_type;
-            document.getElementById('user-email').textContent = readOnlyData.email;
-            document.getElementById('plan-type-detail').textContent = readOnlyData.plan_type;
-            document.getElementById('goal-name').textContent = readOnlyData.goal_name;
-            document.getElementById('profile-pic').src = readOnlyData.avatar;
-            
-            // Popolamento dati editabili
+            // Dati dalla tabella 'personal_details'
             const form = document.getElementById('personal-info-form');
+            const detailsData = details || {}; // Oggetto vuoto se i dettagli sono null
+
             const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display');
+            genderDisplay.textContent = detailsData.gender || emptyPlaceholder;
+            genderDisplay.classList.toggle('is-empty', !detailsData.gender);
+            document.getElementById('gender-input').value = detailsData.gender || '';
+
             const birthdateDisplay = form.querySelector('.info-field:nth-child(2) .data-display');
+            birthdateDisplay.textContent = detailsData.birthdate ? new Date(detailsData.birthdate).toLocaleDateString('it-IT') : 'Non impostata';
+            birthdateDisplay.classList.toggle('is-empty', !detailsData.birthdate);
+            document.getElementById('birthdate-input').value = detailsData.birthdate || '';
+
             const countryDisplay = form.querySelector('.info-field:nth-child(3) .data-display');
+            countryDisplay.textContent = detailsData.country || emptyPlaceholder;
+            countryDisplay.classList.toggle('is-empty', !detailsData.country);
+            document.getElementById('country-input').value = detailsData.country || '';
+
             const phoneDisplay = form.querySelector('.info-field:nth-child(4) .data-display');
-            
-            genderDisplay.textContent = editableData.gender || emptyPlaceholder;
-            genderDisplay.classList.toggle('is-empty', !editableData.gender);
-            form.querySelector('.info-field:nth-child(1) .data-input').value = editableData.gender || '';
-
-            birthdateDisplay.textContent = editableData.birthdate ? new Date(editableData.birthdate).toLocaleDateString('it-IT') : 'Non impostata';
-            birthdateDisplay.classList.toggle('is-empty', !editableData.birthdate);
-            form.querySelector('.info-field:nth-child(2) .data-input').value = editableData.birthdate || '';
-
-            countryDisplay.textContent = editableData.country || emptyPlaceholder;
-            countryDisplay.classList.toggle('is-empty', !editableData.country);
-            form.querySelector('.info-field:nth-child(3) .data-input').value = editableData.country || '';
-
-            phoneDisplay.textContent = editableData.phone || emptyPlaceholder;
-            phoneDisplay.classList.toggle('is-empty', !editableData.phone);
-            form.querySelector('.info-field:nth-child(4) .data-input').value = editableData.phone || '';
-
-            console.log("Dati utente caricati.");
+            phoneDisplay.textContent = detailsData.phone || emptyPlaceholder;
+            phoneDisplay.classList.toggle('is-empty', !detailsData.phone);
+            document.getElementById('phone-input').value = detailsData.phone || '';
         }
 
-        function saveUserData() {
-            const form = document.getElementById('personal-info-form');
-            // Questi sono i dati da salvare nella tua nuova tabella Supabase
+        // --- LOGICA DI INTERAZIONE ---
+        async function saveUserData() {
+            if (!currentUser) return;
+            
+            const saveButton = document.getElementById('save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Salvataggio...';
+
             const dataToSave = {
-                gender: form.querySelector('.info-field:nth-child(1) .data-input').value || null,
-                birthdate: form.querySelector('.info-field:nth-child(2) .data-input').value || null,
-                country: form.querySelector('.info-field:nth-child(3) .data-input').value || null,
-                phone: form.querySelector('.info-field:nth-child(4) .data-input').value || null,
+                id: currentUser.id, // Chiave primaria per l'upsert
+                gender: document.getElementById('gender-input').value || null,
+                birthdate: document.getElementById('birthdate-input').value || null,
+                country: document.getElementById('country-input').value || null,
+                phone: document.getElementById('phone-input').value || null,
             };
             
-            console.log("Salvataggio delle informazioni personali su Supabase in corso...", dataToSave);
-            
-            // Qui andrebbe la chiamata a supabase.from('personal_details').update(...)
-            
-            // Simulazione del salvataggio
-            setTimeout(() => {
-                console.log("Dati salvati con successo!");
-                
-                // Aggiornamento della UI con i nuovi dati
-                const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display');
-                genderDisplay.textContent = dataToSave.gender || emptyPlaceholder;
-                genderDisplay.classList.toggle('is-empty', !dataToSave.gender);
-                
-                const birthdateDisplay = form.querySelector('.info-field:nth-child(2) .data-display');
-                birthdateDisplay.textContent = dataToSave.birthdate ? new Date(dataToSave.birthdate).toLocaleDateString('it-IT') : 'Non impostata';
-                birthdateDisplay.classList.toggle('is-empty', !dataToSave.birthdate);
+            // Usa upsert per inserire se non esiste, o aggiornare se esiste
+            const { data, error } = await supabase
+                .from('personal_details')
+                .upsert(dataToSave)
+                .select()
+                .single();
 
-                const countryDisplay = form.querySelector('.info-field:nth-child(3) .data-display');
-                countryDisplay.textContent = dataToSave.country || emptyPlaceholder;
-                countryDisplay.classList.toggle('is-empty', !dataToSave.country);
-                
-                const phoneDisplay = form.querySelector('.info-field:nth-child(4) .data-display');
-                phoneDisplay.textContent = dataToSave.phone || emptyPlaceholder;
-                phoneDisplay.classList.toggle('is-empty', !dataToSave.phone);
+            saveButton.disabled = false;
+            saveButton.textContent = 'Salva Modifiche';
 
-                toggleEditMode(false); // Esce dalla modalità modifica
-            }, 1000);
+            if (error) {
+                console.error('Errore durante il salvataggio:', error);
+                alert('Si è verificato un errore. Riprova.');
+                return;
+            }
+
+            console.log("Dati salvati con successo!", data);
+            
+            // Aggiorna la UI con i dati del profilo e i nuovi dettagli salvati
+            const { data: currentProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            renderProfileData(currentProfile, data);
+
+            toggleEditMode(false);
         }
 
         function toggleEditMode(isEditing) {
             const infoFields = document.querySelectorAll('.info-field');
-            const editButton = document.getElementById('edit-button');
-            const saveButton = document.getElementById('save-button');
+            document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block';
+            document.getElementById('save-button').style.display = isEditing ? 'block' : 'none';
 
             infoFields.forEach(field => {
                 field.querySelector('.data-display').style.display = isEditing ? 'none' : 'block';
                 field.querySelector('.data-input').style.display = isEditing ? 'block' : 'none';
             });
-
-            editButton.style.display = isEditing ? 'none' : 'block';
-            saveButton.style.display = isEditing ? 'block' : 'none';
         }
+        
+        // --- INIZIALIZZAZIONE PAGINA ---
+        async function initializePage() {
+            // 1. Controlla l'autenticazione dell'utente
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !session) {
+                window.location.href = '/it/login.html';
+                return;
+            }
+            currentUser = session.user;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserData();
+            // 2. Carica i dati in parallelo da 'profiles' e 'personal_details'
+            const [profileResponse, detailsResponse] = await Promise.all([
+                supabase.from('profiles').select('*').eq('id', currentUser.id).single(),
+                supabase.from('personal_details').select('*').eq('id', currentUser.id).single()
+            ]);
 
+            // Gestione errori di caricamento
+            if (profileResponse.error && profileResponse.error.code !== 'PGRST116') {
+                 console.error("Errore caricamento profilo:", profileResponse.error);
+                 alert("Impossibile caricare il profilo.");
+                 return;
+            }
+             if (detailsResponse.error && detailsResponse.error.code !== 'PGRST116') {
+                 console.error("Errore caricamento dettagli personali:", detailsResponse.error);
+            }
+            
+            // 3. Mostra i dati caricati sulla pagina
+            renderProfileData(profileResponse.data, detailsResponse.data);
+
+            // 4. Aggiungi gli event listener
             document.getElementById('edit-button').addEventListener('click', () => toggleEditMode(true));
             document.getElementById('save-button').addEventListener('click', saveUserData);
-
-            document.getElementById('avatar-upload').addEventListener('change', function(event) {
-                if (event.target.files && event.target.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('profile-pic').src = e.target.result;
-                        console.log("Nuovo avatar selezionato. Pronto per l'upload su Supabase Storage.");
-                    }
-                    reader.readAsDataURL(event.target.files[0]);
-                }
+            document.getElementById('logout-btn').addEventListener('click', async (e) => { 
+                e.preventDefault(); 
+                await supabase.auth.signOut(); 
+                window.location.href = "/it/"; 
             });
 
+            // Gestione menu mobile
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const topActions = document.querySelector('.top-actions');
             if (mobileMenuBtn && topActions) {
               mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
               document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
             }
-        });
+        }
+
+        // Avvia l'inizializzazione al caricamento del DOM
+        document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
 </html>
-
