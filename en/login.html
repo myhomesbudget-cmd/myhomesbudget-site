@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sign in to MyHomesBudget</title>
-  <meta name="description" content="Sign in to review your dashboard and manage expenses." />
+  <meta name="description" content="Sign in to manage your income, expenses, and savings with ease.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
   <script>document.documentElement.classList.add('js');</script>
@@ -54,18 +54,26 @@
   <link rel="icon" href="/favicon.ico">
 
   <style>
-    :root{ --fg:#111; --glass:rgba(255,255,255,.58); --card-border:rgba(0,0,0,.06);
-           --shadow:0 10px 30px rgba(0,0,0,.10); --radius-lg:16px;
-           --grad:linear-gradient(135deg,#6c5ce7,#00cec9); }
+    :root{
+      --fg:#111; --glass:rgba(255,255,255,.58);
+      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
+      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+    }
     *{box-sizing:border-box}
     html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
     a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-    body{ margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
-          min-height:100vh;display:flex;align-items:center;justify-content:center; }
+
+    body{
+      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+    }
     body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.08);z-index:-1}
-    .topbar{ position:fixed;top:16px;left:50%;transform:translateX(-50%);
-             width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;
-             display:flex;align-items:center;justify-content:space-between; }
+
+    .topbar{
+      position:fixed;top:16px;left:50%;transform:translateX(-50%);
+      width:min(920px,calc(100% - 40px));z-index:20;pointer-events:none;
+      display:flex;align-items:center;justify-content:space-between;
+    }
     .logo-link,.lang-selector{pointer-events:auto}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-image{height:32px}
@@ -75,8 +83,11 @@
     .lang-selector a:hover{background:rgba(255,255,255,.12)}
     .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
 
-    .panel{ width:min(920px,calc(100% - 40px)); background:var(--glass); color:var(--fg);
-            border-radius:var(--radius-lg); padding:clamp(18px,4vw,26px); box-shadow:var(--shadow); }
+    .panel{
+      width:min(920px,calc(100% - 40px));
+      background:var(--glass); color:var(--fg); border-radius:var(--radius-lg);
+      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
+    }
     .header{text-align:center;margin-bottom:16px}
     .header h1{margin:0;color:#111;font-size:clamp(1.6rem,4vw,2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
     .header p{margin:8px 0 0;color:#222}
@@ -84,26 +95,38 @@
     form{max-width:560px;margin:0 auto;display:grid;gap:12px}
     .field{display:grid;gap:6px}
     label{color:#111;font-weight:600}
-    input[type="email"], input[type="password"]{ border:1px solid var(--card-border); border-radius:10px; padding:12px;
-      background:rgba(255,255,255,.9); font-size:1rem; color:#111; }
+    input[type="email"], input[type="password"]{
+      border:1px solid var(--card-border); border-radius:10px; padding:12px;
+      background:rgba(255,255,255,.9); font-size:1rem; color:#111;
+    }
     .actions{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:6px}
     .link{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
     .link:hover{text-decoration:underline}
-    .btn{ cursor:pointer;border:none;border-radius:12px;padding:12px 16px;background:var(--grad);
-          color:#fff;font-weight:700;font-size:1rem; box-shadow:0 8px 22px rgba(0,0,0,.14);
-          transition:transform .15s ease, filter .15s ease; }
+
+    .btn{
+      cursor:pointer;border:none;border-radius:12px;padding:12px 16px;
+      background:var(--grad);color:#fff;font-weight:700;font-size:1rem;
+      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease, filter .15s ease;
+      text-shadow:0 1px 0 rgba(0,0,0,.18);
+    }
     .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+
     .divider{height:2px;border-radius:999px;background:linear-gradient(90deg,#6c5ce7,#00cec9);opacity:.8;margin:16px auto;width:140px}
+
     .row-google{display:grid;gap:8px;margin-top:6px}
     #gsi-btn{display:flex;justify-content:center;min-height:46px}
     #gsi-btn > div{margin:8px auto !important}
+
     .foot{text-align:center;margin-top:12px;color:#333}
     .foot a{color:#111;text-decoration:none;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
     .foot a:hover{text-decoration:underline}
+
     .reveal{opacity:1;transform:none;transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1)}
     .js .reveal{opacity:0;transform:translateY(16px)}
     .js .reveal.in{opacity:1;transform:none}
-    @media (prefers-reduced-motion: reduce){ .js .reveal, .js .reveal.in{transition:none;opacity:1;transform:none} }
+    @media (prefers-reduced-motion: reduce){
+      .js .reveal, .js .reveal.in{transition:none;opacity:1;transform:none}
+    }
   </style>
 </head>
 <body>
@@ -121,7 +144,7 @@
   <main class="panel">
     <header class="header reveal">
       <h1>Sign in to MyHomesBudget</h1>
-      <p>Access your dashboard and manage your spending.</p>
+      <p>Enter to view your dashboard and manage your expenses.</p>
     </header>
 
     <!-- Email / Password -->
@@ -135,7 +158,11 @@
         <input type="password" id="li-pass" placeholder="••••••••" required />
       </div>
       <div class="actions">
-        <span>Don’t have an account? <a class="link" href="/en/signup.html">Sign up</a></span>
+        <span>
+          Don’t have an account? <a class="link" href="/en/signup.html">Sign up</a>
+          &nbsp;·&nbsp;
+          <a class="link" href="#" id="forgot-link">Forgot your password?</a>
+        </span>
         <button type="submit" class="btn">Sign in</button>
       </div>
     </form>
@@ -149,7 +176,7 @@
         <input type="email" id="ml-email" placeholder="Email for the link" />
       </div>
       <div class="actions">
-        <span>You’ll receive a sign-in link by email</span>
+        <span>You’ll receive an access link via email</span>
         <button type="submit" class="btn">Send Magic Link</button>
       </div>
     </form>
@@ -160,9 +187,10 @@
     <section class="row-google reveal" aria-label="Sign in with Google">
       <label>Or continue with Google</label>
       <div id="gsi-btn"></div>
+      <!-- Fallback OAuth (only if GSI fails) -->
       <div id="gsi-fallback" class="row-google" style="display:none">
         <button id="oauth-fallback" class="btn" type="button">
-          Continue with Google (fallback)
+          Continue with Google (alternate mode)
         </button>
       </div>
     </section>
@@ -170,10 +198,12 @@
     <p class="foot reveal">© MyHomesBudget — <a href="/en/privacy.html">Privacy</a> · <a href="/en/terms.html">Terms</a></p>
   </main>
 
+  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+  <!-- Logic (Supabase + GIS) -->
   <script type="module">
-    import { supabase } from "/it/supabase-client.js"; /* se lo duplichi in /en/, usa ../supabase-client.js */
+    import { supabase } from "/en/supabase-client.js";
 
     try { localStorage.setItem('mhb_lang','en'); } catch(e){}
     const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'en').toLowerCase();
@@ -196,9 +226,11 @@
 
     gtag('event','login_viewed',{lang});
 
+    // If already authenticated → skip to post-auth
     const { data:{ session } } = await supabase.auth.getSession();
     if (session?.user) postAuthRedirect();
 
+    // Email+Password
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
@@ -209,10 +241,11 @@
       postAuthRedirect();
     });
 
+    // Magic Link (explicit redirect)
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
-      if (!email) { alert("Enter your email."); return; }
+      if (!email) { alert("Please enter your email."); return; }
       gtag('event','magiclink_submit',{lang});
       const { error } = await supabase.auth.signInWithOtp({
         email,
@@ -222,7 +255,26 @@
       alert('We sent you a sign-in link.');
     });
 
-    // GSI + fallback
+    /* ===== Forgot Password (EN) ===== */
+    document.getElementById('forgot-link')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('li-email').value.trim();
+      if (!email) {
+        alert("Enter your email in the field above and try again.");
+        return;
+      }
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${ORIGIN}${langPrefix}reset-password.html`
+        });
+        if (error) throw error;
+        alert("If the address exists, you'll receive an email with the link to reset your password. Please also check the spam folder.");
+      } catch (err) {
+        alert("Reset request failed: " + (err?.message || err));
+      }
+    });
+
+    // -------- GSI + Fallback ----------
     const gsiContainer  = document.getElementById("gsi-btn");
     const fallbackWrap  = document.getElementById("gsi-fallback");
     const fallbackBtn   = document.getElementById("oauth-fallback");
@@ -230,7 +282,6 @@
 
     function showFallback() {
       if (!fallbackWrap || !fallbackBtn) return;
-      fallbackBtn.textContent = 'Continue with Google (fallback)';
       fallbackBtn.onclick = async () => {
         try {
           await supabase.auth.signInWithOAuth({
@@ -270,6 +321,7 @@
     document.addEventListener('readystatechange', () => {
       if (document.readyState === 'complete') initGSI();
     });
+    // Safety poll: if GSI does not load, show fallback
     let tries = 0; const iv = setInterval(() => {
       if (window.google?.accounts?.id) { clearInterval(iv); initGSI(); }
       else if (++tries > 30) { clearInterval(iv); showFallback(); }
@@ -285,9 +337,12 @@
         if (error) { alert("Google sign-in failed: " + error.message); return; }
         gtag('event','oauth_success',{provider:'google',lang,mode:'idtoken'});
         postAuthRedirect();
-      } catch (err) { alert("Unexpected error: " + (err?.message || err)); }
+      } catch (err) {
+        alert("Unexpected error: " + (err?.message || err));
+      }
     }
 
+    // Reveal effect
     (function(){
       const els=document.querySelectorAll('.reveal');
       if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
