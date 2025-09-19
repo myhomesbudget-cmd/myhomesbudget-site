@@ -240,6 +240,24 @@
     // Magic Link (redirect esplicito)
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+// Password dimenticata
+document.getElementById('forgot-link')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('li-email').value.trim();
+  if (!email) {
+    alert("Inserisci l'email nel campo in alto e riprova.");
+    return;
+  }
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${ORIGIN}${langPrefix}reset-password.html`
+    });
+    if (error) throw error;
+    alert("Se l'indirizzo è presente, riceverai un'email con il link per reimpostare la password. Controlla anche Spam.");
+  } catch (err) {
+    alert("Errore nell'invio del reset: " + (err?.message || err));
+  }
+});
       const email = document.getElementById('ml-email').value.trim();
       if (!email) { alert("Inserisci l'email."); return; }
       gtag('event','magiclink_submit',{lang});
