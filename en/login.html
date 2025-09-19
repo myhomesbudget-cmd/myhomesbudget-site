@@ -203,7 +203,7 @@
 
   <!-- Logic (Supabase + GIS) -->
   <script type="module">
-    import { supabase } from "/en/supabase-client.js";
+    import { supabase } from "/it/supabase-client.js";
 
     try { localStorage.setItem('mhb_lang','en'); } catch(e){}
     const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'en').toLowerCase();
