@@ -1183,6 +1183,71 @@ if (document.readyState === "loading"){
   setTimeout(plan_initEnforcement, 300);
 }
 // === /PLAN ENFORCEMENT v2 ===
+
+// === PATCH UI (FIX) — Forza apertura "verso il basso" del select Categoria senza bloccare la pagina
+(function(){
+  // Trova il <select> della Categoria in modo robusto
+  function getCategorySelect(){
+    // 1) Id comuni eventualmente presenti
+    const byId = document.getElementById("category-select") || document.getElementById("categorySelect");
+    if (byId) return byId;
+
+    // 2) Usa il label "Categoria"
+    const labels = Array.from(document.querySelectorAll("label"));
+    const catLabel = labels.find(l => /categoria/i.test(l.textContent || ""));
+    if (catLabel){
+      if (catLabel.control && catLabel.control.tagName === "SELECT") return catLabel.control;
+      const inside = catLabel.querySelector("select");
+      if (inside) return inside;
+    }
+
+    // 3) Heuristic: select con name/id che contiene "category"
+    const sel = Array.from(document.querySelectorAll("select"))
+      .find(s => /category|categoria/i.test(s.name || s.id || s.getAttribute("aria-label") || ""));
+    return sel || null;
+  }
+
+  function ensureOpensDown(selectEl){
+    if (!selectEl) return;
+
+    const handler = () => {
+      try {
+        // Porta il select verso il centro della viewport per creare spazio SOTTO
+        selectEl.scrollIntoView({ block: "center", inline: "nearest", behavior: "auto" });
+
+        // Se resta troppo vicino al bordo inferiore, sposta di un offset minimo
+        const rect = selectEl.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < 260) {
+          window.scrollBy({ top: (260 - spaceBelow), left: 0 }); // niente 'behavior' non standard
+        }
+      } catch (e) {
+        // Fail-safe: non bloccare mai la pagina
+        // In casi estremi, nessuna azione è preferibile all'errore
+      }
+    };
+
+    // Aggiunge listener leggeri; non usa opzioni non supportate
+    selectEl.addEventListener("mousedown", handler, { passive: true });
+    selectEl.addEventListener("focus", handler, { passive: true });
+  }
+
+  function initCategoryPatch(){
+    try {
+      const sel = getCategorySelect();
+      ensureOpensDown(sel);
+    } catch (e) {
+      // Non fare nulla: la patch è "best effort" e non deve mai bloccare
+      console.warn("[CategoryPatch] skipped:", e?.message || e);
+    }
+  }
+
+  if (document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => setTimeout(initCategoryPatch, 0));
+  } else {
+    setTimeout(initCategoryPatch, 0);
+  }
+})();
 </script>
 </body>
 </html>
