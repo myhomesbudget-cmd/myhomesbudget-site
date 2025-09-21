@@ -16,7 +16,6 @@
         --warning-color:#f39c12;
         --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
         --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
-        --grad-muted:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.55));
         --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
       }
       *{box-sizing:border-box}
@@ -27,11 +26,11 @@
         min-height:100vh;
         display: flex;
         flex-direction: column;
-        overflow-x: hidden;
+        overflow-x: hidden; /* Previene lo scorrimento orizzontale */
       }
       body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
-      /* ====== TOPBAR (invariata) ====== */
+      /* ====== TOPBAR ====== */
       .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
       .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
       .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
@@ -62,80 +61,22 @@
       .dash-nav a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
       .dash-nav a.is-active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 2px rgba(255,255,255,0.2)}
       
-      /* ====== ANIMAZIONI ====== */
+      /* ====== ANIMAZIONI E MIGLIORAMENTI GRAFICI ====== */
       @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
       @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      @keyframes glowPulse { 0%,100% { opacity:.35; } 50% { opacity:.6; } }
 
       .skeleton{ animation: shimmer 1.5s linear infinite; background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%); background-size: 800px 104px; height: 1.5rem; width: 60%; border-radius: 8px; display: inline-block; }
       .skeleton.skeleton-text { height: 1em; }
       .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
       .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; }
       
-      /* ====== CARD PROFILO — RESTYLING GRAFICO ====== */
-      .dashboard-panel{
-        position: relative;
-        background: var(--glass);
-        background-image: var(--grad-muted);
-        backdrop-filter: blur(14px) saturate(140%);
-        -webkit-backdrop-filter: blur(14px) saturate(140%);
-        border-radius: 28px;
-        padding: 28px 24px 24px;
-        border: 1px solid rgba(255,255,255,.45);
-        box-shadow:
-          0 18px 45px rgba(0,0,0,.12),
-          inset 0 1px 0 rgba(255,255,255,.6);
-        max-width: 860px;
-        width: 100%;
-        margin: 28px auto;
-        animation: fadeInUp .5s ease-out forwards;
-        overflow: hidden;
-      }
-      /* Cornice premium a gradiente (solo decorativa) */
-      .dashboard-panel::before{
-        content:"";
-        position:absolute; inset:-2px;
-        border-radius: 30px;
-        padding:2px;
-        background: linear-gradient(135deg, rgba(108,92,231,.35), rgba(0,206,201,.35));
-        -webkit-mask: 
-          linear-gradient(#000 0 0) content-box, 
-          linear-gradient(#000 0 0);
-        -webkit-mask-composite: xor;
-                mask-composite: exclude;
-        pointer-events:none;
-      }
-      /* Bagliore morbido dietro l’header */
-      .dashboard-panel::after{
-        content:"";
-        position:absolute; left:50%; top:0;
-        width:1200px; height:260px;
-        transform: translateX(-50%);
-        background: radial-gradient(600px 140px at 50% 0%, rgba(108,92,231,.18), rgba(0,206,201,.10) 40%, transparent 70%);
-        filter: blur(10px);
-        pointer-events:none;
-        animation: glowPulse 5s ease-in-out infinite;
-      }
+      .dashboard-panel{ background:rgba(255,255,255,0.6); backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px); border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border); box-shadow:var(--shadow); max-width: 800px; width: 100%; margin: 24px auto; animation: fadeInUp 0.5s ease-out forwards; }
 
-      /* ====== Stili Profilo con Miglioramenti VISIVI (NO funzioni) ====== */
+      /* ====== Stili Profilo con Miglioramenti ====== */
       .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:-80px;}
-      .profile-avatar{
-        position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.85);border-radius:50%;
-        box-shadow: 0 12px 28px rgba(0,0,0,.18);
-        flex-shrink: 0;
-        background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6));
-      }
+      .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0;}
       .profile-avatar img, .profile-avatar .skeleton-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;}
-      /* Anello decorativo sottile attivo all’hover */
-      .profile-avatar::after{
-        content:"";
-        position:absolute; inset:-6px; border-radius:50%;
-        background: conic-gradient(from 0deg, rgba(108,92,231,.4), rgba(0,206,201,.4), rgba(108,92,231,.4));
-        filter: blur(6px); opacity:.35; transition: opacity .25s ease;
-      }
-      .profile-avatar:hover::after{ opacity:.55; }
-
       .profile-avatar .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .3s ease;}
       .profile-avatar:hover .avatar-overlay{opacity:1;}
       .profile-avatar .avatar-overlay.is-loading{opacity:1; cursor:progress;}
@@ -143,53 +84,26 @@
       .profile-avatar .avatar-overlay.is-loading .avatar-loader{display:block;}
       .profile-avatar .avatar-overlay.is-loading svg{display:none;}
       .profile-avatar input{display:none;}
-
-      .profile-name{
-        font-size:1.9rem;font-weight:700;margin:16px 0 8px; min-height: 2.2rem;
-        text-shadow: 0 1px 0 rgba(255,255,255,.6);
-      }
-      .profile-plan{
-        font-size:0.9rem;font-weight:700;color: var(--primary-color);
-        background: rgba(255,255,255,0.95);
-        padding:6px 16px;border-radius:999px;border:1px solid rgba(0,0,0,.06); min-height: 1.5rem;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 4px 12px rgba(0,0,0,.06);
-      }
+      .profile-name{font-size:1.8rem;font-weight:700;margin:16px 0 8px; min-height: 2.2rem;}
+      .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem;}
 
       .profile-content{margin-top:24px;display:grid;gap:16px;}
-      .profile-section-title{
-        text-align:center;font-weight:600;color:#555;margin-bottom:12px;font-size:0.9rem;
-        text-transform:uppercase;letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:8px;
-      }
-
-      /* Righe info con micro-depth e transizione */
-      .profile-info-row{
-        display:flex;justify-content:space-between;align-items:center;
-        background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.65));
-        border:1px solid rgba(0,0,0,.06);
-        border-radius:14px;padding:12px 16px; transition: all .25s ease;
-        box-shadow: 0 6px 18px rgba(0,0,0,.05), inset 0 1px 0 rgba(255,255,255,.75);
-      }
-      .profile-info-row:hover { box-shadow: 0 10px 26px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.85); transform: translateY(-1px); }
+      .profile-section-title{text-align:center;font-weight:600;color:#555;margin-bottom:12px;font-size:0.9rem;text-transform:uppercase;letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:8px;}
+      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px; transition: all .3s ease;}
+      .profile-info-row:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
       .info-label{font-weight:600;color:#444; display:flex; align-items:center; gap:8px; font-size: 0.9rem;}
       .info-value{font-weight:500;font-size:1rem; min-height: 1.5rem;}
 
-      /* Griglia campi personali */
       .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;}
-      .info-field{
-        background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.7));
-        border:1px solid rgba(0,0,0,.06);
-        border-radius:14px;padding:12px; transition: all .25s ease;
-        box-shadow: 0 6px 18px rgba(0,0,0,.05), inset 0 1px 0 rgba(255,255,255,.8);
-      }
-      .info-field:hover { box-shadow: 0 10px 26px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.9); transform: translateY(-1px); }
+      .info-field{background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px; transition: all .3s ease;}
+      .info-field:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:flex; align-items:center; gap:8px; margin-bottom:4px;}
       .info-field .data-display{font-size:1rem;font-weight:500;color:#333;min-height:24px; transition: opacity .3s ease; text-align: center;}
       .info-field .data-display.is-empty{color:#888;font-style:italic;}
-      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:10px;border:1px solid #d8d8d8;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease; text-align: center;}
+      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease; text-align: center;}
       .is-editing .info-field .data-display { display: none; }
       .is-editing .info-field .data-input { display: block; }
 
-      /* Pulsanti */
       .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:16px;}
       .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 24px;font-weight:800;font-size:1rem;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
       .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
@@ -201,7 +115,6 @@
       .btn-secondary:hover:not(:disabled){background:#e5e5e5;border-color:#ccc;color:#333}
       #save-button{display:none;}
       
-      /* Toast & Modal (invariati) */
       .status-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:999px;color:#fff;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:1001;opacity:0;visibility:hidden;transition:opacity .3s ease, top .3s ease, visibility .3s ease;}
       .status-toast.show{top:90px;opacity:1;visibility:visible;}
       .status-toast.success{background:var(--success-color);}
@@ -227,7 +140,7 @@
 
       @media(min-width: 640px) {
         .personal-info-grid{ grid-template-columns:1fr 1fr; }
-        .dashboard-panel{ padding: 32px 28px 28px; }
+        .dashboard-panel{ padding: 24px; }
         .profile-name{ font-size: 2rem; }
         .info-label { font-size: 1rem; }
         .info-value { font-size: 1.1rem; }
@@ -247,6 +160,7 @@
           <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
           <span class="logo-text">MyHomesBudget</span>
       </a>
+      <!-- MODIFICA: Aggiunto l'elemento HTML per il bottone abbonamento -->
       <div class="top-center">
         <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
       </div>
@@ -371,7 +285,7 @@
             const saveButton = document.getElementById('save-button');
             saveButton.disabled = true;
             saveButton.textContent = 'Salvataggio...';
-            const dataToSave = { id: currentUser.id, gender: document.getElementById('gender-input').value || null, birthdate: document.getElementById('birthdate-input').value || null, country: document.getElementById('country-input').value || null, phone: document.getElementById['phone-input']?.value || document.getElementById('phone-input').value || null };
+            const dataToSave = { id: currentUser.id, gender: document.getElementById('gender-input').value || null, birthdate: document.getElementById('birthdate-input').value || null, country: document.getElementById('country-input').value || null, phone: document.getElementById('phone-input').value || null, };
             const { data, error } = await supabase.from('personal_details').upsert(dataToSave).select().single();
             saveButton.disabled = false;
             saveButton.textContent = 'Salva Modifiche';
@@ -474,75 +388,7 @@
                  console.error("Errore caricamento dettagli personali:", detailsResponse.error);
             }
             
-            document.querySelector('.dashboard-panel').innerHTML = `
-              <div class="profile-header">
-                <div id="avatar-container" class="profile-avatar">
-                  <div class="skeleton skeleton-avatar"></div>
-                </div>
-                <h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1>
-                <div id="plan-type" class="profile-plan">
-                  <span class="skeleton skeleton-text" style="width: 50px;"></span>
-                </div>
-              </div>
-
-              <div class="profile-content">
-                <section>
-                  <div class="profile-info-row">
-                    <span class="info-label">📧 Mail di Registrazione</span>
-                    <span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span>
-                  </div>
-                </section>
-
-                <section>
-                  <h2 class="profile-section-title">✨ Dettagli</h2>
-                  <div style="display:grid; gap:12px;">
-                    <div class="profile-info-row">
-                      <span class="info-label">💳 Abbonamento</span>
-                      <span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span>
-                    </div>
-                    <div class="profile-info-row">
-                      <span class="info-label">🎯 Obiettivo Configurato</span>
-                      <span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span>
-                    </div>
-                  </div>
-                </section>
-
-                <section>
-                  <h2 class="profile-section-title">👤 Informazioni Personali</h2>
-                  <div id="personal-info-form" class="personal-info-grid">
-                    <div class="info-field">
-                      <label>🧑 Genere</label>
-                      <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                      <select class="data-input" id="gender-input">
-                        <option value="">Non specificato</option>
-                        <option value="Uomo">Uomo</option>
-                        <option value="Donna">Donna</option>
-                        <option value="Altro">Altro</option>
-                      </select>
-                    </div>
-                    <div class="info-field">
-                      <label>🎂 Data di Nascita</label>
-                      <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                      <input type="date" class="data-input" id="birthdate-input">
-                    </div>
-                    <div class="info-field">
-                      <label>🌍 Paese</label>
-                      <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                      <input type="text" placeholder="Es. Italia" class="data-input" id="country-input">
-                    </div>
-                    <div class="info-field">
-                      <label>📱 Numero di Telefono</label>
-                      <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                      <input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input">
-                    </div>
-                  </div>
-                </section>
-
-                <div class="profile-actions">
-                  <button id="edit-button" class="btn btn-secondary">Modifica</button>
-                  <button id="save-button" class="btn btn-primary">Salva Modifiche</button>
-                </div>
-              </div>`;
+            document.querySelector('.dashboard-panel').innerHTML = `<div class="profile-header"><div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div><h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1><div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div></div><div class="profile-content"><section><div class="profile-info-row"><span class="info-label">📧 Mail di Registrazione</span><span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span></div></section><section><h2 class="profile-section-title">✨ Dettagli</h2><div style="display:grid; gap:12px;"><div class="profile-info-row"><span class="info-label">💳 Abbonamento</span><span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span></div><div class="profile-info-row"><span class="info-label">🎯 Obiettivo Configurato</span><span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span></div></div></section><section><h2 class="profile-section-title">👤 Informazioni Personali</h2><div id="personal-info-form" class="personal-info-grid"><div class="info-field"><label>🧑 Genere</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><select class="data-input" id="gender-input"><option value="">Non specificato</option><option value="Uomo">Uomo</option><option value="Donna">Donna</option><option value="Altro">Altro</option></select></div><div class="info-field"><label>🎂 Data di Nascita</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="date" class="data-input" id="birthdate-input"></div><div class="info-field"><label>🌍 Paese</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="text" placeholder="Es. Italia" class="data-input" id="country-input"></div><div class="info-field"><label>📱 Numero di Telefono</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input"></div></div></section><div class="profile-actions"><button id="edit-button" class="btn btn-secondary">Modifica</button><button id="save-button" class="btn btn-primary">Salva Modifiche</button></div></div>`;
 
             renderProfileData(profileResponse.data, detailsResponse.data);
             renderSubscriptionStatus(profileResponse.data);
@@ -552,25 +398,9 @@
             document.getElementById('edit-button').addEventListener('click', () => toggleEditMode(true));
             document.getElementById('save-button').addEventListener('click', saveUserData);
             document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); window.location.href = "/it/"; });
-            document.getElementById('scheduler-btn').addEventListener('click', async () => {
-              const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 30);
-              const scheduled = await getScheduledTransactions(today, futureDate);
-              detailsModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
-              renderDeadlinesList(detailsModal.querySelector('#modal-body'), scheduled);
-              detailsModal.classList.add('is-visible');
-            });
-            document.getElementById('notifications-btn').addEventListener('click', async () => {
-              const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 7);
-              const upcoming = await getScheduledTransactions(today, futureDate);
-              detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-              renderDeadlinesList(detailsModal.querySelector('#modal-body'), upcoming);
-              detailsModal.classList.add('is-visible');
-            });
-            detailsModal.addEventListener('click', (e) => {
-              if (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close')) {
-                detailsModal.classList.remove('is-visible');
-              }
-            });
+            document.getElementById('scheduler-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 30); const scheduled = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), scheduled); detailsModal.classList.add('is-visible'); });
+            document.getElementById('notifications-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 7); const upcoming = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), upcoming); detailsModal.classList.add('is-visible'); });
+            detailsModal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close')) { detailsModal.classList.remove('is-visible'); } });
 
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const topActions = document.querySelector('.top-actions');
