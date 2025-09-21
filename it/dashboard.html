@@ -1095,7 +1095,7 @@ function plan_addReadonlyBanner(){
   const banner = document.createElement("div");
   banner.id = "plan-readonly-banner";
   banner.style.cssText = "margin:-8px 0 16px 0;padding:12px 16px;border-radius:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#d32f2f,#ff7675);box-shadow:0 8px 20px rgba(0,0,0,.15);";
-  banner.innerHTML = `🔒 Prova scaduta — modalità <u>sola lettura</u>. <a href="${PLAN_UPGRADE_URL}" style="color:#fff;text-decoration:underline;font-weight:900">Aggiorna ora</a>`;
+  banner.innerHTML = `🔒 PROVA SCADUTA — modalità <u>sola lettura</u>. <a href="${PLAN_UPGRADE_URL}" style="color:#fff; text-decoration:underline; font-weight:900; font-family: Arial, sans-serif;">Aggiorna ora</a>`;
   const nav = document.getElementById("dash-nav");
   if (nav && nav.parentElement){
     nav.parentElement.insertBefore(banner, nav.nextSibling);
