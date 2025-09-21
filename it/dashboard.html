@@ -1183,69 +1183,6 @@ if (document.readyState === "loading"){
   setTimeout(plan_initEnforcement, 300);
 }
 // === /PLAN ENFORCEMENT v2 ===
-<script type="module">
-/* ====== DropDown Categoria “verso il basso” ======
-   I menu nativi <select> scelgono automaticamente la direzione in base allo spazio disponibile.
-   Strategia: quando l’utente apre il select, spostiamo la vista per garantire spazio SOTTO
-   e permettere al browser di aprirlo verso il basso. Nessuna libreria aggiuntiva. */
-(function(){
-  // Trova il select della Categoria (fallback: tutti i select del form operazioni)
-  const findCategorySelect = () => {
-    // Per id/usual names se presenti
-    const byId = document.getElementById("category-select") || document.getElementById("categorySelect");
-    if (byId) return byId;
-    // Heuristic: primo <select> con label “Categoria”
-    const labels = Array.from(document.querySelectorAll("label"));
-    const catLabel = labels.find(l => /categoria/i.test(l.textContent || ""));
-    if (catLabel){
-      const sel = catLabel.control || catLabel.querySelector("select");
-      if (sel) return sel;
-    }
-    // Fallback: il primo select nel form operazioni (evita month/year in topbar)
-    const form = document.querySelector("#new-operation-form") || document.querySelector("form#operation-form") || document.querySelector("form");
-    if (form){
-      const selects = form.querySelectorAll("select");
-      // Prova a scegliere quello che NON è “tipo”/“sottocategoria”
-      const pick = Array.from(selects).find(s => /categoria/i.test(s.getAttribute("aria-label")||s.name||s.id||""))
-                || selects[0];
-      return pick || null;
-    }
-    return null;
-  };
-
-  function ensureOpensDown(selectEl){
-    if (!selectEl) return;
-    const handler = () => {
-      // Porta il select circa al centro della viewport per creare spazio in basso
-      try{
-        selectEl.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
-      }catch(_){
-        // Safari vecchi: fallback
-        const rect = selectEl.getBoundingClientRect();
-        const mid = rect.top + window.scrollY - (window.innerHeight/2 - rect.height);
-        window.scrollTo({ top: Math.max(0, mid), left: 0 });
-      }
-      // Piccolo offset in basso se vicino al bordo inferiore
-      if (window.innerHeight - selectEl.getBoundingClientRect().bottom < 260){
-        window.scrollBy({ top: 260, left: 0, behavior: "instant" });
-      }
-    };
-    // Sia su mousedown che su focus per massima compatibilità
-    selectEl.addEventListener("mousedown", handler, { passive: true });
-    selectEl.addEventListener("focus", handler, { passive: true });
-  }
-
-  // Inizializza quando il DOM è pronto
-  const init = () => {
-    const sel = findCategorySelect();
-    ensureOpensDown(sel);
-  };
-  if (document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
 </script>
 </body>
 </html>
