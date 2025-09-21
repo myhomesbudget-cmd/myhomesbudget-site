@@ -1056,10 +1056,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
-// === PLAN ENFORCEMENT (read-only se trial scaduta) ===
+// === PLAN ENFORCEMENT v2 (read-only senza interferire col rendering) ===
 const PLAN_UPGRADE_URL = "/it/pricing.html";
 window.__READ_ONLY_MODE__ = false;
 
+// 1) Helpers
 function plan_isTrialExpired(profile){
   if (!profile) return false;
   const t = (profile.plan_type || "").toLowerCase();
@@ -1069,14 +1070,15 @@ function plan_isTrialExpired(profile){
   const today = new Date(); today.setHours(0,0,0,0);
   return end < today;
 }
-function plan_showUpgrade(reason="Questa azione richiede un piano attivo."){
+function plan_showUpgrade(msg="Questa azione richiede un piano attivo."){
+  // usa eventuale modale della pagina, altrimenti fallback
   if (typeof showModal === "function"){
     showModal("Prova scaduta", `
-      <p>${reason}</p>
+      <p>${msg}</p>
       <p><strong>La tua prova è scaduta.</strong> Aggiorna il piano per continuare.</p>`,
       [
         { text:"Chiudi", class:"btn-secondary" },
-        { text:"Aggiorna ora", class:"btn-primary", action:()=>{ location.href = PLAN_UPGRADE_URL; } }
+        { text:"Aggiorna ora", class:"btn-primary", action:()=>location.href = PLAN_UPGRADE_URL }
       ]
     );
   } else {
@@ -1086,64 +1088,67 @@ function plan_showUpgrade(reason="Questa azione richiede un piano attivo."){
 }
 function plan_addReadonlyBanner(){
   if (document.getElementById("plan-readonly-banner")) return;
-  const host = document.getElementById("dash-nav")?.parentElement || document.querySelector("main.container");
-  if (!host) return;
+  const host = document.getElementById("dash-nav")?.parentElement || document.querySelector("main.container") || document.body;
   const banner = document.createElement("div");
   banner.id = "plan-readonly-banner";
   banner.style.cssText = "margin:-8px 0 16px 0;padding:12px 16px;border-radius:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#d32f2f,#ff7675);box-shadow:0 8px 20px rgba(0,0,0,.15);";
   banner.innerHTML = `🔒 Prova scaduta — modalità <u>sola lettura</u>. <a href="${PLAN_UPGRADE_URL}" style="color:#fff;text-decoration:underline;font-weight:900">Aggiorna ora</a>`;
-  if (document.getElementById("dash-nav") && document.getElementById("dash-nav").parentElement){
-    document.getElementById("dash-nav").parentElement.insertBefore(banner, document.getElementById("dash-nav").nextSibling);
+  const nav = document.getElementById("dash-nav");
+  if (nav && nav.parentElement){
+    nav.parentElement.insertBefore(banner, nav.nextSibling);
   } else {
     host.prepend(banner);
   }
 }
-function plan_applyReadOnlyUI(){
-  const submitBtn = document.getElementById("submit-btn");
-  if (submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "Aggiorna piano per aggiungere"; }
 
-  const disableGoalConfirm = ()=>{
-    const goalConfirm = document.getElementById("g1-confirm-btn");
-    const goalEdit = document.getElementById("g1-edit-btn");
-    if (goalConfirm){ goalConfirm.disabled = true; goalConfirm.textContent = "Aggiorna piano per confermare"; }
-    if (goalEdit){ goalEdit.style.display = "none"; }
-    const chips = document.querySelectorAll("#g1-method .chip");
-    chips.forEach(c=>c.style.pointerEvents="none");
-  };
-  disableGoalConfirm();
-  const goalsList = document.getElementById("goals-list");
-  if (goalsList){
-    const mo = new MutationObserver(disableGoalConfirm);
-    mo.observe(goalsList, { childList:true, subtree:true });
+// 2) Applica sola-lettura SOLO su controlli di scrittura, senza toccare altro UI
+function plan_applyReadOnlyUI(){
+  // Form "Nuova Operazione"
+  const submitBtn = document.getElementById("submit-btn");
+  if (submitBtn){
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Aggiorna piano per aggiungere";
   }
+
+  // Obiettivo (evita MutationObserver: tocco solo pulsanti noti)
+  const goalConfirm = document.getElementById("g1-confirm-btn");
+  if (goalConfirm){
+    goalConfirm.disabled = true;
+    goalConfirm.textContent = "Aggiorna piano per confermare";
+  }
+
+  // Non blocchiamo chip/metodi o campi input per evitare side-effects sul rendering.
   plan_addReadonlyBanner();
 }
+
+// 3) Intercetta SOLO funzioni che scrivono (se esistono) — nessun listener globale
 function plan_guardWrites(){
-  ["saveTransaction","handleDelete","handleConfirmDeadline"].forEach(fnName=>{
-    const orig = window[fnName];
+  const fnNames = ["saveTransaction","handleDelete","handleConfirmDeadline","confirmGoalSettings","saveGoalSettings"];
+  fnNames.forEach(name=>{
+    const orig = window[name];
     if (typeof orig === "function"){
-      window["__orig_"+fnName] = orig;
-      window[fnName] = async function(...args){
-        if (window.__READ_ONLY_MODE__){ plan_showUpgrade(); return; }
+      window["__orig_"+name] = orig;
+      window[name] = async function(...args){
+        if (window.__READ_ONLY_MODE__){
+          plan_showUpgrade();
+          return;
+        }
         return await orig.apply(this, args);
       };
     }
   });
-  document.addEventListener("click", (e)=>{
-    if (!window.__READ_ONLY_MODE__) return;
-    const blocked = e.target.closest(".delete-btn, .btn-action-deadline, #g1-confirm-btn");
-    if (blocked){
-      e.preventDefault();
-      e.stopPropagation();
-      plan_showUpgrade();
-    }
-  }, true);
 }
+
+// 4) Inizializza DOPO che la pagina ha fatto il suo bootstrap
 async function plan_initEnforcement(){
   try{
     if (!window.supabase) return;
+    // Attendi un attimo che la pagina esegua initializePage() e popoli la UI
+    await new Promise(r => setTimeout(r, 600));
+
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("plan_type, trial_end")
@@ -1153,20 +1158,23 @@ async function plan_initEnforcement(){
 
     const expired = plan_isTrialExpired(profile);
     window.__READ_ONLY_MODE__ = expired;
+
     if (expired){
       plan_applyReadOnlyUI();
       plan_guardWrites();
     }
-  } catch(err){
+  } catch (err){
     console.error("[PlanGuard] Errore init:", err);
   }
 }
-// avvia dopo l'init della pagina
+
+// Avvio con piccola dilazione per non interferire con il rendering
 if (document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", plan_initEnforcement);
+  document.addEventListener("DOMContentLoaded", ()=>setTimeout(plan_initEnforcement, 300));
 } else {
-  plan_initEnforcement();
+  setTimeout(plan_initEnforcement, 300);
 }
+// === /PLAN ENFORCEMENT v2 ===
 </script>
 </body>
 </html>
