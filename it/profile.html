@@ -69,7 +69,7 @@
       .skeleton{ animation: shimmer 1.5s linear infinite; background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%); background-size: 800px 104px; height: 1.5rem; width: 60%; border-radius: 8px; display: inline-block; }
       .skeleton.skeleton-text { height: 1em; }
       .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
-      .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; } /* Leggermente più piccolo per mobile */
+      .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; }
       
       .dashboard-panel{ background:rgba(255,255,255,0.6); backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px); border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border); box-shadow:var(--shadow); max-width: 800px; width: 100%; margin: 24px auto; animation: fadeInUp 0.5s ease-out forwards; }
 
@@ -94,7 +94,7 @@
       .info-label{font-weight:600;color:#444; display:flex; align-items:center; gap:8px; font-size: 0.9rem;}
       .info-value{font-weight:500;font-size:1rem; min-height: 1.5rem;}
 
-      .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;} /* Single column by default */
+      .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;}
       .info-field{background:rgba(255,255,255,0.7);border:1px solid var(--card-border);border-radius:12px;padding:12px; transition: all .3s ease;}
       .info-field:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:flex; align-items:center; gap:8px; margin-bottom:4px;}
@@ -216,31 +216,164 @@
         const detailsModal = document.getElementById('details-modal');
         const notificationBadge = document.getElementById('notification-badge');
 
-        function showToast(message, type = 'success') { /* ... */ }
-        function renderProfileData(profile, details) { /* ... */ }
-        async function uploadAvatar(event) { /* ... */ }
-        async function saveUserData() { /* ... */ }
-        function toggleEditMode(isEditing) { /* ... */ }
-        function renderSubscriptionStatus(profile) { /* ... */ }
-        function positionSubscriptionButton() { /* ... */ }
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `status-toast ${type} show`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function renderProfileData(profile, details) {
+            document.getElementById('avatar-container').innerHTML = `
+                <img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo">
+                <label for="avatar-upload" class="avatar-overlay">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+                    <div class="avatar-loader"></div>
+                </label>
+                <input type="file" id="avatar-upload" accept="image/*">`;
+            
+            document.getElementById('avatar-upload').addEventListener('change', uploadAvatar);
+            document.getElementById('user-name').textContent = profile?.name || 'Utente';
+            document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD';
+            document.getElementById('user-email').textContent = currentUser?.email || '...';
+            document.getElementById('plan-type-detail').textContent = profile?.plan_type || 'STANDARD';
+            document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo';
+            const form = document.getElementById('personal-info-form');
+            const detailsData = details || {};
+            const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display');
+            genderDisplay.textContent = detailsData.gender || emptyPlaceholder;
+            genderDisplay.classList.toggle('is-empty', !detailsData.gender);
+            document.getElementById('gender-input').value = detailsData.gender || '';
+            const birthdateDisplay = form.querySelector('.info-field:nth-child(2) .data-display');
+            birthdateDisplay.textContent = detailsData.birthdate ? new Date(detailsData.birthdate).toLocaleDateString('it-IT') : 'Non impostata';
+            birthdateDisplay.classList.toggle('is-empty', !detailsData.birthdate);
+            document.getElementById('birthdate-input').value = detailsData.birthdate || '';
+            const countryDisplay = form.querySelector('.info-field:nth-child(3) .data-display');
+            countryDisplay.textContent = detailsData.country || emptyPlaceholder;
+            countryDisplay.classList.toggle('is-empty', !detailsData.country);
+            document.getElementById('country-input').value = detailsData.country || '';
+            const phoneDisplay = form.querySelector('.info-field:nth-child(4) .data-display');
+            phoneDisplay.textContent = detailsData.phone || emptyPlaceholder;
+            phoneDisplay.classList.toggle('is-empty', !detailsData.phone);
+            document.getElementById('phone-input').value = detailsData.phone || '';
+        }
+        
+        async function uploadAvatar(event) {
+            const input = event.target;
+            if (!currentUser || !input.files || !input.files.length === 0) return;
+            
+            const file = input.files[0];
+            if (file.size > MAX_AVATAR_SIZE_MB * 1024 * 1024) {
+                showToast(`Il file è troppo grande. Limite: ${MAX_AVATAR_SIZE_MB}MB.`, 'error');
+                input.value = '';
+                return;
+            }
+            
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${currentUser.id}.${fileExt}`; // CORREZIONE APPLICATA QUI
+            
+            const overlay = document.querySelector('.avatar-overlay');
+            overlay.classList.add('is-loading');
+
+            try {
+                const { error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(filePath, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                const { data: urlData } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath, {
+                         transform: { ts: Date.now() }
+                    });
+
+                if (!urlData || !urlData.publicUrl) throw new Error("URL non trovato");
+                const publicUrl = urlData.publicUrl;
+
+                const { error: dbError } = await supabase
+                    .from('profiles')
+                    .update({ avatar_url: publicUrl })
+                    .eq('id', currentUser.id);
+                
+                if (dbError) throw dbError;
+
+                document.getElementById('profile-pic').src = publicUrl;
+                showToast('Immagine del profilo aggiornata!', 'success');
+
+            } catch (error) {
+                console.error("Errore durante l'upload dell'avatar:", error);
+                showToast("Errore nell'aggiornamento dell'immagine.", 'error');
+            } finally {
+                overlay.classList.remove('is-loading');
+                input.value = '';
+            }
+        }
+
+        async function saveUserData() {
+            if (!currentUser) return;
+            const saveButton = document.getElementById('save-button');
+            saveButton.disabled = true;
+            saveButton.textContent = 'Salvataggio...';
+            const dataToSave = { id: currentUser.id, gender: document.getElementById('gender-input').value || null, birthdate: document.getElementById('birthdate-input').value || null, country: document.getElementById('country-input').value || null, phone: document.getElementById('phone-input').value || null, };
+            const { data, error } = await supabase.from('personal_details').upsert(dataToSave).select().single();
+            saveButton.disabled = false;
+            saveButton.textContent = 'Salva Modifiche';
+            if (error) { console.error('Errore durante il salvataggio:', error); showToast('Errore durante il salvataggio.', 'error'); return; }
+            showToast('Profilo aggiornato con successo!', 'success');
+            const { data: currentProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+            renderProfileData(currentProfile, data);
+            toggleEditMode(false);
+        }
+
+        function toggleEditMode(isEditing) {
+            document.getElementById('personal-info-form').classList.toggle('is-editing', isEditing);
+            document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block';
+            document.getElementById('save-button').style.display = isEditing ? 'block' : 'none';
+        }
+
+        function renderSubscriptionStatus(profile) {
+            const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+            if (!profile || !profile.plan_type) { subscriptionStatusBtn.style.display = 'none'; return; }
+            let text = '', link = '#';
+            switch(profile.plan_type) {
+                case 'starter': case 'trial':
+                    if (profile.trial_end) {
+                        const endDate = new Date(profile.trial_end);
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        const diffTime = endDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays >= 0) {
+                            if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
+                            else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
+                            else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
+                            link = '/it/pricing.html';
+                        } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; }
+                    } break;
+                case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break;
+                case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break;
+            }
+            if (text) { subscriptionStatusBtn.textContent = text; subscriptionStatusBtn.href = link; subscriptionStatusBtn.style.display = 'flex'; } 
+            else { subscriptionStatusBtn.style.display = 'none'; }
+        }
+        function positionSubscriptionButton() {
+            const topCenter = document.querySelector('.top-center');
+            const topActions = document.querySelector('.top-actions');
+            const subscriptionBtn = document.getElementById('subscription-status-btn');
+            if (!topCenter || !topActions || !subscriptionBtn) return;
+            if (window.innerWidth <= 1200) { if (subscriptionBtn.parentElement !== topActions) topActions.prepend(subscriptionBtn); } 
+            else { if (subscriptionBtn.parentElement !== topCenter) topCenter.appendChild(subscriptionBtn); }
+        }
+        
         const safeToNumber = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
 
         async function getScheduledTransactions(startDate, endDate) {
-            const { data, error } = await supabase.from('transactions')
-                .select(`*, categories(name, icon)`)
-                .eq('created_by', currentUser.id)
-                .eq('is_paid', false)
-                .gte('due_date', startDate.toISOString().split('T')[0])
-                .lte('due_date', endDate.toISOString().split('T')[0])
-                .order('due_date', { ascending: true });
+            const { data, error } = await supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', currentUser.id).eq('is_paid', false).gte('due_date', startDate.toISOString().split('T')[0]).lte('due_date', endDate.toISOString().split('T')[0]).order('due_date', { ascending: true });
             if (error) { console.error("Errore caricamento scadenze:", error); return []; }
             return data;
         }
 
         function renderDeadlinesList(container, transactions) {
-            if (transactions.length === 0) {
-                container.innerHTML = '<div class="empty-state" style="padding: 40px 20px;"><p>Nessuna scadenza in questo periodo.</p></div>'; return;
-            }
+            if (transactions.length === 0) { container.innerHTML = '<div class="empty-state" style="padding: 40px 20px;"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
             const today = new Date(); today.setHours(0,0,0,0);
             container.innerHTML = transactions.map(tx => {
                 const dueDate = new Date(tx.due_date);
@@ -249,15 +382,7 @@
                 const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
                 const amountClass = tx.kind === 'income' ? 'income' : 'expense';
                 const amountSign = tx.kind === 'income' ? '+' : '-';
-                return `
-                    <div class="deadline-item">
-                        <div class="item-details">
-                            <span class="note">${tx.note}</span>
-                            <span class="category">${tx.categories?.name || ''}</span>
-                        </div>
-                        <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                        <span class="days-left">${daysLeftText}</span>
-                    </div>`;
+                return `<div class="deadline-item"><div class="item-details"><span class="note">${tx.note}</span><span class="category">${tx.categories?.name || ''}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span></div>`;
             }).join('');
         }
 
@@ -401,7 +526,7 @@
         //Copied functions to avoid breaking the code
         showToast = (message, type = 'success') => { toast.textContent = message; toast.className = `status-toast ${type} show`; setTimeout(() => { toast.classList.remove('show'); }, 3000); }
         renderProfileData = (profile, details) => { document.getElementById('avatar-container').innerHTML = `<img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo"><label for="avatar-upload" class="avatar-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg><div class="avatar-loader"></div></label><input type="file" id="avatar-upload" accept="image/*">`; document.getElementById('avatar-upload').addEventListener('change', uploadAvatar); document.getElementById('user-name').textContent = profile?.name || 'Utente'; document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD'; document.getElementById('user-email').textContent = currentUser?.email || '...'; document.getElementById('plan-type-detail').textContent = profile?.plan_type || 'STANDARD'; document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo'; const form = document.getElementById('personal-info-form'); const detailsData = details || {}; const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display'); genderDisplay.textContent = detailsData.gender || emptyPlaceholder; genderDisplay.classList.toggle('is-empty', !detailsData.gender); document.getElementById('gender-input').value = detailsData.gender || ''; const birthdateDisplay = form.querySelector('.info-field:nth-child(2) .data-display'); birthdateDisplay.textContent = detailsData.birthdate ? new Date(detailsData.birthdate).toLocaleDateString('it-IT') : 'Non impostata'; birthdateDisplay.classList.toggle('is-empty', !detailsData.birthdate); document.getElementById('birthdate-input').value = detailsData.birthdate || ''; const countryDisplay = form.querySelector('.info-field:nth-child(3) .data-display'); countryDisplay.textContent = detailsData.country || emptyPlaceholder; countryDisplay.classList.toggle('is-empty', !detailsData.country); document.getElementById('country-input').value = detailsData.country || ''; const phoneDisplay = form.querySelector('.info-field:nth-child(4) .data-display'); phoneDisplay.textContent = detailsData.phone || emptyPlaceholder; phoneDisplay.classList.toggle('is-empty', !detailsData.phone); document.getElementById('phone-input').value = detailsData.phone || ''; }
-        uploadAvatar = async (event) => { const input = event.target; if (!currentUser || !input.files || input.files.length === 0) return; const file = input.files[0]; if (file.size > MAX_AVATAR_SIZE_MB * 1024 * 1024) { showToast(`Il file è troppo grande. Limite: ${MAX_AVATAR_SIZE_MB}MB.`, 'error'); input.value = ''; return; } const fileExt = file.name.split('.').pop(); const filePath = `public/${currentUser.id}.${fileExt}`; const overlay = document.querySelector('.avatar-overlay'); overlay.classList.add('is-loading'); try { const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true }); if (uploadError) throw uploadError; const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath, { transform: { ts: Date.now() } }); if (!urlData || !urlData.publicUrl) throw new Error("URL non trovato"); const publicUrl = urlData.publicUrl; const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id); if (dbError) throw dbError; document.getElementById('profile-pic').src = publicUrl; showToast('Immagine del profilo aggiornata!', 'success'); } catch (error) { console.error("Errore durante l'upload dell'avatar:", error); showToast("Errore nell'aggiornamento dell'immagine.", 'error'); } finally { overlay.classList.remove('is-loading'); input.value = ''; } }
+        uploadAvatar = async (event) => { const input = event.target; if (!currentUser || !input.files || input.files.length === 0) return; const file = input.files[0]; if (file.size > MAX_AVATAR_SIZE_MB * 1024 * 1024) { showToast(`Il file è troppo grande. Limite: ${MAX_AVATAR_SIZE_MB}MB.`, 'error'); input.value = ''; return; } const fileExt = file.name.split('.').pop(); const filePath = `${currentUser.id}.${fileExt}`; const overlay = document.querySelector('.avatar-overlay'); overlay.classList.add('is-loading'); try { const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true }); if (uploadError) throw uploadError; const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(filePath, { transform: { ts: Date.now() } }); if (!urlData || !urlData.publicUrl) throw new Error("URL non trovato"); const publicUrl = urlData.publicUrl; const { error: dbError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', currentUser.id); if (dbError) throw dbError; document.getElementById('profile-pic').src = publicUrl; showStatusMessage('Immagine del profilo aggiornata!', 'success'); } catch (error) { console.error("Errore durante l'upload dell'avatar:", error); showToast("Errore nell'aggiornamento dell'immagine.", 'error'); } finally { overlay.classList.remove('is-loading'); input.value = ''; } }
         saveUserData = async () => { if (!currentUser) return; const saveButton = document.getElementById('save-button'); saveButton.disabled = true; saveButton.textContent = 'Salvataggio...'; const dataToSave = { id: currentUser.id, gender: document.getElementById('gender-input').value || null, birthdate: document.getElementById('birthdate-input').value || null, country: document.getElementById('country-input').value || null, phone: document.getElementById('phone-input').value || null, }; const { data, error } = await supabase.from('personal_details').upsert(dataToSave).select().single(); saveButton.disabled = false; saveButton.textContent = 'Salva Modifiche'; if (error) { console.error('Errore durante il salvataggio:', error); showToast('Errore durante il salvataggio.', 'error'); return; } showToast('Profilo aggiornato con successo!', 'success'); const { data: currentProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single(); renderProfileData(currentProfile, data); toggleEditMode(false); }
         toggleEditMode = (isEditing) => { document.getElementById('personal-info-form').classList.toggle('is-editing', isEditing); document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block'; document.getElementById('save-button').style.display = isEditing ? 'block' : 'none'; }
         renderSubscriptionStatus = (profile) => { const subscriptionStatusBtn = document.getElementById('subscription-status-btn'); if (!profile || !profile.plan_type) { subscriptionStatusBtn.style.display = 'none'; return; } let text = '', link = '#'; switch(profile.plan_type) { case 'starter': case 'trial': if (profile.trial_end) { const endDate = new Date(profile.trial_end); const today = new Date(); today.setHours(0,0,0,0); const diffTime = endDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); if (diffDays >= 0) { if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`; else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`; else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`; link = '/it/pricing.html'; } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; } } break; case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break; case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break; } if (text) { subscriptionStatusBtn.textContent = text; subscriptionStatusBtn.href = link; subscriptionStatusBtn.style.display = 'flex'; } else { subscriptionStatusBtn.style.display = 'none'; } }
