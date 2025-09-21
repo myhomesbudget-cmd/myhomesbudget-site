@@ -234,37 +234,8 @@
     .percentage-input-group.is-visible{display:flex}
     .percentage-input-group input{width:80px;text-align:right}
     .percentage-input-group span{font-weight:700}
-/* === FIX APERTURA SELECT VERSO IL BASSO (senza JS) ====================== */
-/* 1) Evita che i contenitori taglino o influenzino la direzione del menu */
-.form-section,
-.content-section,
-.dashboard-panel,
-.transaction-form,
-.form-group {
-  overflow: visible !important;
-}
-
-/* 2) Garantisci che il <select> possa sovrapporsi correttamente a tutto */
-#category_id,
-#subcategory_id {
-  position: relative;
-  z-index: 1000; /* sopra card/pannelli con backdrop/blur */
-}
-
-/* 3) Evita stacking strani dovuti a trasformazioni/blur */
-.dashboard-panel,
-.content-section {
-  transform: none !important;
-  will-change: auto !important;
-}
-
-/* 4) Diamo un piccolo margine di scroll in alto così, se necessario,
-      il browser ha spazio SOTTO e preferisce aprire in basso */
-#category_id {
-  scroll-margin-top: 140px;
-}
-
-/* (Già fatto nello step precedente) Centra il testo del banner rosso */
+    
+/*Centra il testo del banner rosso */
 #plan-readonly-banner { text-align: center; }
   </style>
 </head>
