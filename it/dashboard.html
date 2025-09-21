@@ -235,7 +235,8 @@
     .percentage-input-group input{width:80px;text-align:right}
     .percentage-input-group span{font-weight:700}
     
-    #plan-readonly-banner { text-align: center; }
+/*Centra il testo del banner rosso */
+#plan-readonly-banner { text-align: center; }
   </style>
 </head>
 <body>
@@ -245,6 +246,7 @@
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
     </a>
+    <!-- MODIFICA: Aggiunto div per il bottone abbonamento -->
     <div class="top-center">
         <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
     </div>
@@ -270,6 +272,7 @@
   </nav>
 
   <main class="container">
+    <!-- MODIFICA: Riorganizzata la navigazione -->
     <nav id="dash-nav" class="dash-nav">
       <a href="/it/profile.html">Profilo</a>
       <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
@@ -1175,6 +1178,6 @@ if (document.readyState === "loading"){
   setTimeout(plan_initEnforcement, 300);
 }
 // === /PLAN ENFORCEMENT v2 ===
-  </script>
+</script>
 </body>
 </html>
