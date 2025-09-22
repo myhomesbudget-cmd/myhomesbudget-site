@@ -631,10 +631,19 @@
       function updateDisplayForMethod(method){ labelEl.textContent = getMethodLabel(method); valueInput.placeholder = getPlaceholder(method); const isPercent = method === 'percent_income'; percentageBox.classList.toggle('is-visible', isPercent); valueInput.readOnly = isPercent; if (isPercent){ percentageInput.value = goal.value || 0; calculatePercentage(); } else { valueInput.value = goal.value || 0; } }
       methodWrap.addEventListener('click', (e)=>{ if (isLocked) return; const chip = e.target.closest('.chip'); if (!chip) return; Array.from(methodWrap.querySelectorAll('.chip')).forEach(c=>c.classList.remove('is-active')); chip.classList.add('is-active'); updateDisplayForMethod(chip.dataset.method); });
       percentageInput.addEventListener('input', calculatePercentage);
-      confirmBtn.addEventListener('click', async ()=>{ const activeChip = methodWrap.querySelector('.chip.is-active'); const method = activeChip ? activeChip.dataset.method : goal.method; const raw = (method === 'percent_income') ? parseFloat(percentageInput.value) : parseFloat(valueInput.value); const val = Number.isFinite(raw) ? raw : 0; const updatePayload = { contribution_method: mapInternalToContributionMethod(method), contribution_amount: val }; const { error } = await supabase.from('profiles').update(updatePayload).eq('id', user.id); if (error){ console.error('Errore aggiornamento obiettivo:', error); showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text:'Chiudi' }]); return; } userProfile.contribution_method = updatePayload.contribution_method; userProfile.contribution_amount = updatePayload.contribution_amount; goal.method = method; goal.value = val; showStatusMessage('Obiettivo confermato!', 'success'); toggleUI(true); });
-      editBtn.addEventListener('click', ()=>toggleUI(false));
+      confirmBtn.addEventListener('click', async ()=>{ const activeChip = methodWrap.querySelector('.chip.is-active'); const method = activeChip ? activeChip.dataset.method : goal.method; const raw = (method === 'percent_income') ? parseFloat(percentageInput.value) : parseFloat(valueInput.value); const val = Number.isFinite(raw) ? raw : 0; const updatePayload = { contribution_method: mapInternalToContributionMethod(method), contribution_amount: val }; const { error } = await supabase.from('profiles').update(updatePayload).eq('id', user.id); if (error){ console.error('Errore aggiornamento obiettivo:', error); showModal('Errore', 'Impossibile salvare le modifiche all\'obiettivo.', [{ text:'Chiudi' }]); return; } userProfile.contribution_method = updatePayload.contribution_method; userProfile.contribution_amount = updatePayload.contribution_amount; goal.method = method; goal.value = val; showStatusMessage('Obiettivo confermato!', 'success'); toggleUI(true); 
+        // MODIFICA: Salva lo stato "bloccato" nella sessione del browser
+        sessionStorage.setItem('goalCardLocked', 'true');
+      });
+      editBtn.addEventListener('click', ()=>{toggleUI(false);
+        // MODIFICA: Rimuovi lo stato "bloccato" dalla sessione del browser
+        sessionStorage.setItem('goalCardLocked', 'false');
+      });
       updateDisplayForMethod(goal.method);
-      toggleUI(false);
+      
+      // MODIFICA: Controlla lo stato salvato all'avvio e imposta la UI di conseguenza
+      const initiallyLocked = sessionStorage.getItem('goalCardLocked') === 'true';
+      toggleUI(initiallyLocked);
     }
 
     async function loadInitialData(){
