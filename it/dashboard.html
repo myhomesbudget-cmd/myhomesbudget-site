@@ -217,16 +217,18 @@
     #goals-list{display:flex;flex-direction:column;gap:16px;}
     .goal-card{background:#fff;border:1px solid var(--card-border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
     
+    /* Regole CSS Aggiunte per il layout del titolo */
+    .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .goal-header > .goal-title { margin-bottom: 0; }
+    
     .goal-card.is-locked .chip,.goal-card.is-locked .goal-input input,.goal-card.is-locked .percentage-input-group input{pointer-events:none;background-color:#f8f9fa;color:#6c757d}
     .goal-card.is-locked .goal-confirm .confirm-goal-btn { display: none; }
     .goal-card.is-locked .goal-confirm .edit-goal-btn { display: inline-flex; }
     .goal-card:not(.is-locked) .goal-confirm .edit-goal-btn { display: none; }
     .goal-card:not(.is-locked) .goal-confirm .confirm-goal-btn { display: inline-flex; }
     
-    .goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
     .goal-title{font-weight:800;color:#444;margin:0 0 4px}
     .goal-subtitle{margin:0 0 12px;color:#666}
-    .goal-actions{display:flex;gap:4px;}
     .goal-row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
     @media(min-width:768px){.goal-row{grid-template-columns:1fr 1fr auto}}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.05);font-weight:700;cursor:pointer;user-select:none}
@@ -245,7 +247,6 @@
   </style>
 </head>
 <body>
-  <!-- Topbar -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
@@ -283,7 +284,6 @@
       <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
 
-    <!-- Sezione Form -->
     <section class="content-section form-section">
       <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
@@ -351,7 +351,6 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (CORRETTA) -->
     <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
@@ -360,13 +359,11 @@
       <div id="goals-list"></div>
     </section>
 
-    <!-- Scadenze -->
     <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
       <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
       <div id="deadlines-list" class="transaction-list"></div>
     </section>
 
-    <!-- Dati principali -->
     <div class="dashboard-panel" style="margin-top:12px;">
       <div class="dashboard-grid">
         <div class="flow-column income">
@@ -383,7 +380,6 @@
     </div>
   </main>
 
-  <!-- Modals (invariati) -->
   <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
@@ -502,7 +498,7 @@
     function renderSubscriptionStatus(profile) {/*... codice invariato ...*/}
     function positionSubscriptionButton() {/*... codice invariato ...*/}
     
-    // --- LOGICA OBIETTIVI (Versione Definitiva) ---
+    // --- LOGICA OBIETTIVI (Versione Definitiva e Corretta) ---
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Importo variabile') return 'variable';
@@ -579,7 +575,8 @@
     }
 
     function createGoalCardHTML(goal, canDelete) {
-        const deleteBtnHTML = canDelete ? `<button class="action-btn delete-btn delete-goal-btn" data-id="${goal.id}" aria-label="Elimina obiettivo">🗑️</button>` : '';
+        // CORREZIONE: Aggiunta la classe 'delete' per lo stile corretto del pulsante.
+        const deleteBtnHTML = canDelete ? `<button class="action-btn delete delete-goal-btn" data-id="${goal.id}" aria-label="Elimina obiettivo">🗑️</button>` : '';
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
         const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
         const isPercent = internalMethod === 'percent_income';
@@ -815,7 +812,6 @@
         }
         mainContainer.addEventListener('click', handleActionClicks);
         schedulerModal.addEventListener('click', handleActionClicks);
-
         kindSelect.addEventListener('change', updateCategoryDropdown);
         categorySelect.addEventListener('change', () => updateSubcategories());
         transactionForm.addEventListener('submit', handleFormSubmit);
