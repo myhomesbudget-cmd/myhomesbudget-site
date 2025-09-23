@@ -200,7 +200,6 @@
     .animation-container{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
     .animation-bg-image{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,0,0,0.4))}
     .animation-elements-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
-    .money-element{position:absolute;background-size:contain;background-repeat:no-repeat;pointer-events:none}
     .money-element.income{top:-60px;left:50%;transform:translateX(-50%);opacity:0;animation:drop-money-fall 1.8s ease-in forwards}
     @keyframes drop-money-fall{0%{transform:translateY(-100px) translateX(-50%) rotate(-20deg);opacity:0}25%{opacity:1}100%{transform:translateY(120px) translateX(-50%) rotate(20deg);opacity:0}}
     .money-element.expense{top:50%;left:50%;transform:translate(-50%,-50%);opacity:1;animation:dematerialize-money 2s forwards}
@@ -802,12 +801,14 @@
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Percentuale sulle entrate') return 'percent_income';
+        if (method === 'Importo variabile') return 'variable';
         return 'fixed';
     }
     // Mappa un metodo interno per il nome da visualizzare
     function mapInternalToContributionMethod(internal) {
         if (internal === 'fixed') return 'Cifra fissa';
         if (internal === 'percent_income') return 'Percentuale sulle entrate';
+        if (internal === 'variable') return 'Importo variabile';
         return 'Cifra fissa';
     }
 
@@ -824,7 +825,7 @@
             // Aggiungi il primo obiettivo (obbligatorio) dal profilo
             if (profile.goal_name) {
                 allGoals.push({
-                    id: 'onboarding-goal', // ID fittizio per distinguerlo
+                    id: user.id, // Usa l'ID utente come ID per l'obiettivo di onboarding
                     nome_obiettivo: profile.goal_name,
                     importo_target: profile.goal_target_amount,
                     metodo_contribuzione: profile.contribution_method,
@@ -882,15 +883,15 @@
                 const canDelete = goals.length > 1;
                 goalsList.insertAdjacentHTML('beforeend', createGoalCardHTML(goal, canDelete, isPlanLimited));
                 bindGoalEditor(goal);
-                // Ho cambiato la logica qui: passiamo null per l'obiettivo di onboarding
-                updateGoalProgress(goal.is_onboarding ? null : goal.id); 
+                // Ho cambiato la logica qui: passiamo l'ID corretto per ogni obiettivo
+                updateGoalProgress(goal.id, goal.is_onboarding); 
             });
         }
     }
 
     // Funzione per creare la card HTML di un singolo obiettivo
     function createGoalCardHTML(goal, canDelete, isPlanLimited) {
-        const id = goal.is_onboarding ? 'onboarding-goal' : goal.id;
+        const id = goal.id;
         const deleteBtnHTML = canDelete && !goal.is_onboarding ? `<button class="action-btn delete-btn delete-goal-btn" data-id="${id}" aria-label="Elimina obiettivo">🗑️</button>` : '';
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
         const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
@@ -907,6 +908,7 @@
                 <div class="goal-row">
                     <div class="goal-method">
                         <span class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">Somma fissa</span>
+                        <span class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">Somma variabile</span>
                         <span class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% sulle entrate</span>
                     </div>
                     <div class="goal-input">
@@ -937,7 +939,7 @@
     
     // Funzione per associare gli eventi ai controlli di una card obiettivo
     function bindGoalEditor(goal) {
-        const id = goal.is_onboarding ? 'onboarding-goal' : goal.id;
+        const id = goal.id;
         const card = document.getElementById(`goal-card-${id}`);
         if (!card) return;
 
@@ -1001,7 +1003,8 @@
                 metodo_contribuzione: mapInternalToContributionMethod(method),
                 importo_mensile: finalAmount
             };
-
+            
+            // Corretto il nome delle colonne e la query di aggiornamento
             const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
 
             if (error) { showModal('Errore', 'Impossibile salvare le modifiche.', [{text: 'Chiudi'}]); return; }
@@ -1030,27 +1033,30 @@
         updateTotalIncomeDisplay();
     }
 
-    async function updateGoalProgress(goalId) {
+    async function updateGoalProgress(goalId, is_onboarding) {
         const table = 'risparmi';
-        const queryId = goalId ? goalId : 'onboarding-goal'; // Usa ID fittizio per il primo obiettivo
-        const { data, error } = await supabase.from(table).select('importo').eq('obiettivo_id', queryId);
+        // L'obiettivo di onboarding usa l'ID utente come ID obiettivo per la tabella `risparmi`
+        const queryId = is_onboarding ? user.id : goalId; 
+        
+        const { data, error } = await supabase.from(table).select('importo').eq('user_id', user.id).eq('obiettivo_id', queryId);
+
         if(error) { console.error('Errore nel calcolare il progresso', error); return; }
         const totalSaved = data.reduce((sum, record) => sum + safeToNumber(record.importo), 0);
 
         let targetAmount = 0;
         let goalData;
-        if (goalId) { // Obiettivi aggiuntivi dalla tabella 'obiettivi'
-             const { data: gData } = await supabase.from('obiettivi').select('importo_target').eq('id', goalId).single();
-             goalData = gData;
-        } else { // Obiettivo di onboarding dalla tabella 'profiles'
+        if (is_onboarding) { // Obiettivo di onboarding dalla tabella 'profiles'
              const { data: pData } = await supabase.from('profiles').select('goal_target_amount').eq('id', user.id).single();
              goalData = { importo_target: pData.goal_target_amount };
+        } else { // Obiettivi aggiuntivi dalla tabella 'obiettivi'
+             const { data: gData } = await supabase.from('obiettivi').select('importo_target').eq('id', goalId).single();
+             goalData = gData;
         }
 
         targetAmount = goalData ? safeToNumber(goalData.importo_target) : 0;
         
-        const progressAmountEl = document.getElementById(`progress-amount-${queryId}`);
-        const progressBarEl = document.getElementById(`progress-bar-${queryId}`);
+        const progressAmountEl = document.getElementById(`progress-amount-${goalId}`);
+        const progressBarEl = document.getElementById(`progress-bar-${goalId}`);
         if(progressAmountEl && progressBarEl) {
             const targetHTML = targetAmount > 0 ? ` / <strong>${fmt(targetAmount)}€</strong>` : '';
             progressAmountEl.innerHTML = `${fmt(totalSaved)}€${targetHTML}`;
@@ -1060,16 +1066,15 @@
     }
 
     function handleRecordSaving(goalId, amount) {
-        const finalGoalId = goalId ? goalId : 'onboarding-goal';
+        // L'ID da salvare sarà l'ID utente per l'obiettivo di onboarding, altrimenti l'ID dell'obiettivo stesso
+        const idToSave = (goalId === user.id) ? user.id : goalId;
         showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amount)}€</strong> per questo obiettivo.</p>`, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
-                // Modifica qui: l'obiettivo di onboarding non ha un ID numerico
-                const idToSave = (finalGoalId === 'onboarding-goal') ? user.id : finalGoalId;
                 const { error } = await supabase.from('risparmi').insert({ user_id: user.id, obiettivo_id: idToSave, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
                 if (error) { showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Risparmio registrato!', 'success');
-                updateGoalProgress(goalId);
+                loadAndRenderGoals(); // Ricarica gli obiettivi per aggiornare il progresso
             }}
         ]);
     }
@@ -1091,19 +1096,28 @@
             <div class="form-group"><label for="goal-name">Nome Obiettivo</label><input type="text" id="goal-name" required placeholder="Es. Vacanze estive"></div>
             <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importo mensile (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00"></div>
             <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Obiettivo finale (opzionale)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00"></div>
+            <div class="form-group" style="margin-top:12px">
+              <label>Metodo di contribuzione</label>
+              <div style="display:flex; gap:8px;">
+                <label><input type="radio" name="method-add" value="Cifra fissa" checked> Cifra fissa</label>
+                <label><input type="radio" name="method-add" value="Importo variabile"> Importo variabile</label>
+                <label><input type="radio" name="method-add" value="Percentuale sulle entrate"> Percentuale</label>
+              </div>
+            </div>
         </form>`;
         showModal('Nuovo Obiettivo', bodyHtml, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Salva', class: 'btn-primary', action: async () => {
                 const nome = document.getElementById('goal-name').value;
                 const importoMensile = document.getElementById('goal-monthly-amount').value;
+                const metodo = document.querySelector('input[name="method-add"]:checked').value;
                 if (!nome || !importoMensile) { alert("Nome e importo sono obbligatori."); return; }
                 const { error } = await supabase.from('obiettivi').insert({ 
                     user_id: user.id, 
                     nome_obiettivo: nome, 
                     importo_mensile: importoMensile, 
                     importo_target: document.getElementById('goal-target-amount').value || null,
-                    metodo_contribuzione: 'Cifra fissa'
+                    metodo_contribuzione: metodo
                 });
                 if (error) { showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Obiettivo creato!', 'success');
