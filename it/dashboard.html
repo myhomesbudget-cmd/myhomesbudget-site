@@ -212,11 +212,11 @@
     .status-message.success{background-color:var(--success-color);color:#fff}
     .status-message.error{background-color:var(--danger-color);color:#fff}
 
-    /* ====== GOALS (CORRETTO) ====== */
+    /* ====== GOALS (STILI) ====== */
     #goals-section .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
     #goals-list{display:flex;flex-direction:column;gap:16px;}
     .goal-card{background:#fff;border:1px solid var(--card-border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
-    .goal-card.is-locked .chip,.goal-card.is-locked .goal-input input,.goal-card.is-locked .percentage-input-group input{pointer-events:none;background-color:#f8f9fa;color:#6c757d}
+    .goal-card.is-locked .chip,.goal-card.is-locked .goal-input input{pointer-events:none;background-color:#f8f9fa;color:#6c757d}
     .goal-card.is-locked .goal-confirm .confirm-goal-btn { display: none; }
     .goal-card.is-locked .goal-confirm .edit-goal-btn { display: inline-flex; }
     .goal-card:not(.is-locked) .goal-confirm .edit-goal-btn { display: none; }
@@ -231,13 +231,6 @@
     .goal-input{display:flex;flex-direction:column}
     .goal-input input{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:1rem;background:#fff}
     .goal-hint{display:block;margin-top:6px;font-size:.85rem;color:#777}
-    .goal-confirm{display:flex;gap:8px;justify-content:flex-end;align-items:center}
-    .percentage-input-group{display:none;align-items:center;gap:8px;margin-top:8px}
-    .percentage-input-group.is-visible{display:flex}
-    .percentage-input-group input{width:80px;text-align:right}
-    .percentage-input-group span{font-weight:700}
-    .goal-progress-bar-container{margin-top:16px; border-top: 1px solid var(--card-border); padding-top: 16px;}
-    #plan-readonly-banner { text-align: center; }
   </style>
 </head>
 <body>
@@ -281,6 +274,7 @@
 
     <!-- Sezione Form -->
     <section class="content-section form-section">
+      <!-- (tutto invariato) -->
       <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
@@ -351,11 +345,12 @@
     <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
-        <!-- In modalità profiles-only il pulsante Aggiungi è nascosto -->
+        <!-- in questa modalità il pulsante è nascosto -->
         <button id="add-goal-btn" class="btn btn-primary" style="display:none;padding:6px 12px;font-size:.9rem;">+ Aggiungi</button>
       </div>
       <div id="goals-list"></div>
     </section>
+
     <!-- Scadenze -->
     <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
       <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
@@ -432,7 +427,7 @@
     let allTransactions = [];
     let userProfile = null;
 
-    // --- DOM (invariato + riferimenti Obiettivi) ---
+    // --- DOM (invariato) ---
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -454,33 +449,21 @@
     const dueDateOptions = document.getElementById('due-date-options');
     const statusMessage = document.getElementById('status-message');
 
-    // 🔗 Obiettivi — riferimenti SEZIONE (nuovi, necessari)
+    // 🔗 Riferimenti SEZIONE OBIETTIVI (usati nella Parte 3/3)
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
     const addGoalBtn = document.getElementById('add-goal-btn');
+
+    // 🔗 Riferimenti modale generica (invariati)
     const genericModal = document.getElementById('generic-modal');
     const genericModalTitle = document.getElementById('generic-modal-title');
     const genericModalBody = document.getElementById('generic-modal-body');
     const genericModalFooter = document.getElementById('generic-modal-footer');
     /* =========================================================
-       LOGICA "OBIETTIVI" — additiva e non invasiva
+       OBIETTIVI — Modalità "profiles-only" (mirata)
        ========================================================= */
 
-    // ————— Helpers mappature metodo contribuzione
-    function mapContributionMethodToInternal(method) {
-      if (method === 'Cifra fissa') return 'fixed';
-      if (method === 'Importo variabile') return 'variable';
-      if (method === 'Percentuale sulle entrate') return 'percent_income';
-      return 'fixed';
-    }
-    function mapInternalToContributionMethod(internal) {
-      if (internal === 'fixed') return 'Cifra fissa';
-      if (internal === 'variable') return 'Importo variabile';
-      if (internal === 'percent_income') return 'Percentuale sulle entrate';
-      return 'Cifra fissa';
-    }
-
-    // ————— Modal generica
+    // Modal generica (riusa gli elementi già referenziati)
     function openModal(title, bodyHTML, footerHTML) {
       genericModalTitle.textContent = title || '';
       genericModalBody.innerHTML = bodyHTML || '';
@@ -489,176 +472,84 @@
     }
     function closeModal() {
       genericModal.classList.remove('is-visible');
+      genericModalTitle.textContent = '';
+      genericModalBody.innerHTML = '';
+      genericModalFooter.innerHTML = '';
     }
-    // Chiudi modal al click su overlay/close (non interferisce con altre modali)
     genericModal?.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
         closeModal();
       }
     });
 
-    // ————— DB: CRUD/letture
-    async function fetchGoals() {
-      const { data, error } = await supabase
-        .from('obiettivi')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-      if (error) throw error;
-      return data || [];
-    }
-
-    async function sumSavingsFor(goalId) {
-      const { data, error } = await supabase
-        .from('risparmi')
-        .select('importo')
-        .eq('user_id', user.id)
-        .eq('obiettivo_id', goalId);
-      if (error) throw error;
-      return (data || []).reduce((s, r) => s + (parseFloat(r.importo) || 0), 0);
-    }
-
-    async function createGoal(payload) {
-      const { error } = await supabase.from('obiettivi').insert({
-        user_id: user.id,
-        nome_obiettivo: payload.nome_obiettivo,
-        importo_target: payload.importo_target ?? null,
-        importo_mensile: payload.importo_mensile ?? null,
-        metodo_contribuzione: payload.metodo_contribuzione
-      });
-      if (error) throw error;
-    }
-
-    async function updateGoal(id, patch) {
-      const { error } = await supabase
-        .from('obiettivi')
-        .update(patch)
-        .eq('id', id)
-        .eq('user_id', user.id);
-      if (error) throw error;
-    }
-
-    async function deleteGoal(id) {
-      const { error } = await supabase
-        .from('obiettivi')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-      if (error) throw error;
-    }
-
-    async function insertSaving(goalId, amount) {
-      const { error } = await supabase.from('risparmi').insert({
-        user_id: user.id,
-        obiettivo_id: goalId,
-        importo: amount
-      });
-      if (error) throw error;
-    }
-
-    // ————— Migrazione una-tantum da profiles → obiettivi
-    async function migrateOnboardingGoalIfNeeded(profile) {
-      try {
-        if (!profile) return;
-
-        const { count, error: countErr } = await supabase
-          .from('obiettivi')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id);
-        if (countErr) {
-          console.error('[Goals] Errore conteggio obiettivi:', countErr);
-          return;
-        }
-        if (count && count > 0) return; // già presenti
-
-        // profilo con campi goal_* popolati → crea primo obiettivo
-        if (profile.goal_type || profile.goal_name || profile.goal_target_amount || profile.contribution_method || profile.contribution_amount) {
-          const payload = {
-            user_id: user.id,
-            nome_obiettivo: profile.goal_name || profile.goal_type || 'Obiettivo',
-            importo_target: profile.goal_target_amount ?? null,
-            importo_mensile: profile.contribution_amount ?? null,
-            metodo_contribuzione: profile.contribution_method || 'Cifra fissa'
-          };
-          const { error: insErr } = await supabase.from('obiettivi').insert(payload);
-          if (insErr) console.error('[Goals] Migrazione fallita:', insErr);
-        }
-      } catch (e) {
-        console.error('[Goals] Migrazione errore:', e);
+    // ===== Obiettivi: lettura/scrittura direttamente da `profiles`
+    async function fetchProfileGoal() {
+      // garantisci utente
+      if (!user) {
+        const { data: { user: u } } = await supabase.auth.getUser();
+        user = u || null;
       }
-    }
+      if (!user) return null;
 
-    // ————— Rendering sezione obiettivi
-    async function loadAndRenderGoals() {
-      try {
-        const goals = await fetchGoals();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, plan_type, goal_name, goal_target_amount, contribution_method, contribution_amount')
+        .eq('id', user.id)
+        .single();
 
-        // Pulsante +Aggiungi solo per PRO
-        if (userProfile && userProfile.plan_type === 'pro') {
-          addGoalBtn.style.display = 'inline-flex';
-          addGoalBtn.onclick = openAddGoalModal;
-        } else {
-          addGoalBtn.style.display = 'none';
-          addGoalBtn.onclick = null;
-        }
-
-        if (!goals.length) {
-          goalsList.innerHTML = `
-            <div class="goal-card">
-              <p class="goal-subtitle" style="margin:0;">Nessun obiettivo impostato.</p>
-              <p class="goal-hint">Completa l’<a href="/it/onboarding.html?edit=1">Onboarding</a> o, se hai il piano <strong>Pro</strong>, usa “+ Aggiungi”.</p>
-            </div>`;
-          return;
-        }
-
-        goalsList.innerHTML = '';
-        for (const g of goals) {
-          const saved = await sumSavingsFor(g.id);
-          goalsList.appendChild(renderGoalCard(g, saved, goals.length));
-        }
-      } catch (e) {
-        console.error('[Goals] loadAndRenderGoals error:', e);
-        goalsList.innerHTML = `<div class="goal-card"><p class="goal-subtitle">Errore nel caricamento degli obiettivi.</p></div>`;
+      if (error) {
+        console.error('[Goals:profiles] SELECT error:', error);
+        return null;
       }
+      userProfile = data || userProfile;
+      return data;
     }
 
-    function renderGoalCard(goal, currentSaved, totalGoalsCount) {
-      const target = parseFloat(goal.importo_target) || 0;
-      const percent = target > 0 ? Math.min(100, (currentSaved / target) * 100) : 0;
+    async function updateProfileGoal(fields) {
+      if (!user) {
+        const { data: { user: u } } = await supabase.auth.getUser();
+        user = u || null;
+      }
+      if (!user) throw new Error('Utente non autenticato');
 
-      const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
-      const isPercent = internalMethod === 'percent_income';
+      const patch = {};
+      if ('contribution_method' in fields) patch.contribution_method = fields.contribution_method;
+      if ('contribution_amount' in fields) patch.contribution_amount = fields.contribution_amount;
 
-      const card = document.createElement('div');
-      card.className = 'goal-card is-locked';
-      card.dataset.goalId = goal.id;
+      const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
+      if (error) throw error;
+    }
 
-      card.innerHTML = `
-        <h4 class="goal-title">${goal.nome_obiettivo || 'Obiettivo'}</h4>
-        <p class="goal-subtitle">Target: <strong>${(target || 0).toFixed(2)}€</strong> · Metodo: <strong>${goal.metodo_contribuzione || '-'}</strong></p>
+    // ===== UI: render singola card alimentata da `profiles`
+    function renderGoalCard(p) {
+      const container = document.createElement('div');
+      container.className = 'goal-card is-locked';
+
+      const goalName = (p?.goal_name || 'Obiettivo').trim();
+      const target = Number(p?.goal_target_amount || 0);
+      const method = p?.contribution_method || 'Cifra fissa';
+      const amount = (p?.contribution_amount ?? '');
+
+      container.innerHTML = `
+        <h4 class="goal-title">${goalName}</h4>
+        <p class="goal-subtitle">Target: <strong>${target.toFixed(2)}€</strong> · Metodo: <strong class="subtitle-method">${method}</strong></p>
 
         <div class="goal-row">
           <div class="goal-method">
-            <span class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">Somma fissa</span>
-            <span class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">Somma variabile</span>
-            <span class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% sulle entrate</span>
+            <span class="chip ${method === 'Cifra fissa' ? 'is-active' : ''}" data-method="Cifra fissa">Somma fissa</span>
+            <span class="chip ${method === 'Importo variabile' ? 'is-active' : ''}" data-method="Importo variabile">Somma variabile</span>
+            <span class="chip ${method === 'Percentuale sulle entrate' ? 'is-active' : ''}" data-method="Percentuale sulle entrate">% sulle entrate</span>
           </div>
 
           <div class="goal-input">
             <label class="goal-amount-label" style="font-weight:700;display:block;margin-bottom:6px;">
-              ${isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)'}
+              ${method === 'Percentuale sulle entrate' ? 'Percentuale (%)' : 'Importo Mensile (€)'}
             </label>
-
-            <input class="goal-amount-input" type="number" step="0.01"
-              value="${!isPercent ? (goal.importo_mensile ?? '').toString() : ''}"
-              ${isPercent ? 'style="display:none;"' : ''} />
-
-            <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
-              <input class="goal-percentage-input" type="number" step="0.1"
-                value="${isPercent ? (goal.importo_mensile ?? 10) : ''}"/>
-              <span>% di <span class="total-income-placeholder">0.00</span>€</span>
-            </div>
-            <span class="goal-hint">Modifica possibile con “Modifica” → “Conferma”.</span>
+            <input class="goal-amount-input" type="number"
+                   step="${method === 'Percentuale sulle entrate' ? '0.1' : '0.01'}"
+                   value="${amount !== null && amount !== undefined ? amount : ''}"
+                   placeholder="${method === 'Percentuale sulle entrate' ? '10' : '0.00'}" />
+            <span class="goal-hint">Con “Modifica” puoi cambiare metodo e importo; “Conferma” salva su <strong>profiles</strong>.</span>
           </div>
 
           <div class="goal-confirm">
@@ -666,243 +557,104 @@
             <button class="btn btn-primary confirm-goal-btn" style="display:none;">Conferma</button>
           </div>
         </div>
-
-        <div class="goal-progress-bar-container">
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fg" style="width:${percent.toFixed(2)}%;background:linear-gradient(90deg,#6c5ce7,#00cec9);height:10px;border-radius:999px;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:8px;font-weight:700;">
-            <span>Accumulato: ${currentSaved.toFixed(2)}€</span>
-            <span>${percent.toFixed(1)}%</span>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
-          <button class="btn btn-primary register-saving-btn">Registra Risparmio</button>
-          ${totalGoalsCount > 1 ? `<button class="btn btn-secondary delete-goal-btn" style="background: var(--grad-danger);">Elimina</button>` : ''}
-        </div>
       `;
 
-      // ——— Gestione stato lock/edit
-      const editBtn = card.querySelector('.edit-goal-btn');
-      const confirmBtn = card.querySelector('.confirm-goal-btn');
-      const methodWrap = card.querySelector('.goal-method');
-      const amountLabel = card.querySelector('.goal-amount-label');
-      const amountInput = card.querySelector('.goal-amount-input');
-      const percentageGroup = card.querySelector('.percentage-input-group');
-      const percentageInput = card.querySelector('.goal-percentage-input');
+      const editBtn = container.querySelector('.edit-goal-btn');
+      const confirmBtn = container.querySelector('.confirm-goal-btn');
+      const methodWrap = container.querySelector('.goal-method');
+      const amountInput = container.querySelector('.goal-amount-input');
+      const amountLabel = container.querySelector('.goal-amount-label');
+      const subtitleMethod = container.querySelector('.subtitle-method');
 
-      function lockCard(lock) {
-        card.classList.toggle('is-locked', lock);
+      function lock(lock) {
+        container.classList.toggle('is-locked', lock);
         editBtn.style.display = lock ? 'inline-flex' : 'none';
         confirmBtn.style.display = lock ? 'none' : 'inline-flex';
       }
-      lockCard(true);
+      lock(true);
 
-      editBtn.addEventListener('click', () => lockCard(false));
+      editBtn.addEventListener('click', () => lock(false));
 
-      // Cambio metodo (solo in edit)
+      // cambio metodo (solo in edit)
       methodWrap.addEventListener('click', (e) => {
-        if (card.classList.contains('is-locked')) return;
+        if (container.classList.contains('is-locked')) return;
         const chip = e.target.closest('.chip');
         if (!chip) return;
-
         methodWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
         chip.classList.add('is-active');
 
-        const m = chip.dataset.method;
-        const isPct = (m === 'percent_income');
-        amountLabel.textContent = isPct ? 'Percentuale (%)' : 'Importo Mensile (€)';
-        amountInput.style.display = isPct ? 'none' : 'block';
-        percentageGroup.classList.toggle('is-visible', isPct);
-
-        const totalIncomes = (allTransactions || [])
-          .filter(tx => tx.kind === 'income' && !tx.is_scheduled)
-          .reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
-        const totalIncomeEl = percentageGroup.querySelector('.total-income-placeholder');
-        if (totalIncomeEl) totalIncomeEl.textContent = Number(totalIncomes || 0).toFixed(2);
+        const newMethod = chip.dataset.method;
+        subtitleMethod.textContent = newMethod;
+        amountLabel.textContent = newMethod === 'Percentuale sulle entrate' ? 'Percentuale (%)' : 'Importo Mensile (€)';
+        amountInput.step = newMethod === 'Percentuale sulle entrate' ? '0.1' : '0.01';
+        amountInput.placeholder = newMethod === 'Percentuale sulle entrate' ? '10' : '0.00';
       });
 
-      // Conferma update
+      // conferma → UPDATE profiles (solo contribution_method & contribution_amount)
       confirmBtn.addEventListener('click', async () => {
         try {
           const activeChip = methodWrap.querySelector('.chip.is-active');
-          const method = activeChip ? activeChip.dataset.method : 'fixed';
-          const isPct = method === 'percent_income';
-          const newAmount = isPct ? parseFloat(percentageInput.value) : parseFloat(amountInput.value);
-
-          await updateGoal(goal.id, {
-            metodo_contribuzione: mapInternalToContributionMethod(method),
-            importo_mensile: isNaN(newAmount) ? null : newAmount
+          const newMethod = activeChip ? activeChip.dataset.method : (p?.contribution_method || 'Cifra fissa');
+          const val = parseFloat(amountInput.value);
+          await updateProfileGoal({
+            contribution_method: newMethod,
+            contribution_amount: isNaN(val) ? null : val
           });
-          lockCard(true);
-          await loadAndRenderGoals();
+          await loadAndRenderGoals(); // ricarica dalla fonte (profiles)
         } catch (e) {
-          console.error('[Goals] Update fallito:', e);
+          console.error('[Goals:profiles] UPDATE error:', e);
         }
       });
 
-      // Elimina
-      const delBtn = card.querySelector('.delete-goal-btn');
-      if (delBtn) {
-        delBtn.addEventListener('click', async () => {
-          openModal('Elimina obiettivo', `
-            <p>Sei sicuro di voler eliminare <strong>${goal.nome_obiettivo}</strong>?</p>
-            <p class="goal-hint">I risparmi collegati resteranno nello storico.</p>
-          `, `
-            <button class="btn btn-secondary" id="cancel-del-goal">Annulla</button>
-            <button class="btn btn-primary" id="confirm-del-goal" style="background: var(--grad-danger);">Elimina</button>
-          `);
-          document.getElementById('cancel-del-goal').onclick = closeModal;
-          document.getElementById('confirm-del-goal').onclick = async () => {
-            try {
-              await deleteGoal(goal.id);
-              closeModal();
-              await loadAndRenderGoals();
-            } catch (e) {
-              console.error('[Goals] Eliminazione fallita:', e);
-            }
-          };
-        });
-      }
-
-      // Registra risparmio
-      const regBtn = card.querySelector('.register-saving-btn');
-      regBtn.addEventListener('click', () => handleRegisterSaving(goal.id, goal.nome_obiettivo));
-
-      // Inizializza placeholder "% di entrate"
-      if (percentageGroup) {
-        const totalIncomes = (allTransactions || [])
-          .filter(tx => tx.kind === 'income' && !tx.is_scheduled)
-          .reduce((s, tx) => s + (parseFloat(tx.amount) || 0), 0);
-        const totalIncomeEl = percentageGroup.querySelector('.total-income-placeholder');
-        if (totalIncomeEl) totalIncomeEl.textContent = Number(totalIncomes || 0).toFixed(2);
-      }
-
-      return card;
+      return container;
     }
 
-    // ————— Modali: Nuovo obiettivo + Registra risparmio
-    function openAddGoalModal() {
-      openModal('Nuovo Obiettivo', `
-        <div class="form-group">
-          <label>Nome Obiettivo</label>
-          <input id="new-goal-name" type="text" placeholder="Es. Fondo Emergenza" />
-        </div>
-        <div class="form-group">
-          <label>Importo Target (€)</label>
-          <input id="new-goal-target" type="number" step="0.01" placeholder="0.00" />
-        </div>
-        <div class="form-group">
-          <label>Metodo</label>
-          <select id="new-goal-method">
-            <option value="Cifra fissa">Cifra fissa</option>
-            <option value="Importo variabile">Importo variabile</option>
-            <option value="Percentuale sulle entrate">Percentuale sulle entrate</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label id="new-goal-amount-label">Importo Mensile (€)</label>
-          <input id="new-goal-amount" type="number" step="0.01" placeholder="0.00" />
-        </div>
-      `, `
-        <button class="btn btn-secondary" id="cancel-add-goal">Annulla</button>
-        <button class="btn btn-primary" id="confirm-add-goal">Salva</button>
-      `);
+    // ===== Orchestrazione sezione Obiettivi (profiles-only)
+    async function loadAndRenderGoals() {
+      try {
+        // Multi-goal disattivo: nascondi sempre il pulsante
+        addGoalBtn.style.display = 'none';
+        addGoalBtn.onclick = null;
 
-      const methodSel = document.getElementById('new-goal-method');
-      const amountLabel = document.getElementById('new-goal-amount-label');
-      const amountInput = document.getElementById('new-goal-amount');
-
-      methodSel.addEventListener('change', () => {
-        const val = methodSel.value;
-        const isPercent = (val === 'Percentuale sulle entrate');
-        amountLabel.textContent = isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)';
-        amountInput.value = '';
-        amountInput.placeholder = isPercent ? '10' : '0.00';
-        amountInput.step = isPercent ? '0.1' : '0.01';
-      });
-
-      document.getElementById('cancel-add-goal').onclick = closeModal;
-      document.getElementById('confirm-add-goal').onclick = async () => {
-        try {
-          const nome = (document.getElementById('new-goal-name').value || '').trim() || 'Obiettivo';
-          const target = parseFloat(document.getElementById('new-goal-target').value);
-          const metodo = methodSel.value;
-          const importo = parseFloat(amountInput.value);
-
-          await createGoal({
-            nome_obiettivo: nome,
-            importo_target: isNaN(target) ? null : target,
-            importo_mensile: isNaN(importo) ? null : importo,
-            metodo_contribuzione: metodo
-          });
-          closeModal();
-          await loadAndRenderGoals();
-        } catch (e) {
-          console.error('[Goals] Creazione fallita:', e);
+        const profile = await fetchProfileGoal();
+        if (
+          !profile ||
+          (!profile.goal_name &&
+           !profile.goal_target_amount &&
+           !profile.contribution_method &&
+           !profile.contribution_amount)
+        ) {
+          goalsList.innerHTML = `
+            <div class="goal-card">
+              <p class="goal-subtitle" style="margin:0;">Nessun obiettivo configurato.</p>
+              <p class="goal-hint">Imposta l’obiettivo dall’<a href="/it/onboarding.html?edit=1">Onboarding</a> e torna qui.</p>
+            </div>`;
+          return;
         }
-      };
+
+        goalsList.innerHTML = '';
+        goalsList.appendChild(renderGoalCard(profile));
+      } catch (e) {
+        console.error('[Goals:profiles] loadAndRenderGoals error:', e);
+        goalsList.innerHTML = `<div class="goal-card"><p class="goal-subtitle">Errore nel caricamento dell’obiettivo.</p></div>`;
+      }
     }
 
-    function handleRegisterSaving(goalId, goalName) {
-      openModal('Registra Risparmio', `
-        <div class="form-group">
-          <label>Importo (€)</label>
-          <input id="saving-amount" type="number" step="0.01" placeholder="0.00" />
-          <span class="goal-hint">Il versamento verrà aggiunto allo storico di <strong>${goalName}</strong>.</span>
-        </div>
-      `, `
-        <button class="btn btn-secondary" id="cancel-add-saving">Annulla</button>
-        <button class="btn btn-primary" id="confirm-add-saving">Registra</button>
-      `);
-
-      document.getElementById('cancel-add-saving').onclick = closeModal;
-      document.getElementById('confirm-add-saving').onclick = async () => {
-        try {
-          const amount = parseFloat(document.getElementById('saving-amount').value);
-          if (!amount || amount <= 0) return;
-          await insertSaving(goalId, amount);
-          closeModal();
-          await loadAndRenderGoals();
-        } catch (e) {
-          console.error('[Goals] Inserimento risparmio fallito:', e);
-        }
-      };
-    }
-
-    // ————— Bootstrap goals: indipendente, non invasivo
     async function goalsBootstrap() {
       try {
-        // 1) User
+        // Assicura sessione disponibile
         if (!user) {
           const { data: { user: u } } = await supabase.auth.getUser();
           user = u || null;
         }
-        if (!user) return; // la tua dashboard già gestisce redirect se non loggato
-
-        // 2) Profile (se non già valorizzato da codice esistente)
-        if (!userProfile) {
-          const { data: profile, error: pErr } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-          if (!pErr) userProfile = profile;
-        }
-
-        // 3) Migrazione onboarding → obiettivi (una-tantum)
-        await migrateOnboardingGoalIfNeeded(userProfile);
-
-        // 4) Render iniziale
+        if (!user) return; // la tua logica globale gestisce l'eventuale redirect
         await loadAndRenderGoals();
-
       } catch (e) {
-        console.error('[Goals] Bootstrap error:', e);
+        console.error('[Goals:profiles] bootstrap error:', e);
       }
     }
 
-    // Avvio non intrusivo: dopo DOM pronto
+    // Avvio: non invasivo rispetto al resto dello script
     document.addEventListener('DOMContentLoaded', () => {
       goalsBootstrap();
     });
