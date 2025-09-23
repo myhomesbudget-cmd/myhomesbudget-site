@@ -399,6 +399,16 @@
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
   <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
+  <div id="saving-history-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Cronologia Risparmi</h3>
+        <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+      </div>
+      <div id="saving-history-list" class="modal-body transaction-list"></div>
+    </div>
+  </div>
+
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
@@ -410,7 +420,7 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
-    let goalsData = []; // Nuovo stato per gli obiettivi caricati
+    let goalsData = [];
 
     // --- DOM (originali) ---
     const transactionForm = document.getElementById('transaction-form');
@@ -443,6 +453,8 @@
     const statusMessage = document.getElementById('status-message');
     const animationModal = document.getElementById('animation-modal');
     const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+    const savingHistoryModal = document.getElementById('saving-history-modal');
+    const savingHistoryList = document.getElementById('saving-history-list');
 
     // --- DOM (nuovi per obiettivi) ---
     const goalsSection = document.getElementById('goals-section');
@@ -478,7 +490,7 @@
       modal.classList.add('is-visible');
     }
 
-    function showTransactionAnimation(type='income'){ /* ... Logica animazione invariata ... */ return new Promise(resolve => resolve()); }
+    function showTransactionAnimation(type='income'){ return new Promise(resolve => resolve()); }
     function resetFormToCreateMode(){
       formTitle.textContent = "Nuova Operazione";
       submitBtn.textContent = "Aggiungi";
@@ -504,7 +516,7 @@
       return dt;
     }
 
-    // --- FUNZIONI OPERAZIONI (originali e intatte) ---
+    // --- FUNZIONI OPERAZIONI ---
     async function loadInitialData(){
       try{
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
@@ -822,7 +834,7 @@
             
             if (profile.goal_name) {
                 allGoals.push({
-                    id: 'onboarding-goal',
+                    id: user.id, // Usa l'ID utente per l'obiettivo di onboarding
                     nome_obiettivo: profile.goal_name,
                     importo_target: profile.goal_target_amount,
                     metodo_contribuzione: profile.contribution_method,
@@ -919,9 +931,10 @@
                     </div>
                 </div>
                 <div class="goal-progress-bar-container">
-                    <div class="category-bar-info">
+                    <div class="category-bar-info" style="display: flex; align-items: center;">
                         <span>Progresso</span>
                         <span class="category-bar-amount" id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
+                        <button class="action-btn" data-id="${id}" onclick="showSavingHistory('${id}')" style="margin-left: 8px;">Storico</button>
                     </div>
                     <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
                 </div>
@@ -1020,11 +1033,19 @@
     }
 
     async function updateGoalProgress(goalId, is_onboarding) {
-        const table = 'risparmi';
+        let savedData;
         
-        const { data, error } = await supabase.from(table).select('importo').eq('user_id', user.id).eq('obiettivo_id', goalId);
-        if(error) { console.error('Errore nel calcolare il progresso', error); return; }
-        const totalSaved = data.reduce((sum, record) => sum + safeToNumber(record.importo), 0);
+        if (is_onboarding) {
+            const { data, error } = await supabase.from('risparmio_obbiettivo_default').select('importo').eq('user_id', user.id);
+            if (error) { console.error('Errore nel calcolare il progresso', error); return; }
+            savedData = data;
+        } else {
+            const { data, error } = await supabase.from('risparmi').select('importo').eq('user_id', user.id).eq('obiettivo_id', goalId);
+            if (error) { console.error('Errore nel calcolare il progresso', error); return; }
+            savedData = data;
+        }
+        
+        const totalSaved = savedData.reduce((sum, record) => sum + safeToNumber(record.importo), 0);
 
         let targetAmount = 0;
         let goalData;
@@ -1048,7 +1069,7 @@
         }
     }
 
-    function handleRecordSaving(goalId, amount) {
+    async function handleRecordSaving(goalId, amount) {
         showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amount)}€</strong> per questo obiettivo.</p>`, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
@@ -1058,7 +1079,9 @@
                     idToSave = goal.id;
                 }
                 
-                const { error } = await supabase.from('risparmi').insert({ user_id: user.id, obiettivo_id: idToSave, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
+                let table = goal.is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+                
+                const { error } = await supabase.from(table).insert({ user_id: user.id, obiettivo_id: idToSave, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
                 if (error) { showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Risparmio registrato!', 'success');
                 loadAndRenderGoals();
@@ -1108,6 +1131,61 @@
                 });
                 if (error) { showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Obiettivo creato!', 'success');
+                loadAndRenderGoals();
+            }}
+        ]);
+    }
+
+    async function showSavingHistory(goalId) {
+        const goal = goalsData.find(g => g.id === goalId);
+        if (!goal) return;
+
+        let data;
+        let table;
+        if (goal.is_onboarding) {
+            table = 'risparmio_obbiettivo_default';
+            const { data: savings, error } = await supabase.from(table).select('*').eq('user_id', user.id);
+            if (error) {
+                showModal('Errore', 'Impossibile caricare la cronologia dei risparmi.', [{ text: 'Chiudi' }]);
+                return;
+            }
+            data = savings;
+        } else {
+            table = 'risparmi';
+            const { data: savings, error } = await supabase.from(table).select('*').eq('user_id', user.id).eq('obiettivo_id', goalId);
+            if (error) {
+                showModal('Errore', 'Impossibile caricare la cronologia dei risparmi.', [{ text: 'Chiudi' }]);
+                return;
+            }
+            data = savings;
+        }
+
+        const listHtml = data.map(s => {
+            const date = new Date(s.data_registrazione).toLocaleDateString('it-IT');
+            return `<div class="item" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>${date}</span>
+                <span style="font-weight:700;">+${fmt(s.importo)}€</span>
+                <div style="display:flex; gap: 8px;">
+                    <button class="action-btn delete" onclick="deleteSavingRecord(${s.id}, '${table}')">🗑️</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        savingHistoryList.innerHTML = listHtml;
+        savingHistoryModal.classList.add('is-visible');
+    }
+
+    async function deleteSavingRecord(id, table) {
+        showModal('Conferma eliminazione', `<p>Sei sicuro di voler eliminare questo risparmio?</p>`, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { text: 'Elimina', class: 'delete', action: async () => {
+                const { error } = await supabase.from(table).delete().eq('id', id);
+                if (error) {
+                    showModal('Errore', `Impossibile eliminare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                showStatusMessage('Risparmio eliminato!', 'success');
+                savingHistoryModal.classList.remove('is-visible');
                 loadAndRenderGoals();
             }}
         ]);
@@ -1191,8 +1269,9 @@
       }
     }
 
+    window.showSavingHistory = showSavingHistory;
+    window.deleteSavingRecord = deleteSavingRecord;
     document.addEventListener('DOMContentLoaded', initializePage);
-    // ... Plan Enforcement Code (invariato e completo) ...
   </script>
 </body>
 </html>
