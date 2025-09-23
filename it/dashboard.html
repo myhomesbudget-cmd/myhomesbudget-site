@@ -372,7 +372,18 @@
       <!-- Script locale alla sezione GOALS: profili-only -->
       <script type="module">
         // Usa il client globale già disponibile
-        const { supabase } = window;
+        const supabase = window.supabase;
+        if (!supabase || !supabase.auth) {
+  console.error('[GOALS/profiles] supabase client missing or invalid');
+  document.addEventListener('DOMContentLoaded', () => {
+    const goalsList = document.getElementById('goals-list');
+    if (goalsList) {
+      goalsList.innerHTML =
+        '<div class="goal-card"><p class="goal-subtitle">Errore nel caricamento dell’obiettivo.</p></div>';
+    }
+  });
+  return; // interrompe l’esecuzione del modulo GOALS
+}
 
         // DOM locali alla sezione
         const goalsSection = document.getElementById('goals-section');
