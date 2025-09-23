@@ -832,19 +832,33 @@
             
             const allGoals = [];
             
-            if (profile.goal_name) {
+            // Logica per caricare il primo obiettivo dalla tabella `obiettivi`
+            const { data: onboardingGoal, error: onboardingGoalError } = await supabase
+                .from('obiettivi')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: true })
+                .limit(1)
+                .maybeSingle();
+
+            if (onboardingGoalError) throw onboardingGoalError;
+
+            if (onboardingGoal) {
                 allGoals.push({
-                    id: user.id, // Usa l'ID utente per l'obiettivo di onboarding
-                    nome_obiettivo: profile.goal_name,
-                    importo_target: profile.goal_target_amount,
-                    metodo_contribuzione: profile.contribution_method,
-                    importo_mensile: profile.contribution_amount,
+                    ...onboardingGoal,
                     is_onboarding: true
                 });
             }
 
+            // Per gli utenti PRO, carica gli obiettivi aggiuntivi
             if (profile.plan_type === 'pro') {
-                const { data: additionalGoals, error: goalsError } = await supabase.from('obiettivi').select('*').eq('user_id', user.id);
+                const { data: additionalGoals, error: goalsError } = await supabase
+                    .from('obiettivi')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .gt('id', onboardingGoal ? onboardingGoal.id : 0) // Escludi il primo obiettivo se già caricato
+                    .order('id');
+                    
                 if (goalsError) throw goalsError;
                 if (additionalGoals) {
                     allGoals.push(...additionalGoals.map(g => ({ ...g, is_onboarding: false })));
@@ -922,7 +936,7 @@
                         <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
                         <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
                             <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
-                            <span>% di <span class="total-income-placeholder">0.00</span>€</span>
+                            <span>% di <span class="total-income-placeholder">0.00</span>€ = <strong class="calculated-percentage-amount">0.00€</strong></span>
                         </div>
                     </div>
                     <div class="goal-confirm">
@@ -954,6 +968,7 @@
         const percentageGroup = card.querySelector('.percentage-input-group');
         const percentageInput = card.querySelector('.goal-percentage-input');
         const totalIncomeEl = card.querySelector('.total-income-placeholder');
+        const calculatedAmountEl = card.querySelector('.calculated-percentage-amount');
         const labelEl = card.querySelector('.goal-input label');
         const confirmBtn = card.querySelector('.confirm-goal-btn');
         const editBtn = card.querySelector('.edit-goal-btn');
@@ -971,7 +986,11 @@
         const updateTotalIncomeDisplay = () => {
             const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
             totalIncomeEl.textContent = fmt(totalIncomes);
+            const calculated = (safeToNumber(percentageInput.value) / 100) * totalIncomes;
+            calculatedAmountEl.textContent = fmt(calculated) + '€';
         };
+
+        percentageInput.addEventListener('input', updateTotalIncomeDisplay);
         
         methodWrap.addEventListener('click', (e) => {
             if (isLocked) return;
