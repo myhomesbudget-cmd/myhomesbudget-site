@@ -986,13 +986,15 @@
             const isPercent = method === 'percent_income';
             let finalAmount = isPercent ? safeToNumber(percentageInput.value) : safeToNumber(amountInput.value);
 
-            let table, eqColumn;
+            let table, eqColumn, eqValue;
             if (goal.is_onboarding) {
                 table = 'profiles';
                 eqColumn = 'id';
+                eqValue = user.id;
             } else {
                 table = 'obiettivi';
                 eqColumn = 'id';
+                eqValue = goal.id;
             }
             
             const payload = {
@@ -1000,7 +1002,7 @@
                 importo_mensile: finalAmount
             };
 
-            const { error } = await supabase.from(table).update(payload).eq(eqColumn, goal.is_onboarding ? user.id : goal.id);
+            const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
 
             if (error) { showModal('Errore', 'Impossibile salvare le modifiche.', [{text: 'Chiudi'}]); return; }
             showStatusMessage('Obiettivo aggiornato!', 'success');
@@ -1062,7 +1064,9 @@
         showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amount)}€</strong> per questo obiettivo.</p>`, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
-                const { error } = await supabase.from('risparmi').insert({ user_id: user.id, obiettivo_id: finalGoalId, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
+                // Modifica qui: l'obiettivo di onboarding non ha un ID numerico
+                const idToSave = (finalGoalId === 'onboarding-goal') ? user.id : finalGoalId;
+                const { error } = await supabase.from('risparmi').insert({ user_id: user.id, obiettivo_id: idToSave, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
                 if (error) { showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Risparmio registrato!', 'success');
                 updateGoalProgress(goalId);
