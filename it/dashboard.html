@@ -255,14 +255,28 @@
   </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <nav class="topbar">
+<!-- build: dashboard.html · v-anchors · Added: PAGE_MAP, BEGIN/END anchors, #LOCK blocks, data-section -->
+<!--
+PAGE MAP
+1. TOPBAR (BEGIN_TOPBAR/END_TOPBAR)
+2. LAYOUT (BEGIN_LAYOUT/END_LAYOUT)
+   2.1 MAIN (BEGIN_MAIN/END_MAIN)
+       2.1.1 PAYWALL_BADGE (BEGIN_PAYWALL_BADGE/END_PAYWALL_BADGE)
+       2.1.2 GOALS (BEGIN_GOALS/END_GOALS)
+       2.1.3 DEADLINES (BEGIN_DEADLINES/END_DEADLINES)
+       2.1.4 TRANSACTIONS (BEGIN_TRANSACTIONS/END_TRANSACTIONS)
+3. MODALS (BEGIN_MODALS/END_MODALS)
+4. SCRIPTS (BEGIN_SCRIPTS/END_SCRIPTS)
+   4.1 #LOCK: supabase/auth bootstrap
+-->
+<!-- BEGIN_TOPBAR -->
+  <nav class="topbar" data-section="topbar">
     <a href="/it/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <div class="top-center">
-        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
+        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;" data-section="paywall_badge"></a>
     </div>
     <div class="top-nav-right">
       <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
@@ -284,17 +298,22 @@
       </div>
     </div>
   </nav>
+<!-- END_TOPBAR -->
 
-  <main class="container">
-    <nav id="dash-nav" class="dash-nav">
+<!-- BEGIN_LAYOUT -->
+  <main class="container" data-section="main_layout">
+<!-- BEGIN_DASH_NAV -->
+    <nav id="dash-nav" class="dash-nav" data-section="dash_nav">
       <a href="/it/profile.html">Profilo</a>
       <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
       <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
+<!-- END_DASH_NAV -->
 
+<!-- BEGIN_TRANSACTIONS -->
     <!-- Sezione Form -->
-    <section class="content-section form-section">
+    <section class="content-section form-section" data-section="tx_form">
       <h2 id="form-title" style="margin:0 0 16px">Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
@@ -362,7 +381,8 @@
     </section>
 
     <!-- 🎯 Sezione Obiettivi (MODIFICATA) -->
-    <section id="goals-section" class="content-section" style="margin-top:12px;">
+<!-- BEGIN_GOALS -->
+    <section id="goals-section" class="content-section" style="margin-top:12px;" data-section="goals">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
         <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
@@ -371,48 +391,62 @@
         <!-- Le card degli obiettivi verranno inserite qui dal JS -->
       </div>
     </section>
+<!-- END_GOALS -->
 
+<!-- BEGIN_DEADLINES -->
     <!-- Scadenze -->
-    <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
+    <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;" data-section="deadlines">
       <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
       <div id="deadlines-list" class="transaction-list"></div>
     </section>
+<!-- END_DEADLINES -->
 
     <!-- Dati principali -->
-    <div class="dashboard-panel" style="margin-top:12px;">
+    <div class="dashboard-panel" style="margin-top:12px;" data-section="panel">
       <div class="dashboard-grid">
-        <div class="flow-column income">
+<!-- BEGIN_INCOME -->
+        <div class="flow-column income" data-section="income">
           <h2>✅ Entrate Recenti</h2>
           <div id="income-summary" class="summary-card"></div>
-          <div id="income-list" class="content-section transaction-list"></div>
+          <div id="income-list" class="content-section transaction-list" data-section="income_list"></div>
         </div>
-        <div class="flow-column expense">
+<!-- END_INCOME -->
+<!-- BEGIN_EXPENSE -->
+        <div class="flow-column expense" data-section="expense">
           <h2>❌ Uscite Recenti</h2>
           <div id="expense-summary" class="summary-card"></div>
-          <div id="expense-list" class="content-section transaction-list"></div>
+          <div id="expense-list" class="content-section transaction-list" data-section="expense_list"></div>
         </div>
+<!-- END_EXPENSE -->
       </div>
     </div>
+<!-- END_TRANSACTIONS -->
   </main>
+<!-- END_LAYOUT -->
 
+<!-- BEGIN_MODALS -->
   <!-- Modals... (invariati) -->
-  <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
-  <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
-  <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
-  <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
+  <div id="scheduler-modal" class="modal-overlay" data-section="modal_scheduler"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
+  <div id="generic-modal" class="modal-overlay" data-section="modal_generic"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
+  <div id="animation-modal" class="animation-modal-overlay" data-section="modal_animation"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
+  <div id="movements-modal" class="modal-overlay" data-section="modal_movements"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
+<!-- END_MODALS -->
 
+<!-- BEGIN_SCRIPTS -->
+<!-- #LOCK:BEGIN(auth_bootstrap) -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
     window.supabase = supabase;
 
-    // --- STATE ---
+    // === STATE ===
     let user = null;
     let allCategories = [];
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
+<!-- #LOCK:END(auth_bootstrap) -->
 
-    // --- DOM (originali) ---
+    // === DOM ===
     const transactionForm = document.getElementById('transaction-form');
     const kindSelect = document.getElementById('kind');
     const categorySelect = document.getElementById('category_id');
@@ -444,11 +478,11 @@
     const animationModal = document.getElementById('animation-modal');
     const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
 
-    // --- DOM (nuovi per obiettivi) ---
+    // === NUOVI DOM PER OBIETTIVI ===
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
     
-    // --- UTILS ---
+    // === UTILS ===
     function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
     const fmt = (n) => Number(n || 0).toFixed(2);
     const dayMs = 86400000;
@@ -504,7 +538,7 @@
       return dt;
     }
 
-    // --- FUNZIONI OPERAZIONI (originali e intatte) ---
+    // === FUNZIONI OPERAZIONI ===
     async function loadInitialData(){
       try{
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
@@ -797,7 +831,7 @@
       }
     }
 
-    // --- NUOVA LOGICA OBIETTIVI (SOSTITUISCE QUELLA VECCHIA) ---
+    // === NUOVA LOGICA OBIETTIVI (SOSTITUISCE QUELLA VECCHIA) ===
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Importo variabile') return 'variable';
@@ -1138,5 +1172,6 @@
     document.addEventListener('DOMContentLoaded', initializePage);
     // ... Plan Enforcement Code (invariato e completo) ...
   </script>
+<!-- END_SCRIPTS -->
 </body>
 </html>
