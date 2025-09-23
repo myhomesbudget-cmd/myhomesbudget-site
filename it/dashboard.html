@@ -1000,11 +1000,10 @@
             }
             
             const payload = {
-                metodo_contribuzione: mapInternalToContributionMethod(method),
-                importo_mensile: finalAmount
+                contribution_method: mapInternalToContributionMethod(method),
+                contribution_amount: finalAmount
             };
             
-            // Corretto il nome delle colonne e la query di aggiornamento
             const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
 
             if (error) { showModal('Errore', 'Impossibile salvare le modifiche.', [{text: 'Chiudi'}]); return; }
@@ -1015,15 +1014,9 @@
             await loadAndRenderGoals();
         });
 
-        editBtn.addEventListener('click', () => {
-            if (isLocked) {
-                card.classList.remove('is-locked');
-                confirmBtn.style.display = 'inline-flex';
-                editBtn.style.display = 'none';
-            }
-        });
+        editBtn.addEventListener('click', () => toggleUI(false));
 
-        recordBtn.addEventListener('click', () => handleRecordSaving(goal.is_onboarding ? null : goal.id, recordBtn.dataset.amount));
+        recordBtn.addEventListener('click', () => handleRecordSaving(goal.id, recordBtn.dataset.amount));
         
         const deleteBtn = card.querySelector('.delete-goal-btn');
         if (deleteBtn) {
