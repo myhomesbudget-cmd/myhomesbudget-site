@@ -347,11 +347,12 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (CORRETTA) -->
+    <!-- 🎯 Sezione Obiettivi (LEGGE/SCRIVE SU PROFILES) -->
     <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
-        <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
+        <!-- In modalità profiles-only il pulsante Aggiungi è nascosto -->
+        <button id="add-goal-btn" class="btn btn-primary" style="display:none;padding:6px 12px;font-size:.9rem;">+ Aggiungi</button>
       </div>
       <div id="goals-list"></div>
     </section>
@@ -419,7 +420,6 @@
       <div id="movements-modal-footer" class="movements-summary"></div>
     </div>
   </div>
-
   <!-- SCRIPT -->
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
