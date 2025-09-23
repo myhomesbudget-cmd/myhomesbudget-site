@@ -223,8 +223,10 @@
     .goal-card:not(.is-locked) .goal-confirm .edit-goal-btn { display: none; }
     .goal-card:not(.is-locked) .goal-confirm .confirm-goal-btn { display: inline-flex; }
     
+    .goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
     .goal-title{font-weight:800;color:#444;margin:0 0 4px}
     .goal-subtitle{margin:0 0 12px;color:#666}
+    .goal-actions{display:flex;gap:4px;}
     .goal-row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
     @media(min-width:768px){.goal-row{grid-template-columns:1fr 1fr auto}}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.05);font-weight:700;cursor:pointer;user-select:none}
@@ -813,6 +815,7 @@
         }
         mainContainer.addEventListener('click', handleActionClicks);
         schedulerModal.addEventListener('click', handleActionClicks);
+
         kindSelect.addEventListener('change', updateCategoryDropdown);
         categorySelect.addEventListener('change', () => updateSubcategories());
         transactionForm.addEventListener('submit', handleFormSubmit);
