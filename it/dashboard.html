@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
 
-  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=FdsqAEzA1UXuQsP38TEZW4lC9Mn9eqjUEOsXkVb9L4_WzAUjOrVYyn3TEzhrUtA_iPYFpmIy-hIfrkWd2U34Wx8SxTqGAfDGTp1mFORJ4Ki5NW6R7TGyOYqD05SZd93aN-R343oT354ITStO6dmcIYX4fHqg0o58kWbaJG4tVKqxmI7dH4VeWrSglwrU4KG7F4yXdqRCu2eo6BakgngCB7G_E2ipgrQXzFH4VT8MjotAQ_LOBrvQPhi3Irs4EpbM" charset="UTF-8"></script><style>
+  <style>
     :root{
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
@@ -361,199 +361,15 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi — profiles-only -->
-    <section id="goals-section" class="content-section" style="margin-top:12px;" data-section="goals">
+    <!-- 🎯 Sezione Obiettivi (MODIFICATA) -->
+    <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
-        <button id="add-goal-btn" class="btn btn-primary" style="display:none;padding:6px 12px;font-size:.9rem;">+ Aggiungi</button>
+        <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
       </div>
-      <div id="goals-list"></div>
-
-      <!-- Script locale alla sezione GOALS: profili-only -->
-      <script type="module">
-        // Usa il client globale già disponibile
-        const supabase = window.supabase;
-        if (!supabase || !supabase.auth) {
-  console.error('[GOALS/profiles] supabase client missing or invalid');
-  document.addEventListener('DOMContentLoaded', () => {
-    const goalsList = document.getElementById('goals-list');
-    if (goalsList) {
-      goalsList.innerHTML =
-        '<div class="goal-card"><p class="goal-subtitle">Errore nel caricamento dell’obiettivo.</p></div>';
-    }
-  });
-  return; // interrompe l’esecuzione del modulo GOALS
-}
-
-        // DOM locali alla sezione
-        const goalsSection = document.getElementById('goals-section');
-        const goalsList    = document.getElementById('goals-list');
-        const addGoalBtn   = document.getElementById('add-goal-btn');
-
-        // Stato utente (non interferisce con quello globale)
-        let _user = null;
-        let _profileCache = null;
-
-        // ===== helpers supabase (solo questa sezione) =====
-        async function ensureUser() {
-          if (_user) return _user;
-          const { data: { user } } = await supabase.auth.getUser();
-          _user = user || null;
-          return _user;
-        }
-
-        async function fetchProfileGoal() {
-          const user = await ensureUser();
-          if (!user) return null;
-
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('id, plan_type, goal_name, goal_target_amount, contribution_method, contribution_amount')
-            .eq('id', user.id)
-            .single();
-
-          if (error) {
-            console.error('[GOALS/profiles] SELECT error:', error);
-            return null;
-          }
-          _profileCache = data;
-          return data;
-        }
-
-        async function updateProfileGoal(fields) {
-          const user = await ensureUser();
-          if (!user) throw new Error('Utente non autenticato');
-
-          const patch = {};
-          if ('contribution_method' in fields)  patch.contribution_method  = fields.contribution_method;
-          if ('contribution_amount' in fields)  patch.contribution_amount  = fields.contribution_amount;
-
-          const { error } = await supabase.from('profiles').update(patch).eq('id', user.id);
-          if (error) throw error;
-        }
-
-        // ===== UI =====
-        function renderGoalCard(p) {
-          const goalName = (p?.goal_name || 'Obiettivo').trim();
-          const target   = Number(p?.goal_target_amount || 0);
-          const method   = p?.contribution_method || 'Cifra fissa';
-          const amount   = (p?.contribution_amount ?? '');
-
-          const card = document.createElement('div');
-          card.className = 'goal-card is-locked';
-
-          card.innerHTML = `
-            <h4 class="goal-title">${goalName}</h4>
-            <p class="goal-subtitle">Target: <strong>${target.toFixed(2)}€</strong> · Metodo: <strong class="subtitle-method">${method}</strong></p>
-
-            <div class="goal-row">
-              <div class="goal-method">
-                <span class="chip ${method === 'Cifra fissa' ? 'is-active' : ''}" data-method="Cifra fissa">Somma fissa</span>
-                <span class="chip ${method === 'Importo variabile' ? 'is-active' : ''}" data-method="Importo variabile">Somma variabile</span>
-                <span class="chip ${method === 'Percentuale sulle entrate' ? 'is-active' : ''}" data-method="Percentuale sulle entrate">% sulle entrate</span>
-              </div>
-
-              <div class="goal-input">
-                <label class="goal-amount-label" style="font-weight:700;display:block;margin-bottom:6px;">
-                  ${method === 'Percentuale sulle entrate' ? 'Percentuale (%)' : 'Importo Mensile (€)'}
-                </label>
-                <input class="goal-amount-input" type="number"
-                       step="${method === 'Percentuale sulle entrate' ? '0.1' : '0.01'}"
-                       value="${amount !== null && amount !== undefined ? amount : ''}"
-                       placeholder="${method === 'Percentuale sulle entrate' ? '10' : '0.00'}" />
-                <span class="goal-hint">Con “Modifica” puoi cambiare metodo e importo; “Conferma” salva su <strong>profiles</strong>.</span>
-              </div>
-
-              <div class="goal-confirm">
-                <button class="btn btn-secondary edit-goal-btn">Modifica</button>
-                <button class="btn btn-primary confirm-goal-btn" style="display:none;">Conferma</button>
-              </div>
-            </div>
-          `;
-
-          const editBtn        = card.querySelector('.edit-goal-btn');
-          const confirmBtn     = card.querySelector('.confirm-goal-btn');
-          const methodWrap     = card.querySelector('.goal-method');
-          const amountInput    = card.querySelector('.goal-amount-input');
-          const amountLabel    = card.querySelector('.goal-amount-label');
-          const subtitleMethod = card.querySelector('.subtitle-method');
-
-          function setLocked(lock) {
-            card.classList.toggle('is-locked', lock);
-            editBtn.style.display    = lock ? 'inline-flex' : 'none';
-            confirmBtn.style.display = lock ? 'none'       : 'inline-flex';
-          }
-          setLocked(true);
-
-          editBtn.addEventListener('click', () => setLocked(false));
-
-          methodWrap.addEventListener('click', (e) => {
-            if (card.classList.contains('is-locked')) return;
-            const chip = e.target.closest('.chip');
-            if (!chip) return;
-            methodWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
-            chip.classList.add('is-active');
-
-            const newMethod = chip.dataset.method;
-            subtitleMethod.textContent = newMethod;
-            amountLabel.textContent    = newMethod === 'Percentuale sulle entrate' ? 'Percentuale (%)' : 'Importo Mensile (€)';
-            amountInput.step           = newMethod === 'Percentuale sulle entrate' ? '0.1' : '0.01';
-            amountInput.placeholder    = newMethod === 'Percentuale sulle entrate' ? '10'  : '0.00';
-          });
-
-          confirmBtn.addEventListener('click', async () => {
-            try {
-              const activeChip = methodWrap.querySelector('.chip.is-active');
-              const newMethod  = activeChip ? activeChip.dataset.method : method;
-              const newAmount  = parseFloat(amountInput.value);
-              await updateProfileGoal({
-                contribution_method: newMethod,
-                contribution_amount: Number.isFinite(newAmount) ? newAmount : null
-              });
-              await loadAndRenderGoals(); // ricarica card dai dati reali
-            } catch (err) {
-              console.error('[GOALS/profiles] UPDATE error:', err);
-            }
-          });
-
-          return card;
-        }
-
-        async function loadAndRenderGoals() {
-          try {
-            // disattiva multi-goal
-            if (addGoalBtn) { addGoalBtn.style.display = 'none'; addGoalBtn.onclick = null; }
-
-            const profile = await fetchProfileGoal();
-            const isEmpty =
-              !profile ||
-              (!profile.goal_name &&
-               !profile.goal_target_amount &&
-               !profile.contribution_method &&
-               !profile.contribution_amount);
-
-            if (isEmpty) {
-              goalsList.innerHTML = `
-                <div class="goal-card">
-                  <p class="goal-subtitle" style="margin:0;">Nessun obiettivo configurato.</p>
-                  <p class="goal-hint">Imposta l’obiettivo dall’<a href="/it/onboarding.html?edit=1">Onboarding</a> e torna qui.</p>
-                </div>`;
-              return;
-            }
-
-            goalsList.innerHTML = '';
-            goalsList.appendChild(renderGoalCard(profile));
-          } catch (err) {
-            console.error('[GOALS/profiles] load error:', err);
-            goalsList.innerHTML = `<div class="goal-card"><p class="goal-subtitle">Errore nel caricamento dell’obiettivo.</p></div>`;
-          }
-        }
-
-        // bootstrap locale alla sezione
-        document.addEventListener('DOMContentLoaded', () => {
-          loadAndRenderGoals();
-        });
-      </script>
+      <div id="goals-list">
+        <!-- Le card degli obiettivi verranno inserite qui dal JS -->
+      </div>
     </section>
 
     <!-- Scadenze -->
@@ -1278,7 +1094,9 @@
         await loadInitialData();
         updateCategoryDropdown();
         
-        // Sequenza corretta (profiles-only: salta migrazione e caricamento obiettivi; gestito dal modulo locale GOALS)
+        // Sequenza corretta
+        await migrateOnboardingGoalIfNeeded(userProfile);
+        await loadAndRenderGoals();
         await loadAllDataForMonth();
 
         const mainContainer = document.querySelector('main.container');
