@@ -361,7 +361,7 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (MODIFICATA) -->
+    <!-- 🎯 Sezione Obiettivi (MODIFICATO) -->
     <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
@@ -801,14 +801,12 @@
     // Mappa un metodo di contribuzione per l'interfaccia utente
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
-        if (method === 'Importo variabile') return 'variable';
         if (method === 'Percentuale sulle entrate') return 'percent_income';
         return 'fixed';
     }
     // Mappa un metodo interno per il nome da visualizzare
     function mapInternalToContributionMethod(internal) {
         if (internal === 'fixed') return 'Cifra fissa';
-        if (internal === 'variable') return 'Importo variabile';
         if (internal === 'percent_income') return 'Percentuale sulle entrate';
         return 'Cifra fissa';
     }
@@ -819,7 +817,6 @@
             // Carica sempre il profilo dell'utente per l'obiettivo di onboarding
             const { data: profile, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single();
             if (profileError) throw profileError;
-
             userProfile = profile;
             
             const allGoals = [];
@@ -910,14 +907,13 @@
                 <div class="goal-row">
                     <div class="goal-method">
                         <span class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">Somma fissa</span>
-                        <span class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">Somma variabile</span>
                         <span class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% sulle entrate</span>
                     </div>
                     <div class="goal-input">
                         <label style="font-weight:700;display:block;margin-bottom:6px;">${isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)'}</label>
-                        <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? goal.importo_mensile : ''}" ${isPercent ? 'style="display:none;"' : ''}>
+                        <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
                         <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
-                            <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? goal.importo_mensile : ''}" />
+                            <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
                             <span>% di <span class="total-income-placeholder">0.00</span>€</span>
                         </div>
                     </div>
@@ -990,21 +986,21 @@
             const isPercent = method === 'percent_income';
             let finalAmount = isPercent ? safeToNumber(percentageInput.value) : safeToNumber(amountInput.value);
 
-            let table, column;
+            let table, eqColumn;
             if (goal.is_onboarding) {
                 table = 'profiles';
-                column = 'contribution_method';
+                eqColumn = 'id';
             } else {
                 table = 'obiettivi';
-                column = 'metodo_contribuzione';
+                eqColumn = 'id';
             }
             
             const payload = {
-                [column]: mapInternalToContributionMethod(method),
+                metodo_contribuzione: mapInternalToContributionMethod(method),
                 importo_mensile: finalAmount
             };
 
-            const { error } = await supabase.from(table).update(payload).eq('id', goal.is_onboarding ? user.id : goal.id);
+            const { error } = await supabase.from(table).update(payload).eq(eqColumn, goal.is_onboarding ? user.id : goal.id);
 
             if (error) { showModal('Errore', 'Impossibile salvare le modifiche.', [{text: 'Chiudi'}]); return; }
             showStatusMessage('Obiettivo aggiornato!', 'success');
