@@ -108,49 +108,49 @@
     .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem}
     .form-group.full-width{grid-column:1 / -1}
     .form-buttons{grid-column:1 / -1;margin-top:10px}
-    .form-buttons.is-editing{display:flex;gap:12px}
-    .form-buttons.is-editing #submit-btn{flex-grow:1}
-
-    @media(min-width:1024px){
-      .transaction-form{grid-template-columns:repeat(6,1fr);gap:16px}
-      .form-group.kind{grid-column:span 1}
-      .form-group.note{grid-column:span 3}
-      .form-group.amount{grid-column:span 2}
-      .form-group.date{grid-column:span 2}
-      .form-group.category{grid-column:span 2}
-      .form-group.subcategory{grid-column:span 2}
-    }
-
-    /* AVANZATE: wrapper sempre visibile */
-    #advanced-options-wrapper{display:block;grid-column:1 / -1;background:rgba(0,0,0,0.03);padding:12px;border-radius:10px;margin-top:8px}
-    .advanced-options-controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin-bottom:12px}
-    .advanced-options-controls label{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
-    .advanced-options-fields{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
-
-    /* ====== Liste ====== */
-    .list-title{margin:-16px -16px 16px;padding:12px 16px;font-size:1.1rem;font-weight:700;color:#333;border-bottom:1px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.4);display:flex;justify-content:space-between;align-items:center}
-    .list-total-amount{font-weight:800;font-size:1.2rem}
-    .income .list-total-amount{color:var(--success-color)}
-    .expense .list-total-amount{color:var(--danger-color)}
-
-    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
-    .item:last-child{border-bottom:none}
-    .item-icon{font-size:1.5rem;flex-shrink:0}
-    .item-details{display:flex;flex-direction:column;min-width:0}
-    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
-    .item-amount.expense{color:var(--danger-color);font-weight:700}
-    .item-amount.income{color:var(--success-color);font-weight:700}
-    .item-actions{display:flex;gap:4px;flex-shrink:0}
-    .action-btn{background:var(--grad);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:filter .2s ease,transform .2s ease}
-    .action-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
-    .action-btn.delete{background:var(--grad-danger)}
-    .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
+    .transaction-list .item:last-child{border-bottom:none}
 
     /* Pannello Scadenze */
     #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
-    .deadline-item{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:12px}
+    .deadline-item{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .deadline-item .item-details{
+      flex-grow: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      min-width: 0;
+    }
+    .deadline-item .description-full {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .deadline-item .description-full .note-part {
+      font-weight: 600;
+    }
+    .deadline-item .description-full .category-part {
+      font-size: 0.9em;
+      color: #555;
+      margin-left: 4px;
+    }
+    .deadline-item .date-part {
+      font-size: 0.9em;
+      font-weight: 600;
+      color: #333;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.04);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .deadline-item .item-amount,
+    .deadline-item .days-left,
+    .deadline-item .item-actions {
+      flex-shrink: 0;
+    }
     .deadline-item .item-actions{display:flex;gap:4px;align-items:center;justify-content:flex-end}
     .deadline-item .item-amount.expense{color:var(--danger-color)}
     .deadline-item .item-amount.income{color:var(--success-color)}
@@ -682,7 +682,7 @@
       try{
         const { data, error } = await supabase.from('transactions').select('*').eq('created_by', user.id).eq('is_paid', false).gte('due_date', startDate.toISOString().split('T')[0]).lte('due_date', endDate.toISOString().split('T')[0]).order('due_date', { ascending:true });
         if (error) throw error;
-        return (data || []).map(tx=>({ ...tx, categories: allCategories.find(c => String(c.id) === String(tx.category_id)) || null }));
+        return (data || []).map(tx=>({ ...tx, categories: allCategories.find(c => String(c.id) === String(tx.category_id)) || null, subcategories: allSubcategories.find(s => String(s.id) === String(tx.subcategory_id)) || null }));
       } catch (error){ console.error("Errore caricamento scadenze:", error); return []; }
     }
 
@@ -700,7 +700,28 @@
         const amountSign = isIncome ? '+' : '-';
         const buttonClass = isIncome ? 'receive' : 'pay';
         const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
-        container.insertAdjacentHTML('beforeend', `<div class="item deadline-item"><div class="item-details"><span class="note">${tx.note || ''}</span><span class="category">${tx.categories?.name || ''}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`);
+        const sub = tx.subcategories;
+        const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+        const formattedDueDate = new Date(tx.due_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+
+        container.insertAdjacentHTML('beforeend', `
+            <div class="item deadline-item">
+                <div class="item-details">
+                    <span class="description-full">
+                        <span class="note-part">${tx.note || ''}</span>
+                        <span class="category-part">(${categoryText})</span>
+                    </span>
+                    <span class="date-part">🗓️ ${formattedDueDate}</span>
+                </div>
+                <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                <span class="days-left">${daysLeftText}</span>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
+                    <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                </div>
+            </div>
+        `);
       });
     }
 
