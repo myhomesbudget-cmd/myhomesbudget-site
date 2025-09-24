@@ -211,11 +211,146 @@
     .status-message.success{background-color:var(--success-color);color:#fff}
     .status-message.error{background-color:var(--danger-color);color:#fff}
 
-    /* ====== GOALS (MODIFICATO) ====== */
-    #goals-section .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    #goals-list{display:flex;flex-direction:column;gap:16px;}
-    .goal-card{background:#fff;border:1px solid var(--card-border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
-    
+    /* ====== GOALS (NUOVO LAYOUT MIGLIORATO) ====== */
+    #goals-section .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px; /* Aumentato leggermente lo spazio */
+    }
+    #goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px; /* Aumentato lo spazio tra le card */
+    }
+    .goal-card {
+      background: rgba(255, 255, 255, 0.95); /* Leggermente più opaco per leggibilità */
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px; /* Padding uniforme */
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px; /* Spazio tra le sezioni interne */
+    }
+
+    /* Header della card */
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .goal-title {
+      font-weight: 800;
+      font-size: 1.3rem; /* Titolo più grande */
+      color: #333;
+      margin: 0;
+    }
+    .goal-actions .delete-goal-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Controlli per la modifica (metodo e importo) */
+    .goal-controls {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    @media(min-width: 768px) {
+      .goal-controls {
+        grid-template-columns: 2fr 1.5fr auto; /* Layout a 3 colonne per i controlli */
+      }
+    }
+    .goal-method {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.05);
+      font-weight: 700;
+      font-size: 0.85rem; /* Testo dei chip leggermente più piccolo */
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid transparent;
+    }
+    .chip:hover {
+      background: rgba(0,0,0,.08);
+    }
+    .chip.is-active {
+      background: var(--grad);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    }
+    .goal-input label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    .goal-input input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .percentage-input-group { display: none; align-items: center; gap: 8px; }
+    .percentage-input-group.is-visible { display: flex; }
+    .percentage-input-group input { width: 80px; text-align: right; }
+    .percentage-input-group .product-amount { font-weight: 700; }
+
+    .goal-confirm-edit .btn {
+      padding: 10px 16px; /* Pulsante di modifica leggermente più piccolo */
+    }
+
+    /* Barra di progresso */
+    .goal-progress-bar-container {
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* Pulsanti di azione principali */
+    .goal-main-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end; /* Allineati a destra */
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
+    }
+    .goal-main-actions .btn {
+      padding: 8px 16px; /* Pulsanti più piccoli e compatti */
+      font-size: 0.9rem; /* Testo leggermente ridotto */
+      font-weight: 700;
+    }
+    .btn.record-saving-btn {
+      background: var(--grad);
+      color: #fff;
+    }
+    .btn.view-savings-btn {
+      background: #fff;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+    .btn.view-savings-btn:hover {
+        background: #f7f7f7;
+        border-color: #bbb;
+    }
+
+    /* Stato bloccato (invariato) */
     .goal-card.is-locked .goal-method .chip,
     .goal-card.is-locked .goal-input input,
     .goal-card.is-locked .percentage-input-group input {
@@ -223,34 +358,6 @@
         background-color: #f8f9fa !important;
         color: #6c757d;
     }
-    /* Le regole di visualizzazione per i pulsanti di conferma/modifica sono gestite via JS.
-       Rimuoviamo le classi specifiche per confirm/edit. */
-
-
-    .goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
-    .goal-title{font-weight:800;color:#444;margin:0 0 4px}
-    .goal-subtitle{margin:0 0 12px;color:#666}
-    .goal-actions{display:flex;gap:4px;}
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.05);font-weight:700;cursor:pointer;user-select:none}
-    .chip.is-active{background:var(--grad);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}
-    .goal-method{display:flex;gap:8px;flex-wrap:wrap}
-    .goal-row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
-    @media(min-width:768px){.goal-row{grid-template-columns:1fr 1fr auto}}
-    .goal-input{display:flex;flex-direction:column}
-    .goal-input input{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:1rem;background:#fff}
-    .goal-hint{display:block;margin-top:6px;font-size:.85rem;color:#777}
-    .goal-confirm{display:flex;gap:8px;justify-content:flex-end;align-items:center}
-    .goal-card .link{color:var(--primary-color);font-weight:700;text-decoration:none}
-
-    .percentage-input-group{display:none;align-items:center;gap:8px;margin-top:8px}
-    .percentage-input-group.is-visible{display:flex}
-    .percentage-input-group input{width:80px;text-align:right}
-        .percentage-input-group span{font-weight:700}
-        /* nuovo span per mostrare il prodotto percentuale x entrate */
-        .percentage-input-group .product-amount{font-weight:700}
-
-    .goal-progress-bar-container{margin-top:16px; border-top: 1px solid var(--card-border); padding-top: 16px;}
-    #plan-readonly-banner { text-align: center; }
   </style>
 </head>
 <body>
@@ -360,7 +467,7 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (MODIFICATO) -->
+    <!-- 🎯 Sezione Obiettivi -->
     <section id="goals-section" class="content-section" style="margin-top:12px;">
       <div class="header">
         <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
@@ -394,7 +501,7 @@
     </div>
   </main>
 
-  <!-- Modals... (invariati) -->
+  <!-- Modals... -->
   <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
@@ -410,7 +517,7 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
-    let goalsData = []; // Nuovo stato per gli obiettivi caricati
+    let goalsData = [];
 
     // --- DOM (originali) ---
     const transactionForm = document.getElementById('transaction-form');
@@ -444,7 +551,7 @@
     const animationModal = document.getElementById('animation-modal');
     const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
 
-    // --- DOM (nuovi per obiettivi) ---
+    // --- DOM (per obiettivi) ---
     const goalsSection = document.getElementById('goals-section');
     const goalsList = document.getElementById('goals-list');
     
@@ -478,7 +585,7 @@
       modal.classList.add('is-visible');
     }
 
-    function showTransactionAnimation(type='income'){ /* ... Logica animazione invariata ... */ return new Promise(resolve => resolve()); }
+    function showTransactionAnimation(type='income'){ return new Promise(resolve => resolve()); }
     function resetFormToCreateMode(){
       formTitle.textContent = "Nuova Operazione";
       submitBtn.textContent = "Aggiungi";
@@ -504,7 +611,6 @@
       return dt;
     }
 
-    // --- FUNZIONI OPERAZIONI (originali e intatte) ---
     async function loadInitialData(){
       try{
         const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
@@ -797,7 +903,6 @@
       }
     }
 
-    // --- NUOVA LOGICA OBIETTIVI ---
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Percentuale sulle entrate') return 'percent_income';
@@ -896,18 +1001,22 @@
 
         return `
             <div id="goal-card-${id}" class="goal-card ${isLocked ? 'is-locked' : ''}">
+
+                <!-- SEZIONE 1: Header con Titolo e Azioni -->
                 <div class="goal-header">
                     <h4 class="goal-title">${goal.nome_obiettivo}</h4>
                     <div class="goal-actions">${deleteBtnHTML}</div>
                 </div>
-                <div class="goal-row">
+
+                <!-- SEZIONE 2: Controlli per Modifica -->
+                <div class="goal-controls">
                     <div class="goal-method">
                         <span class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">Somma fissa</span>
                         <span class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">Somma variabile</span>
                         <span class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% sulle entrate</span>
                     </div>
                     <div class="goal-input">
-                        <label style="font-weight:700;display:block;margin-bottom:6px;">${isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)'}</label>
+                        <label>${isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)'}</label>
                         <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
                         <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
                             <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
@@ -915,10 +1024,12 @@
                             <span class="product-amount">= 0.00€</span>
                         </div>
                     </div>
-                    <div class="goal-confirm">
+                    <div class="goal-confirm-edit">
                         <button class="btn btn-primary save-edit-goal-btn">${btnLabel}</button>
                     </div>
                 </div>
+
+                <!-- SEZIONE 3: Barra di Progresso -->
                 <div class="goal-progress-bar-container">
                     <div class="category-bar-info">
                         <span>Progresso</span>
@@ -926,10 +1037,13 @@
                     </div>
                     <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
                 </div>
-                <div class="goal-confirm" style="margin-top: 16px; gap:8px;">
-                    <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">✅ Registra Risparmio</button>
-                    <button class="btn btn-secondary view-savings-btn" data-id="${id}">📊 Modifica Risparmi</button>
+
+                <!-- SEZIONE 4: Azioni Principali -->
+                <div class="goal-main-actions">
+                    <button class="btn view-savings-btn" data-id="${id}">📊 Modifica Risparmi</button>
+                    <button class="btn record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">✅ Registra Risparmio</button>
                 </div>
+
             </div>`;
     }
     
@@ -950,7 +1064,6 @@
         const viewSavingsBtn = card.querySelector('.view-savings-btn');
         let isLocked = card.classList.contains('is-locked');
 
-        // Gestisce lo stato di blocco/modifica e aggiorna il testo del pulsante
         const setLocked = (locked) => {
             isLocked = locked;
             card.classList.toggle('is-locked', locked);
@@ -958,7 +1071,6 @@
         };
         setLocked(isLocked);
 
-        // Aggiorna la visualizzazione del totale entrate e del prodotto percentuale
         const updateTotalIncomeDisplay = () => {
             const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
             totalIncomeEl.textContent = fmt(totalIncomes);
@@ -981,7 +1093,6 @@
             updateTotalIncomeDisplay();
         });
 
-        // Pulsante salva/modifica: se bloccato sblocca, altrimenti salva i dati
         saveEditBtn.addEventListener('click', async () => {
             if (isLocked) {
                 setLocked(false);
@@ -1011,7 +1122,6 @@
                     contribution_amount: isPercent ? percValue : amountValue
                 };
             } else {
-                // tabella 'obiettivi' usa nomi campo diversi
                 payload = {
                     metodo_contribuzione: mapInternalToContributionMethod(method),
                     importo_mensile: isPercent ? percValue : amountValue
@@ -1028,10 +1138,8 @@
             await loadAndRenderGoals();
         });
 
-        // Registra risparmio
         recordBtn.addEventListener('click', () => handleRecordSaving(goal.id, recordBtn.dataset.amount, goal.is_onboarding));
 
-        // Visualizza elenco risparmi
         if (viewSavingsBtn) {
             viewSavingsBtn.addEventListener('click', () => showSavingsModal(goal));
         }
@@ -1084,7 +1192,6 @@
                 const base = { user_id: user.id, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] };
                 let payload = base;
                 if (isOnboarding) {
-                    // snapshot delle info profilo per tracciabilità storica
                     const { data: p } = await supabase.from('profiles').select('goal_name, goal_target_amount, contribution_method, contribution_amount').eq('id', user.id).single();
                     payload = { ...base, goal_name: p?.goal_name || null, goal_target_amount: p?.goal_target_amount || null, contribution_method: p?.contribution_method || null, contribution_amount: p?.contribution_amount || null };
                 } else {
@@ -1113,11 +1220,6 @@
         ]);
     }
 
-    /**
-     * Mostra l'elenco dei risparmi registrati per un obiettivo.
-     * Se l'obiettivo fa parte dell'onboarding, legge dalla tabella risparmio_obbiettivo_default,
-     * altrimenti legge dalla tabella risparmi filtrando per obiettivo.
-     */
     async function showSavingsModal(goal) {
         const isOnboarding = goal.is_onboarding;
         const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
@@ -1255,7 +1357,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', initializePage);
-    // ... Plan Enforcement Code (invariato e completo) ...
   </script>
 </body>
 </html>
