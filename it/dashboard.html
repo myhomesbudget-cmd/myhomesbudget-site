@@ -257,7 +257,6 @@
 
     .goal-progress-bar-container{margin-top:16px; border-top: 1px solid var(--card-border); padding-top: 16px;}
     #plan-readonly-banner { text-align: center; }
-
   </style>
 </head>
 <body>
@@ -401,7 +400,7 @@
     </div>
   </main>
 
-  <!-- Modals... -->
+  <!-- Modals... (invariati) -->
   <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
@@ -417,7 +416,7 @@
     let allSubcategories = [];
     let allTransactions = [];
     let userProfile = null;
-    let goalsData = [];
+    let goalsData = []; 
 
     // --- DOM (originali) ---
     const transactionForm = document.getElementById('transaction-form');
@@ -595,6 +594,14 @@
       if (transactions.length === 0){ container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
       container.innerHTML = '';
       const today = new Date(); today.setHours(0,0,0,0);
+
+      const isModal = container.closest('.modal-overlay');
+
+      if(isModal) {
+          container.innerHTML = '<table class="deadlines-table"><tbody></tbody></table>';
+          container = container.querySelector('tbody');
+      }
+
       transactions.forEach(tx=>{
         const isIncome = tx.kind === 'income';
         const dueDate = toLocalMidnight(String(tx.due_date));
@@ -608,12 +615,10 @@
         const sub = tx.subcategories;
         const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
         const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
-
-        const isModal = container.closest('.modal-overlay');
-
+        
+        let rowHTML = '';
         if (isModal) {
-            // Layout per il modale (più strutturato)
-            container.insertAdjacentHTML('beforeend', `
+            rowHTML = `
                 <tr>
                     <td class="description-cell">
                         <span class="note-part">${tx.note || ''}</span>
@@ -630,37 +635,12 @@
                         </div>
                     </td>
                 </tr>
-            `);
+            `;
         } else {
-            // Layout per il box in dashboard
-            container.insertAdjacentHTML('beforeend', `
-                <div class="deadline-item">
-                    <div class="item-details">
-                        <span class="description-full">
-                            <span class="note-part">${tx.note || ''}</span>
-                            <span class="category-part">(${categoryText})</span>
-                        </span>
-                        <span class="date-part">🗓️ ${formattedDueDate}</span>
-                    </div>
-                    <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                    <span class="days-left">${daysLeftText}</span>
-                    <div class="item-actions">
-                        <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
-                        <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
-                        <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                    </div>
-                </div>
-            `);
+             rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${tx.note || ''}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
         }
+        container.insertAdjacentHTML('beforeend', rowHTML);
       });
-      // Se è un modale, assicurati che il contenitore sia una tabella
-      if(isModal) {
-          const table = document.createElement('table');
-          table.className = 'deadlines-table';
-          table.innerHTML = container.innerHTML;
-          container.innerHTML = '';
-          container.appendChild(table);
-      }
     }
 
     function renderMovementsListModal(transactions, months){
@@ -857,6 +837,7 @@
       }
     }
 
+    // --- NUOVA LOGICA OBIETTIVI ---
     function mapContributionMethodToInternal(method) {
         if (method === 'Cifra fissa') return 'fixed';
         if (method === 'Percentuale sulle entrate') return 'percent_income';
@@ -1300,7 +1281,6 @@
         listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, months); movementsModal.classList.add('is-visible');});
         document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{ radio.addEventListener('change', (e)=>{ const v = e.target.value; advancedOptionsWrapper.style.display = 'block'; recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none'; dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none'; }); });
         
-        // BUG FIX 1: Scheduler now shows next 30 days from today
         schedulerBtn.addEventListener('click', async () => {
           const today = new Date();
           const futureDate = new Date();
