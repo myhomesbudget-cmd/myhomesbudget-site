@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
 
-  <style>
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=8Gn3mSCivm50NmKubxrgejbOJNLV9uN8OIHlB-Tq5IIGhbhZZfnhcSY67vXl5IPEvN2KO0lVGMeNcGxsHtGV7NOL_WX5m6-aQDrAt8B42rdngRIX2ydP2ZfHf0sfEDyTEbw7rmu3GHxumnuRv5OYP_fUukUls6BG0y9YKqIGbTUiUe6ZE9cfgjWxsaReakShnIfIdj-RMbOw65njCpLhwZnW37_lgFQDIQLNgwN9iNWsYUDv1vJIu__bwJIS7aXA" charset="UTF-8"></script><style>
     :root{
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
@@ -223,10 +223,8 @@
         background-color: #f8f9fa !important;
         color: #6c757d;
     }
-    .goal-card.is-locked .goal-confirm .confirm-goal-btn { display: none; }
-    .goal-card.is-locked .goal-confirm .edit-goal-btn { display: inline-flex; }
-    .goal-card:not(.is-locked) .goal-confirm .edit-goal-btn { display: none; }
-    .goal-card:not(.is-locked) .goal-confirm .confirm-goal-btn { display: inline-flex; }
+    /* Le regole di visualizzazione per i pulsanti di conferma/modifica sono gestite via JS.
+       Rimuoviamo le classi specifiche per confirm/edit. */
 
 
     .goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
@@ -247,7 +245,9 @@
     .percentage-input-group{display:none;align-items:center;gap:8px;margin-top:8px}
     .percentage-input-group.is-visible{display:flex}
     .percentage-input-group input{width:80px;text-align:right}
-    .percentage-input-group span{font-weight:700}
+        .percentage-input-group span{font-weight:700}
+        /* nuovo span per mostrare il prodotto percentuale x entrate */
+        .percentage-input-group .product-amount{font-weight:700}
 
     .goal-progress-bar-container{margin-top:16px; border-top: 1px solid var(--card-border); padding-top: 16px;}
     #plan-readonly-banner { text-align: center; }
@@ -892,6 +892,7 @@
         const isPercent = internalMethod === 'percent_income';
 
         const isLocked = isPlanLimited || (!userProfile || userProfile.plan_type !== 'pro') && !goal.is_onboarding;
+        const btnLabel = isLocked ? 'Modifica' : 'Salva';
 
         return `
             <div id="goal-card-${id}" class="goal-card ${isLocked ? 'is-locked' : ''}">
@@ -911,11 +912,11 @@
                         <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
                             <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
                             <span>% di <span class="total-income-placeholder">0.00</span>€</span>
+                            <span class="product-amount">= 0.00€</span>
                         </div>
                     </div>
                     <div class="goal-confirm">
-                        <button class="btn btn-primary confirm-goal-btn">Conferma</button>
-                        <button class="btn btn-secondary edit-goal-btn">Modifica</button>
+                        <button class="btn btn-primary save-edit-goal-btn">${btnLabel}</button>
                     </div>
                 </div>
                 <div class="goal-progress-bar-container">
@@ -925,8 +926,9 @@
                     </div>
                     <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
                 </div>
-                <div class="goal-confirm" style="margin-top: 16px;">
+                <div class="goal-confirm" style="margin-top: 16px; gap:8px;">
                     <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">✅ Registra Risparmio</button>
+                    <button class="btn btn-secondary view-savings-btn" data-id="${id}">📊 Modifica Risparmi</button>
                 </div>
             </div>`;
     }
@@ -941,23 +943,28 @@
         const percentageGroup = card.querySelector('.percentage-input-group');
         const percentageInput = card.querySelector('.goal-percentage-input');
         const totalIncomeEl = card.querySelector('.total-income-placeholder');
+        const productEl = card.querySelector('.product-amount');
         const labelEl = card.querySelector('.goal-input label');
-        const confirmBtn = card.querySelector('.confirm-goal-btn');
-        const editBtn = card.querySelector('.edit-goal-btn');
+        const saveEditBtn = card.querySelector('.save-edit-goal-btn');
         const recordBtn = card.querySelector('.record-saving-btn');
+        const viewSavingsBtn = card.querySelector('.view-savings-btn');
         let isLocked = card.classList.contains('is-locked');
 
-        const toggleUI = (locked) => {
+        // Gestisce lo stato di blocco/modifica e aggiorna il testo del pulsante
+        const setLocked = (locked) => {
             isLocked = locked;
             card.classList.toggle('is-locked', locked);
-            confirmBtn.style.display = locked ? 'none' : 'inline-flex';
-            editBtn.style.display = locked ? 'inline-flex' : 'none';
+            if (saveEditBtn) saveEditBtn.textContent = locked ? 'Modifica' : 'Salva';
         };
-        toggleUI(isLocked);
-        
+        setLocked(isLocked);
+
+        // Aggiorna la visualizzazione del totale entrate e del prodotto percentuale
         const updateTotalIncomeDisplay = () => {
             const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
             totalIncomeEl.textContent = fmt(totalIncomes);
+            const perc = safeToNumber(percentageInput?.value);
+            const product = (perc / 100) * totalIncomes;
+            if (productEl) productEl.textContent = '= ' + fmt(product) + '€';
         };
         
         methodWrap.addEventListener('click', (e) => {
@@ -966,7 +973,6 @@
             if (!chip) return;
             methodWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
             chip.classList.add('is-active');
-            
             const method = chip.dataset.method;
             const isPercent = method === 'percent_income';
             labelEl.textContent = isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)';
@@ -975,12 +981,19 @@
             updateTotalIncomeDisplay();
         });
 
-        confirmBtn.addEventListener('click', async () => {
+        // Pulsante salva/modifica: se bloccato sblocca, altrimenti salva i dati
+        saveEditBtn.addEventListener('click', async () => {
+            if (isLocked) {
+                setLocked(false);
+                return;
+            }
             const activeChip = methodWrap.querySelector('.chip.is-active');
             const method = activeChip.dataset.method;
             const isPercent = method === 'percent_income';
-            let finalAmount = isPercent ? safeToNumber(percentageInput.value) : safeToNumber(amountInput.value);
-
+            const percValue = safeToNumber(percentageInput?.value);
+            const amountValue = safeToNumber(amountInput?.value);
+            const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            const computedSaving = isPercent ? (percValue / 100) * totalIncomes : amountValue;
             let table, eqColumn, eqValue;
             if (goal.is_onboarding) {
                 table = 'profiles';
@@ -991,26 +1004,29 @@
                 eqColumn = 'id';
                 eqValue = goal.id;
             }
-            
             const payload = {
                 contribution_method: mapInternalToContributionMethod(method),
-                contribution_amount: finalAmount
+                contribution_amount: isPercent ? percValue : amountValue
             };
-            
             const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
-
-            if (error) { showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text: 'Chiudi'}]); return; }
+            if (error) {
+                showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
+                return;
+            }
             showStatusMessage('Obiettivo aggiornato!', 'success');
-            
-            recordBtn.dataset.amount = finalAmount;
-            toggleUI(true);
+            recordBtn.dataset.amount = computedSaving;
+            setLocked(true);
             await loadAndRenderGoals();
         });
 
-        editBtn.addEventListener('click', () => toggleUI(false));
+        // Registra risparmio
+        recordBtn.addEventListener('click', () => handleRecordSaving(goal.id, recordBtn.dataset.amount, goal.is_onboarding));
 
-        recordBtn.addEventListener('click', () => handleRecordSaving(goal.id, recordBtn.dataset.amount));
-        
+        // Visualizza elenco risparmi
+        if (viewSavingsBtn) {
+            viewSavingsBtn.addEventListener('click', () => showSavingsModal(goal));
+        }
+
         const deleteBtn = card.querySelector('.delete-goal-btn');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', () => handleDeleteGoal(goal.id));
@@ -1020,11 +1036,14 @@
     }
 
     async function updateGoalProgress(goalId, is_onboarding) {
-        const table = 'risparmi';
-        
-        const { data, error } = await supabase.from(table).select('importo').eq('user_id', user.id).eq('obiettivo_id', goalId);
+        const table = is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+        let query = supabase.from(table).select('importo').eq('user_id', user.id);
+        if (!is_onboarding) {
+            query = query.eq('obiettivo_id', goalId);
+        }
+        const { data, error } = await query;
         if(error) { console.error('Errore nel calcolare il progresso', error); return; }
-        const totalSaved = data.reduce((sum, record) => sum + safeToNumber(record.importo), 0);
+        const totalSaved = (data || []).reduce((sum, record) => sum + safeToNumber(record.importo), 0);
 
         let targetAmount = 0;
         let goalData;
@@ -1048,18 +1067,18 @@
         }
     }
 
-    function handleRecordSaving(goalId, amount) {
+    function handleRecordSaving(goalId, amount, isOnboarding) {
         showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amount)}€</strong> per questo obiettivo.</p>`, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
-                const goal = goalsData.find(g => g.id === goalId);
-                let idToSave = null;
-                if(goal && !goal.is_onboarding) {
-                    idToSave = goal.id;
+                const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+                const payload = { user_id: user.id, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] };
+                if (!isOnboarding) payload.obiettivo_id = goalId;
+                const { error } = await supabase.from(table).insert(payload);
+                if (error) {
+                    showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                    return;
                 }
-                
-                const { error } = await supabase.from('risparmi').insert({ user_id: user.id, obiettivo_id: idToSave, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] });
-                if (error) { showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
                 showStatusMessage('Risparmio registrato!', 'success');
                 loadAndRenderGoals();
             }}
@@ -1076,6 +1095,34 @@
                 loadAndRenderGoals();
             }}
         ]);
+    }
+
+    /**
+     * Mostra l'elenco dei risparmi registrati per un obiettivo.
+     * Se l'obiettivo fa parte dell'onboarding, legge dalla tabella risparmio_obbiettivo_default,
+     * altrimenti legge dalla tabella risparmi filtrando per obiettivo.
+     */
+    async function showSavingsModal(goal) {
+        const isOnboarding = goal.is_onboarding;
+        const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+        let query = supabase.from(table).select('*').eq('user_id', user.id);
+        if (!isOnboarding) {
+            query = query.eq('obiettivo_id', goal.id);
+        }
+        const { data, error } = await query;
+        if (error) {
+            showModal('Errore', `<p>Impossibile recuperare i risparmi.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
+            return;
+        }
+        if (!data || data.length === 0) {
+            showModal('Nessun Risparmio', '<p>Non hai ancora registrato risparmi per questo obiettivo.</p>', [ { text:'Chiudi' } ]);
+            return;
+        }
+        const listItems = data.map(r => {
+            const date = r.data_registrazione || r.created_at || '';
+            return `<li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border);"><span><strong>${fmt(r.importo)}€</strong> — ${date}</span></li>`;
+        }).join('');
+        showModal('Risparmi Registrati', `<ul style="list-style:none;padding:0;margin:0;">${listItems}</ul>`, [ { text:'Chiudi' } ]);
     }
 
     function handleAddGoal() {
