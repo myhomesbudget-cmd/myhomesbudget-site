@@ -216,25 +216,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px; /* Aumentato leggermente lo spazio */
+      margin-bottom: 16px;
     }
     #goals-list {
       display: flex;
       flex-direction: column;
-      gap: 20px; /* Aumentato lo spazio tra le card */
+      gap: 20px;
     }
     .goal-card {
-      background: rgba(255, 255, 255, 0.95); /* Leggermente più opaco per leggibilità */
+      background: rgba(255, 255, 255, 0.95);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 20px; /* Padding uniforme */
+      padding: 20px;
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: 16px; /* Spazio tra le sezioni interne */
+      gap: 16px;
     }
 
-    /* Header della card */
     .goal-header {
       display: flex;
       justify-content: space-between;
@@ -244,7 +243,7 @@
     }
     .goal-title {
       font-weight: 800;
-      font-size: 1.3rem; /* Titolo più grande */
+      font-size: 1.3rem;
       color: #333;
       margin: 0;
     }
@@ -255,7 +254,6 @@
       padding: 4px;
     }
 
-    /* Controlli per la modifica (metodo e importo) */
     .goal-controls {
       display: grid;
       grid-template-columns: 1fr;
@@ -264,7 +262,7 @@
     }
     @media(min-width: 768px) {
       .goal-controls {
-        grid-template-columns: 2fr 1.5fr auto; /* Layout a 3 colonne per i controlli */
+        grid-template-columns: 2fr 1.5fr auto;
       }
     }
     .goal-method {
@@ -280,7 +278,7 @@
       border-radius: 999px;
       background: rgba(0,0,0,.05);
       font-weight: 700;
-      font-size: 0.85rem; /* Testo dei chip leggermente più piccolo */
+      font-size: 0.85rem;
       cursor: pointer;
       user-select: none;
       border: 1px solid transparent;
@@ -313,27 +311,25 @@
     .percentage-input-group .product-amount { font-weight: 700; }
 
     .goal-confirm-edit .btn {
-      padding: 10px 16px; /* Pulsante di modifica leggermente più piccolo */
+      padding: 10px 16px;
     }
 
-    /* Barra di progresso */
     .goal-progress-bar-container {
       padding-top: 12px;
       border-top: 1px solid var(--card-border);
     }
 
-    /* Pulsanti di azione principali */
     .goal-main-actions {
       display: flex;
       gap: 12px;
-      justify-content: flex-end; /* Allineati a destra */
+      justify-content: flex-end;
       align-items: center;
       padding-top: 12px;
       border-top: 1px solid var(--card-border);
     }
     .goal-main-actions .btn {
-      padding: 8px 16px; /* Pulsanti più piccoli e compatti */
-      font-size: 0.9rem; /* Testo leggermente ridotto */
+      padding: 8px 16px;
+      font-size: 0.9rem;
       font-weight: 700;
     }
     .btn.record-saving-btn {
@@ -350,7 +346,6 @@
         border-color: #bbb;
     }
 
-    /* Stato bloccato (invariato) */
     .goal-card.is-locked .goal-method .chip,
     .goal-card.is-locked .goal-input input,
     .goal-card.is-locked .percentage-input-group input {
@@ -1138,7 +1133,7 @@
             await loadAndRenderGoals();
         });
 
-        recordBtn.addEventListener('click', () => handleRecordSaving(goal.id, recordBtn.dataset.amount, goal.is_onboarding));
+        recordBtn.addEventListener('click', () => handleRecordSaving(goal, recordBtn));
 
         if (viewSavingsBtn) {
             viewSavingsBtn.addEventListener('click', () => showSavingsModal(goal));
@@ -1184,18 +1179,30 @@
         }
     }
 
-    function handleRecordSaving(goalId, amount, isOnboarding) {
-        showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amount)}€</strong> per questo obiettivo.</p>`, [
+    // BUG FIX 2: Correctly calculate percentage-based savings
+    function handleRecordSaving(goal, recordBtn) {
+        let amountToSave = safeToNumber(recordBtn.dataset.amount);
+        const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
+
+        if (internalMethod === 'percent_income') {
+            const totalIncomes = allTransactions
+                .filter(tx => tx.kind === 'income' && tx.is_paid !== false)
+                .reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            const percentage = safeToNumber(goal.importo_mensile);
+            amountToSave = (percentage / 100) * totalIncomes;
+        }
+
+        showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amountToSave)}€</strong> per questo obiettivo.</p>`, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
-                const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
-                const base = { user_id: user.id, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] };
+                const table = goal.is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+                const base = { user_id: user.id, importo: amountToSave, data_registrazione: new Date().toISOString().split('T')[0] };
                 let payload = base;
-                if (isOnboarding) {
+                if (goal.is_onboarding) {
                     const { data: p } = await supabase.from('profiles').select('goal_name, goal_target_amount, contribution_method, contribution_amount').eq('id', user.id).single();
                     payload = { ...base, goal_name: p?.goal_name || null, goal_target_amount: p?.goal_target_amount || null, contribution_method: p?.contribution_method || null, contribution_amount: p?.contribution_amount || null };
                 } else {
-                    payload = { ...base, obiettivo_id: goalId };
+                    payload = { ...base, obiettivo_id: goal.id };
                 }
                 const { error } = await supabase.from(table).insert(payload);
                 if (error) {
@@ -1342,7 +1349,18 @@
         yearSelector.addEventListener('change', loadAllDataForMonth);
         listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, months); movementsModal.classList.add('is-visible');});
         document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{ radio.addEventListener('change', (e)=>{ const v = e.target.value; advancedOptionsWrapper.style.display = 'block'; recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none'; dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none'; }); });
-        schedulerBtn.addEventListener('click', async () => { const m = monthSelector.value; const y = yearSelector.value; const s = new Date(y, m, 1); const e = new Date(y, parseInt(m)+1, 0); const d = await getScheduledTransactions(s, e); schedulerModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[m]} ${y}`; renderDeadlinesList(schedulerModal.querySelector('.modal-body'), d); schedulerModal.classList.add('is-visible'); });
+        
+        // BUG FIX 1: Scheduler now shows next 30 days from today
+        schedulerBtn.addEventListener('click', async () => {
+          const today = new Date();
+          const futureDate = new Date();
+          futureDate.setDate(today.getDate() + 30);
+          const scheduled = await getScheduledTransactions(today, futureDate);
+          schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
+          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+          schedulerModal.classList.add('is-visible');
+        });
+
         notificationsBtn.addEventListener('click', async () => { const t = new Date(); const f = new Date(); f.setDate(t.getDate()+7); const u = await getScheduledTransactions(t, f); schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u); schedulerModal.classList.add('is-visible'); });
         document.body.addEventListener('click', (e)=>{ const m = e.target.closest('.modal-overlay'); if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){ m.classList.remove('is-visible'); } });
         const mobileMenuBtn = document.getElementById('mobile-menu-btn'); const topActions = document.querySelector('.top-actions'); if (mobileMenuBtn && topActions) { mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); }); document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } }); }
