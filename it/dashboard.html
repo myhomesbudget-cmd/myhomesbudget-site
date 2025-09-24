@@ -1004,10 +1004,19 @@
                 eqColumn = 'id';
                 eqValue = goal.id;
             }
-            const payload = {
-                contribution_method: mapInternalToContributionMethod(method),
-                contribution_amount: isPercent ? percValue : amountValue
-            };
+            let payload;
+            if (table === 'profiles') {
+                payload = {
+                    contribution_method: mapInternalToContributionMethod(method),
+                    contribution_amount: isPercent ? percValue : amountValue
+                };
+            } else {
+                // tabella 'obiettivi' usa nomi campo diversi
+                payload = {
+                    metodo_contribuzione: mapInternalToContributionMethod(method),
+                    importo_mensile: isPercent ? percValue : amountValue
+                };
+            }
             const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
             if (error) {
                 showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
@@ -1072,8 +1081,15 @@
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
                 const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
-                const payload = { user_id: user.id, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] };
-                if (!isOnboarding) payload.obiettivo_id = goalId;
+                const base = { user_id: user.id, importo: amount, data_registrazione: new Date().toISOString().split('T')[0] };
+                let payload = base;
+                if (isOnboarding) {
+                    // snapshot delle info profilo per tracciabilità storica
+                    const { data: p } = await supabase.from('profiles').select('goal_name, goal_target_amount, contribution_method, contribution_amount').eq('id', user.id).single();
+                    payload = { ...base, goal_name: p?.goal_name || null, goal_target_amount: p?.goal_target_amount || null, contribution_method: p?.contribution_method || null, contribution_amount: p?.contribution_amount || null };
+                } else {
+                    payload = { ...base, obiettivo_id: goalId };
+                }
                 const { error } = await supabase.from(table).insert(payload);
                 if (error) {
                     showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
