@@ -148,62 +148,31 @@
     .action-btn.delete{background:var(--grad-danger)}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
 
-    /* Pannello Scadenze */
+    /* Pannello Scadenze (NUOVO STILE PULITO) */
     #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
-    .deadline-item{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 4px;
-      border-bottom: 1px solid rgba(0,0,0,.05);
-    }
-    .deadline-item:last-child { border-bottom: none; }
-    .deadline-item .item-details{
-      flex-grow: 1;
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      min-width: 0;
-    }
-    .deadline-item .description-full {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .deadline-item .description-full .note-part {
-      font-weight: 600;
-    }
-    .deadline-item .description-full .category-part {
-      font-size: 0.9em;
-      color: #555;
-      margin-left: 4px;
-    }
-    .deadline-item .date-part {
-      font-size: 0.9em;
-      font-weight: 600;
-      color: #333;
-      flex-shrink: 0;
-      background: rgba(0,0,0,0.04);
-      padding: 2px 6px;
-      border-radius: 6px;
-    }
-    .deadline-item .item-amount,
-    .deadline-item .days-left,
-    .deadline-item .item-actions {
-      flex-shrink: 0;
-    }
-    .deadline-item .item-actions{display:flex;gap:4px;align-items:center;justify-content:flex-end}
-    .deadline-item .item-amount.expense{color:var(--danger-color)}
-    .deadline-item .item-amount.income{color:var(--success-color)}
-    .deadline-item .days-left{font-weight:700;color:var(--warning-color)}
+    .deadlines-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .deadlines-table tr { border-bottom: 1px solid rgba(0,0,0,.05); }
+    .deadlines-table tr:last-child { border-bottom: none; }
+    .deadlines-table td { padding: 12px 8px; vertical-align: middle; }
+    .deadlines-table .description-cell { display: flex; flex-direction: column; }
+    .deadlines-table .note-part { font-weight: 600; }
+    .deadlines-table .category-part { font-size: 0.9em; color: #555; }
+    .deadlines-table .date-part { font-size: 0.9em; font-weight: 600; color: #333; }
+    .deadlines-table .amount-cell { font-weight: 700; text-align: right; }
+    .deadlines-table .amount-cell.expense { color: var(--danger-color); }
+    .deadlines-table .amount-cell.income { color: var(--success-color); }
+    .deadlines-table .days-left-cell { font-weight: 700; color: var(--warning-color); text-align: center; }
+    .deadlines-table .actions-cell { text-align: right; }
+    .deadlines-table .actions-cell .item-actions { display: inline-flex; }
+
     .btn-action-deadline{padding:8px 12px;font-size:.9rem}
     .btn-action-deadline.pay{background:var(--warning-color)}
     .btn-action-deadline.receive{background:var(--success-color)}
 
-    /* ====== Modal base ====== */
+    /* ====== Modal base (MODIFICATO PER ESSERE PIÙ AMPIO) ====== */
     .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}
     .modal-overlay.is-visible{opacity:1;pointer-events:auto}
-    .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
+    .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
     .modal-overlay.is-visible .modal-content{transform:scale(1)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border);padding-bottom:12px;margin-bottom:16px}
     .modal-title{margin:0;font-size:1.3rem}
@@ -640,25 +609,58 @@
         const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
         const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
 
-        container.insertAdjacentHTML('beforeend', `
-            <div class="deadline-item">
-                <div class="item-details">
-                    <span class="description-full">
+        const isModal = container.closest('.modal-overlay');
+
+        if (isModal) {
+            // Layout per il modale (più strutturato)
+            container.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td class="description-cell">
                         <span class="note-part">${tx.note || ''}</span>
-                        <span class="category-part">(${categoryText})</span>
-                    </span>
-                    <span class="date-part">🗓️ ${formattedDueDate}</span>
+                        <span class="category-part">${categoryText}</span>
+                        <span class="date-part">🗓️ ${formattedDueDate}</span>
+                    </td>
+                    <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
+                    <td class="days-left-cell">${daysLeftText}</td>
+                    <td class="actions-cell">
+                        <div class="item-actions">
+                            <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
+                            <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                            <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        } else {
+            // Layout per il box in dashboard
+            container.insertAdjacentHTML('beforeend', `
+                <div class="deadline-item">
+                    <div class="item-details">
+                        <span class="description-full">
+                            <span class="note-part">${tx.note || ''}</span>
+                            <span class="category-part">(${categoryText})</span>
+                        </span>
+                        <span class="date-part">🗓️ ${formattedDueDate}</span>
+                    </div>
+                    <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                    <span class="days-left">${daysLeftText}</span>
+                    <div class="item-actions">
+                        <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
+                        <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                        <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                    </div>
                 </div>
-                <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                <span class="days-left">${daysLeftText}</span>
-                <div class="item-actions">
-                    <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
-                    <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
-                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                </div>
-            </div>
-        `);
+            `);
+        }
       });
+      // Se è un modale, assicurati che il contenitore sia una tabella
+      if(isModal) {
+          const table = document.createElement('table');
+          table.className = 'deadlines-table';
+          table.innerHTML = container.innerHTML;
+          container.innerHTML = '';
+          container.appendChild(table);
+      }
     }
 
     function renderMovementsListModal(transactions, months){
