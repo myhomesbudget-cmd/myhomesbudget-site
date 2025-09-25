@@ -445,7 +445,7 @@
         </div>
         <div class="form-group amount">
           <label for="amount">Importo (€)</label>
-          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required inputmode="decimal">
         </div>
         <div class="form-group date">
           <label for="occurred_at">Data</label>
@@ -886,8 +886,37 @@
     async function saveTransaction(formData){
       const id = formData.get('transaction-id');
       const transactionType = formData.get('transaction_type');
-      const payload = { kind: formData.get('kind'), note: formData.get('note'), amount: formData.get('amount'), occurred_at: formData.get('occurred_at'), category_id: formData.get('category_id'), subcategory_id: formData.get('subcategory_id') || null, created_by: user.id, is_paid: true, due_date: null };
-      if (transactionType === 'scheduled'){ const dueDate = formData.get('due_date') || formData.get('occurred_at'); if (!dueDate){ showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text:'Chiudi' }]); return; } payload.due_date = dueDate; payload.is_paid = false; payload.occurred_at = dueDate; }
+      
+      const amt = String(formData.get('amount') || '').replace(',', '.');
+      const parsedAmount = parseFloat(amt);
+
+      if (!Number.isFinite(parsedAmount)) {
+        showModal('Importo non valido', `<p>Controlla l'importo. Puoi usare sia "12.34" che "12,34".</p>`, [{ text:'Chiudi' }]);
+        return;
+      }
+
+      const payload = {
+        kind: formData.get('kind'),
+        note: formData.get('note'),
+        amount: parsedAmount,
+        occurred_at: formData.get('occurred_at'),
+        category_id: formData.get('category_id'),
+        subcategory_id: formData.get('subcategory_id') || null,
+        created_by: user.id,
+        is_paid: true,
+        due_date: null
+      };
+
+      if (transactionType === 'scheduled'){
+        const dueDate = formData.get('due_date') || formData.get('occurred_at');
+        if (!dueDate){
+          showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text:'Chiudi' }]);
+          return;
+        }
+        payload.due_date = dueDate;
+        payload.is_paid = false;
+        payload.occurred_at = dueDate;
+      }
       try{
         let error;
         if (transactionType === 'recurring' && !id){
@@ -1147,7 +1176,8 @@
 
         function refreshQuotaPreview(){
           const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
-          const numeric = safeToNumber(activeInput?.value ?? goal.importo_mensile);
+          const raw = activeInput?.value ?? goal.importo_mensile;
+          const numeric = safeToNumber(String(raw).replace(',', '.'));
           const q = computeQuota(currentMethod, numeric);
           quotaValueEl.textContent = `${fmt(q)}€`;
           recordBtn.dataset.amount = q;
@@ -1160,19 +1190,15 @@
                 const method = chip.dataset.method;
                 const isActive = method === currentMethod;
                 chip.classList.toggle('is-active', isActive);
-                chip.setAttribute('aria-pressed', isActive);
-                chip.setAttribute('aria-disabled', !isEditing && !isActive);
+                chip.setAttribute('aria-pressed', String(isActive));
+                chip.setAttribute('aria-disabled', String(!isEditing && !isActive));
             });
 
             amountInputs.forEach(input => {
                 input.readOnly = !isEditing;
                 const inputMethod = input.dataset.method;
                 if(inputMethod === currentMethod) {
-                    if (currentMethod === 'percent_income') {
-                       input.value = goal.importo_mensile || '';
-                    } else {
-                       input.value = goal.importo_mensile || '';
-                    }
+                   input.value = goal.importo_mensile || '';
                 }
             });
 
@@ -1189,7 +1215,7 @@
                 }
             });
         });
-
+        
         amountInputs.forEach(inp=>{
           inp.addEventListener('input', ()=>{
             if(!isEditing) return;
@@ -1203,38 +1229,38 @@
         });
 
         saveBtn.addEventListener('click', async () => {
-          isEditing = false;
+            isEditing = false;
 
-          const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
-          const newAmount = safeToNumber(activeInput?.value ?? goal.importo_mensile);
+            const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
+            const newAmount = safeToNumber(String(activeInput?.value ?? goal.importo_mensile).replace(',', '.'));
 
-          const payload = {
-            [goal.is_onboarding ? 'contribution_method' : 'metodo_contribuzione']: mapInternalToContributionMethod(currentMethod),
-            [goal.is_onboarding ? 'contribution_amount' : 'importo_mensile']: newAmount,
-          };
+            const payload = {
+                [goal.is_onboarding ? 'contribution_method' : 'metodo_contribuzione']: mapInternalToContributionMethod(currentMethod),
+                [goal.is_onboarding ? 'contribution_amount' : 'importo_mensile']: newAmount,
+            };
 
-          const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
-          const { error } = await supabase
-            .from(table)
-            .update(payload)
-            .eq('id', goal.is_onboarding ? user.id : goal.id);
+            const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
+            const { error } = await supabase
+                .from(table)
+                .update(payload)
+                .eq('id', goal.is_onboarding ? user.id : goal.id);
 
-          if (error) {
-            showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
-            isEditing = true;
-          } else {
-            showStatusMessage('Obiettivo aggiornato!', 'success');
-            const idx = goalsData.findIndex(g => String(g.id) === String(id));
-            if(idx > -1) {
-              const currentGoal = goalsData[idx];
-              currentGoal.metodo_contribuzione = payload.metodo_contribuzione || payload.contribution_method;
-              currentGoal.importo_mensile = payload.importo_mensile || payload.contribution_amount;
-              goal.metodo_contribuzione = currentGoal.metodo_contribuzione;
-              goal.importo_mensile = currentGoal.importo_mensile;
+            if (error) {
+                showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
+                isEditing = true;
+            } else {
+                showStatusMessage('Obiettivo aggiornato!', 'success');
+                const idx = goalsData.findIndex(g => String(g.id) === String(id));
+                if(idx > -1) {
+                    const currentGoal = goalsData[idx];
+                    currentGoal.metodo_contribuzione = payload.metodo_contribuzione || payload.contribution_method;
+                    currentGoal.importo_mensile = payload.importo_mensile || payload.contribution_amount;
+                    goal.metodo_contribuzione = currentGoal.metodo_contribuzione;
+                    goal.importo_mensile = currentGoal.importo_mensile;
+                }
             }
-          }
-          updateUI();
-          refreshQuotaPreview();
+            updateUI();
+            refreshQuotaPreview();
         });
         
         updateUI();
