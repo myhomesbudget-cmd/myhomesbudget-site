@@ -632,6 +632,224 @@
         outline: 2px solid var(--primary-color);
         outline-offset: 1px;
       }
+
+      /* PROFILE COMPACT CENTER - 25/09/2025 */
+      /* Allineamento centrale per compact-mobile mode */
+      
+      /* Titoli e sottotitoli centrati */
+      body.compact-mobile h1, body.compact-mobile .profile-name,
+      body.compact-mobile h2, body.compact-mobile .profile-section-title {
+        text-align: center !important;
+      }
+      
+      body.compact-mobile .profile-plan {
+        text-align: center;
+        margin: 0 auto;
+      }
+      
+      /* Tab navigation centrata */
+      body.compact-mobile .dash-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      
+      body.compact-mobile .dash-nav a {
+        text-align: center;
+        justify-content: center;
+      }
+      
+      /* Card e sezioni con layout centrato */
+      body.compact-mobile .dashboard-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      
+      body.compact-mobile .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+      }
+      
+      body.compact-mobile .profile-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        text-align: center;
+      }
+      
+      body.compact-mobile .profile-content > section {
+        width: 100%;
+        text-align: center;
+      }
+      
+      /* Righe "Etichetta : Valore" stacked e centrate */
+      body.compact-mobile .profile-info-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+        width: 100%;
+      }
+      
+      body.compact-mobile .profile-info-row .info-label {
+        display: block;
+        text-align: center;
+        font-weight: 600;
+        opacity: 0.9;
+        width: 100%;
+      }
+      
+      body.compact-mobile .profile-info-row .info-value {
+        display: block;
+        text-align: center;
+        font-weight: 500;
+        width: 100%;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+      
+      /* Info fields centrati */
+      body.compact-mobile .info-field {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+      }
+      
+      body.compact-mobile .info-field label {
+        text-align: center;
+        width: 100%;
+        justify-content: center;
+      }
+      
+      body.compact-mobile .info-field .data-display,
+      body.compact-mobile .info-field .data-input {
+        text-align: center;
+        width: 100%;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+      
+      /* Gestione testi lunghi centrati */
+      body.compact-mobile .text-clip {
+        text-align: center;
+        width: 100%;
+      }
+      
+      body.compact-mobile .text-wrap {
+        text-align: center;
+        width: 100%;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+      }
+      
+      body.compact-mobile .show-more-btn {
+        display: block;
+        text-align: center;
+        margin: 4px auto 0;
+        width: fit-content;
+      }
+      
+      /* Pulsanti centrati */
+      body.compact-mobile .profile-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+      }
+      
+      body.compact-mobile .profile-actions .btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      /* Grid informazioni personali centrata */
+      body.compact-mobile .personal-info-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 12px;
+      }
+      
+      /* Tabelle/listati con header centrati */
+      body.compact-mobile .modal-title {
+        text-align: center;
+      }
+      
+      body.compact-mobile .modal-header {
+        text-align: center;
+      }
+      
+      body.compact-mobile .deadline-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+        padding: 12px;
+      }
+      
+      body.compact-mobile .item-details {
+        text-align: center;
+        width: 100%;
+      }
+      
+      body.compact-mobile .item-details .note,
+      body.compact-mobile .item-details .category {
+        text-align: center;
+        max-width: none;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      
+      body.compact-mobile .item-amount {
+        text-align: center;
+        width: 100%;
+        font-weight: 700;
+      }
+      
+      body.compact-mobile .days-left {
+        text-align: center;
+        width: 100%;
+      }
+      
+      /* Accordion centrati */
+      body.compact-mobile details {
+        text-align: center;
+        width: 100%;
+      }
+      
+      body.compact-mobile summary {
+        text-align: center;
+        justify-content: center;
+        position: relative;
+      }
+      
+      body.compact-mobile summary::after {
+        position: absolute;
+        right: 12px;
+      }
+      
+      /* Toast centrati */
+      body.compact-mobile .status-toast {
+        text-align: center;
+        left: 12px;
+        right: 12px;
+        transform: none;
+      }
     </style>
 </head>
 <body>
