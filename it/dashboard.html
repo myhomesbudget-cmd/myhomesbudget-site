@@ -254,13 +254,13 @@
         border-radius: 12px;
         padding: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-        margin-bottom: 16px;
+        margin-bottom: 32px;
     }
     #goals-section.goals-v2 .goal-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
     #goals-section.goals-v2 .goal-card-header h4 {
         margin: 0;
@@ -270,7 +270,7 @@
     #goals-section.goals-v2 .goal-editor {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
+      gap: 12px;
       align-items: flex-end;
     }
     #goals-section.goals-v2 .editor-group { grid-column: span 12; }
@@ -280,10 +280,10 @@
     }
 
     #goals-section.goals-v2 h5 {
-        font-size: .75rem;
+        font-size: .72rem;
         font-weight: 700;
         color: #555;
-        margin: 0 0 10px;
+        margin: 0 0 8px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -303,7 +303,7 @@
         justify-content: center;
         border-radius: 8px;
         padding: 8px 10px;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         border: 1px solid rgba(0,0,0,0.1);
         background: #f0f2f5;
     }
@@ -330,6 +330,7 @@
         font-weight: 600;
         text-align: center;
         font-size: 15px; /* iOS zoom fix */
+        height: 34px;
     }
     #goals-section.goals-v2 .method-input .arrow-down {
         position: absolute;
@@ -345,12 +346,12 @@
 
     #goals-section.goals-v2 .quota-display {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         align-items: center;
     }
     #goals-section.goals-v2 .quota-value {
         flex-grow: 1;
-        padding: 9px 10px;
+        padding: 8px 10px;
         border-radius: 8px;
         border: 1px solid #ccc;
         background: #fff;
@@ -395,7 +396,6 @@
       padding: 8px 10px;
       font-size: .85rem;
     }
-
     #goals-section.goals-v2 .goal-card.is-locked .chip:not(.is-active) {
         pointer-events: none;
         opacity: 0.7;
@@ -406,99 +406,23 @@
         color: #999;
         border-color: #e0e0e0;
     }
-    /* Deadlines — versione compatta e prioritaria */
-    #deadlines-section.deadlines-compact .transaction-list .item.deadline-item{
-      grid-template-columns: 90px 1fr auto auto auto;
-      padding: 8px 4px;
-      align-items: center;
+    .btn-compact {
+      padding: 6px 10px !important;
+      font-size: .85rem !important;
+      border-radius: 8px !important;
+      line-height: 1.1;
+      white-space: nowrap;
     }
-    #deadlines-section.deadlines-compact .item-details .note{
-      font-size: .95rem;
-    }
-    #deadlines-section.deadlines-compact .item-details .category{
-      font-size: .8rem;
-      color:#666;
-    }
-    #deadlines-section.deadlines-compact .item-amount{
-      font-weight:700;
-      font-size:.95rem;
-    }
-    #deadlines-section.deadlines-compact .days-left{
-      font-weight:700;
-      font-size:.85rem;
-      color: var(--warning-color);
-      text-align:center;
-    }
-    #deadlines-section.deadlines-compact .date-chip{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      font-weight:700;
-      font-size:.9rem;
-      padding:6px 10px;
-      border-radius:10px;
-      background:rgba(0,0,0,.04);
-      white-space:nowrap;
-    }
-    #deadlines-section.deadlines-compact .action-btn{
-      padding:6px 8px;
-      font-size:.8rem;
-    }
-    #deadlines-section.deadlines-compact .btn-action-deadline{
-      padding:6px 10px;
-      font-size:.85rem;
-    }
-    
-    /* Obiettivi compatti, stile simile a “Movimenti” */
-    #goals-section.goals-v2{
-      margin-top: 16px;
-    }
-    #goals-section.goals-v2 .goal-card{
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-    #goals-section.goals-v2 .goal-card-header h4{
-      font-size:1rem;
-      font-weight:700;
-    }
-    #goals-section.goals-v2 h5{
-      font-size:.75rem;
-      margin-bottom:6px;
-    }
-    #goals-section.goals-v2 .chip.method-btn{
-      padding:8px 10px;
-      font-size:.8rem;
-    }
-    #goals-section.goals-v2 .method-input input{
-      padding:6px 10px;
-      font-size:15px;
-    }
-    #goals-section.goals-v2 .quota-value{
-      padding:8px 10px;
-      font-size:1rem;
-    }
-    #goals-section.goals-v2 .quota-actions .btn{
-      padding:6px 10px;
-      font-size:.8rem;
-    }
-    #goals-section.goals-v2 .progress-info{
-      font-size:.85rem;
-    }
-    #goals-section.goals-v2 .goal-main-actions{
-      gap:8px;
-    }
-    #goals-section.goals-v2 .goal-main-actions .btn,
-    #goals-section.goals-v2 .goal-card-header .btn{
-      padding:8px 10px;
-      font-size:.85rem;
-    }
-    
-    /* Pulsanti header obiettivi più piccoli */
     #goals-section.goals-v2 .goal-card-header .btn{
       padding:6px 10px !important;
       font-size:.8rem !important;
     }
+
+    #deadlines-section {
+      margin-top: 0 !important;
+      margin-bottom: 24px !important;
+    }
+
   </style>
 </head>
 <body>
