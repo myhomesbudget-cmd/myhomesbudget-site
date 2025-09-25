@@ -749,7 +749,7 @@
         const isModal = container.closest('.modal-overlay');
 
         if(isModal) {
-            container.innerHTML = '<table class="deadlines-table"><tbody></tbody></table>';
+            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Scadenza</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
             container = container.querySelector('tbody');
         }
 
