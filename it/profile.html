@@ -442,6 +442,196 @@
       body.is-mobile .data-display.is-empty, body.is-tablet .data-display.is-empty {
         color: #666;
       }
+
+      /* PROFILE COMPACT MOBILE - 25/09/2025 */
+      /* Modalità compatta per schermi ≤480px - Ottimizza l'altezza verticale */
+      
+      /* Tipografia compatta */
+      body.compact-mobile h1, body.compact-mobile .profile-name {
+        font-size: 1.4rem !important;
+        margin-block: 8px !important;
+        line-height: 1.2;
+      }
+      
+      body.compact-mobile h2, body.compact-mobile .profile-section-title {
+        font-size: 1.1rem !important;
+        margin-block: 6px !important;
+        line-height: 1.25;
+      }
+      
+      body.compact-mobile body, body.compact-mobile p, body.compact-mobile .info-value, 
+      body.compact-mobile .data-display, body.compact-mobile .info-label {
+        font-size: 0.95rem !important;
+        line-height: 1.45 !important;
+      }
+      
+      /* Tab navigation compatti */
+      body.compact-mobile .dash-nav {
+        margin-bottom: 8px;
+        gap: 6px;
+      }
+      
+      body.compact-mobile .dash-nav a {
+        padding: 6px 12px;
+        min-height: 44px;
+        font-size: 0.95rem;
+        border-radius: 12px;
+      }
+      
+      /* Card più dense */
+      body.compact-mobile .dashboard-panel {
+        padding: 12px;
+        border-radius: 12px;
+        margin: 10px auto;
+        box-shadow: 0 8px 20px rgba(0,0,0,.08);
+      }
+      
+      body.compact-mobile .profile-info-row,
+      body.compact-mobile .info-field {
+        padding: 12px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        gap: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.06);
+      }
+      
+      body.compact-mobile .profile-content {
+        gap: 10px;
+      }
+      
+      body.compact-mobile .profile-content > section {
+        margin-bottom: 12px;
+      }
+      
+      /* Header profilo compatto */
+      body.compact-mobile .profile-header {
+        margin-top: -60px;
+      }
+      
+      body.compact-mobile .profile-avatar {
+        width: 72px;
+        height: 72px;
+        margin-bottom: 8px;
+      }
+      
+      body.compact-mobile .profile-plan {
+        font-size: 0.85rem;
+        padding: 4px 12px;
+        height: 24px;
+        min-height: 24px;
+        border-radius: 999px;
+      }
+      
+      /* Righe dettaglio compatte */
+      body.compact-mobile .profile-info-row {
+        gap: 6px;
+        line-height: 1.35;
+      }
+      
+      body.compact-mobile .profile-info-row .info-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+      }
+      
+      body.compact-mobile .profile-info-row .info-value {
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      
+      /* Container orizzontali compatti */
+      body.compact-mobile main.container {
+        padding: 12px;
+        padding-top: 72px;
+      }
+      
+      /* Pulsanti con tap target appropriati */
+      body.compact-mobile button, body.compact-mobile .btn, body.compact-mobile [role="button"] {
+        min-height: 40px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+      }
+      
+      body.compact-mobile .profile-actions {
+        margin-top: 16px;
+        gap: 10px;
+      }
+      
+      /* Sezioni accordion compatte (se presenti) */
+      body.compact-mobile details {
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        background: rgba(255,255,255,0.6);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 12px rgba(0,0,0,.06);
+      }
+      
+      body.compact-mobile summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.05rem;
+        padding: 8px 0;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+        list-style: none;
+      }
+      
+      body.compact-mobile summary::-webkit-details-marker {
+        display: none;
+      }
+      
+      body.compact-mobile summary::after {
+        content: '▼';
+        font-size: 0.8rem;
+        color: var(--primary-color);
+        transition: transform 0.2s ease;
+      }
+      
+      body.compact-mobile details[open] summary::after {
+        transform: rotate(180deg);
+      }
+      
+      body.compact-mobile details .personal-info-grid {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(0,0,0,0.1);
+      }
+      
+      /* Modal compatti */
+      body.compact-mobile .modal-content {
+        padding: 16px;
+        border-radius: 16px;
+        max-height: 90vh;
+      }
+      
+      body.compact-mobile .modal-title {
+        font-size: 1.1rem;
+      }
+      
+      body.compact-mobile .modal-header {
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+      }
+      
+      /* Toast compatti */
+      body.compact-mobile .status-toast {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+      }
+      
+      /* Focus states accessibili */
+      body.compact-mobile button:focus, body.compact-mobile .btn:focus, 
+      body.compact-mobile a:focus, body.compact-mobile summary:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 1px;
+      }
     </style>
 </head>
 <body>
@@ -502,11 +692,12 @@
             const body = document.body;
             
             // Rimuovi tutte le classi device esistenti
-            body.classList.remove('is-mobile', 'is-tablet', 'is-desktop');
+            body.classList.remove('is-mobile', 'is-tablet', 'is-desktop', 'compact-mobile');
             
             // Aggiungi la classe appropriata
             if (width <= 480) {
                 body.classList.add('is-mobile');
+                body.classList.add('compact-mobile'); // PROFILE COMPACT MOBILE - 25/09/2025
             } else if (width <= 1024) {
                 body.classList.add('is-tablet');
             } else {
