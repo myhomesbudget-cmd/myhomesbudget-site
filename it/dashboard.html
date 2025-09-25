@@ -350,7 +350,7 @@
     .action-btn.delete{background:var(--grad-danger)}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
 
-    /* Pannello Scadenze (NUOVO STILE PULITO) */
+    /* --- STILI VECCHI COMMENTATI ---
     #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
     .deadlines-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     .deadlines-table tr { border-bottom: 1px solid rgba(0,0,0,.05); }
@@ -366,6 +366,91 @@
     .deadlines-table .days-left-cell { font-weight: 700; color: var(--warning-color); text-align: center; }
     .deadlines-table .actions-cell { text-align: right; }
     .deadlines-table .actions-cell .item-actions { display: inline-flex; }
+    */
+
+    /* --- NUOVI STILI PER LA LISTA SCADENZE --- */
+    #deadlines-list .expense-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 4px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+     #deadlines-list .expense-item:last-child {
+        border-bottom: none;
+    }
+
+    #deadlines-list .expense-details {
+        flex-grow: 1;
+        min-width: 0; /* Previene problemi di overflow con flexbox */
+    }
+    
+    #deadlines-list .expense-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #deadlines-list .expense-details p:first-child {
+        font-weight: 600;
+        color: #333;
+    }
+
+    #deadlines-list .expense-amount {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+     #deadlines-list .expense-amount.expense { color: var(--danger-color); }
+     #deadlines-list .expense-amount.income { color: var(--success-color); }
+    
+    #deadlines-list .expense-right-section {
+        display: flex;
+        align-items: center;
+        gap: 16px; 
+        text-align: right;
+        flex-shrink: 0; /* Evita che la sezione si restringa */
+    }
+
+    #deadlines-list .expense-due-date {
+        background-color: #fff8e1;
+        color: #f39c12;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid #fdeec9;
+        white-space: nowrap; 
+    }
+
+    #deadlines-list .expense-actual-date {
+        background-color: #f1f5f9;
+        color: #334155;
+        border-radius: 10px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        line-height: 1.1;
+    }
+
+    #deadlines-list .date-day {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    #deadlines-list .date-month {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+    /* --- FINE NUOVI STILI --- */
 
     .btn-action-deadline{padding:8px 12px;font-size:.9rem}
     .btn-action-deadline.pay{background:var(--warning-color)}
@@ -979,13 +1064,7 @@
         if (transactions.length === 0){ container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
         container.innerHTML = '';
         const today = new Date(); today.setHours(0,0,0,0);
-
-        const isModal = container.closest('.modal-overlay');
-
-        if(isModal) {
-            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Scadenza</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
-            container = container.querySelector('tbody');
-        }
+        const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
 
         transactions.forEach(tx=>{
             const isIncome = tx.kind === 'income';
@@ -996,35 +1075,34 @@
             const amountClass = isIncome ? 'income' : 'expense';
             const amountSign = isIncome ? '+' : '-';
             const buttonClass = isIncome ? 'receive' : 'pay';
-            const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
+            const buttonText = isIncome ? 'Incassa' : 'Paga';
             const sub = tx.subcategories;
             const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
-            const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
             const noteSafe = escapeHTML(tx.note || '');
+            const day = dueDate ? String(dueDate.getDate()).padStart(2, '0') : '--';
+            const month = dueDate ? monthFormatter.format(dueDate).replace('.', '') : '---';
 
-            let rowHTML = '';
-            if (isModal) {
-                rowHTML = `
-                    <tr>
-                        <td class="description-cell">
-                            <span class="note-part">${noteSafe}</span>
-                            <span class="category-part">${categoryText}</span>
-                            <span class="date-part">🗓️ ${formattedDueDate}</span>
-                        </td>
-                        <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
-                        <td class="days-left-cell">${daysLeftText}</td>
-                        <td class="actions-cell">
-                            <div class="item-actions">
-                                <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
-                                <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
-                                <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
-            }
+            const rowHTML = `
+                <div class="expense-item">
+                    <div class="expense-actual-date">
+                        <span class="date-day">${day}</span>
+                        <span class="date-month">${month}</span>
+                    </div>
+                    <div class="expense-details">
+                        <p>${noteSafe}</p>
+                        <p>${categoryText}</p>
+                    </div>
+                    <div class="expense-right-section">
+                        <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                        <span class="expense-due-date">${daysLeftText}</span>
+                        <div class="item-actions">
+                             <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                             <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
+                             <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
             container.insertAdjacentHTML('beforeend', rowHTML);
         });
     }
