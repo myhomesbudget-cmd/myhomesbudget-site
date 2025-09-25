@@ -22,8 +22,9 @@
       --grad-success:linear-gradient(135deg,#2e7d32,#4caf50);
       --grad-warning:linear-gradient(135deg,#f39c12,#f1c40f);
     }
+    
     *{box-sizing:border-box}
-    html{font-family:var(--font-sans);background-color:var(--bg)}
+    html{font-family:var(--font-sans);background-color:var(--bg);scroll-behavior:smooth}
     body{
       margin:0;
       color:var(--fg);
@@ -31,10 +32,78 @@
       background-attachment: scroll;
       min-height:100svh;
       overflow-x:hidden;
+      position:relative;
     }
     body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
-    /* LOADING SYSTEM */
+    /* ===== PARTICLE SYSTEM ===== */
+    .particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float 6s infinite ease-in-out;
+    }
+    
+    .particle:nth-child(2n) { background: var(--success-color); animation-duration: 8s; }
+    .particle:nth-child(3n) { background: var(--warning-color); animation-duration: 10s; }
+    .particle:nth-child(4n) { background: var(--danger-color); animation-duration: 7s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(100vh) translateX(0px) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      50% { transform: translateY(50vh) translateX(100px) rotate(180deg); }
+    }
+
+    /* ===== MORPHING SHAPES ===== */
+    .morphing-shape {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(45deg, rgba(108,92,231,0.1), rgba(0,206,201,0.1));
+      border-radius: 50%;
+      animation: morph 8s infinite ease-in-out;
+      z-index: 1;
+    }
+    
+    .shape-1 { top: 10%; right: 10%; animation-delay: 0s; }
+    .shape-2 { bottom: 20%; left: 5%; animation-delay: 2s; }
+    .shape-3 { top: 60%; right: 30%; animation-delay: 4s; }
+    
+    @keyframes morph {
+      0%, 100% { 
+        border-radius: 50%; 
+        transform: rotate(0deg) scale(1); 
+      }
+      25% { 
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; 
+        transform: rotate(90deg) scale(1.2); 
+      }
+      50% { 
+        border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; 
+        transform: rotate(180deg) scale(0.8); 
+      }
+      75% { 
+        border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%; 
+        transform: rotate(270deg) scale(1.1); 
+      }
+    }
+
+    /* ===== LOADING SYSTEM ===== */
     .boot-loader{
       position:fixed;top:0;left:0;width:100%;height:100%;
       background:var(--bg);display:flex;align-items:center;justify-content:center;
@@ -48,7 +117,7 @@
     .loader-text{font-size:1.1rem;font-weight:600;color:var(--fg)}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* TOPBAR */
+    /* ===== TOPBAR ===== */
     .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
@@ -64,57 +133,198 @@
     .topbar-select{appearance:none;background:transparent;color:#fff;border:none;padding:6px 28px 6px 12px;font-size:.9rem;font-weight:600;cursor:pointer}
     .topbar-select option{background:#fff;color:#000}
 
-    /* MAIN CONTENT */
-    main.container{padding:84px 24px 24px;max-width:1400px;margin:0 auto;width:100%}
-    .page-header{text-align:center;margin-bottom:40px}
+    /* ===== MAIN CONTENT ===== */
+    main.container{padding:84px 24px 24px;max-width:1400px;margin:0 auto;width:100%;position:relative;z-index:2}
+    .page-header{text-align:center;margin-bottom:40px;opacity:0;transform:translateY(30px);animation:slideInDown 1s ease-out 0.2s forwards}
     .page-title{font-size:2.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 10px}
     .page-subtitle{font-size:1.1rem;color:#666;margin:0}
 
-    /* DASHBOARD GRID */
+    /* ===== 3D FLIPPABLE CARDS ===== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:40px}
     @media(min-width:768px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
     @media(min-width:1200px){.dashboard-grid{grid-template-columns:repeat(4,1fr)}}
 
-    /* SUMMARY CARDS */
     .summary-card{
       background:rgba(255,255,255,0.9);
       border-radius:var(--radius-lg);
-      padding:24px;
       border:1px solid var(--card-border);
       box-shadow:var(--shadow);
-      transition:transform .3s ease,box-shadow .3s ease;
       position:relative;
       overflow:hidden;
+      cursor:pointer;
+      perspective:1000px;
+      height:200px;
+      opacity:0;
+      transform:translateY(50px);
+      transition:all 0.3s ease;
     }
-    .summary-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(0,0,0,.12)}
+
+    .summary-card.scroll-visible{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .card-inner{
+      position:relative;
+      width:100%;
+      height:100%;
+      text-align:center;
+      transition:transform 0.8s;
+      transform-style:preserve-3d;
+    }
+
+    .summary-card:hover .card-inner{
+      transform:rotateY(180deg);
+    }
+
+    .card-front, .card-back{
+      position:absolute;
+      width:100%;
+      height:100%;
+      backface-visibility:hidden;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .card-back{
+      transform:rotateY(180deg);
+      background:linear-gradient(135deg, rgba(108,92,231,0.1), rgba(0,206,201,0.1));
+    }
+
+    /* ===== HOVER EFFECTS & GLOW ===== */
     .summary-card::before{
       content:'';position:absolute;top:0;left:0;right:0;height:4px;
       background:var(--grad);
+      transition:height 0.3s ease;
     }
+
+    .summary-card:hover{
+      transform:translateY(-10px) scale(1.02);
+      box-shadow:0 25px 50px rgba(0,0,0,.15);
+    }
+
+    .summary-card:hover::before{
+      height:100%;
+      opacity:0.1;
+    }
+
     .summary-card.income::before{background:var(--grad-success)}
     .summary-card.expense::before{background:var(--grad-danger)}
     .summary-card.balance::before{background:var(--grad)}
     .summary-card.goal::before{background:var(--grad-warning)}
 
+    /* ===== RIPPLE EFFECT ===== */
+    .ripple{
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,0.6);
+      transform:scale(0);
+      animation:ripple-animation 0.6s linear;
+      pointer-events:none;
+    }
+
+    @keyframes ripple-animation{
+      to{
+        transform:scale(4);
+        opacity:0;
+      }
+    }
+
+    /* ===== DONUT CHARTS ===== */
     .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     .card-title{font-size:1rem;font-weight:600;color:#666;display:flex;align-items:center;gap:8px}
     .card-icon{font-size:1.5rem}
-    .card-value{font-size:2.2rem;font-weight:800;margin:0;line-height:1.2}
-    .card-subtitle{font-size:0.9rem;color:#999;margin:8px 0 0}
+
+    .donut-container{
+      position:relative;
+      width:80px;
+      height:80px;
+      margin:10px auto;
+    }
+
+    .donut-svg{
+      width:100%;
+      height:100%;
+      transform:rotate(-90deg);
+    }
+
+    .donut-track{
+      fill:none;
+      stroke:rgba(0,0,0,0.1);
+      stroke-width:8;
+    }
+
+    .donut-progress{
+      fill:none;
+      stroke-width:8;
+      stroke-linecap:round;
+      transition:stroke-dasharray 2s ease-out;
+    }
+
+    .donut-text{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      font-size:0.9rem;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .card-value{font-size:1.8rem;font-weight:800;margin:8px 0;line-height:1.2}
+    .card-subtitle{font-size:0.9rem;color:#999;margin:0}
+
+    .income .donut-progress{stroke:var(--success-color)}
+    .expense .donut-progress{stroke:var(--danger-color)}
+    .balance .donut-progress{stroke:var(--primary-color)}
+    .goal .donut-progress{stroke:var(--warning-color)}
 
     .income .card-value{color:var(--success-color)}
     .expense .card-value{color:var(--danger-color)}
     .balance .card-value{color:var(--primary-color)}
     .goal .card-value{color:var(--warning-color)}
 
-    /* PROGRESS BARS */
-    .progress-container{margin-top:16px}
-    .progress-bar{height:8px;background:rgba(0,0,0,0.1);border-radius:999px;overflow:hidden}
-    .progress-fill{height:100%;border-radius:999px;transition:width 1s ease-out}
+    /* ===== BACK SIDE INSIGHTS ===== */
+    .insight-icon{font-size:2rem;margin-bottom:10px}
+    .insight-title{font-size:1.1rem;font-weight:600;margin-bottom:8px}
+    .insight-text{font-size:0.9rem;color:#666;line-height:1.4}
+
+    /* ===== INTERACTIVE PROGRESS BARS ===== */
+    .progress-container{margin-top:16px;cursor:pointer}
+    .progress-bar{height:8px;background:rgba(0,0,0,0.1);border-radius:999px;overflow:hidden;position:relative}
+    
+    .progress-fill{
+      height:100%;
+      border-radius:999px;
+      transition:width 2s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative;
+    }
+
+    .progress-fill::after{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation:shimmer 2s infinite;
+    }
+
+    @keyframes shimmer{
+      0%{transform:translateX(-100%)}
+      100%{transform:translateX(100%)}
+    }
+
     .goal .progress-fill{background:var(--grad-warning)}
 
-    /* CHARTS SECTION */
-    .charts-section{margin:40px 0}
+    /* ===== CHARTS SECTION ===== */
+    .charts-section{margin:40px 0;opacity:0;transform:translateY(50px)}
+    .charts-section.scroll-visible{opacity:1;transform:translateY(0);transition:all 0.8s ease}
+    
     .section-title{font-size:1.8rem;font-weight:700;margin:0 0 24px;color:var(--fg)}
     .charts-grid{display:grid;grid-template-columns:1fr;gap:24px}
     @media(min-width:1024px){.charts-grid{grid-template-columns:2fr 1fr}}
@@ -125,26 +335,75 @@
       padding:24px;
       border:1px solid var(--card-border);
       box-shadow:var(--shadow);
+      transition:all 0.3s ease;
+      cursor:pointer;
     }
+
+    .chart-card:hover{
+      transform:translateY(-5px);
+      box-shadow:0 20px 40px rgba(0,0,0,.12);
+    }
+
     .chart-title{font-size:1.3rem;font-weight:600;margin:0 0 20px;color:var(--fg)}
     .chart-container{position:relative;height:300px}
 
-    /* DONUT CHART */
+    /* ===== MAIN DONUT CHART ===== */
     .donut-chart{width:100%;height:100%;position:relative}
-    .donut-svg{width:100%;height:100%}
+    .donut-svg-main{width:100%;height:100%}
     .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
     .donut-total{font-size:2rem;font-weight:800;color:var(--fg)}
     .donut-label{font-size:0.9rem;color:#666;margin-top:4px}
 
-    /* CHART LEGEND */
+    /* ===== CHART LEGEND ===== */
     .chart-legend{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-    .legend-item{display:flex;align-items:center;gap:8px;font-size:0.9rem}
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:0.9rem;
+      padding:8px;
+      border-radius:8px;
+      transition:all 0.3s ease;
+      cursor:pointer;
+    }
+
+    .legend-item:hover{
+      background:rgba(0,0,0,0.05);
+      transform:translateX(5px);
+    }
+
     .legend-color{width:12px;height:12px;border-radius:3px;flex-shrink:0}
     .legend-text{flex:1;font-weight:500}
     .legend-amount{font-weight:700;color:var(--fg)}
 
-    /* RECENT TRANSACTIONS */
-    .transactions-section{margin:40px 0}
+    /* ===== CATEGORY PROGRESS BARS ===== */
+    .category-item{
+      margin-bottom:16px;
+      padding:12px;
+      border-radius:8px;
+      transition:all 0.3s ease;
+      cursor:pointer;
+    }
+
+    .category-item:hover{
+      background:rgba(0,0,0,0.05);
+      transform:scale(1.02);
+    }
+
+    .category-item.clicked{
+      animation:categoryPulse 0.6s ease-out;
+    }
+
+    @keyframes categoryPulse{
+      0%{transform:scale(1)}
+      50%{transform:scale(1.05);background:rgba(108,92,231,0.1)}
+      100%{transform:scale(1)}
+    }
+
+    /* ===== RECENT TRANSACTIONS ===== */
+    .transactions-section{margin:40px 0;opacity:0;transform:translateY(50px)}
+    .transactions-section.scroll-visible{opacity:1;transform:translateY(0);transition:all 0.8s ease 0.4s}
+
     .transactions-card{
       background:rgba(255,255,255,0.9);
       border-radius:var(--radius-lg);
@@ -152,13 +411,30 @@
       border:1px solid var(--card-border);
       box-shadow:var(--shadow);
     }
+
     .transaction-item{
       display:flex;
       align-items:center;
       gap:16px;
       padding:12px 0;
       border-bottom:1px solid rgba(0,0,0,0.05);
+      transition:all 0.3s ease;
+      cursor:pointer;
+      opacity:0;
+      transform:translateX(-30px);
     }
+
+    .transaction-item.scroll-visible{
+      opacity:1;
+      transform:translateX(0);
+    }
+
+    .transaction-item:hover{
+      background:rgba(0,0,0,0.02);
+      padding-left:16px;
+      border-radius:8px;
+    }
+
     .transaction-item:last-child{border-bottom:none}
     .transaction-icon{font-size:1.5rem;width:40px;text-align:center;flex-shrink:0}
     .transaction-details{flex:1;min-width:0}
@@ -168,7 +444,7 @@
     .transaction-amount.positive{color:var(--success-color)}
     .transaction-amount.negative{color:var(--danger-color)}
 
-    /* EMPTY STATES */
+    /* ===== EMPTY STATES ===== */
     .empty-state{
       text-align:center;
       padding:40px 20px;
@@ -180,33 +456,38 @@
     .empty-state h3{margin:0 0 12px;font-size:1.2rem;color:#555}
     .empty-state p{margin:0;font-size:0.95rem}
 
-    /* ANIMATIONS */
-    .fadeInUp{animation:fadeInUp 0.6s ease-out forwards}
-    @keyframes fadeInUp{
-      from{opacity:0;transform:translateY(30px)}
-      to{opacity:1;transform:translateY(0)}
+    /* ===== SCROLL ANIMATIONS ===== */
+    .scroll-fade{
+      opacity:0;
+      transform:translateY(30px);
+      transition:all 0.8s ease;
     }
 
-    .pulse{animation:pulse 2s infinite}
-    @keyframes pulse{
-      0%,100%{opacity:1}
-      50%{opacity:.5}
+    .scroll-fade.visible{
+      opacity:1;
+      transform:translateY(0);
     }
 
-    /* RESPONSIVE */
+    /* ===== ANIMATED COUNTERS ===== */
+    .counter{
+      display:inline-block;
+    }
+
+    /* ===== RESPONSIVE ===== */
     @media(max-width:768px){
       .page-title{font-size:2rem}
       .dashboard-grid{grid-template-columns:1fr;gap:16px}
       .charts-grid{grid-template-columns:1fr}
-      .card-value{font-size:1.8rem}
+      .card-value{font-size:1.5rem}
       main.container{padding:84px 16px 24px}
       .topbar{padding:0 16px}
       .top-actions{flex-direction:column;gap:8px}
       .date-selectors{flex-direction:column;gap:8px;width:100%}
       .select-wrapper{width:100%}
+      .morphing-shape{width:100px;height:100px}
     }
 
-    /* STATUS MESSAGE */
+    /* ===== STATUS MESSAGE ===== */
     .status-message{
       position:fixed;bottom:20px;right:20px;
       padding:12px 20px;border-radius:8px;
@@ -221,6 +502,14 @@
   </style>
 </head>
 <body>
+  <!-- Particle System -->
+  <div class="particles-container" id="particles-container"></div>
+  
+  <!-- Morphing Shapes -->
+  <div class="morphing-shape shape-1"></div>
+  <div class="morphing-shape shape-2"></div>
+  <div class="morphing-shape shape-3"></div>
+
   <!-- Boot Loader -->
   <div id="boot-loader" class="boot-loader">
     <div class="loader-content">
@@ -263,60 +552,127 @@
       <p class="page-subtitle">Analisi dettagliata delle tue finanze</p>
     </div>
 
-    <!-- Summary Cards -->
+    <!-- Summary Cards with 3D Flip -->
     <div id="summary-content" class="dashboard-grid">
       <div class="summary-card income">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="card-icon">💰</span>
-            Entrate Totali
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-icon">💰</span>
+                Entrate Totali
+              </div>
+            </div>
+            <div class="donut-container">
+              <svg class="donut-svg" viewBox="0 0 100 100">
+                <circle class="donut-track" cx="50" cy="50" r="40"></circle>
+                <circle class="donut-progress" id="income-donut" cx="50" cy="50" r="40" stroke-dasharray="0 251.2"></circle>
+              </svg>
+              <div class="donut-text">
+                <div id="income-percentage">0%</div>
+              </div>
+            </div>
+            <p id="income-value" class="card-value">€0.00</p>
+            <p class="card-subtitle">Questo mese</p>
+          </div>
+          <div class="card-back">
+            <div class="insight-icon">📊</div>
+            <div class="insight-title">Analisi Entrate</div>
+            <div id="income-insight" class="insight-text">Le tue entrate mostrano un trend positivo rispetto al mese scorso</div>
           </div>
         </div>
-        <p id="income-value" class="card-value">€0.00</p>
-        <p class="card-subtitle">Questo mese</p>
       </div>
 
       <div class="summary-card expense">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="card-icon">💸</span>
-            Uscite Totali
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-icon">💸</span>
+                Uscite Totali
+              </div>
+            </div>
+            <div class="donut-container">
+              <svg class="donut-svg" viewBox="0 0 100 100">
+                <circle class="donut-track" cx="50" cy="50" r="40"></circle>
+                <circle class="donut-progress" id="expense-donut" cx="50" cy="50" r="40" stroke-dasharray="0 251.2"></circle>
+              </svg>
+              <div class="donut-text">
+                <div id="expense-percentage">0%</div>
+              </div>
+            </div>
+            <p id="expense-value" class="card-value">€0.00</p>
+            <p class="card-subtitle">Questo mese</p>
+          </div>
+          <div class="card-back">
+            <div class="insight-icon">⚠️</div>
+            <div class="insight-title">Controllo Spese</div>
+            <div id="expense-insight" class="insight-text">Monitora le tue spese per rimanere nel budget</div>
           </div>
         </div>
-        <p id="expense-value" class="card-value">€0.00</p>
-        <p class="card-subtitle">Questo mese</p>
       </div>
 
       <div class="summary-card balance">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="card-icon">⚖️</span>
-            Saldo
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-icon">⚖️</span>
+                Saldo
+              </div>
+            </div>
+            <div class="donut-container">
+              <svg class="donut-svg" viewBox="0 0 100 100">
+                <circle class="donut-track" cx="50" cy="50" r="40"></circle>
+                <circle class="donut-progress" id="balance-donut" cx="50" cy="50" r="40" stroke-dasharray="0 251.2"></circle>
+              </svg>
+              <div class="donut-text">
+                <div id="balance-percentage">0%</div>
+              </div>
+            </div>
+            <p id="balance-value" class="card-value">€0.00</p>
+            <p class="card-subtitle">Differenza entrate/uscite</p>
+          </div>
+          <div class="card-back">
+            <div class="insight-icon">💡</div>
+            <div class="insight-title">Situazione Finanziaria</div>
+            <div id="balance-insight" class="insight-text">Il tuo saldo riflette la gestione delle finanze</div>
           </div>
         </div>
-        <p id="balance-value" class="card-value">€0.00</p>
-        <p class="card-subtitle">Differenza entrate/uscite</p>
       </div>
 
       <div class="summary-card goal">
-        <div class="card-header">
-          <div class="card-title">
-            <span class="card-icon">🎯</span>
-            Obiettivo
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-icon">🎯</span>
+                Obiettivo
+              </div>
+            </div>
+            <div class="donut-container">
+              <svg class="donut-svg" viewBox="0 0 100 100">
+                <circle class="donut-track" cx="50" cy="50" r="40"></circle>
+                <circle class="donut-progress" id="goal-donut" cx="50" cy="50" r="40" stroke-dasharray="0 251.2"></circle>
+              </svg>
+              <div class="donut-text">
+                <div id="goal-percentage">0%</div>
+              </div>
+            </div>
+            <p id="goal-value" class="card-value">€0.00</p>
+            <p id="goal-name" class="card-subtitle">Nessun obiettivo</p>
           </div>
-        </div>
-        <p id="goal-value" class="card-value">€0.00</p>
-        <p id="goal-name" class="card-subtitle">Nessun obiettivo</p>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div id="goal-progress" class="progress-fill" style="width:0%"></div>
+          <div class="card-back">
+            <div class="insight-icon">🚀</div>
+            <div class="insight-title">Progressi Obiettivo</div>
+            <div id="goal-insight" class="insight-text">Continua così per raggiungere il tuo obiettivo!</div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Charts Section -->
-    <section class="charts-section">
+    <section class="charts-section scroll-fade">
       <h2 class="section-title">📊 Analisi per Categoria</h2>
       <div class="charts-grid">
         <div class="chart-card">
@@ -341,7 +697,7 @@
     </section>
 
     <!-- Recent Transactions -->
-    <section class="transactions-section">
+    <section class="transactions-section scroll-fade">
       <h2 class="section-title">💳 Transazioni Recenti</h2>
       <div class="transactions-card">
         <div id="recent-transactions">
@@ -380,7 +736,7 @@
     const statusMessage = document.getElementById('status-message');
     const logoutBtn = document.getElementById('logout-btn');
 
-    // Utility functions
+    // ===== UTILITY FUNCTIONS =====
     function safeToNumber(v) { 
       const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); 
       return Number.isFinite(n) ? n : 0; 
@@ -409,8 +765,63 @@
       setTimeout(() => statusMessage.classList.remove('is-visible'), duration);
     }
 
-    // Animation functions
-    function animateCounter(element, targetValue, duration = 1000, formatter = (v) => formatCurrency(v)) {
+    // ===== PARTICLE SYSTEM =====
+    function createParticles() {
+      const container = document.getElementById('particles-container');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // ===== RIPPLE EFFECT =====
+    function createRipple(e) {
+      const button = e.currentTarget;
+      const circle = document.createElement('span');
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+      const radius = diameter / 2;
+      
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - button.offsetLeft - radius}px`;
+      circle.style.top = `${e.clientY - button.offsetTop - radius}px`;
+      circle.classList.add('ripple');
+      
+      const ripple = button.getElementsByClassName('ripple')[0];
+      if (ripple) {
+        ripple.remove();
+      }
+      
+      button.appendChild(circle);
+    }
+
+    // ===== SCROLL ANIMATIONS =====
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('scroll-visible');
+        }
+      });
+    }, observerOptions);
+
+    function initScrollAnimations() {
+      document.querySelectorAll('.scroll-fade, .summary-card, .transaction-item').forEach(el => {
+        observer.observe(el);
+      });
+    }
+
+    // ===== ANIMATED COUNTERS =====
+    function animateCounter(element, targetValue, duration = 2000, formatter = (v) => formatCurrency(v)) {
       const startValue = 0;
       const startTime = performance.now();
       
@@ -434,14 +845,19 @@
       requestAnimationFrame(updateCounter);
     }
 
-    function animateProgressBar(element, targetWidth, duration = 1500) {
-      element.style.transition = `width ${duration}ms ease-out`;
+    // ===== DONUT CHART ANIMATIONS =====
+    function animateDonut(elementId, percentage, delay = 0) {
       setTimeout(() => {
-        element.style.width = `${Math.min(targetWidth, 100)}%`;
-      }, 100);
+        const circle = document.getElementById(elementId);
+        if (circle) {
+          const circumference = 2 * Math.PI * 40; // radius = 40
+          const strokeDasharray = (percentage / 100) * circumference;
+          circle.style.strokeDasharray = `${strokeDasharray} ${circumference}`;
+        }
+      }, delay);
     }
 
-    // Initialize date selectors
+    // ===== INITIALIZE DATE SELECTORS =====
     function initializeDateSelectors() {
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth();
@@ -473,7 +889,7 @@
       }
     }
 
-    // Load categories
+    // ===== LOAD CATEGORIES =====
     async function loadCategories() {
       try {
         const { data: categories, error } = await supabase
@@ -488,7 +904,7 @@
       }
     }
 
-    // Load transactions for period
+    // ===== LOAD TRANSACTIONS FOR PERIOD =====
     async function loadTransactionsForPeriod(month, year) {
       try {
         const startDate = new Date(year, month, 1);
@@ -515,7 +931,7 @@
       }
     }
 
-    // Load goals
+    // ===== LOAD GOALS =====
     async function loadGoals() {
       try {
         const { data: goals, error } = await supabase
@@ -534,44 +950,85 @@
       }
     }
 
-    // Render summary cards
+    // ===== RENDER SUMMARY CARDS =====
     function renderSummaryCards(data) {
       const incomeEl = document.getElementById('income-value');
       const expenseEl = document.getElementById('expense-value');
       const balanceEl = document.getElementById('balance-value');
       const goalValueEl = document.getElementById('goal-value');
       const goalNameEl = document.getElementById('goal-name');
-      const goalProgressEl = document.getElementById('goal-progress');
+
+      // Calculate percentages for donuts
+      const maxAmount = Math.max(data.totalIncome, data.totalExpenses);
+      const incomePercentage = maxAmount > 0 ? (data.totalIncome / maxAmount) * 100 : 0;
+      const expensePercentage = maxAmount > 0 ? (data.totalExpenses / maxAmount) * 100 : 0;
+      const balancePercentage = data.balance >= 0 ? 
+        (maxAmount > 0 ? (Math.abs(data.balance) / maxAmount) * 100 : 0) : 
+        (maxAmount > 0 ? (Math.abs(data.balance) / maxAmount) * 100 : 0);
+
+      // Update percentage displays
+      document.getElementById('income-percentage').textContent = Math.round(incomePercentage) + '%';
+      document.getElementById('expense-percentage').textContent = Math.round(expensePercentage) + '%';
+      document.getElementById('balance-percentage').textContent = Math.round(balancePercentage) + '%';
 
       // Animate counters
-      animateCounter(incomeEl, data.totalIncome);
-      animateCounter(expenseEl, data.totalExpenses);
-      animateCounter(balanceEl, data.balance, 1000, (v) => {
-        const formatted = formatCurrency(v);
-        return v >= 0 ? formatted : formatted;
-      });
+      setTimeout(() => {
+        animateCounter(incomeEl, data.totalIncome, 2000);
+        animateCounter(expenseEl, data.totalExpenses, 2000);
+        animateCounter(balanceEl, data.balance, 2000, (v) => {
+          return formatCurrency(v);
+        });
+      }, 500);
+
+      // Animate donuts
+      animateDonut('income-donut', incomePercentage, 800);
+      animateDonut('expense-donut', expensePercentage, 1000);
+      animateDonut('balance-donut', balancePercentage, 1200);
 
       // Update balance color
       balanceEl.style.color = data.balance >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
 
+      // Update insights
+      document.getElementById('income-insight').textContent = 
+        data.totalIncome > 2000 ? "Ottime entrate questo mese! 💪" : 
+        data.totalIncome > 1000 ? "Entrate nella media 📊" : "Cerca di aumentare le entrate 📈";
+
+      document.getElementById('expense-insight').textContent = 
+        data.totalExpenses > data.totalIncome ? "Attenzione: spese superiori alle entrate ⚠️" : 
+        "Spese sotto controllo! 👍";
+
+      document.getElementById('balance-insight').textContent = 
+        data.balance > 500 ? "Ottima gestione finanziaria! 🎉" : 
+        data.balance > 0 ? "Situazione equilibrata ⚖️" : "Necessario rivedere il budget ⚠️";
+
       // Goal data
       if (data.goal) {
-        animateCounter(goalValueEl, data.goal.current_amount);
+        setTimeout(() => {
+          animateCounter(goalValueEl, data.goal.current_amount, 2000);
+        }, 700);
         goalNameEl.textContent = data.goal.name;
         
         const progress = data.goal.target_amount > 0 
           ? (data.goal.current_amount / data.goal.target_amount) * 100 
           : 0;
         
-        animateProgressBar(goalProgressEl, progress);
+        document.getElementById('goal-percentage').textContent = Math.round(progress) + '%';
+        animateDonut('goal-donut', progress, 1400);
+
+        document.getElementById('goal-insight').textContent = 
+          progress >= 100 ? "Obiettivo raggiunto! 🎯🎉" : 
+          progress >= 75 ? "Quasi al traguardo! 🚀" : 
+          progress >= 50 ? "A metà strada! 💪" : 
+          progress >= 25 ? "Buon inizio! 👍" : "Inizia a risparmiare! 💰";
       } else {
         goalValueEl.textContent = formatCurrency(0);
         goalNameEl.textContent = 'Nessun obiettivo';
-        goalProgressEl.style.width = '0%';
+        document.getElementById('goal-percentage').textContent = '0%';
+        document.getElementById('goal-insight').textContent = "Imposta un obiettivo per iniziare! 🎯";
       }
     }
 
-    // Render donut chart
+    // ===== RENDER EXPENSES CHART =====
     function renderExpensesChart(categories) {
       const chartContainer = document.getElementById('expenses-chart');
       const legendContainer = document.getElementById('expenses-legend');
@@ -618,11 +1075,11 @@
         
         const color = colors[index % colors.length];
         
-        svgPaths += `<path d="${pathData}" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.9"/>`;
+        svgPaths += `<path d="${pathData}" fill="${color}" stroke="#fff" stroke-width="2" opacity="0" style="animation: fadeIn 0.6s ease-out ${index * 0.2}s forwards"/>`;
         
         // Legend item
         legendHTML += `
-          <div class="legend-item">
+          <div class="legend-item" style="animation-delay: ${index * 0.1}s">
             <div class="legend-color" style="background-color:${color}"></div>
             <span class="legend-text">${escapeHTML(category.name)}</span>
             <span class="legend-amount">${formatCurrency(category.amount)}</span>
@@ -633,20 +1090,25 @@
       });
       
       chartContainer.innerHTML = `
-        <svg class="donut-svg" viewBox="0 0 ${size} ${size}">
+        <svg class="donut-svg-main" viewBox="0 0 ${size} ${size}">
           ${svgPaths}
           <circle cx="${center}" cy="${center}" r="40" fill="white" stroke="none"/>
         </svg>
         <div class="donut-center">
-          <div class="donut-total">${formatCurrency(total)}</div>
+          <div class="donut-total counter">${formatCurrency(total)}</div>
           <div class="donut-label">Totale Spese</div>
         </div>
       `;
       
       legendContainer.innerHTML = legendHTML;
+      
+      // Add click handlers for legend items
+      legendContainer.querySelectorAll('.legend-item').forEach(item => {
+        item.addEventListener('click', createRipple);
+      });
     }
 
-    // Render top categories
+    // ===== RENDER TOP CATEGORIES =====
     function renderTopCategories(categories) {
       const container = document.getElementById('top-categories-list');
       
@@ -664,25 +1126,47 @@
         const icon = category.icon || '💸';
         
         html += `
-          <div class="category-item" style="margin-bottom: 16px;">
+          <div class="category-item" data-category="${escapeHTML(category.name)}" style="animation-delay: ${index * 0.1}s; opacity: 0; animation: fadeInUp 0.6s ease-out ${index * 0.1}s forwards;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
               <span style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
                 <span style="font-size: 1.2rem;">${escapeHTML(icon)}</span>
                 ${escapeHTML(category.name)}
               </span>
-              <span style="font-weight: 700; color: var(--danger-color);">${formatCurrency(category.amount)}</span>
+              <span class="counter" style="font-weight: 700; color: var(--danger-color);">${formatCurrency(category.amount)}</span>
             </div>
-            <div style="height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; overflow: hidden;">
-              <div style="height: 100%; background: var(--grad-danger); border-radius: 3px; width: ${percentage}%; transition: width 1s ease-out;"></div>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div class="progress-fill" style="background: var(--grad-danger); width: 0%; transition: width 2s ease-out ${index * 0.2}s;"></div>
+              </div>
             </div>
           </div>
         `;
       });
       
       container.innerHTML = html;
+      
+      // Animate progress bars
+      setTimeout(() => {
+        topCategories.forEach((category, index) => {
+          const percentage = maxAmount > 0 ? (category.amount / maxAmount) * 100 : 0;
+          const progressBar = container.children[index]?.querySelector('.progress-fill');
+          if (progressBar) {
+            progressBar.style.width = percentage + '%';
+          }
+        });
+      }, 500);
+      
+      // Add click handlers
+      container.querySelectorAll('.category-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          this.classList.add('clicked');
+          createRipple(e);
+          setTimeout(() => this.classList.remove('clicked'), 600);
+        });
+      });
     }
 
-    // Render recent transactions
+    // ===== RENDER RECENT TRANSACTIONS =====
     function renderRecentTransactions(transactions) {
       const container = document.getElementById('recent-transactions');
       
@@ -694,7 +1178,7 @@
       const recentTx = transactions.slice(0, 10);
       
       let html = '';
-      recentTx.forEach(tx => {
+      recentTx.forEach((tx, index) => {
         const isIncome = tx.kind === 'income';
         const amount = safeToNumber(tx.amount);
         const categoryName = tx.categories?.name || 'Altro';
@@ -705,7 +1189,7 @@
         });
         
         html += `
-          <div class="transaction-item">
+          <div class="transaction-item" style="animation-delay: ${index * 0.1}s">
             <div class="transaction-icon">${escapeHTML(categoryIcon)}</div>
             <div class="transaction-details">
               <h4 class="transaction-description">${escapeHTML(tx.note || 'Transazione')}</h4>
@@ -719,9 +1203,14 @@
       });
       
       container.innerHTML = html;
+      
+      // Add click handlers
+      container.querySelectorAll('.transaction-item').forEach(item => {
+        item.addEventListener('click', createRipple);
+      });
     }
 
-    // Main data loading function
+    // ===== MAIN DATA LOADING FUNCTION =====
     async function loadSummaryData() {
       try {
         monthSelector.disabled = true;
@@ -782,11 +1271,13 @@
         renderTopCategories(expenseCategories);
         renderRecentTransactions(transactions);
 
-        // Add animation classes
-        document.querySelectorAll('.summary-card').forEach((card, index) => {
-          card.style.animationDelay = `${index * 0.1}s`;
-          card.classList.add('fadeInUp');
-        });
+        // Trigger scroll animations
+        setTimeout(() => {
+          document.querySelectorAll('.summary-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('scroll-visible');
+          });
+        }, 500);
 
       } catch (error) {
         console.error("Errore nel caricamento dei dati:", error);
@@ -797,7 +1288,7 @@
       }
     }
 
-    // Authentication and initialization
+    // ===== AUTHENTICATION AND INITIALIZATION =====
     async function initializeApp() {
       try {
         // Check authentication
@@ -812,6 +1303,10 @@
         user = authUser;
         console.log('User authenticated:', user.email);
 
+        // Initialize particle system and animations
+        createParticles();
+        initScrollAnimations();
+
         // Initialize UI
         initializeDateSelectors();
         
@@ -824,6 +1319,11 @@
         // Set up event listeners
         monthSelector.addEventListener('change', loadSummaryData);
         yearSelector.addEventListener('change', loadSummaryData);
+        
+        // Add ripple effects to clickable elements
+        document.querySelectorAll('.summary-card, .chart-card').forEach(card => {
+          card.addEventListener('click', createRipple);
+        });
         
         logoutBtn.addEventListener('click', async () => {
           await supabase.auth.signOut();
@@ -843,6 +1343,26 @@
         bootLoader.classList.add('is-hidden');
       }
     }
+
+    // Add fadeIn animation for chart paths
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 0.9; transform: scale(1); }
+      }
+      
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
 
     // Start the app
     document.addEventListener('DOMContentLoaded', initializeApp);
