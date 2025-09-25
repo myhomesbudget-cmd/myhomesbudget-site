@@ -213,6 +213,10 @@
       .dash-card .dash-card__content {
         display: block;
       }
+
+      .deadlines-desktop-title {
+          display: block !important;
+      }
     }
     
     /* END DASHBOARD MOBILE ACCORDION - 25/09/2025 */
@@ -350,24 +354,6 @@
     .action-btn.delete{background:var(--grad-danger)}
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
 
-    /* --- STILI VECCHI COMMENTATI ---
-    #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
-    .deadlines-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    .deadlines-table tr { border-bottom: 1px solid rgba(0,0,0,.05); }
-    .deadlines-table tr:last-child { border-bottom: none; }
-    .deadlines-table td { padding: 12px 8px; vertical-align: middle; }
-    .deadlines-table .description-cell { display: flex; flex-direction: column; }
-    .deadlines-table .note-part { font-weight: 600; }
-    .deadlines-table .category-part { font-size: 0.9em; color: #555; }
-    .deadlines-table .date-part { font-size: 0.9em; font-weight: 600; color: #333; }
-    .deadlines-table .amount-cell { font-weight: 700; text-align: right; }
-    .deadlines-table .amount-cell.expense { color: var(--danger-color); }
-    .deadlines-table .amount-cell.income { color: var(--success-color); }
-    .deadlines-table .days-left-cell { font-weight: 700; color: var(--warning-color); text-align: center; }
-    .deadlines-table .actions-cell { text-align: right; }
-    .deadlines-table .actions-cell .item-actions { display: inline-flex; }
-    */
-
     /* --- NUOVI STILI PER LA LISTA SCADENZE --- */
     #deadlines-list .expense-item {
         display: flex;
@@ -455,6 +441,84 @@
     .btn-action-deadline{padding:8px 12px;font-size:.9rem}
     .btn-action-deadline.pay{background:var(--warning-color)}
     .btn-action-deadline.receive{background:var(--success-color)}
+
+    /* --- NUOVI STILI MODAL EMOZIONANTE --- */
+    .modal-overlay.is-visible .modal-content-enhanced {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    .modal-content-enhanced {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        padding: 0;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow);
+        transform: translateY(-30px) scale(0.98);
+        opacity: 0;
+        transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease;
+    }
+    .modal-header-enhanced {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: var(--grad);
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        flex-shrink: 0;
+    }
+    .modal-title-enhanced {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .modal-body-enhanced {
+        padding: 8px 24px 24px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .deadline-item-modal {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "date details right" "actions actions actions";
+        gap: 12px 16px;
+        align-items: center;
+        background: rgba(255,255,255,0.7);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+        margin-top: 12px;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .deadline-item-modal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .deadline-item-modal .date-box { grid-area: date; background-color: #f1f5f9; color: #334155; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; font-weight: 700; line-height: 1.1; }
+    .deadline-item-modal .date-box .day { font-size: 1.1rem; }
+    .deadline-item-modal .date-box .month { font-size: 0.75rem; text-transform: uppercase; }
+    .deadline-item-modal .details { grid-area: details; min-width: 0; }
+    .deadline-item-modal .details .note { font-weight: 600; font-size: 1rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deadline-item-modal .details .category { font-size: 0.85rem; color: #555; }
+    .deadline-item-modal .right-section { grid-area: right; text-align: right; }
+    .deadline-item-modal .amount { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 4px; }
+    .deadline-item-modal .amount.expense { color: var(--danger-color); }
+    .deadline-item-modal .amount.income { color: var(--success-color); }
+    .deadline-item-modal .days-left-badge { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; }
+    .deadline-item-modal .days-left-badge.due-soon { background-color: var(--danger-color); }
+    .deadline-item-modal .days-left-badge.far-off { background-color: var(--warning-color); }
+    .deadline-item-modal .days-left-badge.very-far { background-color: var(--success-color); }
+    .deadline-item-modal .actions { grid-area: actions; display: flex; gap: 12px; justify-content: flex-end; padding-top: 12px; margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); }
+
 
     /* ====== Modal base (MODIFICATO PER ESSERE PIÙ AMPIO) ====== */
     .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}
@@ -731,6 +795,7 @@
         <span class="dash-card__title">🔔 Scadenze & Voci Future (Prossimi 30 giorni)</span>
       </summary>
       <div class="dash-card__content">
+        <h2 style="font-size: 1.5rem; margin: 0 0 16px; display:none;" class="deadlines-desktop-title">🔔 Scadenze & Voci Future</h2>
         <div id="deadlines-list" class="transaction-list"></div>
       </div>
     </details>
@@ -741,7 +806,7 @@
         <span class="dash-card__title">Nuova Operazione</span>
       </summary>
       <div class="dash-card__content">
-        <h2 id="form-title" style="margin:0 0 16px;display:none;">Nuova Operazione</h2>
+        <h2 id="form-title" style="margin:0 0 16px;">Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group kind">
@@ -850,7 +915,15 @@
   </main>
 
   <!-- Modals -->
-  <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
+  <div id="scheduler-modal" class="modal-overlay">
+    <div class="modal-content modal-content-enhanced">
+        <div class="modal-header modal-header-enhanced">
+            <h3 id="scheduler-modal-title" class="modal-title modal-title-enhanced"></h3>
+            <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+        </div>
+        <div id="scheduler-modal-body" class="modal-body-enhanced"></div>
+    </div>
+  </div>
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
   <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
@@ -1066,6 +1139,8 @@
         const today = new Date(); today.setHours(0,0,0,0);
         const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
 
+        const isModal = container.closest('.modal-overlay');
+
         transactions.forEach(tx=>{
             const isIncome = tx.kind === 'income';
             const dueDate = toLocalMidnight(String(tx.due_date));
@@ -1082,27 +1157,59 @@
             const day = dueDate ? String(dueDate.getDate()).padStart(2, '0') : '--';
             const month = dueDate ? monthFormatter.format(dueDate).replace('.', '') : '---';
 
-            const rowHTML = `
-                <div class="expense-item">
-                    <div class="expense-actual-date">
-                        <span class="date-day">${day}</span>
-                        <span class="date-month">${month}</span>
-                    </div>
-                    <div class="expense-details">
-                        <p>${noteSafe}</p>
-                        <p>${categoryText}</p>
-                    </div>
-                    <div class="expense-right-section">
-                        <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                        <span class="expense-due-date">${daysLeftText}</span>
-                        <div class="item-actions">
-                             <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                             <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
-                             <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+            let rowHTML = '';
+
+            if (isModal) {
+                let daysLeftClass = '';
+                if (diffDays < 0) daysLeftClass = 'due-soon';
+                else if (diffDays <= 7) daysLeftClass = 'due-soon';
+                else if (diffDays <= 15) daysLeftClass = 'far-off';
+                else daysLeftClass = 'very-far';
+
+                rowHTML = `
+                    <div class="deadline-item-modal">
+                        <div class="date-box">
+                            <span class="day">${day}</span>
+                            <span class="month">${month}</span>
+                        </div>
+                        <div class="details">
+                            <p class="note">${noteSafe}</p>
+                            <p class="category">${categoryText}</p>
+                        </div>
+                        <div class="right-section">
+                            <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                            <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼 Modifica</button>
+                            <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                            <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                 rowHTML = `
+                    <div class="expense-item">
+                        <div class="expense-actual-date">
+                            <span class="date-day">${day}</span>
+                            <span class="date-month">${month}</span>
+                        </div>
+                        <div class="expense-details">
+                            <p>${noteSafe}</p>
+                            <p>${categoryText}</p>
+                        </div>
+                        <div class="expense-right-section">
+                            <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                            <span class="expense-due-date">${daysLeftText}</span>
+                            <div class="item-actions">
+                                 <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                                 <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
+                                 <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
             container.insertAdjacentHTML('beforeend', rowHTML);
         });
     }
@@ -1904,8 +2011,8 @@
                   const futureDate = new Date();
                   futureDate.setDate(today.getDate() + 30);
                   const scheduled = await getScheduledTransactions(today, futureDate);
-                  schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
-                  renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+                  document.getElementById('scheduler-modal-title').innerHTML = `🗓️ Scadenziario (Prossimi 30 giorni)`;
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), scheduled);
                   schedulerModal.classList.add('is-visible');
                 });
 
@@ -1913,8 +2020,8 @@
                   const t = new Date();
                   const f = new Date(); f.setDate(t.getDate()+7);
                   const u = await getScheduledTransactions(t, f);
-                  schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-                  renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u);
+                  document.getElementById('scheduler-modal-title').innerHTML = `🔔 Notifiche (Prossimi 7 giorni)`;
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), u);
                   schedulerModal.classList.add('is-visible');
                 });
 
