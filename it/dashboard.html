@@ -27,7 +27,7 @@
       min-height:100svh;
       -webkit-overflow-scrolling:touch;
     }
-    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
+    body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
     @keyframes spin { to { transform: rotate(360deg); } }
     
@@ -167,7 +167,7 @@
     .deadlines-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     .deadlines-table tr { border-bottom: 1px solid rgba(0,0,0,.05); }
     .deadlines-table tr:last-child { border-bottom: none; }
-    .deadlines-table td { padding: 12px 8px; vertical-align: middle; }
+    .deadlines-table td { padding: 8px 6px; font-size:.9rem; vertical-align: middle; }
     .deadlines-table .description-cell { display: flex; flex-direction: column; }
     .deadlines-table .note-part { font-weight: 600; }
     .deadlines-table .category-part { font-size: 0.9em; color: #555; }
@@ -252,9 +252,9 @@
         background: rgba(255,255,255,0.8);
         border: 1px solid var(--card-border);
         border-radius: 12px;
-        padding: 16px;
+        padding: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-        margin-bottom: 32px; /* 🔥 distanza tra le card */
+        margin-bottom: 16px;
     }
     #goals-section.goals-v2 .goal-card-header {
         display: flex;
@@ -264,14 +264,13 @@
     }
     #goals-section.goals-v2 .goal-card-header h4 {
         margin: 0;
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: #333;
+        font-size: 1rem;
+        font-weight: 700;
     }
     #goals-section.goals-v2 .goal-editor {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap: 24px;
+      gap: 16px;
       align-items: flex-end;
     }
     #goals-section.goals-v2 .editor-group { grid-column: span 12; }
@@ -281,7 +280,7 @@
     }
 
     #goals-section.goals-v2 h5 {
-        font-size: 0.8rem;
+        font-size: .75rem;
         font-weight: 700;
         color: #555;
         margin: 0 0 10px;
@@ -303,8 +302,8 @@
         width: 100%;
         justify-content: center;
         border-radius: 8px;
-        padding: 10px 12px;
-        font-size: 0.9rem;
+        padding: 8px 10px;
+        font-size: 0.85rem;
         border: 1px solid rgba(0,0,0,0.1);
         background: #f0f2f5;
     }
@@ -324,13 +323,13 @@
     }
     #goals-section.goals-v2 .method-input input {
         width: 100%;
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 8px;
         border: 1px solid #ccc;
         background: #fff;
         font-weight: 600;
         text-align: center;
-        font-size: 16px; /* iOS zoom fix */
+        font-size: 15px; /* iOS zoom fix */
     }
     #goals-section.goals-v2 .method-input .arrow-down {
         position: absolute;
@@ -351,18 +350,18 @@
     }
     #goals-section.goals-v2 .quota-value {
         flex-grow: 1;
-        padding: 11px 12px;
+        padding: 9px 10px;
         border-radius: 8px;
         border: 1px solid #ccc;
         background: #fff;
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1rem;
         text-align: right;
         color: #333;
     }
     #goals-section.goals-v2 .quota-actions .btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+        padding: 6px 10px;
+        font-size: 0.8rem;
     }
     #goals-section.goals-v2 .goal-card.is-locked .quota-actions .save-btn { display: none; }
     #goals-section.goals-v2 .goal-card:not(.is-locked) .quota-actions .edit-btn { display: none; }
@@ -380,7 +379,7 @@
     #goals-section.goals-v2 .progress-info {
         display: flex;
         justify-content: space-between;
-        font-size: 0.9rem;
+        font-size: .85rem;
         font-weight: 600;
     }
     #goals-section.goals-v2 .goal-main-actions {
@@ -389,8 +388,14 @@
         border-top: 1px solid var(--card-border);
         display: flex;
         justify-content: flex-end;
-        gap: 12px;
+        gap: 8px;
     }
+    #goals-section.goals-v2 .goal-main-actions .btn,
+    #goals-section.goals-v2 .goal-card-header .btn {
+      padding: 8px 10px;
+      font-size: .85rem;
+    }
+
     #goals-section.goals-v2 .goal-card.is-locked .chip:not(.is-active) {
         pointer-events: none;
         opacity: 0.7;
@@ -400,6 +405,99 @@
         background-color: #f0f2f5 !important;
         color: #999;
         border-color: #e0e0e0;
+    }
+    /* Deadlines — versione compatta e prioritaria */
+    #deadlines-section.deadlines-compact .transaction-list .item.deadline-item{
+      grid-template-columns: 90px 1fr auto auto auto;
+      padding: 8px 4px;
+      align-items: center;
+    }
+    #deadlines-section.deadlines-compact .item-details .note{
+      font-size: .95rem;
+    }
+    #deadlines-section.deadlines-compact .item-details .category{
+      font-size: .8rem;
+      color:#666;
+    }
+    #deadlines-section.deadlines-compact .item-amount{
+      font-weight:700;
+      font-size:.95rem;
+    }
+    #deadlines-section.deadlines-compact .days-left{
+      font-weight:700;
+      font-size:.85rem;
+      color: var(--warning-color);
+      text-align:center;
+    }
+    #deadlines-section.deadlines-compact .date-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-weight:700;
+      font-size:.9rem;
+      padding:6px 10px;
+      border-radius:10px;
+      background:rgba(0,0,0,.04);
+      white-space:nowrap;
+    }
+    #deadlines-section.deadlines-compact .action-btn{
+      padding:6px 8px;
+      font-size:.8rem;
+    }
+    #deadlines-section.deadlines-compact .btn-action-deadline{
+      padding:6px 10px;
+      font-size:.85rem;
+    }
+    
+    /* Obiettivi compatti, stile simile a “Movimenti” */
+    #goals-section.goals-v2{
+      margin-top: 16px;
+    }
+    #goals-section.goals-v2 .goal-card{
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    #goals-section.goals-v2 .goal-card-header h4{
+      font-size:1rem;
+      font-weight:700;
+    }
+    #goals-section.goals-v2 h5{
+      font-size:.75rem;
+      margin-bottom:6px;
+    }
+    #goals-section.goals-v2 .chip.method-btn{
+      padding:8px 10px;
+      font-size:.8rem;
+    }
+    #goals-section.goals-v2 .method-input input{
+      padding:6px 10px;
+      font-size:15px;
+    }
+    #goals-section.goals-v2 .quota-value{
+      padding:8px 10px;
+      font-size:1rem;
+    }
+    #goals-section.goals-v2 .quota-actions .btn{
+      padding:6px 10px;
+      font-size:.8rem;
+    }
+    #goals-section.goals-v2 .progress-info{
+      font-size:.85rem;
+    }
+    #goals-section.goals-v2 .goal-main-actions{
+      gap:8px;
+    }
+    #goals-section.goals-v2 .goal-main-actions .btn,
+    #goals-section.goals-v2 .goal-card-header .btn{
+      padding:8px 10px;
+      font-size:.85rem;
+    }
+    
+    /* Pulsanti header obiettivi più piccoli */
+    #goals-section.goals-v2 .goal-card-header .btn{
+      padding:6px 10px !important;
+      font-size:.8rem !important;
     }
   </style>
 </head>
@@ -451,6 +549,12 @@
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
       <button id="list-movements-btn">Lista Movimenti</button>
     </nav>
+
+    <!-- Scadenze -->
+    <section id="deadlines-section" class="content-section deadlines-compact" style="margin-top:12px;display:none;">
+      <h3 class="section-title">🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
+      <div id="deadlines-list" class="transaction-list"></div>
+    </section>
 
     <!-- Sezione Form -->
     <section class="content-section form-section">
@@ -530,13 +634,7 @@
         <!-- Le card degli obiettivi verranno inserite qui dal JS -->
       </div>
     </section>
-
-    <!-- Scadenze -->
-    <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
-      <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
-      <div id="deadlines-list" class="transaction-list"></div>
-    </section>
-
+    
     <!-- Dati principali -->
     <div class="dashboard-panel" style="margin-top:12px;">
       <div class="dashboard-grid">
@@ -571,6 +669,7 @@
     let allTransactions = [];
     let userProfile = null;
     let goalsData = []; 
+    let __eventsBound = false;
 
     // --- DOM (originali) ---
     const transactionForm = document.getElementById('transaction-form');
@@ -773,7 +872,7 @@
         const isModal = container.closest('.modal-overlay');
 
         if(isModal) {
-            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Scadenza</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
+            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Tra</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
             container = container.querySelector('tbody');
         }
 
@@ -796,10 +895,10 @@
             if (isModal) {
                 rowHTML = `
                     <tr>
+                        <td class="date-part">${formattedDueDate}</td>
                         <td class="description-cell">
                             <span class="note-part">${noteSafe}</span>
                             <span class="category-part">${categoryText}</span>
-                            <span class="date-part">🗓️ ${formattedDueDate}</span>
                         </td>
                         <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
                         <td class="days-left-cell">${daysLeftText}</td>
@@ -813,7 +912,7 @@
                     </tr>
                 `;
             } else {
-                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
+                 rowHTML = `<div class="item deadline-item"><div class="date-chip">🗓️ ${formattedDueDate}</div><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
             }
             container.insertAdjacentHTML('beforeend', rowHTML);
         });
@@ -1143,11 +1242,20 @@
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
         const titleSafe = escapeHTML(goal.nome_obiettivo);
 
+        const headerActions = goal.is_onboarding
+          ? '' 
+          : `
+            <div class="header-actions" style="display:flex; gap:8px;">
+              <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">Modifica</button>
+              <button class="btn delete delete-goal-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">Elimina</button>
+            </div>
+          `;
+
         return `
             <div id="goal-card-${id}" class="goal-card is-locked">
                 <div class="goal-card-header">
                     <h4>${titleSafe}</h4>
-                    <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
+                    ${headerActions}
                 </div>
                 <div class="goal-editor">
                     <div class="editor-group method-selector">
@@ -1539,16 +1647,23 @@
             userProfile = profile;
             
             renderSubscriptionStatus(profile);
-            positionSubscriptionButton();
-            window.addEventListener('resize', positionSubscriptionButton);
+            
+            if(!__eventsBound) {
+                positionSubscriptionButton();
+                window.addEventListener('resize', positionSubscriptionButton);
 
-            const now = new Date();
-            const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-            months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-            for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
-            monthSelector.value = now.getMonth();
-            yearSelector.value = now.getFullYear();
-            document.getElementById('occurred_at').valueAsDate = new Date();
+                const now = new Date();
+                const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                if(monthSelector.options.length === 0) {
+                    months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+                }
+                if(yearSelector.options.length === 0) {
+                    for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
+                }
+                if (monthSelector.value === "") monthSelector.value = now.getMonth();
+                if (yearSelector.value === "") yearSelector.value = now.getFullYear();
+                document.getElementById('occurred_at').valueAsDate = new Date();
+            }
 
             await loadInitialData();
             updateCategoryDropdown();
@@ -1556,90 +1671,97 @@
             await loadAndRenderGoals();
             await loadAllDataForMonth();
 
-            const mainContainer = document.querySelector('main.container');
-            function handleActionClicks(e){
-              const target = e.target.closest('button[data-id]');
-              if (!target) return;
-              const id = target.dataset.id;
-              const isModal = target.closest('.modal-overlay');
-              if (target.classList.contains('edit-btn')){ handleEdit(id); if (isModal) isModal.classList.remove('is-visible'); } 
-              else if (target.classList.contains('delete-btn') && !target.classList.contains('delete-goal-btn')){ handleDelete(id); } 
-              else if (target.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if (isModal) isModal.classList.remove('is-visible'); }
-            }
-            mainContainer.addEventListener('click', handleActionClicks);
-            schedulerModal.addEventListener('click', handleActionClicks);
-
-            mainContainer.addEventListener('click', (e)=>{
-              const btn = e.target.closest('button');
-              if(!btn) return;
-              if(btn.classList.contains('record-saving-btn')){
-                const id = btn.dataset.id;
-                const g = goalsData.find(x => String(x.id) === String(id));
-                if (g) handleRecordSaving(g, btn);
-              }
-              if(btn.classList.contains('view-savings-btn')){
-                const id = btn.dataset.id;
-                const g = goalsData.find(x => String(x.id) === String(id));
-                if (g) showSavingsModal(g);
-              }
-            });
-
-            kindSelect.addEventListener('change', updateCategoryDropdown);
-            categorySelect.addEventListener('change', () => updateSubcategories());
-            transactionForm.addEventListener('submit', handleFormSubmit);
-            cancelEditBtn.addEventListener('click', resetFormToCreateMode);
-            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
-            monthSelector.addEventListener('change', loadAllDataForMonth);
-            yearSelector.addEventListener('change', loadAllDataForMonth);
-            const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-            listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, nowMonths); movementsModal.classList.add('is-visible');});
-            document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
-              radio.addEventListener('change', (e)=>{
-                const v = e.target.value;
-                advancedOptionsWrapper.style.display = 'block';
-                recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none';
-                dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none';
-              });
-            });
-            
-            schedulerBtn.addEventListener('click', async () => {
-              const today = new Date();
-              const futureDate = new Date();
-              futureDate.setDate(today.getDate() + 30);
-              const scheduled = await getScheduledTransactions(today, futureDate);
-              schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
-              renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-              schedulerModal.classList.add('is-visible');
-            });
-
-            notificationsBtn.addEventListener('click', async () => {
-              const t = new Date();
-              const f = new Date(); f.setDate(t.getDate()+7);
-              const u = await getScheduledTransactions(t, f);
-              schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
-              renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u);
-              schedulerModal.classList.add('is-visible');
-            });
-
-            document.body.addEventListener('click', (e)=>{
-              const m = e.target.closest('.modal-overlay');
-              if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){
-                m.classList.remove('is-visible');
-              }
-            });
-
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const topActions = document.querySelector('.top-actions');
-            if (mobileMenuBtn && topActions) {
-              mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                topActions.classList.toggle('is-open');
-              });
-              document.addEventListener('click', (e) => {
-                if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                  topActions.classList.remove('is-open');
+            if(!__eventsBound) {
+                const mainContainer = document.querySelector('main.container');
+                function handleActionClicks(e){
+                  const target = e.target.closest('button[data-id]');
+                  if (!target) return;
+                  const id = target.dataset.id;
+                  const isModal = target.closest('.modal-overlay');
+                  if (target.classList.contains('edit-btn')){ handleEdit(id); if (isModal) isModal.classList.remove('is-visible'); } 
+                  else if (target.classList.contains('delete-btn') && !target.classList.contains('delete-goal-btn')){ handleDelete(id); } 
+                  else if (target.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if (isModal) isModal.classList.remove('is-visible'); }
                 }
-              });
+                mainContainer.addEventListener('click', handleActionClicks);
+                schedulerModal.addEventListener('click', handleActionClicks);
+
+                mainContainer.addEventListener('click', (e)=>{
+                  const btn = e.target.closest('button');
+                  if(!btn) return;
+                  if(btn.classList.contains('record-saving-btn')){
+                    const id = btn.dataset.id;
+                    const g = goalsData.find(x => String(x.id) === String(id));
+                    if (g) handleRecordSaving(g, btn);
+                  }
+                  if(btn.classList.contains('view-savings-btn')){
+                    const id = btn.dataset.id;
+                    const g = goalsData.find(x => String(x.id) === String(id));
+                    if (g) showSavingsModal(g);
+                  }
+                   if (btn.classList.contains('delete-goal-btn')) {
+                      const id = btn.dataset.id;
+                      handleDeleteGoal(id);
+                    }
+                });
+
+                kindSelect.addEventListener('change', updateCategoryDropdown);
+                categorySelect.addEventListener('change', () => updateSubcategories());
+                transactionForm.addEventListener('submit', handleFormSubmit);
+                cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+                monthSelector.addEventListener('change', loadAllDataForMonth);
+                yearSelector.addEventListener('change', loadAllDataForMonth);
+                const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, nowMonths); movementsModal.classList.add('is-visible');});
+                document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
+                  radio.addEventListener('change', (e)=>{
+                    const v = e.target.value;
+                    advancedOptionsWrapper.style.display = 'block';
+                    recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none';
+                    dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none';
+                  });
+                });
+                
+                schedulerBtn.addEventListener('click', async () => {
+                  const today = new Date();
+                  const futureDate = new Date();
+                  futureDate.setDate(today.getDate() + 30);
+                  const scheduled = await getScheduledTransactions(today, futureDate);
+                  schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
+                  renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+                  schedulerModal.classList.add('is-visible');
+                });
+
+                notificationsBtn.addEventListener('click', async () => {
+                  const t = new Date();
+                  const f = new Date(); f.setDate(t.getDate()+7);
+                  const u = await getScheduledTransactions(t, f);
+                  schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+                  renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u);
+                  schedulerModal.classList.add('is-visible');
+                });
+
+                document.body.addEventListener('click', (e)=>{
+                  const m = e.target.closest('.modal-overlay');
+                  if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){
+                    m.classList.remove('is-visible');
+                  }
+                });
+
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const topActions = document.querySelector('.top-actions');
+                if (mobileMenuBtn && topActions) {
+                  mobileMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    topActions.classList.toggle('is-open');
+                  });
+                  document.addEventListener('click', (e) => {
+                    if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                      topActions.classList.remove('is-open');
+                    }
+                  });
+                }
+                __eventsBound = true;
             }
 
             __ready = true;
@@ -1649,7 +1771,7 @@
         } catch (err){
             console.error("Errore critico durante l'inizializzazione:", err);
             stopWatchdog();
-            showLoader(`Errore di inizializzazione. Dettaglio: ${err.message}`, true);
+            showLoader('Errore di inizializzazione. Riprova?', true);
             __booted = false;
         }
     }
