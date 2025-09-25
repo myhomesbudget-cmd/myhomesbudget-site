@@ -220,7 +220,7 @@
     .status-message.is-visible{opacity:1}
     .status-message.success{background-color:var(--success-color);color:#fff}
     .status-message.error{background-color:var(--danger-color);color:#fff}
-
+    
     /* ====== GOALS (Layout v2 da Screenshot) ====== */
     #goals-section.goals-v2 .header {
         display: flex;
@@ -584,7 +584,7 @@
     const goalsList = document.getElementById('goals-list');
     
     // --- UTILS ---
-    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(v); return Number.isFinite(n) ? n : 0; }
+    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; }
     const fmt = (n) => Number(n || 0).toFixed(2);
     const dayMs = 86400000;
 
@@ -1098,24 +1098,24 @@
                         <h5>SELEZIONE METODO</h5>
                         <div class="method-chips">
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
+                                <button class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
                                 <div class="method-input">
                                     <div class="arrow-down"></div>
-                                    <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
+                                <button class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
-                                    <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
+                                <button class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
-                                    <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly>
+                                    <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly inputmode="decimal">
                                 </div>
                             </div>
                         </div>
@@ -1371,8 +1371,8 @@
     function handleAddGoal() {
         const bodyHtml = `<form id="add-goal-form">
             <div class="form-group"><label for="goal-name">Nome Obiettivo</label><input type="text" id="goal-name" required placeholder="Es. Vacanze estive"></div>
-            <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importo mensile (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00"></div>
-            <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Obiettivo finale (opzionale)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importo mensile (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Obiettivo finale (opzionale)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00" inputmode="decimal"></div>
             <div class="form-group" style="margin-top:12px">
               <label>Metodo di contribuzione</label>
               <div style="display:flex; gap:8px;">
@@ -1385,18 +1385,31 @@
         showModal('Nuovo Obiettivo', bodyHtml, [
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Salva', class: 'btn-primary', action: async () => {
-                const nome = document.getElementById('goal-name').value;
-                const importoMensile = document.getElementById('goal-monthly-amount').value;
+                const nome = document.getElementById('goal-name').value.trim();
+                const importoMensileRaw = String(document.getElementById('goal-monthly-amount').value || '').replace(',', '.');
+                const importoTargetRaw  = String(document.getElementById('goal-target-amount').value || '').replace(',', '.');
                 const metodo = document.querySelector('input[name="method-add"]:checked').value;
-                if (!nome || !importoMensile) { alert("Nome e importo sono obbligatori."); return; }
-                const { error } = await supabase.from('obiettivi').insert({ 
-                    user_id: user.id, 
-                    nome_obiettivo: nome, 
-                    importo_mensile: importoMensile, 
-                    importo_target: document.getElementById('goal-target-amount').value || null,
-                    metodo_contribuzione: metodo
+
+                const importoMensile = parseFloat(importoMensileRaw);
+                const importoTarget  = importoTargetRaw ? parseFloat(importoTargetRaw) : null;
+
+                if (!nome || !Number.isFinite(importoMensile)) {
+                  showModal('Dati mancanti', '<p>Inserisci un nome valido e un importo mensile corretto (es. 150,00).</p>', [{ text:'Chiudi' }]);
+                  return;
+                }
+
+                const { error } = await supabase.from('obiettivi').insert({
+                  user_id: user.id,
+                  nome_obiettivo: nome,
+                  importo_mensile: importoMensile,
+                  importo_target: importoTarget,
+                  metodo_contribuzione: metodo
                 });
-                if (error) { showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]); return; }
+
+                if (error) {
+                  showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                  return;
+                }
                 showStatusMessage('Obiettivo creato!', 'success');
                 loadAndRenderGoals();
             }}
