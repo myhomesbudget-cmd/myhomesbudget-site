@@ -1,161 +1,851 @@
-// DASHBOARD RIEPILOGO - INTEGRAZIONE DATI REALI SUPABASE
-// Basato sulla struttura del dashboard principale
-
-window.DashboardRiepilogoData = {
-    user: null,
-    
-    async initialize() {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                console.error('Utente non autenticato');
-                return false;
-            }
-            this.user = user;
-            return true;
-        } catch (error) {
-            console.error('Errore inizializzazione:', error);
-            return false;
-        }
-    },
-
-    async loadSummaryData(selectedMonth, selectedYear, currentView = 'monthly') {
-        if (!this.user) {
-            throw new Error('Utente non autenticato');
-        }
-
-        let startDate, endDate;
-        if (currentView === 'annual') {
-            startDate = new Date(selectedYear, 0, 1);
-            endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
-        } else {
-            startDate = new Date(selectedYear, selectedMonth, 1);
-            endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
-        }
-
-        try {
-            // Carica dati paralleli da Supabase
-            const [transactionsRes, budgetRes, goalRes, allTransRes] = await Promise.all([
-                // Transazioni del periodo
-                supabase.from('transactions')
-                    .select('*, categories(name, icon)')
-                    .eq('created_by', this.user.id)
-                    .gte('occurred_at', startDate.toISOString())
-                    .lte('occurred_at', endDate.toISOString())
-                    .eq('is_paid', true),
-                
-                // Budget risparmi più recente
-                supabase.from('budgets')
-                    .select('amount')
-                    .eq('user_id', this.user.id)
-                    .eq('macro_category', 'Risparmi')
-                    .order('month', { ascending: false })
-                    .limit(1)
-                    .maybeSingle(),
-                
-                // Obiettivo attivo
-                supabase.from('goals')
-                    .select('name, target_amount, current_amount')
-                    .eq('user_id', this.user.id)
-                    .eq('active', true)
-                    .limit(1)
-                    .maybeSingle(),
-                
-                // Tutte le transazioni storiche
-                supabase.from('transactions')
-                    .select('kind, amount, occurred_at')
-                    .eq('created_by', this.user.id)
-                    .lte('occurred_at', new Date().toISOString())
-            ]);
-
-            // Verifica errori
-            const errors = [transactionsRes.error, budgetRes.error, goalRes.error, allTransRes.error].filter(Boolean);
-            if (errors.length > 0) {
-                console.error('Errori nel caricamento:', errors);
-                throw new Error('Errore nel caricamento dei dati');
-            }
-
-            // Elabora i dati
-            const transactions = transactionsRes.data || [];
-            const monthlySavingGoal = budgetRes.data ? this.safeToNumber(budgetRes.data.amount) : 0;
-            const goalData = goalRes.data;
-            const allTransactions = allTransRes.data || [];
-
-            // Calcola statistiche
-            const incomeTransactions = transactions.filter(t => t.kind === 'income');
-            const expenseTransactions = transactions.filter(t => t.kind === 'expense');
-            
-            const totalIncome = incomeTransactions.reduce((sum, t) => sum + this.safeToNumber(t.amount), 0);
-            const totalExpenses = expenseTransactions.reduce((sum, t) => sum + this.safeToNumber(t.amount), 0);
-            
-            // Raggruppa spese per categoria
-            const categoryExpenses = {};
-            expenseTransactions.forEach(tx => {
-                const categoryName = tx.categories?.name || 'Altro';
-                const categoryIcon = tx.categories?.icon || '💸';
-                if (!categoryExpenses[categoryName]) {
-                    categoryExpenses[categoryName] = { 
-                        name: categoryName, 
-                        icon: categoryIcon, 
-                        amount: 0
-                    };
-                }
-                categoryExpenses[categoryName].amount += this.safeToNumber(tx.amount);
-            });
-
-            // Top 5 categorie di spesa
-            const topCategories = Object.values(categoryExpenses)
-                .sort((a, b) => b.amount - a.amount)
-                .slice(0, 5);
-
-            // Transazioni recenti
-            const recentTransactions = transactions
-                .sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at))
-                .slice(0, 10)
-                .map(tx => ({
-                    date: new Date(tx.occurred_at).toLocaleDateString('it-IT'),
-                    description: tx.note || 'Transazione',
-                    amount: tx.kind === 'income' ? this.safeToNumber(tx.amount) : -this.safeToNumber(tx.amount),
-                    category: tx.categories?.name || 'Altro',
-                    icon: tx.categories?.icon || (tx.kind === 'income' ? '💰' : '💸')
-                }));
-
-            return {
-                monthlyIncome: totalIncome,
-                monthlyExpenses: totalExpenses,
-                balance: totalIncome - totalExpenses,
-                savingsTarget: goalData ? this.safeToNumber(goalData.target_amount) : 0,
-                currentSavings: goalData ? this.safeToNumber(goalData.current_amount) : 0,
-                goalName: goalData?.name || 'Nessun obiettivo',
-                monthlySavingGoal,
-                categories: topCategories,
-                recentTransactions,
-                totalTransactions: transactions.length,
-                period: {
-                    month: selectedMonth,
-                    year: selectedYear,
-                    view: currentView
-                }
-            };
-
-        } catch (error) {
-            console.error('Errore nel caricamento dei dati:', error);
-            throw error;
-        }
-    },
-
-    safeToNumber(v) {
-        const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.'));
-        return Number.isFinite(n) ? n : 0;
-    },
-
-    formatCurrency(amount) {
-        return new Intl.NumberFormat('it-IT', {
-            style: 'currency',
-            currency: 'EUR',
-            minimumFractionDigits: 2
-        }).format(amount);
+<!doctype html>
+<html lang="it" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riepilogo — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.ico" />
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    :root{
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color:#f39c12;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
+      --grad-success:linear-gradient(135deg,#2e7d32,#4caf50);
+      --grad-warning:linear-gradient(135deg,#f39c12,#f1c40f);
     }
-};
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    body{
+      margin:0;
+      color:var(--fg);
+      background: url("/bg.webp") no-repeat center/cover;
+      background-attachment: scroll;
+      min-height:100svh;
+      overflow-x:hidden;
+    }
+    body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
-console.log('Dashboard Riepilogo Data module loaded');
+    /* LOADING SYSTEM */
+    .boot-loader{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      background:var(--bg);display:flex;align-items:center;justify-content:center;
+      z-index:10000;transition:opacity .5s ease;
+    }
+    .boot-loader.is-hidden{opacity:0;pointer-events:none}
+    .loader-content{text-align:center}
+    .loader-spinner{width:40px;height:40px;border:4px solid rgba(108,92,231,.2);
+      border-top:4px solid #6c5ce7;border-radius:50%;
+      animation:spin 1s linear infinite;margin:0 auto 20px}
+    .loader-text{font-size:1.1rem;font-weight:600;color:var(--fg)}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* TOPBAR */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-center{position:absolute;left:50%;transform:translateX(-50%)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link,.top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer;white-space:nowrap}
+    .top-link:hover,.top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+
+    .date-selectors{display:flex;gap:8px}
+    .select-wrapper{position:relative;display:flex;align-items:center;height:34px;border-radius:10px;background:var(--grad);box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .select-wrapper:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+    .select-wrapper::after{content:'▼';font-size:10px;color:rgba(255,255,255,0.8);position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none}
+    .topbar-select{appearance:none;background:transparent;color:#fff;border:none;padding:6px 28px 6px 12px;font-size:.9rem;font-weight:600;cursor:pointer}
+    .topbar-select option{background:#fff;color:#000}
+
+    /* MAIN CONTENT */
+    main.container{padding:84px 24px 24px;max-width:1400px;margin:0 auto;width:100%}
+    .page-header{text-align:center;margin-bottom:40px}
+    .page-title{font-size:2.5rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 10px}
+    .page-subtitle{font-size:1.1rem;color:#666;margin:0}
+
+    /* DASHBOARD GRID */
+    .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:40px}
+    @media(min-width:768px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1200px){.dashboard-grid{grid-template-columns:repeat(4,1fr)}}
+
+    /* SUMMARY CARDS */
+    .summary-card{
+      background:rgba(255,255,255,0.9);
+      border-radius:var(--radius-lg);
+      padding:24px;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+      transition:transform .3s ease,box-shadow .3s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .summary-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(0,0,0,.12)}
+    .summary-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:4px;
+      background:var(--grad);
+    }
+    .summary-card.income::before{background:var(--grad-success)}
+    .summary-card.expense::before{background:var(--grad-danger)}
+    .summary-card.balance::before{background:var(--grad)}
+    .summary-card.goal::before{background:var(--grad-warning)}
+
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .card-title{font-size:1rem;font-weight:600;color:#666;display:flex;align-items:center;gap:8px}
+    .card-icon{font-size:1.5rem}
+    .card-value{font-size:2.2rem;font-weight:800;margin:0;line-height:1.2}
+    .card-subtitle{font-size:0.9rem;color:#999;margin:8px 0 0}
+
+    .income .card-value{color:var(--success-color)}
+    .expense .card-value{color:var(--danger-color)}
+    .balance .card-value{color:var(--primary-color)}
+    .goal .card-value{color:var(--warning-color)}
+
+    /* PROGRESS BARS */
+    .progress-container{margin-top:16px}
+    .progress-bar{height:8px;background:rgba(0,0,0,0.1);border-radius:999px;overflow:hidden}
+    .progress-fill{height:100%;border-radius:999px;transition:width 1s ease-out}
+    .goal .progress-fill{background:var(--grad-warning)}
+
+    /* CHARTS SECTION */
+    .charts-section{margin:40px 0}
+    .section-title{font-size:1.8rem;font-weight:700;margin:0 0 24px;color:var(--fg)}
+    .charts-grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media(min-width:1024px){.charts-grid{grid-template-columns:2fr 1fr}}
+
+    .chart-card{
+      background:rgba(255,255,255,0.9);
+      border-radius:var(--radius-lg);
+      padding:24px;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+    }
+    .chart-title{font-size:1.3rem;font-weight:600;margin:0 0 20px;color:var(--fg)}
+    .chart-container{position:relative;height:300px}
+
+    /* DONUT CHART */
+    .donut-chart{width:100%;height:100%;position:relative}
+    .donut-svg{width:100%;height:100%}
+    .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+    .donut-total{font-size:2rem;font-weight:800;color:var(--fg)}
+    .donut-label{font-size:0.9rem;color:#666;margin-top:4px}
+
+    /* CHART LEGEND */
+    .chart-legend{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:0.9rem}
+    .legend-color{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+    .legend-text{flex:1;font-weight:500}
+    .legend-amount{font-weight:700;color:var(--fg)}
+
+    /* RECENT TRANSACTIONS */
+    .transactions-section{margin:40px 0}
+    .transactions-card{
+      background:rgba(255,255,255,0.9);
+      border-radius:var(--radius-lg);
+      padding:24px;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+    }
+    .transaction-item{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:12px 0;
+      border-bottom:1px solid rgba(0,0,0,0.05);
+    }
+    .transaction-item:last-child{border-bottom:none}
+    .transaction-icon{font-size:1.5rem;width:40px;text-align:center;flex-shrink:0}
+    .transaction-details{flex:1;min-width:0}
+    .transaction-description{font-weight:600;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .transaction-meta{font-size:0.85rem;color:#666}
+    .transaction-amount{font-weight:700;font-size:1.1rem;flex-shrink:0}
+    .transaction-amount.positive{color:var(--success-color)}
+    .transaction-amount.negative{color:var(--danger-color)}
+
+    /* EMPTY STATES */
+    .empty-state{
+      text-align:center;
+      padding:40px 20px;
+      color:#777;
+      background:rgba(0,0,0,0.02);
+      border-radius:12px;
+      margin:20px 0;
+    }
+    .empty-state h3{margin:0 0 12px;font-size:1.2rem;color:#555}
+    .empty-state p{margin:0;font-size:0.95rem}
+
+    /* ANIMATIONS */
+    .fadeInUp{animation:fadeInUp 0.6s ease-out forwards}
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(30px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .pulse{animation:pulse 2s infinite}
+    @keyframes pulse{
+      0%,100%{opacity:1}
+      50%{opacity:.5}
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px){
+      .page-title{font-size:2rem}
+      .dashboard-grid{grid-template-columns:1fr;gap:16px}
+      .charts-grid{grid-template-columns:1fr}
+      .card-value{font-size:1.8rem}
+      main.container{padding:84px 16px 24px}
+      .topbar{padding:0 16px}
+      .top-actions{flex-direction:column;gap:8px}
+      .date-selectors{flex-direction:column;gap:8px;width:100%}
+      .select-wrapper{width:100%}
+    }
+
+    /* STATUS MESSAGE */
+    .status-message{
+      position:fixed;bottom:20px;right:20px;
+      padding:12px 20px;border-radius:8px;
+      font-weight:600;color:#fff;
+      transform:translateY(100px);opacity:0;
+      transition:all .3s ease;z-index:1000;
+    }
+    .status-message.is-visible{transform:translateY(0);opacity:1}
+    .status-message.success{background:var(--success-color)}
+    .status-message.error{background:var(--danger-color)}
+    .status-message.warning{background:var(--warning-color)}
+  </style>
+</head>
+<body>
+  <!-- Boot Loader -->
+  <div id="boot-loader" class="boot-loader">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <p class="loader-text">Caricamento dati...</p>
+    </div>
+  </div>
+
+  <!-- Top Bar -->
+  <nav class="topbar">
+    <a href="/dashboard.html" class="logo-link">
+      <span class="logo-text">🏠 MyHomesBudget</span>
+    </a>
+    
+    <div class="top-center">
+      <div class="date-selectors">
+        <div class="select-wrapper">
+          <select id="month-selector" class="topbar-select">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="select-wrapper">
+          <select id="year-selector" class="topbar-select">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <a href="/dashboard.html" class="top-link">📊 Dashboard</a>
+      <button id="logout-btn" class="top-btn">Esci</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">📈 Riepilogo Finanziario</h1>
+      <p class="page-subtitle">Analisi dettagliata delle tue finanze</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summary-content" class="dashboard-grid">
+      <div class="summary-card income">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">💰</span>
+            Entrate Totali
+          </div>
+        </div>
+        <p id="income-value" class="card-value">€0.00</p>
+        <p class="card-subtitle">Questo mese</p>
+      </div>
+
+      <div class="summary-card expense">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">💸</span>
+            Uscite Totali
+          </div>
+        </div>
+        <p id="expense-value" class="card-value">€0.00</p>
+        <p class="card-subtitle">Questo mese</p>
+      </div>
+
+      <div class="summary-card balance">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">⚖️</span>
+            Saldo
+          </div>
+        </div>
+        <p id="balance-value" class="card-value">€0.00</p>
+        <p class="card-subtitle">Differenza entrate/uscite</p>
+      </div>
+
+      <div class="summary-card goal">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">🎯</span>
+            Obiettivo
+          </div>
+        </div>
+        <p id="goal-value" class="card-value">€0.00</p>
+        <p id="goal-name" class="card-subtitle">Nessun obiettivo</p>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="goal-progress" class="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <section class="charts-section">
+      <h2 class="section-title">📊 Analisi per Categoria</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">Distribuzione Spese</h3>
+          <div class="chart-container">
+            <div id="expenses-chart" class="donut-chart">
+              <!-- Chart will be generated here -->
+            </div>
+          </div>
+          <div id="expenses-legend" class="chart-legend">
+            <!-- Legend will be generated here -->
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">Top 5 Categorie</h3>
+          <div id="top-categories-list">
+            <!-- Top categories will be listed here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Transactions -->
+    <section class="transactions-section">
+      <h2 class="section-title">💳 Transazioni Recenti</h2>
+      <div class="transactions-card">
+        <div id="recent-transactions">
+          <!-- Recent transactions will be listed here -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Status Message -->
+  <div id="status-message" class="status-message" aria-live="polite"></div>
+
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = "https://upcusjlumfeadgbhziwq.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwY3Vzamx1bWZlYWRnYmh6aXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0MTAzMTgsImV4cCI6MjA3MTk4NjMxOH0.U3cukTOaAZCPOF9f0mnyO00ghRgrzxwPx6GwqKuZmCM";
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        storage: localStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    });
+
+    // Global state
+    let user = null;
+    let allCategories = [];
+    let currentData = null;
+
+    // DOM elements
+    const bootLoader = document.getElementById('boot-loader');
+    const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
+    const summaryContent = document.getElementById('summary-content');
+    const statusMessage = document.getElementById('status-message');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Utility functions
+    function safeToNumber(v) { 
+      const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); 
+      return Number.isFinite(n) ? n : 0; 
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('it-IT', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
+
+    function escapeHTML(s) {
+      return String(s ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    function showStatusMessage(message, type = 'success', duration = 3000) {
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message ${type} is-visible`;
+      setTimeout(() => statusMessage.classList.remove('is-visible'), duration);
+    }
+
+    // Animation functions
+    function animateCounter(element, targetValue, duration = 1000, formatter = (v) => formatCurrency(v)) {
+      const startValue = 0;
+      const startTime = performance.now();
+      
+      function updateCounter(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        
+        // Easing function (easeOutQuart)
+        const easedProgress = 1 - Math.pow(1 - progress, 4);
+        
+        const currentValue = startValue + (targetValue - startValue) * easedProgress;
+        element.textContent = formatter(currentValue);
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        } else {
+          element.textContent = formatter(targetValue);
+        }
+      }
+      
+      requestAnimationFrame(updateCounter);
+    }
+
+    function animateProgressBar(element, targetWidth, duration = 1500) {
+      element.style.transition = `width ${duration}ms ease-out`;
+      setTimeout(() => {
+        element.style.width = `${Math.min(targetWidth, 100)}%`;
+      }, 100);
+    }
+
+    // Initialize date selectors
+    function initializeDateSelectors() {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      // Populate months
+      const months = [
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+      ];
+      
+      monthSelector.innerHTML = '';
+      months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        if (index === currentMonth) option.selected = true;
+        monthSelector.appendChild(option);
+      });
+      
+      // Populate years (last 5 years + next 2)
+      yearSelector.innerHTML = '';
+      for (let year = currentYear - 5; year <= currentYear + 2; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelector.appendChild(option);
+      }
+    }
+
+    // Load categories
+    async function loadCategories() {
+      try {
+        const { data: categories, error } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('created_by', user.id);
+        
+        if (error) throw error;
+        allCategories = categories || [];
+      } catch (error) {
+        console.error("Errore nel caricamento delle categorie:", error);
+      }
+    }
+
+    // Load transactions for period
+    async function loadTransactionsForPeriod(month, year) {
+      try {
+        const startDate = new Date(year, month, 1);
+        const endDate = new Date(year, month + 1, 0, 23, 59, 59);
+        
+        const { data: transactions, error } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            categories(name, icon),
+            subcategories(name, icon)
+          `)
+          .eq('created_by', user.id)
+          .gte('occurred_at', startDate.toISOString())
+          .lte('occurred_at', endDate.toISOString())
+          .eq('is_paid', true)
+          .order('occurred_at', { ascending: false });
+
+        if (error) throw error;
+        return transactions || [];
+      } catch (error) {
+        console.error("Errore nel caricamento delle transazioni:", error);
+        return [];
+      }
+    }
+
+    // Load goals
+    async function loadGoals() {
+      try {
+        const { data: goals, error } = await supabase
+          .from('goals')
+          .select('name, target_amount, current_amount')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .limit(1)
+          .maybeSingle();
+
+        if (error && error.code !== 'PGRST116') throw error;
+        return goals;
+      } catch (error) {
+        console.error("Errore nel caricamento degli obiettivi:", error);
+        return null;
+      }
+    }
+
+    // Render summary cards
+    function renderSummaryCards(data) {
+      const incomeEl = document.getElementById('income-value');
+      const expenseEl = document.getElementById('expense-value');
+      const balanceEl = document.getElementById('balance-value');
+      const goalValueEl = document.getElementById('goal-value');
+      const goalNameEl = document.getElementById('goal-name');
+      const goalProgressEl = document.getElementById('goal-progress');
+
+      // Animate counters
+      animateCounter(incomeEl, data.totalIncome);
+      animateCounter(expenseEl, data.totalExpenses);
+      animateCounter(balanceEl, data.balance, 1000, (v) => {
+        const formatted = formatCurrency(v);
+        return v >= 0 ? formatted : formatted;
+      });
+
+      // Update balance color
+      balanceEl.style.color = data.balance >= 0 ? 'var(--success-color)' : 'var(--danger-color)';
+
+      // Goal data
+      if (data.goal) {
+        animateCounter(goalValueEl, data.goal.current_amount);
+        goalNameEl.textContent = data.goal.name;
+        
+        const progress = data.goal.target_amount > 0 
+          ? (data.goal.current_amount / data.goal.target_amount) * 100 
+          : 0;
+        
+        animateProgressBar(goalProgressEl, progress);
+      } else {
+        goalValueEl.textContent = formatCurrency(0);
+        goalNameEl.textContent = 'Nessun obiettivo';
+        goalProgressEl.style.width = '0%';
+      }
+    }
+
+    // Render donut chart
+    function renderExpensesChart(categories) {
+      const chartContainer = document.getElementById('expenses-chart');
+      const legendContainer = document.getElementById('expenses-legend');
+      
+      if (!categories || categories.length === 0) {
+        chartContainer.innerHTML = '<div class="empty-state"><h3>Nessuna spesa</h3><p>Non ci sono spese da visualizzare per questo periodo.</p></div>';
+        legendContainer.innerHTML = '';
+        return;
+      }
+
+      const total = categories.reduce((sum, cat) => sum + cat.amount, 0);
+      const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#fdcb6e', '#e17055', '#74b9ff', '#a29bfe'];
+      
+      // Create SVG donut chart
+      const size = 200;
+      const radius = 70;
+      const center = size / 2;
+      let currentAngle = 0;
+      
+      let svgPaths = '';
+      let legendHTML = '';
+      
+      categories.forEach((category, index) => {
+        const percentage = (category.amount / total) * 100;
+        const sliceAngle = (category.amount / total) * 360;
+        
+        // Calculate path for donut slice
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + sliceAngle;
+        
+        const x1 = center + radius * Math.cos((startAngle - 90) * Math.PI / 180);
+        const y1 = center + radius * Math.sin((startAngle - 90) * Math.PI / 180);
+        const x2 = center + radius * Math.cos((endAngle - 90) * Math.PI / 180);
+        const y2 = center + radius * Math.sin((endAngle - 90) * Math.PI / 180);
+        
+        const largeArcFlag = sliceAngle > 180 ? 1 : 0;
+        
+        const pathData = [
+          `M ${center} ${center}`,
+          `L ${x1} ${y1}`,
+          `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+          'Z'
+        ].join(' ');
+        
+        const color = colors[index % colors.length];
+        
+        svgPaths += `<path d="${pathData}" fill="${color}" stroke="#fff" stroke-width="2" opacity="0.9"/>`;
+        
+        // Legend item
+        legendHTML += `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color:${color}"></div>
+            <span class="legend-text">${escapeHTML(category.name)}</span>
+            <span class="legend-amount">${formatCurrency(category.amount)}</span>
+          </div>
+        `;
+        
+        currentAngle += sliceAngle;
+      });
+      
+      chartContainer.innerHTML = `
+        <svg class="donut-svg" viewBox="0 0 ${size} ${size}">
+          ${svgPaths}
+          <circle cx="${center}" cy="${center}" r="40" fill="white" stroke="none"/>
+        </svg>
+        <div class="donut-center">
+          <div class="donut-total">${formatCurrency(total)}</div>
+          <div class="donut-label">Totale Spese</div>
+        </div>
+      `;
+      
+      legendContainer.innerHTML = legendHTML;
+    }
+
+    // Render top categories
+    function renderTopCategories(categories) {
+      const container = document.getElementById('top-categories-list');
+      
+      if (!categories || categories.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>Nessuna categoria</h3><p>Non ci sono categorie da visualizzare.</p></div>';
+        return;
+      }
+
+      const topCategories = categories.slice(0, 5);
+      const maxAmount = Math.max(...topCategories.map(cat => cat.amount));
+      
+      let html = '';
+      topCategories.forEach((category, index) => {
+        const percentage = maxAmount > 0 ? (category.amount / maxAmount) * 100 : 0;
+        const icon = category.icon || '💸';
+        
+        html += `
+          <div class="category-item" style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <span style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <span style="font-size: 1.2rem;">${escapeHTML(icon)}</span>
+                ${escapeHTML(category.name)}
+              </span>
+              <span style="font-weight: 700; color: var(--danger-color);">${formatCurrency(category.amount)}</span>
+            </div>
+            <div style="height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; overflow: hidden;">
+              <div style="height: 100%; background: var(--grad-danger); border-radius: 3px; width: ${percentage}%; transition: width 1s ease-out;"></div>
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    // Render recent transactions
+    function renderRecentTransactions(transactions) {
+      const container = document.getElementById('recent-transactions');
+      
+      if (!transactions || transactions.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>Nessuna transazione</h3><p>Non ci sono transazioni recenti da visualizzare.</p></div>';
+        return;
+      }
+
+      const recentTx = transactions.slice(0, 10);
+      
+      let html = '';
+      recentTx.forEach(tx => {
+        const isIncome = tx.kind === 'income';
+        const amount = safeToNumber(tx.amount);
+        const categoryName = tx.categories?.name || 'Altro';
+        const categoryIcon = tx.categories?.icon || (isIncome ? '💰' : '💸');
+        const date = new Date(tx.occurred_at).toLocaleDateString('it-IT', { 
+          day: '2-digit', 
+          month: 'short' 
+        });
+        
+        html += `
+          <div class="transaction-item">
+            <div class="transaction-icon">${escapeHTML(categoryIcon)}</div>
+            <div class="transaction-details">
+              <h4 class="transaction-description">${escapeHTML(tx.note || 'Transazione')}</h4>
+              <p class="transaction-meta">${date} • ${escapeHTML(categoryName)}</p>
+            </div>
+            <div class="transaction-amount ${isIncome ? 'positive' : 'negative'}">
+              ${isIncome ? '+' : '-'}${formatCurrency(amount)}
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    // Main data loading function
+    async function loadSummaryData() {
+      try {
+        monthSelector.disabled = true;
+        yearSelector.disabled = true;
+        
+        const selectedMonth = parseInt(monthSelector.value);
+        const selectedYear = parseInt(yearSelector.value);
+        
+        // Load all data in parallel
+        const [transactions, goal] = await Promise.all([
+          loadTransactionsForPeriod(selectedMonth, selectedYear),
+          loadGoals()
+        ]);
+
+        // Process transactions
+        const incomeTransactions = transactions.filter(t => t.kind === 'income');
+        const expenseTransactions = transactions.filter(t => t.kind === 'expense');
+        
+        const totalIncome = incomeTransactions.reduce((sum, t) => sum + safeToNumber(t.amount), 0);
+        const totalExpenses = expenseTransactions.reduce((sum, t) => sum + safeToNumber(t.amount), 0);
+        const balance = totalIncome - totalExpenses;
+
+        // Group expenses by category
+        const categoryExpenses = {};
+        expenseTransactions.forEach(tx => {
+          const categoryName = tx.categories?.name || 'Altro';
+          const categoryIcon = tx.categories?.icon || '💸';
+          if (!categoryExpenses[categoryName]) {
+            categoryExpenses[categoryName] = { 
+              name: categoryName, 
+              icon: categoryIcon, 
+              amount: 0 
+            };
+          }
+          categoryExpenses[categoryName].amount += safeToNumber(tx.amount);
+        });
+
+        const expenseCategories = Object.values(categoryExpenses)
+          .sort((a, b) => b.amount - a.amount);
+
+        // Prepare summary data
+        currentData = {
+          totalIncome,
+          totalExpenses,
+          balance,
+          goal,
+          expenseCategories,
+          transactions,
+          period: {
+            month: selectedMonth,
+            year: selectedYear
+          }
+        };
+
+        // Render all components
+        renderSummaryCards(currentData);
+        renderExpensesChart(expenseCategories);
+        renderTopCategories(expenseCategories);
+        renderRecentTransactions(transactions);
+
+        // Add animation classes
+        document.querySelectorAll('.summary-card').forEach((card, index) => {
+          card.style.animationDelay = `${index * 0.1}s`;
+          card.classList.add('fadeInUp');
+        });
+
+      } catch (error) {
+        console.error("Errore nel caricamento dei dati:", error);
+        showStatusMessage("Errore nel caricamento dei dati", "error");
+      } finally {
+        monthSelector.disabled = false;
+        yearSelector.disabled = false;
+      }
+    }
+
+    // Authentication and initialization
+    async function initializeApp() {
+      try {
+        // Check authentication
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !authUser) {
+          console.log('User not authenticated, redirecting...');
+          window.location.href = '/';
+          return;
+        }
+
+        user = authUser;
+        console.log('User authenticated:', user.email);
+
+        // Initialize UI
+        initializeDateSelectors();
+        
+        // Load categories
+        await loadCategories();
+        
+        // Load initial data
+        await loadSummaryData();
+        
+        // Set up event listeners
+        monthSelector.addEventListener('change', loadSummaryData);
+        yearSelector.addEventListener('change', loadSummaryData);
+        
+        logoutBtn.addEventListener('click', async () => {
+          await supabase.auth.signOut();
+          window.location.href = '/';
+        });
+
+        // Hide loader
+        bootLoader.classList.add('is-hidden');
+        
+        showStatusMessage("Dati caricati con successo!", "success");
+
+      } catch (error) {
+        console.error('Initialization error:', error);
+        showStatusMessage("Errore durante l'inizializzazione", "error");
+        
+        // Hide loader even on error
+        bootLoader.classList.add('is-hidden');
+      }
+    }
+
+    // Start the app
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+</body>
+</html>
