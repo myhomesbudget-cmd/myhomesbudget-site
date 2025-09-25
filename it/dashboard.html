@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
 
-  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=8Gn3mSCivm50NmKubxrgejbOJNLV9uN8OIHlB-Tq5IIGhbhZZfnhcSY67vXl5IPEvN2KO0lVGMeNcGxsHtGV7NOL_WX5m6-aQDrAt8B42rdngRIX2ydP2ZfHf0sfEDyTEbw7rmu3GHxumnuRv5OYP_fUukUls6BG0y9YKqIGbTUiUe6ZE9cfgjWxsaReakShnIfIdj-RMbOw65njCpLhwZnW37_lgFQDIQLNgwN9iNWsYUDv1vJIu__bwJIS7aXA" charset="UTF-8"></script><style>
+  <style>
     :root{
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
@@ -19,8 +19,22 @@
     }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans);background-color:var(--bg)}
-    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100svh;-webkit-overflow-scrolling:touch;}
+    body{
+      margin:0;
+      color:var(--fg);
+      background: url("/bg.webp") no-repeat center/cover;
+      background-attachment: scroll;
+      min-height:100svh;
+      -webkit-overflow-scrolling:touch;
+    }
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Fix per iOS/Safari su background-attachment: fixed */
+    @media (pointer: coarse) {
+      body { background-attachment: scroll !important; }
+    }
 
     /* ====== TOPBAR ====== */
     .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
@@ -389,6 +403,16 @@
   </style>
 </head>
 <body>
+  <div id="boot-loader" style="
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(244,247,250,.9); z-index: 2000; flex-direction: column; gap: 12px;">
+    <div class="spinner" style="
+      width: 36px; height: 36px; border: 3px solid rgba(0,0,0,.15);
+      border-top-color: #6c5ce7; border-radius: 50%;
+      animation: spin 1s linear infinite;"></div>
+    <div id="boot-loader-text" style="font-weight:700;color:#333;">Caricamento…</div>
+    <button id="boot-retry-btn" class="btn btn-primary" style="display:none;">Riprova</button>
+  </div>
   <!-- Topbar -->
   <nav class="topbar">
     <a href="/it/" class="logo-link">
@@ -601,10 +625,9 @@
     }
     function addOneMonthSafeUTC(d){
       const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
-      const next = new Date(Date.UTC(y, m + 1, 1));
-      next.setUTCMonth(next.getUTCMonth() + 1, 0);
-      const lastDay = next.getUTCDate();
-      return new Date(Date.UTC(y, m + 1, Math.min(day, lastDay)));
+      const lastOfNext=new Date(Date.UTC(y, m+2, 0));
+      const targetDay=Math.min(day, lastOfNext.getUTCDate());
+      return new Date(Date.UTC(y, m+1, targetDay));
     }
     function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; }
     const fmt = (n) => Number(n || 0).toFixed(2);
@@ -975,7 +998,7 @@
         loadAllDataForMonth();
       } catch (error){
         console.error("Errore nel salvataggio:", error);
-        showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text:'Chiudi' }]);
+        showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
       }
     }
 
@@ -1463,9 +1486,47 @@
     }
 
     let __booted = false;
+    let __ready = false;
+    let __watchdogTimer = null;
+    function showLoader(message = 'Caricamento…', showRetry = false){
+      const wrap = document.getElementById('boot-loader');
+      if (!wrap) return;
+      document.getElementById('boot-loader-text').textContent = message;
+      const retryBtn = document.getElementById('boot-retry-btn');
+      retryBtn.style.display = showRetry ? 'inline-flex' : 'none';
+      wrap.style.display = 'flex';
+    }
+    function hideLoader(){
+      const wrap = document.getElementById('boot-loader');
+      if (wrap) wrap.style.display = 'none';
+    }
+    function startWatchdog(){
+      clearTimeout(__watchdogTimer);
+      __watchdogTimer = setTimeout(()=>{
+        if (!__ready){
+          showLoader('Connessione lenta o timeout. Riprova?', true);
+        }
+      }, 8000);
+    }
+    function stopWatchdog(){ clearTimeout(__watchdogTimer); __watchdogTimer = null; }
+    function attachRetry(){
+      const retryBtn = document.getElementById('boot-retry-btn');
+      if (!retryBtn) return;
+      retryBtn.onclick = async ()=>{
+        showLoader('Riprovo…', false);
+        __booted = false;
+        __ready  = false;
+        await bootDashboard();
+      };
+    }
+    attachRetry();
+
     async function bootDashboard() {
         if (__booted) return;
         __booted = true;
+
+        showLoader('Caricamento…', false);
+        startWatchdog();
 
         try{
             const { data: { session } } = await supabase.auth.getSession();
@@ -1510,13 +1571,11 @@
             mainContainer.addEventListener('click', (e)=>{
               const btn = e.target.closest('button');
               if(!btn) return;
-
               if(btn.classList.contains('record-saving-btn')){
                 const id = btn.dataset.id;
                 const g = goalsData.find(x => String(x.id) === String(id));
                 if (g) handleRecordSaving(g, btn);
               }
-
               if(btn.classList.contains('view-savings-btn')){
                 const id = btn.dataset.id;
                 const g = goalsData.find(x => String(x.id) === String(id));
@@ -1531,8 +1590,16 @@
             logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
             monthSelector.addEventListener('change', loadAllDataForMonth);
             yearSelector.addEventListener('change', loadAllDataForMonth);
-            listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, months); movementsModal.classList.add('is-visible');});
-            document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{ radio.addEventListener('change', (e)=>{ const v = e.target.value; advancedOptionsWrapper.style.display = 'block'; recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none'; dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none'; }); });
+            const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+            listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, nowMonths); movementsModal.classList.add('is-visible');});
+            document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
+              radio.addEventListener('change', (e)=>{
+                const v = e.target.value;
+                advancedOptionsWrapper.style.display = 'block';
+                recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none';
+                dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none';
+              });
+            });
             
             schedulerBtn.addEventListener('click', async () => {
               const today = new Date();
@@ -1544,16 +1611,45 @@
               schedulerModal.classList.add('is-visible');
             });
 
-            notificationsBtn.addEventListener('click', async () => { const t = new Date(); const f = new Date(); f.setDate(t.getDate()+7); const u = await getScheduledTransactions(t, f); schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u); schedulerModal.classList.add('is-visible'); });
-            document.body.addEventListener('click', (e)=>{ const m = e.target.closest('.modal-overlay'); if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){ m.classList.remove('is-visible'); } });
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn'); const topActions = document.querySelector('.top-actions'); if (mobileMenuBtn && topActions) { mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); }); document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } }); }
-            
+            notificationsBtn.addEventListener('click', async () => {
+              const t = new Date();
+              const f = new Date(); f.setDate(t.getDate()+7);
+              const u = await getScheduledTransactions(t, f);
+              schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+              renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u);
+              schedulerModal.classList.add('is-visible');
+            });
+
+            document.body.addEventListener('click', (e)=>{
+              const m = e.target.closest('.modal-overlay');
+              if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){
+                m.classList.remove('is-visible');
+              }
+            });
+
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const topActions = document.querySelector('.top-actions');
+            if (mobileMenuBtn && topActions) {
+              mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                topActions.classList.toggle('is-open');
+              });
+              document.addEventListener('click', (e) => {
+                if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                  topActions.classList.remove('is-open');
+                }
+              });
+            }
+
+            __ready = true;
+            stopWatchdog();
+            hideLoader();
+
         } catch (err){
             console.error("Errore critico durante l'inizializzazione:", err);
-            const body = document.querySelector('body');
-            if (body){
-              body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;"><h2>Errore Critico</h2><p>Impossibile caricare la dashboard.</p><p><strong>Dettaglio:</strong> ${err.message}</p><p>Prova a ricaricare la pagina.</p></div>`;
-            }
+            stopWatchdog();
+            showLoader(`Errore di inizializzazione. Dettaglio: ${err.message}`, true);
+            __booted = false;
         }
     }
 
