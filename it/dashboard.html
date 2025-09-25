@@ -221,42 +221,134 @@
     .status-message.success{background-color:var(--success-color);color:#fff}
     .status-message.error{background-color:var(--danger-color);color:#fff}
 
-    /* ====== GOALS (Layout Originale Ripristinato) ====== */
-    #goals-section .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    #goals-list{display:flex;flex-direction:column;gap:16px;}
-    .goal-card{background:#fff;border:1px solid var(--card-border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    /* ====== GOALS (NUOVO LAYOUT ORDINATO) ====== */
+    #goals-section .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    #goals-section .header h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.2rem;
+    }
+    #goals-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .goal-card {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    }
+    .goal-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .goal-card-header h4 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #333;
+    }
+    .goal-card-main {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+        align-items: center;
+    }
+    .goal-method-selector { grid-column: span 12; md:grid-column: span 5; }
+    .goal-quota-editor { grid-column: span 12; md:grid-column: span 7; }
     
-    .goal-card.is-locked .goal-method .chip,
-    .goal-card.is-locked .goal-input input,
-    .goal-card.is-locked .percentage-input-group input {
-        pointer-events: none;
-        background-color: #f8f9fa !important;
-        color: #6c757d;
+    .goal-method-selector h5, .goal-quota-editor h5 {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #555;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+    }
+    .method-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .chip {
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.05);
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
+    .chip:hover { background: rgba(0,0,0,0.08); }
+    .chip.is-active {
+        background: var(--grad);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .method-input-group {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .method-input-group input {
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        width: 100px;
+    }
+    .goal-quota-editor .quota-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.7);
+        padding: 12px;
+        border-radius: 8px;
+    }
+     .quota-display input {
+        flex-grow: 1;
+        font-size: 1.1rem;
+        font-weight: 700;
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+    .quota-display .btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+    .goal-card-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--card-border);
+    }
+    .goal-progress-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .goal-main-actions {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
     }
 
-    .goal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
-    .goal-title{font-weight:800;color:#444;margin:0 0 4px}
-    .goal-subtitle{margin:0 0 12px;color:#666}
-    .goal-actions{display:flex;gap:4px;}
-    .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.05);font-weight:700;cursor:pointer;user-select:none}
-    .chip.is-active{background:var(--grad);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.12)}
-    .goal-method{display:flex;gap:8px;flex-wrap:wrap}
-    .goal-row{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
-    @media(min-width:768px){.goal-row{grid-template-columns:1fr 1fr auto}}
-    .goal-input{display:flex;flex-direction:column}
-    .goal-input input{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:1rem;background:#fff}
-    .goal-hint{display:block;margin-top:6px;font-size:.85rem;color:#777}
-    .goal-confirm{display:flex;gap:8px;justify-content:flex-end;align-items:center}
-    .goal-card .link{color:var(--primary-color);font-weight:700;text-decoration:none}
-
-    .percentage-input-group{display:none;align-items:center;gap:8px;margin-top:8px}
-    .percentage-input-group.is-visible{display:flex}
-    .percentage-input-group input{width:80px;text-align:right}
-        .percentage-input-group span{font-weight:700}
-        .percentage-input-group .product-amount{font-weight:700}
-
-    .goal-progress-bar-container{margin-top:16px; border-top: 1px solid var(--card-border); padding-top: 16px;}
-    #plan-readonly-banner { text-align: center; }
   </style>
 </head>
 <body>
@@ -936,39 +1028,47 @@
 
         return `
             <div id="goal-card-${id}" class="goal-card ${isLocked ? 'is-locked' : ''}">
-                <div class="goal-header">
-                    <h4 class="goal-title">${goal.nome_obiettivo}</h4>
-                    <div class="goal-actions">${deleteBtnHTML}</div>
+                <div class="goal-card-header">
+                    <h4>${goal.nome_obiettivo}</h4>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
                 </div>
-                <div class="goal-row">
-                    <div class="goal-method">
-                        <span class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">Somma fissa</span>
-                        <span class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">Somma variabile</span>
-                        <span class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% sulle entrate</span>
-                    </div>
-                    <div class="goal-input">
-                        <label style="font-weight:700;display:block;margin-bottom:6px;">${isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)'}</label>
-                        <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
-                        <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
-                            <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
-                            <span>% di <span class="total-income-placeholder">0.00</span>€</span>
-                            <span class="product-amount">= 0.00€</span>
+                <div class="goal-card-main">
+                    <div class="goal-method-selector">
+                        <h5>SELEZIONE METODO</h5>
+                        <div class="method-chips">
+                            <div class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">CIFRA FISSA</div>
+                            <div class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">CIFRA VARIABILE</div>
+                            <div class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% ENTRATE</div>
+                        </div>
+                        <div class="method-input-group">
+                             <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
+                             <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
+                                <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
+                                <span>%</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="goal-confirm">
-                        <button class="btn btn-primary save-edit-goal-btn">${btnLabel}</button>
+                    <div class="goal-quota-editor">
+                        <h5>QUOTA OBIETTIVO</h5>
+                        <div class="quota-display">
+                            <input type="text" value="100,00€" readonly>
+                            <button class="btn btn-secondary">MODIFICA</button>
+                            <button class="btn btn-primary">SALVA</button>
+                        </div>
                     </div>
                 </div>
-                <div class="goal-progress-bar-container">
-                    <div class="category-bar-info">
-                        <span>Progresso</span>
-                        <span class="category-bar-amount" id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
+                <div class="goal-card-footer">
+                    <div class="goal-progress-bar-container">
+                        <div class="progress-info">
+                            <span>Progresso</span>
+                            <span id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
                     </div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
-                </div>
-                <div class="goal-confirm" style="margin-top: 16px; gap:8px;">
-                    <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">✅ Registra Risparmio</button>
-                    <button class="btn btn-secondary view-savings-btn" data-id="${id}">📊 Modifica Risparmi</button>
+                    <div class="goal-main-actions">
+                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">MODIFICA</button>
+                        <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">REGISTRA RISPARMIO</button>
+                    </div>
                 </div>
             </div>`;
     }
@@ -978,7 +1078,7 @@
         const card = document.getElementById(`goal-card-${id}`);
         if (!card) return;
 
-        const methodWrap = card.querySelector('.goal-method');
+        const methodWrap = card.querySelector('.method-chips');
         const amountInput = card.querySelector('.goal-amount-input');
         const percentageGroup = card.querySelector('.percentage-input-group');
         const percentageInput = card.querySelector('.goal-percentage-input');
@@ -999,7 +1099,7 @@
 
         const updateTotalIncomeDisplay = () => {
             const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-            totalIncomeEl.textContent = fmt(totalIncomes);
+            if(totalIncomeEl) totalIncomeEl.textContent = fmt(totalIncomes);
             const perc = safeToNumber(percentageInput?.value);
             const product = (perc / 100) * totalIncomes;
             if (productEl) productEl.textContent = '= ' + fmt(product) + '€';
@@ -1013,13 +1113,13 @@
             chip.classList.add('is-active');
             const method = chip.dataset.method;
             const isPercent = method === 'percent_income';
-            labelEl.textContent = isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)';
-            amountInput.style.display = isPercent ? 'none' : 'block';
-            percentageGroup.classList.toggle('is-visible', isPercent);
+            if(labelEl) labelEl.textContent = isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)';
+            if(amountInput) amountInput.style.display = isPercent ? 'none' : 'block';
+            if(percentageGroup) percentageGroup.classList.toggle('is-visible', isPercent);
             updateTotalIncomeDisplay();
         });
 
-        saveEditBtn.addEventListener('click', async () => {
+        if(saveEditBtn) saveEditBtn.addEventListener('click', async () => {
             if (isLocked) {
                 setLocked(false);
                 return;
@@ -1064,7 +1164,7 @@
             await loadAndRenderGoals();
         });
 
-        recordBtn.addEventListener('click', () => handleRecordSaving(goal, recordBtn));
+        if(recordBtn) recordBtn.addEventListener('click', () => handleRecordSaving(goal, recordBtn));
 
         if (viewSavingsBtn) {
             viewSavingsBtn.addEventListener('click', () => showSavingsModal(goal));
@@ -1110,7 +1210,6 @@
         }
     }
 
-    // BUG FIX 2: Correctly calculate percentage-based savings
     function handleRecordSaving(goal, recordBtn) {
         let amountToSave = safeToNumber(recordBtn.dataset.amount);
         const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
