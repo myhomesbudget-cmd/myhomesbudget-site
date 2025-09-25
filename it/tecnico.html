@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="it" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Riepilogo Tecnico — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
+
+  <style>
+    :root{
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color:#f39c12;--info-color:#3498db;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
+      --grad-success:linear-gradient(135deg,#2e7d32,#81c784);
+      --grad-warning:linear-gradient(135deg,#f39c12,#ffa726);
+      --grad-info:linear-gradient(135deg,#3498db,#74b9ff);
+    }
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    body{
+      margin:0;
+      color:var(--fg);
+      background: url("/bg.webp") no-repeat center/cover;
+      background-attachment: scroll;
+      min-height:100svh;
+      -webkit-overflow-scrolling:touch;
+    }
+    body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
+
+    /* TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
+    
+    /* Mobile Accordion Cards */
+    .tech-card {
+      border-radius: 12px;
+      padding: 0;
+      margin-block: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
+    }
+    
+    .tech-card__header {
+      min-height: 44px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(255,255,255,0.9);
+      border-bottom: 1px solid var(--card-border);
+      list-style: none;
+    }
+    
+    .tech-card__header::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .tech-card[open] .tech-card__header::after {
+      transform: rotate(45deg);
+    }
+    
+    .tech-card__title {
+      flex: 1;
+      color: var(--fg);
+    }
+    
+    .tech-card__content {
+      padding: 12px 14px;
+    }
+
+    /* Mobile Typography & Layout */
+    @media (max-width: 480px) {
+      main.container {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+      
+      .tech-card {
+        margin-block: 12px;
+      }
+      
+      .tech-card__content {
+        gap: 10px;
+      }
+      
+      /* Typography */
+      h1 { 
+        font-size: clamp(1.2rem, 5.6vw, 1.6rem);
+        margin: 8px 0;
+      }
+      
+      h2 { 
+        font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+        margin: 6px 0;
+      }
+
+      main.container {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+    
+    @media (min-width: 481px) and (max-width: 1024px) {
+      .tech-card {
+        margin-block: 14px;
+      }
+      
+      .tech-card__header {
+        padding: 12px 16px;
+        font-size: 1.1rem;
+      }
+      
+      .tech-card__content {
+        padding: 16px;
+      }
+    }
+    
+    /* Desktop - Hide accordion behavior */
+    @media (min-width: 1025px) {
+      .tech-card {
+        padding: 24px;
+        margin-block: 24px;
+      }
+      
+      .tech-card__header {
+        display: none;
+      }
+      
+      .tech-card__content {
+        padding: 0;
+      }
+      
+      .tech-card[open] .tech-card__content,
+      .tech-card .tech-card__content {
+        display: block;
+      }
+    }
+    
+    /* END TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
+
+    /* Fix per iOS/Safari su background-attachment: fixed */
+    @media (pointer: coarse) {
+      body { background-attachment: scroll !important; }
+    }
+
+    /* ====== TOPBAR ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link,.top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
+    .top-link:hover,.top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+
+    /* ====== Main Content ====== */
+    main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
+    
+    /* ====== Hero Section ====== */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: rgba(255,255,255,0.6);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+    }
+    
+    .hero-title {
+      font-size: 2.5rem;
+      margin: 0 0 12px;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      margin: 0 0 24px;
+    }
+
+    /* ====== Stats Grid ====== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.85);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.12);
+    }
+
+    .stat-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .stat-card.income .stat-icon { color: var(--success-color); }
+    .stat-card.income .stat-value { color: var(--success-color); }
+    .stat-card.expense .stat-icon { color: var(--danger-color); }
+    .stat-card.expense .stat-value { color: var(--danger-color); }
+    .stat-card.savings .stat-icon { color: var(--info-color); }
+    .stat-card.savings .stat-value { color: var(--info-color); }
+    .stat-card.goals .stat-icon { color: var(--warning-color); }
+    .stat-card.goals .stat-value { color: var(--warning-color); }
+
+    /* ====== Tech Panel ====== */
+    .tech-panel {
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+    }
+
+    /* ====== Charts & Visualizations ====== */
+    .chart-container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: #333;
+    }
+
+    .progress-visualization {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .progress-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress-label {
+      min-width: 120px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 12px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s ease;
+    }
+
+    .progress-value {
+      min-width: 80px;
+      text-align: right;
+      font-weight:700;
+      font-size: 0.9rem;
+    }
+
+    .progress-fill.income { background: var(--grad-success); }
+    .progress-fill.expense { background: var(--grad-danger); }
+    .progress-fill.savings { background: var(--grad-info); }
+    .progress-fill.goals { background: var(--grad-warning); }
+
+    /* ====== Category Breakdown ====== */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    .category-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,.05);
+      transition: transform 0.2s ease;
+    }
+
+    .category-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .category-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .category-name {
+      font-weight: 600;
+      margin: 0 0 8px;
+    }
+
+    .category-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--danger-color);
+    }
+
+    /* ====== Timeline ====== */
+    .timeline {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--grad);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .timeline-date {
+      font-size: 0.9rem;
+      color: #666;
+      margin: 0 0 4px;
+    }
+
+    .timeline-content {
+      font-weight: 600;
+    }
+
+    .timeline-amount {
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .timeline-amount.income { color: var(--success-color); }
+    .timeline-amount.expense { color: var(--danger-color); }
+
+    /* ====== Responsive ====== */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .stat-card {
+        padding: 20px;
+      }
+      
+      .stat-icon {
+        font-size: 2.5rem;
+      }
+      
+      .stat-value {
+        font-size: 2rem;
+      }
+      
+      .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+    }
+
+    /* ====== Animations ====== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-up {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+    .animate-delay-4 { animation-delay: 0.4s; }
+  </style>
+</head>
+
+<body>
+  <!-- ====== TOPBAR ====== -->
+  <header class="topbar">
+    <a href="/" class="logo-link">
+      <img src="/homes.png" alt="MyHomesBudget" width="28" height="28" style="filter: brightness(0) invert(1);">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    
+    <div class="top-center">
+      <h1 style="margin:0; font-size:1.1rem; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.35);">Riepilogo Tecnico</h1>
+    </div>
+    
+    <nav class="top-actions">
+      <a href="/dashboard.html" class="top-link">🏠 Dashboard</a>
+      <a href="/profile.html" class="top-link">👤 Profilo</a>
+    </nav>
+  </header>
+
+  <!-- ====== MAIN CONTENT ====== -->
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero-section animate-fade-up">
+      <h1 class="hero-title">Riepilogo Tecnico</h1>
+      <p class="hero-subtitle">Analisi completa delle tue interazioni finanziarie</p>
+      <div style="font-size: 0.95rem; color: #666;">
+        Aggiornato al <span id="current-date"></span>
+      </div>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="stats-grid">
+      <div class="stat-card income animate-fade-up animate-delay-1">
+        <span class="stat-icon">💰</span>
+        <div class="stat-value" id="total-income">€12,450</div>
+        <p class="stat-label">Entrate Totali</p>
+      </div>
+      
+      <div class="stat-card expense animate-fade-up animate-delay-2">
+        <span class="stat-icon">💸</span>
+        <div class="stat-value" id="total-expenses">€8,220</div>
+        <p class="stat-label">Spese Totali</p>
+      </div>
+      
+      <div class="stat-card savings animate-fade-up animate-delay-3">
+        <span class="stat-icon">🏦</span>
+        <div class="stat-value" id="total-savings">€4,230</div>
+        <p class="stat-label">Risparmi Accumulati</p>
+      </div>
+      
+      <div class="stat-card goals animate-fade-up animate-delay-4">
+        <span class="stat-icon">🎯</span>
+        <div class="stat-value" id="active-goals">3</div>
+        <p class="stat-label">Obiettivi Attivi</p>
+      </div>
+    </section>
+
+    <!-- Detailed Analysis -->
+    <div class="tech-panel">
+      
+      <!-- Monthly Trends Card -->
+      <details class="tech-card" open>
+        <summary class="tech-card__header">
+          <span class="tech-card__title">📈 Andamento Mensile</span>
+        </summary>
+        <div class="tech-card__content">
+          <div class="chart-container">
+            <h3 class="chart-title">Performance Ultimo Trimestre</h3>
+            <div class="progress-visualization">
+              <div class="progress-item">
+                <span class="progress-label">Gennaio</span>
+                <div class="progress-bar">
+                  <div class="progress-fill income" style="width: 85%"></div>
+                </div>
+                <span class="progress-value">€3,200</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-label">Febbraio</span>
+                <div class="progress-bar">
+                  <div class="progress-fill income" style="width: 92%"></div>
+                </div>
+                <span class="progress-value">€3,650</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-label">Marzo</span>
+                <div class="progress-bar">
+                  <div class="progress-fill income" style="width: 78%"></div>
+                </div>
+                <span class="progress-value">€2,890</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Category Breakdown Card -->
+      <details class="tech-card" open>
+        <summary class="tech-card__header">
+          <span class="tech-card__title">🏷️ Categorie di Spesa</span>
+        </summary>
+        <div class="tech-card__content">
+          <div class="category-grid">
+            <div class="category-item">
+              <span class="category-icon">🏠</span>
+              <h4 class="category-name">Casa</h4>
+              <div class="category-amount">€2,450</div>
+            </div>
+            <div class="category-item">
+              <span class="category-icon">🚗</span>
+              <h4 class="category-name">Trasporti</h4>
+              <div class="category-amount">€1,230</div>
+            </div>
+            <div class="category-item">
+              <span class="category-icon">🍽️</span>
+              <h4 class="category-name">Alimentari</h4>
+              <div class="category-amount">€890</div>
+            </div>
+            <div class="category-item">
+              <span class="category-icon">💊</span>
+              <h4 class="category-name">Salute</h4>
+              <div class="category-amount">€340</div>
+            </div>
+            <div class="category-item">
+              <span class="category-icon">🎯</span>
+              <h4 class="category-name">Svago</h4>
+              <div class="category-amount">€520</div>
+            </div>
+            <div class="category-item">
+              <span class="category-icon">📚</span>
+              <h4 class="category-name">Formazione</h4>
+              <div class="category-amount">€180</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Goals Progress Card -->
+      <details class="tech-card" open>
+        <summary class="tech-card__header">
+          <span class="tech-card__title">🎯 Progressi Obiettivi</span>
+        </summary>
+        <div class="tech-card__content">
+          <div class="chart-container">
+            <h3 class="chart-title">Stato Obiettivi di Risparmio</h3>
+            <div class="progress-visualization">
+              <div class="progress-item">
+                <span class="progress-label">Vacanze Estate</span>
+                <div class="progress-bar">
+                  <div class="progress-fill goals" style="width: 65%"></div>
+                </div>
+                <span class="progress-value">€1,950/€3,000</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-label">Fondo Emergenza</span>
+                <div class="progress-bar">
+                  <div class="progress-fill goals" style="width: 40%"></div>
+                </div>
+                <span class="progress-value">€2,000/€5,000</span>
+              </div>
+              <div class="progress-item">
+                <span class="progress-label">Nuovo Laptop</span>
+                <div class="progress-bar">
+                  <div class="progress-fill goals" style="width: 80%"></div>
+                </div>
+                <span class="progress-value">€800/€1,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Activity Timeline Card -->
+      <details class="tech-card">
+        <summary class="tech-card__header">
+          <span class="tech-card__title">⏰ Attività Recenti</span>
+        </summary>
+        <div class="tech-card__content">
+          <div class="chart-container">
+            <h3 class="chart-title">Cronologia Operazioni</h3>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-date">25 Settembre 2025</div>
+                <div class="timeline-content">Pagamento bolletta elettrica</div>
+                <div class="timeline-amount expense">-€120,50</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">24 Settembre 2025</div>
+                <div class="timeline-content">Stipendio mensile</div>
+                <div class="timeline-amount income">+€2,800,00</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">23 Settembre 2025</div>
+                <div class="timeline-content">Spesa supermercato</div>
+                <div class="timeline-amount expense">-€85,30</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">22 Settembre 2025</div>
+                <div class="timeline-content">Contributo obiettivo vacanze</div>
+                <div class="timeline-amount expense">-€150,00</div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">21 Settembre 2025</div>
+                <div class="timeline-content">Freelance progetto web</div>
+                <div class="timeline-amount income">+€450,00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Insights Card -->
+      <details class="tech-card">
+        <summary class="tech-card__header">
+          <span class="tech-card__title">💡 Insights & Raccomandazioni</span>
+        </summary>
+        <div class="tech-card__content">
+          <div class="chart-container">
+            <h3 class="chart-title">Analisi Automatica</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="padding: 16px; background: rgba(46,125,50,0.1); border-left: 4px solid var(--success-color); border-radius: 8px;">
+                <h4 style="margin: 0 0 8px; color: var(--success-color);">✅ Risparmio Ottimo</h4>
+                <p style="margin: 0; font-size: 0.95rem;">Hai risparmiato il 34% delle tue entrate questo mese. Ottimo lavoro!</p>
+              </div>
+              <div style="padding: 16px; background: rgba(243,156,18,0.1); border-left: 4px solid var(--warning-color); border-radius: 8px;">
+                <h4 style="margin: 0 0 8px; color: var(--warning-color);">⚠️ Spese Trasporti</h4>
+                <p style="margin: 0; font-size: 0.95rem;">Le spese per trasporti sono aumentate del 15% rispetto al mese scorso.</p>
+              </div>
+              <div style="padding: 16px; background: rgba(52,152,219,0.1); border-left: 4px solid var(--info-color); border-radius: 8px;">
+                <h4 style="margin: 0 0 8px; color: var(--info-color);">📊 Obiettivi in Linea</h4>
+                <p style="margin: 0; font-size: 0.95rem;">Tutti i tuoi obiettivi sono in linea con la pianificazione temporale.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </main>
+
+  <script>
+    /* TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
+    (function() {
+      // Set current date
+      document.getElementById('current-date').textContent = new Date().toLocaleDateString('it-IT', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      // Mobile accordion behavior
+      function updateAccordionState() {
+        const width = window.innerWidth;
+        const cards = document.querySelectorAll('.tech-card');
+        
+        if (width <= 480) {
+          // Mobile: Only first card open
+          cards.forEach((card, index) => {
+            if (index === 0) {
+              card.setAttribute('open', '');
+            } else {
+              card.removeAttribute('open');
+            }
+          });
+        } else if (width <= 1024) {
+          // Tablet: First two cards open
+          cards.forEach((card, index) => {
+            if (index < 2) {
+              card.setAttribute('open', '');
+            } else {
+              card.removeAttribute('open');
+            }
+          });
+        } else {
+          // Desktop: All cards open
+          cards.forEach(card => {
+            card.setAttribute('open', '');
+          });
+        }
+      }
+
+      // Initialize accordion state
+      updateAccordionState();
+
+      // Update on window resize
+      let resizeTimeout;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateAccordionState, 150);
+      });
+
+      // Animate progress bars on load
+      setTimeout(() => {
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach(bar => {
+          const width = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => {
+            bar.style.width = width;
+          }, 100);
+        });
+      }, 500);
+
+      // Add scroll animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-up');
+          }
+        });
+      }, observerOptions);
+
+      // Observe stat cards for animation
+      document.querySelectorAll('.stat-card').forEach(card => {
+        observer.observe(card);
+      });
+    })();
+    /* END TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
+  </script>
+</body>
+</html>
