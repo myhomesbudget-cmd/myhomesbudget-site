@@ -591,56 +591,56 @@
     }
 
     function renderDeadlinesList(container, transactions){
-      if (transactions.length === 0){ container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
-      container.innerHTML = '';
-      const today = new Date(); today.setHours(0,0,0,0);
+        if (transactions.length === 0){ container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
+        container.innerHTML = '';
+        const today = new Date(); today.setHours(0,0,0,0);
 
-      const isModal = container.closest('.modal-overlay');
+        const isModal = container.closest('.modal-overlay');
 
-      if(isModal) {
-          container.innerHTML = '<table class="deadlines-table"><tbody></tbody></table>';
-          container = container.querySelector('tbody');
-      }
-
-      transactions.forEach(tx=>{
-        const isIncome = tx.kind === 'income';
-        const dueDate = toLocalMidnight(String(tx.due_date));
-        const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
-        const diffDays = Math.ceil(diffTime / dayMs);
-        const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
-        const amountClass = isIncome ? 'income' : 'expense';
-        const amountSign = isIncome ? '+' : '-';
-        const buttonClass = isIncome ? 'receive' : 'pay';
-        const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
-        const sub = tx.subcategories;
-        const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
-        const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
-        
-        let rowHTML = '';
-        if (isModal) {
-            rowHTML = `
-                <tr>
-                    <td class="description-cell">
-                        <span class="note-part">${tx.note || ''}</span>
-                        <span class="category-part">${categoryText}</span>
-                        <span class="date-part">🗓️ ${formattedDueDate}</span>
-                    </td>
-                    <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
-                    <td class="days-left-cell">${daysLeftText}</td>
-                    <td class="actions-cell">
-                        <div class="item-actions">
-                            <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
-                            <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
-                            <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        } else {
-             rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${tx.note || ''}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
+        if(isModal) {
+            container.innerHTML = '<table class="deadlines-table"><tbody></tbody></table>';
+            container = container.querySelector('tbody');
         }
-        container.insertAdjacentHTML('beforeend', rowHTML);
-      });
+
+        transactions.forEach(tx=>{
+            const isIncome = tx.kind === 'income';
+            const dueDate = toLocalMidnight(String(tx.due_date));
+            const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
+            const diffDays = Math.ceil(diffTime / dayMs);
+            const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+            const amountClass = isIncome ? 'income' : 'expense';
+            const amountSign = isIncome ? '+' : '-';
+            const buttonClass = isIncome ? 'receive' : 'pay';
+            const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
+            const sub = tx.subcategories;
+            const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+            const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
+            
+            let rowHTML = '';
+            if (isModal) {
+                rowHTML = `
+                    <tr>
+                        <td class="description-cell">
+                            <span class="note-part">${tx.note || ''}</span>
+                            <span class="category-part">${categoryText}</span>
+                            <span class="date-part">🗓️ ${formattedDueDate}</span>
+                        </td>
+                        <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
+                        <td class="days-left-cell">${daysLeftText}</td>
+                        <td class="actions-cell">
+                            <div class="item-actions">
+                                <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
+                                <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                                <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${tx.note || ''}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
+            }
+            container.insertAdjacentHTML('beforeend', rowHTML);
+        });
     }
 
     function renderMovementsListModal(transactions, months){
