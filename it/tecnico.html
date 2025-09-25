@@ -2,444 +2,213 @@
 <html lang="it" data-app="myhomesbudget">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Riepilogo Tecnico — MyHomesBudget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riepilogo — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
-
+  <link rel="icon" href="/favicon.ico" />
+  
   <style>
     :root{
       --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
-      --warning-color:#f39c12;--info-color:#3498db;
+      --warning-color: #f39c12;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
-      --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
-      --grad-success:linear-gradient(135deg,#2e7d32,#81c784);
-      --grad-warning:linear-gradient(135deg,#f39c12,#ffa726);
-      --grad-info:linear-gradient(135deg,#3498db,#74b9ff);
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
     }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans);background-color:var(--bg)}
-    body{
-      margin:0;
-      color:var(--fg);
-      background: url("/bg.webp") no-repeat center/cover;
-      background-attachment: scroll;
-      min-height:100svh;
-      -webkit-overflow-scrolling:touch;
-    }
-    body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
-
-    /* TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
-    
-    /* Mobile Accordion Cards */
-    .tech-card {
-      border-radius: 12px;
-      padding: 0;
-      margin-block: 10px;
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-      background: rgba(255,255,255,0.85);
-      box-shadow: var(--shadow);
-    }
-    
-    .tech-card__header {
-      min-height: 44px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: rgba(255,255,255,0.9);
-      border-bottom: 1px solid var(--card-border);
-      list-style: none;
-    }
-    
-    .tech-card__header::after {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-right: 2px solid currentColor;
-      border-bottom: 2px solid currentColor;
-      transform: rotate(-45deg);
-      transition: transform 0.2s ease;
-      flex-shrink: 0;
-    }
-    
-    .tech-card[open] .tech-card__header::after {
-      transform: rotate(45deg);
-    }
-    
-    .tech-card__title {
-      flex: 1;
-      color: var(--fg);
-    }
-    
-    .tech-card__content {
-      padding: 12px 14px;
-    }
-
-    /* Mobile Typography & Layout */
-    @media (max-width: 480px) {
-      main.container {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-      
-      .tech-card {
-        margin-block: 12px;
-      }
-      
-      .tech-card__content {
-        gap: 10px;
-      }
-      
-      /* Typography */
-      h1 { 
-        font-size: clamp(1.2rem, 5.6vw, 1.6rem);
-        margin: 8px 0;
-      }
-      
-      h2 { 
-        font-size: clamp(1.05rem, 4.5vw, 1.3rem);
-        margin: 6px 0;
-      }
-
-      main.container {
-        display: flex;
-        flex-direction: column;
-      }
-    }
-    
-    @media (min-width: 481px) and (max-width: 1024px) {
-      .tech-card {
-        margin-block: 14px;
-      }
-      
-      .tech-card__header {
-        padding: 12px 16px;
-        font-size: 1.1rem;
-      }
-      
-      .tech-card__content {
-        padding: 16px;
-      }
-    }
-    
-    /* Desktop - Hide accordion behavior */
-    @media (min-width: 1025px) {
-      .tech-card {
-        padding: 24px;
-        margin-block: 24px;
-      }
-      
-      .tech-card__header {
-        display: none;
-      }
-      
-      .tech-card__content {
-        padding: 0;
-      }
-      
-      .tech-card[open] .tech-card__content,
-      .tech-card .tech-card__content {
-        display: block;
-      }
-    }
-    
-    /* END TECNICO PAGE MOBILE ACCORDION - 25/09/2025 */
-
-    /* Fix per iOS/Safari su background-attachment: fixed */
-    @media (pointer: coarse) {
-      body { background-attachment: scroll !important; }
-    }
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
 
     /* ====== TOPBAR ====== */
-    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border);z-index:100}
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--card-border);z-index:100}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
     .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
     .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link,.top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
-    .top-link:hover,.top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+    .top-link, .top-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
+      font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .top-link:hover, .top-btn:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+    
+    .date-selectors { display: flex; gap: 8px; }
+    .select-wrapper { position: relative; display: flex; align-items: center; height: 34px; border-radius: 10px; background: var(--grad); box-shadow: 0 4px 12px rgba(0,0,0,.15); transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease; }
+    .select-wrapper:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.20); }
+    .select-wrapper::after { content: '▼'; font-size: 10px; color: rgba(255,255,255,0.8); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .topbar-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: transparent; color: #fff; border: none; padding: 6px 28px 6px 12px; font-size: .9rem; font-weight: 600; cursor: pointer; }
+    .topbar-select option { background: white; color: black; }
+    .topbar-select:disabled { opacity: 0.7; }
 
-    /* ====== Main Content ====== */
-    main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
-    
-    /* ====== Hero Section ====== */
-    .hero-section {
-      text-align: center;
-      margin-bottom: 32px;
-      padding: 24px;
-      background: rgba(255,255,255,0.6);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
+    .notification-bell { position: relative; }
+    #scheduler-btn, #notifications-btn { width: 38px; padding: 0; }
+    .notification-badge { position: absolute; top: -5px; right: -5px; background: var(--danger-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none; }
+    .notification-badge.is-visible { display: flex; }
+
+    .mobile-menu-toggle { display: none; background: var(--grad); border: none; border-radius: 10px; width: 40px; height: 38px; cursor: pointer; padding: 0; z-index: 101; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+    .mobile-menu-toggle svg { width: 24px; height: 24px; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; }
+
+    @media (max-width: 1200px) {
+        .top-center { display: none; }
     }
-    
-    .hero-title {
-      font-size: 2.5rem;
-      margin: 0 0 12px;
-      background: var(--grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 800;
-    }
-    
-    .hero-subtitle {
-      font-size: 1.2rem;
-      color: #666;
-      margin: 0 0 24px;
+    @media (max-width: 960px) {
+      .mobile-menu-toggle { display: block; }
+      .top-actions { position: absolute; top: 70px; right: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 16px; flex-direction: column; gap: 16px; align-items: stretch; width: 220px; transform: translateY(-20px) scale(0.95); opacity: 0; pointer-events: none; transition: transform 0.2s ease-out, opacity 0.2s ease-out; z-index: 100; border: 1px solid var(--card-border); }
+      .top-actions.is-open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
+      .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors { width: 100%; text-align: center; flex-direction: column; }
+      #scheduler-btn, #notifications-btn { width: 100%; }
     }
 
-    /* ====== Stats Grid ====== */
-    .stats-grid {
+    /* ====== Contenuto Principale ====== */
+    main.container{padding:84px 24px 24px;max-width:1400px;margin:0 auto;width:100%}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
+    .dash-nav a{
+      text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition: all 0.2s ease;
+      background: var(--grad); color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1);}
+    .dash-nav a:hover {transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(0,0,0,.15);}
+    .dash-nav a.is-active{filter: brightness(1.15);box-shadow: 0 6px 16px rgba(0,0,0,.20), inset 0 1px 2px rgba(255,255,255,0.2);}
+    .dash-nav a.is-locked { background: var(--grad-danger); }
+    
+    /* ====== Layout Riepilogo Strategico ====== */
+    .summary-grid, .deep-dive-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
-      margin-bottom: 32px;
     }
-
-    .stat-card {
-      background: rgba(255,255,255,0.85);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,.12);
-    }
-
-    .stat-icon {
-      font-size: 3rem;
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin: 8px 0;
-    }
-
-    .stat-label {
-      font-size: 1.1rem;
-      color: #666;
-      margin: 0;
-    }
-
-    .stat-card.income .stat-icon { color: var(--success-color); }
-    .stat-card.income .stat-value { color: var(--success-color); }
-    .stat-card.expense .stat-icon { color: var(--danger-color); }
-    .stat-card.expense .stat-value { color: var(--danger-color); }
-    .stat-card.savings .stat-icon { color: var(--info-color); }
-    .stat-card.savings .stat-value { color: var(--info-color); }
-    .stat-card.goals .stat-icon { color: var(--warning-color); }
-    .stat-card.goals .stat-value { color: var(--warning-color); }
-
-    /* ====== Tech Panel ====== */
-    .tech-panel {
-      background: rgba(255,255,255,0.55);
+    .deep-dive-grid { margin-top: 24px; }
+    
+    .summary-card {
+      background: rgba(255,255,255,0.75);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border-radius: var(--radius-lg);
       padding: 24px;
       border: 1px solid var(--card-border);
       box-shadow: var(--shadow);
-    }
-
-    /* ====== Charts & Visualizations ====== */
-    .chart-container {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 16px 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,.05);
-    }
-
-    .chart-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin: 0 0 16px;
-      color: #333;
-    }
-
-    .progress-visualization {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+    }
+    
+    .summary-card-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .summary-card-header h3 {
+      display: inline-block;
+      margin: 0;
+      padding: 10px 24px;
+      font-size: 1.1rem;
+      color: #fff;
+      font-weight: 800;
+      background: var(--grad);
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      width: 240px;
+      max-width: 100%;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .summary-card-header h3:hover {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+    }
+    .summary-card-header p {
+      margin: 8px 0 0;
+      font-size: 0.85rem;
+      color: #555;
+      font-weight: 600;
+    }
+    .summary-card-header .goal-name-display {
+        font-size: 1.1rem; font-weight: 700; color: #333; margin: 8px 0 4px;
+    }
+    .summary-card-header .goal-amount-display {
+        font-size: 1.3rem; font-weight: 800; color: var(--primary-color); margin:0;
     }
 
-    .progress-item {
+    .summary-card-chart {
+      position: relative;
+      flex-grow: 1;
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      min-height: 200px;
     }
-
-    .progress-label {
-      min-width: 120px;
-      font-weight: 600;
+     .summary-card-chart canvas {
+      max-width: 100%;
+      max-height: 250px;
+    }
+    .summary-card-footer {
+      text-align: left;
+      margin-top: 16px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 16px;
+    }
+    .footer-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 0.9rem;
     }
-
-    .progress-bar {
-      flex: 1;
-      height: 12px;
-      background: rgba(0,0,0,0.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.8s ease;
-    }
-
-    .progress-value {
-      min-width: 80px;
-      text-align: right;
-      font-weight:700;
-      font-size: 0.9rem;
-    }
-
-    .progress-fill.income { background: var(--grad-success); }
-    .progress-fill.expense { background: var(--grad-danger); }
-    .progress-fill.savings { background: var(--grad-info); }
-    .progress-fill.goals { background: var(--grad-warning); }
-
-    /* ====== Category Breakdown ====== */
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin: 16px 0;
-    }
-
-    .category-item {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.05);
-      transition: transform 0.2s ease;
-    }
-
-    .category-item:hover {
-      transform: translateY(-2px);
-    }
-
-    .category-icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .category-name {
+    .breakdown-label {
       font-weight: 600;
-      margin: 0 0 8px;
+      color: #333;
     }
-
-    .category-amount {
-      font-size: 1.2rem;
+    .breakdown-value {
       font-weight: 700;
-      color: var(--danger-color);
     }
-
-    /* ====== Timeline ====== */
-    .timeline {
-      position: relative;
-      padding-left: 24px;
+    .breakdown-value.income { color: var(--success-color); }
+    .breakdown-value.expense { color: var(--danger-color); }
+    .breakdown-value.net { color: var(--primary-color); }
+    
+    /* ====== Card Obiettivo con Batteria a Tacche ====== */
+    .goal-card-content {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 20px;
     }
-
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 8px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--grad);
+    .battery {
+      width: 100px; height: 200px; border: 5px solid #333; border-radius: 10px;
+      position: relative; padding: 8px; display: flex; flex-direction: column; justify-content: center;
     }
-
-    .timeline-item {
-      position: relative;
-      padding: 16px 0;
-      border-bottom: 1px solid rgba(0,0,0,.05);
+    .battery::after {
+      content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 5px; background: #333; border-radius: 5px 5px 0 0;
     }
-
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      top: 20px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--primary-color);
-      border: 3px solid #fff;
-      box-shadow: 0 0 0 2px var(--primary-color);
+    .battery-percentage {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #333; font-size: 1.5rem; font-weight: 900; z-index: 2;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.5);
     }
-
-    .timeline-date {
-      font-size: 0.9rem;
-      color: #666;
-      margin: 0 0 4px;
+    .battery-segments {
+      width: 100%; height: 100%; display: flex; flex-direction: column-reverse; gap: 4px;
     }
-
-    .timeline-content {
-      font-weight: 600;
+    .segment {
+      flex-grow: 1; background: rgba(0,0,0,0.1); border-radius: 3px; transition: background 0.5s ease;
     }
+    .segment.is-active:nth-child(1), .segment.is-active:nth-child(2) { background: #d32f2f; }
+    .segment.is-active:nth-child(3), .segment.is-active:nth-child(4) { background: #f39c12; }
+    .segment.is-active:nth-child(5), .segment.is-active:nth-child(6), .segment.is-active:nth-child(7) { background: #f1c40f; }
+    .segment.is-active:nth-child(8) { background: #2ecc71; }
+    .segment.is-active:nth-child(9), .segment.is-active:nth-child(10) { background: #00cec9; }
 
-    .timeline-amount {
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
-    .timeline-amount.income { color: var(--success-color); }
-    .timeline-amount.expense { color: var(--danger-color); }
-
-    /* ====== Responsive ====== */
-    @media (max-width: 768px) {
-      .hero-title {
-        font-size: 2rem;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      
-      .stat-card {
-        padding: 20px;
-      }
-      
-      .stat-icon {
-        font-size: 2.5rem;
-      }
-      
-      .stat-value {
-        font-size: 2rem;
-      }
-      
-      .category-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 12px;
-      }
-    }
-
-    /* ====== Interactive Elements ====== */
+    /* ====== SUPER INTERACTIVE FEATURES - 25/09/2025 ====== */
+    
+    /* Interactive Elements */
     .interactive-box {
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -456,6 +225,7 @@
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
       transition: left 0.5s;
+      z-index: 1;
     }
 
     .interactive-box:hover::before {
@@ -471,53 +241,55 @@
       transform: translateY(-4px) scale(0.98);
     }
 
-    /* ====== Donut Charts ====== */
-    .donut-chart {
+    /* Custom SVG Donut Charts */
+    .custom-donut-chart {
       position: relative;
       width: 200px;
       height: 200px;
       margin: 0 auto;
     }
 
-    .donut-chart svg {
+    .custom-donut-chart svg {
       transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
     }
 
-    .donut-chart circle {
+    .custom-donut-chart circle {
       fill: none;
       stroke-width: 20;
       stroke-linecap: round;
       transition: all 0.3s ease;
     }
 
-    .donut-chart .bg-circle {
+    .custom-donut-chart .bg-circle {
       stroke: rgba(0,0,0,0.1);
     }
 
-    .donut-chart .progress-circle {
+    .custom-donut-chart .progress-circle {
       stroke-dasharray: 0 628;
       animation: donut-fill 2s ease-in-out forwards;
     }
 
-    .donut-chart .progress-circle.income {
+    .custom-donut-chart .progress-circle.income {
       stroke: url(#incomeGradient);
     }
 
-    .donut-chart .progress-circle.expense {
+    .custom-donut-chart .progress-circle.expense {
       stroke: url(#expenseGradient);
     }
 
-    .donut-chart .progress-circle.savings {
-      stroke: url(#savingsGradient);
+    .custom-donut-chart .progress-circle.budget {
+      stroke: url(#budgetGradient);
     }
 
-    .donut-chart .progress-circle.goals {
-      stroke: url(#goalsGradient);
+    .custom-donut-chart .progress-circle.goal {
+      stroke: url(#goalGradient);
     }
 
-    .donut-chart:hover .progress-circle {
+    .custom-donut-chart:hover .progress-circle {
       stroke-width: 25;
-      filter: drop-shadow(0 0 10px rgba(108,92,231,0.5));
+      filter: drop-shadow(0 0 15px rgba(108,92,231,0.5));
     }
 
     .donut-center {
@@ -526,18 +298,21 @@
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
+      z-index: 2;
     }
 
     .donut-value {
       font-size: 1.8rem;
       font-weight: 800;
       line-height: 1;
+      color: #333;
     }
 
     .donut-label {
       font-size: 0.9rem;
       color: #666;
       margin-top: 4px;
+      font-weight: 600;
     }
 
     @keyframes donut-fill {
@@ -546,10 +321,10 @@
       }
     }
 
-    /* ====== 3D Cards ====== */
+    /* 3D Flip Cards */
     .card-3d {
       perspective: 1000px;
-      height: 300px;
+      height: 100%;
     }
 
     .card-3d-inner {
@@ -581,17 +356,18 @@
     }
 
     .card-3d-front {
-      background: var(--grad);
-      color: white;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
     }
 
     .card-3d-back {
-      background: var(--grad-info);
+      background: var(--grad);
       color: white;
       transform: rotateY(180deg);
     }
 
-    /* ====== Particle Effects ====== */
+    /* Particle Effects */
     .particles-container {
       position: relative;
       overflow: hidden;
@@ -626,12 +402,12 @@
       }
     }
 
-    /* ====== Morphing Shapes ====== */
+    /* Morphing Shapes */
     .morphing-shape {
-      width: 100px;
-      height: 100px;
+      width: 60px;
+      height: 60px;
       background: var(--grad);
-      margin: 20px auto;
+      margin: 10px auto;
       animation: morph 4s infinite ease-in-out;
       transition: all 0.3s ease;
     }
@@ -660,7 +436,7 @@
       }
     }
 
-    /* ====== Ripple Effect ====== */
+    /* Ripple Effect */
     .ripple {
       position: relative;
       overflow: hidden;
@@ -684,13 +460,13 @@
       height: 300px;
     }
 
-    /* ====== Animated Counter ====== */
+    /* Animated Counter */
     .animated-counter {
       font-feature-settings: 'tnum';
       font-variant-numeric: tabular-nums;
     }
 
-    /* ====== Glowing Elements ====== */
+    /* Glowing Elements */
     .glow-on-hover {
       position: relative;
       transition: all 0.3s ease;
@@ -715,11 +491,127 @@
       opacity: 0.7;
     }
 
-    /* ====== Animations ====== */
+    /* Enhanced Summary Cards */
+    .summary-card {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card.interactive-box:hover {
+      transform: translateY(-8px) rotateX(5deg);
+      box-shadow: 0 25px 50px rgba(0,0,0,.15);
+    }
+
+    /* Pannelli di Focalizzazione (Deep Dive) - Enhanced */
+    .focus-panel { 
+      padding: 16px; 
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .focus-panel:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.12);
+    }
+    
+    .focus-panel-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 12px; 
+      border-bottom: 1px solid rgba(0,0,0,0.1); 
+      padding-bottom: 8px; 
+    }
+    
+    .focus-panel-header h4 { 
+      margin: 0; 
+      font-size: 1rem; 
+      font-weight: 700; 
+      color: #333; 
+    }
+    
+    .focus-panel-header .total-value { 
+      font-size: 1.1rem; 
+      font-weight: 800; 
+    }
+    
+    .focus-list { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+    }
+    
+    .focus-list-item { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 5px; 
+      transition: transform 0.2s ease;
+    }
+    
+    .focus-list-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .focus-item-info { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      font-size: 0.9rem; 
+    }
+    
+    .focus-item-label { 
+      font-weight: 600; 
+    }
+    
+    .focus-item-amount { 
+      font-weight: 700; 
+    }
+    
+    .focus-progress-bar-bg { 
+      width: 100%; 
+      height: 8px; 
+      background: rgba(0,0,0,0.1); 
+      border-radius: 4px; 
+      overflow: hidden;
+    }
+    
+    .focus-progress-bar-fg { 
+      height: 100%; 
+      border-radius: 4px; 
+      transition: width 1s ease;
+      position: relative;
+    }
+
+    .focus-progress-bar-fg::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .focus-list-item:hover .focus-progress-bar-fg::after {
+      left: 100%;
+    }
+
+    /* Animations */
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
@@ -741,18 +633,18 @@
         transform: translate3d(0,0,0);
       }
       40%, 43% {
-        transform: translate3d(0,-30px,0);
-      }
-      70% {
         transform: translate3d(0,-15px,0);
       }
+      70% {
+        transform: translate3d(0,-7px,0);
+      }
       90% {
-        transform: translate3d(0,-4px,0);
+        transform: translate3d(0,-2px,0);
       }
     }
 
     .animate-fade-up {
-      animation: fadeInUp 0.6s ease forwards;
+      animation: fadeInUp 0.8s ease forwards;
     }
 
     .animate-pulse {
@@ -763,426 +655,733 @@
       animation: bounce 2s infinite;
     }
 
-    .animate-delay-1 { animation-delay: 0.1s; }
-    .animate-delay-2 { animation-delay: 0.2s; }
-    .animate-delay-3 { animation-delay: 0.3s; }
-    .animate-delay-4 { animation-delay: 0.4s; }
+    .animate-delay-1 { animation-delay: 0.2s; }
+    .animate-delay-2 { animation-delay: 0.4s; }
+    .animate-delay-3 { animation-delay: 0.6s; }
+    .animate-delay-4 { animation-delay: 0.8s; }
+
+    /* END SUPER INTERACTIVE FEATURES - 25/09/2025 */
+
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: #777;
+      grid-column: 1 / -1;
+    }
+    
+    /* ====== MODAL ====== */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
+    .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-overlay.is-visible .modal-content { transform: scale(1); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-title { margin: 0; font-size: 1.3rem; }
+    .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #888; line-height: 1; padding: 0; }
+    .modal-body { list-style: none; padding: 0; margin: 0; }
+    .deadline-item { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+    .deadline-item:last-child { border-bottom: none; }
+    .item-details{display:flex;flex-direction:column;min-width:0}
+    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0; font-weight: 700;}
+    .item-amount.expense{color:var(--danger-color);}
+    .item-amount.income{color:var(--success-color);}
+    .days-left { font-weight: 700; color: var(--warning-color); }
+    .btn-action-deadline { padding: 8px 12px; font-size: 0.9rem; color: #fff; border:none; border-radius: 10px;}
+    .btn-action-deadline.pay { background: var(--warning-color); }
+    .btn-action-deadline.receive { background: var(--success-color); }
+    /* Dettagli nel modal delle card */
+    .modal-body ul { list-style: none; padding: 0; margin: 0; }
+    .modal-body li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+    .modal-body li:last-child { border-bottom: none; }
+    .transaction-info .category-name { font-weight: 600; }
+    .transaction-info .transaction-date { font-size: 0.85rem; color: #666; }
+    .transaction-amount { font-weight: 700; }
   </style>
 </head>
-
 <body>
-  <!-- ====== TOPBAR ====== -->
-  <header class="topbar">
-    <a href="/" class="logo-link">
-      <img src="/homes.png" alt="MyHomesBudget" width="28" height="28" style="filter: brightness(0) invert(1);">
-      <span class="logo-text">MyHomesBudget</span>
-    </a>
-    
+  <!-- Topbar -->
+  <nav class="topbar">
+    <a href="/it/" class="logo-link"><img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px"><span class="logo-text">MyHomesBudget</span></a>
     <div class="top-center">
-      <h1 style="margin:0; font-size:1.1rem; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.35);">Riepilogo Tecnico</h1>
+        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
+    </div>
+    <div class="top-nav-right">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="top-actions">
+        <div class="date-selectors">
+            <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
+            <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
+        </div>
+        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
+        <button id="scheduler-btn" class="top-btn">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell">
+            <span>🔔</span>
+            <span id="notification-badge" class="notification-badge"></span>
+        </button>
+        <a href="#" id="logout-btn" class="top-link">Esci</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <nav id="dash-nav" class="dash-nav">
+      <a href="/it/dashboard.html">Operazioni</a>
+      <a href="#" id="monthly-summary-btn" class="is-active">Riepilogo Mensile</a>
+      <a href="#" id="annual-summary-btn">Riepilogo Annuale</a>
+    </nav>
+
+    <div id="summary-content" class="summary-grid">
+      <!-- Le card verranno popolate dinamicamente qui -->
     </div>
     
-    <nav class="top-actions">
-      <a href="/dashboard.html" class="top-link">🏠 Dashboard</a>
-      <a href="/profile.html" class="top-link">👤 Profilo</a>
-    </nav>
-  </header>
-
-  <!-- ====== MAIN CONTENT ====== -->
-  <main class="container">
-    <!-- Hero Section -->
-    <section class="hero-section animate-fade-up">
-      <h1 class="hero-title">Riepilogo Tecnico</h1>
-      <p class="hero-subtitle">Analisi completa delle tue interazioni finanziarie</p>
-      <div style="font-size: 0.95rem; color: #666;">
-        Aggiornato al <span id="current-date"></span>
-      </div>
-    </section>
-
-    <!-- Interactive Stats Overview -->
-    <section class="stats-grid">
-      <div class="stat-card income interactive-box ripple glow-on-hover animate-fade-up animate-delay-1" onclick="showDetailModal('income')">
-        <div class="donut-chart">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="incomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#2e7d32"/>
-                <stop offset="100%" style="stop-color:#81c784"/>
-              </linearGradient>
-            </defs>
-            <circle class="bg-circle" cx="100" cy="100" r="90"/>
-            <circle class="progress-circle income" cx="100" cy="100" r="90" style="--progress: 450"/>
-          </svg>
-          <div class="donut-center">
-            <div class="donut-value animated-counter" data-target="12450">€0</div>
-            <div class="donut-label">Entrate</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="stat-card expense interactive-box ripple glow-on-hover animate-fade-up animate-delay-2" onclick="showDetailModal('expense')">
-        <div class="donut-chart">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="expenseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#d32f2f"/>
-                <stop offset="100%" style="stop-color:#ff7675"/>
-              </linearGradient>
-            </defs>
-            <circle class="bg-circle" cx="100" cy="100" r="90"/>
-            <circle class="progress-circle expense" cx="100" cy="100" r="90" style="--progress: 295"/>
-          </svg>
-          <div class="donut-center">
-            <div class="donut-value animated-counter" data-target="8220">€0</div>
-            <div class="donut-label">Spese</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="stat-card savings interactive-box ripple glow-on-hover animate-fade-up animate-delay-3" onclick="showDetailModal('savings')">
-        <div class="donut-chart">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="savingsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#3498db"/>
-                <stop offset="100%" style="stop-color:#74b9ff"/>
-              </linearGradient>
-            </defs>
-            <circle class="bg-circle" cx="100" cy="100" r="90"/>
-            <circle class="progress-circle savings" cx="100" cy="100" r="90" style="--progress: 152"/>
-          </svg>
-          <div class="donut-center">
-            <div class="donut-value animated-counter" data-target="4230">€0</div>
-            <div class="donut-label">Risparmi</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="stat-card goals interactive-box ripple glow-on-hover animate-fade-up animate-delay-4" onclick="showDetailModal('goals')">
-        <div class="donut-chart">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="goalsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#f39c12"/>
-                <stop offset="100%" style="stop-color:#ffa726"/>
-              </linearGradient>
-            </defs>
-            <circle class="bg-circle" cx="100" cy="100" r="90"/>
-            <circle class="progress-circle goals" cx="100" cy="100" r="90" style="--progress: 113"/>
-          </svg>
-          <div class="donut-center">
-            <div class="donut-value animated-counter" data-target="3">0</div>
-            <div class="donut-label">Obiettivi</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3D Interactive Cards -->
-    <section class="stats-grid" style="margin-top: 40px;">
-      <div class="card-3d">
-        <div class="card-3d-inner">
-          <div class="card-3d-front">
-            <div class="morphing-shape"></div>
-            <h3>Bilancio Mensile</h3>
-            <p>Hover per dettagli</p>
-          </div>
-          <div class="card-3d-back">
-            <h3>Dettagli Bilancio</h3>
-            <p>Entrate: €12,450</p>
-            <p>Spese: €8,220</p>
-            <p>Saldo: +€4,230</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="card-3d">
-        <div class="card-3d-inner">
-          <div class="card-3d-front">
-            <div class="morphing-shape"></div>
-            <h3>Performance</h3>
-            <p>Hover per analisi</p>
-          </div>
-          <div class="card-3d-back">
-            <h3>Analisi Performance</h3>
-            <p>Risparmio: +34%</p>
-            <p>Crescita: +12%</p>
-            <p>Efficienza: 89%</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="card-3d">
-        <div class="card-3d-inner">
-          <div class="card-3d-front">
-            <div class="morphing-shape"></div>
-            <h3>Previsioni</h3>
-            <p>Hover per proiezioni</p>
-          </div>
-          <div class="card-3d-back">
-            <h3>Proiezioni Futuro</h3>
-            <p>Prossimo mese: €13,200</p>
-            <p>Obiettivi: 6 mesi</p>
-            <p>ROI previsto: +18%</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="card-3d">
-        <div class="card-3d-inner">
-          <div class="card-3d-front">
-            <div class="morphing-shape"></div>
-            <h3>Insights</h3>
-            <p>Hover per suggerimenti</p>
-          </div>
-          <div class="card-3d-back">
-            <h3>AI Insights</h3>
-            <p>Riduci trasporti -15%</p>
-            <p>Aumenta risparmio +5%</p>
-            <p>Nuovo obiettivo: Casa</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Detailed Analysis -->
-    <div class="tech-panel">
-      
-      <!-- Monthly Trends Card -->
-      <details class="tech-card" open>
-        <summary class="tech-card__header">
-          <span class="tech-card__title">📈 Andamento Mensile</span>
-        </summary>
-        <div class="tech-card__content">
-          <div class="chart-container">
-            <h3 class="chart-title">Performance Ultimo Trimestre</h3>
-            <div class="progress-visualization">
-              <div class="progress-item">
-                <span class="progress-label">Gennaio</span>
-                <div class="progress-bar">
-                  <div class="progress-fill income" style="width: 85%"></div>
-                </div>
-                <span class="progress-value">€3,200</span>
-              </div>
-              <div class="progress-item">
-                <span class="progress-label">Febbraio</span>
-                <div class="progress-bar">
-                  <div class="progress-fill income" style="width: 92%"></div>
-                </div>
-                <span class="progress-value">€3,650</span>
-              </div>
-              <div class="progress-item">
-                <span class="progress-label">Marzo</span>
-                <div class="progress-bar">
-                  <div class="progress-fill income" style="width: 78%"></div>
-                </div>
-                <span class="progress-value">€2,890</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <!-- Interactive Category Breakdown Card -->
-      <details class="tech-card particles-container" open>
-        <summary class="tech-card__header">
-          <span class="tech-card__title">🏷️ Categorie di Spesa Interattive</span>
-        </summary>
-        <div class="tech-card__content">
-          <div class="category-grid">
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="2450">
-              <span class="category-icon animate-bounce">🏠</span>
-              <h4 class="category-name">Casa</h4>
-              <div class="category-amount animated-counter" data-target="2450">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="1230">
-              <span class="category-icon animate-bounce">🚗</span>
-              <h4 class="category-name">Trasporti</h4>
-              <div class="category-amount animated-counter" data-target="1230">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="890">
-              <span class="category-icon animate-bounce">🍽️</span>
-              <h4 class="category-name">Alimentari</h4>
-              <div class="category-amount animated-counter" data-target="890">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="340">
-              <span class="category-icon animate-bounce">💊</span>
-              <h4 class="category-name">Salute</h4>
-              <div class="category-amount animated-counter" data-target="340">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="520">
-              <span class="category-icon animate-bounce">🎯</span>
-              <h4 class="category-name">Svago</h4>
-              <div class="category-amount animated-counter" data-target="520">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-            <div class="category-item interactive-box animate-pulse" onclick="animateCategory(this)" data-amount="180">
-              <span class="category-icon animate-bounce">📚</span>
-              <h4 class="category-name">Formazione</h4>
-              <div class="category-amount animated-counter" data-target="180">€0</div>
-              <div class="progress-bar" style="margin-top: 8px;">
-                <div class="progress-fill expense" style="width: 0%; transition: width 2s ease;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <!-- Goals Progress Card -->
-      <details class="tech-card" open>
-        <summary class="tech-card__header">
-          <span class="tech-card__title">🎯 Progressi Obiettivi</span>
-        </summary>
-        <div class="tech-card__content">
-          <div class="chart-container">
-            <h3 class="chart-title">Stato Obiettivi di Risparmio</h3>
-            <div class="progress-visualization">
-              <div class="progress-item">
-                <span class="progress-label">Vacanze Estate</span>
-                <div class="progress-bar">
-                  <div class="progress-fill goals" style="width: 65%"></div>
-                </div>
-                <span class="progress-value">€1,950/€3,000</span>
-              </div>
-              <div class="progress-item">
-                <span class="progress-label">Fondo Emergenza</span>
-                <div class="progress-bar">
-                  <div class="progress-fill goals" style="width: 40%"></div>
-                </div>
-                <span class="progress-value">€2,000/€5,000</span>
-              </div>
-              <div class="progress-item">
-                <span class="progress-label">Nuovo Laptop</span>
-                <div class="progress-bar">
-                  <div class="progress-fill goals" style="width: 80%"></div>
-                </div>
-                <span class="progress-value">€800/€1,000</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <!-- Activity Timeline Card -->
-      <details class="tech-card">
-        <summary class="tech-card__header">
-          <span class="tech-card__title">⏰ Attività Recenti</span>
-        </summary>
-        <div class="tech-card__content">
-          <div class="chart-container">
-            <h3 class="chart-title">Cronologia Operazioni</h3>
-            <div class="timeline">
-              <div class="timeline-item">
-                <div class="timeline-date">25 Settembre 2025</div>
-                <div class="timeline-content">Pagamento bolletta elettrica</div>
-                <div class="timeline-amount expense">-€120,50</div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-date">24 Settembre 2025</div>
-                <div class="timeline-content">Stipendio mensile</div>
-                <div class="timeline-amount income">+€2,800,00</div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-date">23 Settembre 2025</div>
-                <div class="timeline-content">Spesa supermercato</div>
-                <div class="timeline-amount expense">-€85,30</div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-date">22 Settembre 2025</div>
-                <div class="timeline-content">Contributo obiettivo vacanze</div>
-                <div class="timeline-amount expense">-€150,00</div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-date">21 Settembre 2025</div>
-                <div class="timeline-content">Freelance progetto web</div>
-                <div class="timeline-amount income">+€450,00</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <!-- Insights Card -->
-      <details class="tech-card">
-        <summary class="tech-card__header">
-          <span class="tech-card__title">💡 Insights & Raccomandazioni</span>
-        </summary>
-        <div class="tech-card__content">
-          <div class="chart-container">
-            <h3 class="chart-title">Analisi Automatica</h3>
-            <div style="display: flex; flex-direction: column; gap: 16px;">
-              <div style="padding: 16px; background: rgba(46,125,50,0.1); border-left: 4px solid var(--success-color); border-radius: 8px;">
-                <h4 style="margin: 0 0 8px; color: var(--success-color);">✅ Risparmio Ottimo</h4>
-                <p style="margin: 0; font-size: 0.95rem;">Hai risparmiato il 34% delle tue entrate questo mese. Ottimo lavoro!</p>
-              </div>
-              <div style="padding: 16px; background: rgba(243,156,18,0.1); border-left: 4px solid var(--warning-color); border-radius: 8px;">
-                <h4 style="margin: 0 0 8px; color: var(--warning-color);">⚠️ Spese Trasporti</h4>
-                <p style="margin: 0; font-size: 0.95rem;">Le spese per trasporti sono aumentate del 15% rispetto al mese scorso.</p>
-              </div>
-              <div style="padding: 16px; background: rgba(52,152,219,0.1); border-left: 4px solid var(--info-color); border-radius: 8px;">
-                <h4 style="margin: 0 0 8px; color: var(--info-color);">📊 Obiettivi in Linea</h4>
-                <p style="margin: 0; font-size: 0.95rem;">Tutti i tuoi obiettivi sono in linea con la pianificazione temporale.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </details>
-
+    <div id="deep-dive-content" class="deep-dive-grid" style="display: none;">
+        <!-- Quadranti di approfondimento -->
     </div>
-  </main>
 
-  <script>
-    /* TECNICO PAGE INTERACTIVE FEATURES - 25/09/2025 */
-    (function() {
-      // Set current date
-      document.getElementById('current-date').textContent = new Date().toLocaleDateString('it-IT', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+  </main>
+  
+  <!-- Modal per i dettagli, scadenziario e notifiche -->
+  <div id="details-modal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h3 id="modal-title" class="modal-title"></h3>
+              <button class="modal-close">&times;</button>
+          </div>
+          <div id="modal-body" class="modal-body"></div>
+      </div>
+  </div>
+  
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
+    const summaryContent = document.getElementById('summary-content');
+    const deepDiveContent = document.getElementById('deep-dive-content');
+    const schedulerBtn = document.getElementById('scheduler-btn');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationBadge = document.getElementById('notification-badge');
+    const detailsModal = document.getElementById('details-modal');
+    const logoutBtn = document.getElementById('logout-btn');
+    const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+    const monthlySummaryBtn = document.getElementById('monthly-summary-btn');
+    const annualSummaryBtn = document.getElementById('annual-summary-btn');
+
+    let user = null;
+    let chartInstances = {};
+    let currentView = 'monthly';
+
+    function safeToNumber(v){ const n=(typeof v==='number')?v:parseFloat(v);return Number.isFinite(n)?n:0}
+
+    async function loadSummaryData() {
+        monthSelector.disabled = true;
+        yearSelector.disabled = true;
+        summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Caricamento dati...</p></div>';
+        deepDiveContent.style.display = 'none';
+
+        const selectedMonth = monthSelector.value;
+        const selectedYear = yearSelector.value;
+        let startDate, endDate;
+
+        if (currentView === 'annual') {
+            startDate = new Date(selectedYear, 0, 1);
+            endDate = new Date(selectedYear, 11, 31, 23, 59, 59);
+            monthSelector.disabled = true;
+        } else {
+            startDate = new Date(selectedYear, selectedMonth, 1);
+            endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0, 23, 59, 59);
+            monthSelector.disabled = false;
+        }
+        
+        // [PATCH 1] — aggiunta 6ª promessa: lettura view app.v_goal_progress
+        const [transactionsRes, latestBudgetRes, goalRes, firstTransactionRes, allPastTransactionsRes, goalProgressRes] = await Promise.all([
+            supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', user.id).gte('occurred_at', startDate.toISOString()).lte('occurred_at', endDate.toISOString()).eq('is_paid', true),
+            supabase.from('budgets').select('amount').eq('user_id', user.id).eq('macro_category', 'Risparmi').order('month', { ascending: false }).limit(1).maybeSingle(),
+            supabase.from('goals').select('name, target_amount').eq('user_id', user.id).maybeSingle(),
+            supabase.from('transactions').select('occurred_at').eq('created_by', user.id).order('occurred_at', { ascending: true }).limit(1).maybeSingle(),
+            supabase.from('transactions').select('kind, amount, occurred_at').eq('created_by', user.id).lte('occurred_at', new Date().toISOString()),
+            // NUOVO: stato reale dell’obiettivo nello schema `app`
+            supabase
+              .schema('app')
+              .from('v_goal_progress')
+              .select('title,target_amount,contributed_amount,progress_pct,remaining_amount')
+              .eq('user_id', user.id)
+              .limit(1)
+              .maybeSingle()
+        ]);
+        
+        yearSelector.disabled = false;
+        if(currentView === 'monthly') monthSelector.disabled = false;
+        
+        // [PATCH 1] — includo l’eventuale errore della nuova query
+        const errors = [transactionsRes.error, latestBudgetRes.error, goalRes.error, firstTransactionRes.error, allPastTransactionsRes.error, goalProgressRes.error].filter(Boolean);
+        if (errors.length > 0) {
+            errors.forEach(error => console.error("Errore caricamento dati:", error));
+            summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore nel caricamento dei dati.</p></div>';
+            return;
+        }
+
+        const transactions = transactionsRes.data || [];
+        const monthlySavingGoal = latestBudgetRes.data ? safeToNumber(latestBudgetRes.data.amount) : 0;
+        const goalName = goalRes.data ? goalRes.data.name : 'Nessun obiettivo';
+        const goalTargetAmount = goalRes.data ? safeToNumber(goalRes.data.target_amount) : 0;
+        
+        let cumulativeIdealSaving = 0;
+        if (firstTransactionRes.data) {
+            const firstTransactionDate = new Date(firstTransactionRes.data.occurred_at);
+            const refDate = currentView === 'annual' ? endDate : startDate;
+            const monthsElapsed = (refDate.getFullYear() - firstTransactionDate.getFullYear()) * 12 + (refDate.getMonth() - firstTransactionDate.getMonth());
+            cumulativeIdealSaving = monthlySavingGoal * (monthsElapsed + 1);
+        }
+
+        const allTimeTransactions = allPastTransactionsRes.data || [];
+
+        // [PATCH 2] — se disponibile, uso i valori REALI della view (maturato e target)
+        const goalProgress = goalProgressRes?.data || null;
+        const adjustedGoalTargetAmount = (goalProgress && goalProgress.target_amount != null)
+          ? safeToNumber(goalProgress.target_amount)
+          : goalTargetAmount;
+        const adjustedCumulativeSaving = (goalProgress && goalProgress.contributed_amount != null)
+          ? safeToNumber(goalProgress.contributed_amount)
+          : cumulativeIdealSaving;
+
+        // Passo i valori “adjusted” al rendering
+        renderStrategicSummary(transactions, monthlySavingGoal, goalName, adjustedGoalTargetAmount, adjustedCumulativeSaving, allTimeTransactions);
+        renderDeepDiveCharts(transactions, monthlySavingGoal, adjustedGoalTargetAmount, adjustedCumulativeSaving);
+        updateNotifications();
+    }
+    
+    function showDetailsModal(title, transactions, type) {
+        const modalTitle = detailsModal.querySelector('.modal-title');
+        const modalBody = detailsModal.querySelector('.modal-body');
+
+        modalTitle.textContent = title;
+        
+        if (transactions.length === 0) {
+            modalBody.innerHTML = '<div class="empty-state"><p>Nessuna operazione da mostrare per questo periodo.</p></div>';
+        } else {
+            const sortedTransactions = transactions.sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
+            const listItems = sortedTransactions.map(tx => {
+                const amount = safeToNumber(tx.amount);
+                const categoryName = tx.categories?.name || 'Senza Categoria';
+                const date = new Date(tx.occurred_at).toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
+                return `
+                    <li>
+                        <div class="transaction-info">
+                            <div class="category-name">${tx.note || categoryName}</div>
+                            <div class="transaction-date">${date}</div>
+                        </div>
+                        <div class="transaction-amount ${type}">${type === 'income' ? '+' : '-'}${amount.toFixed(2)}€</div>
+                    </li>
+                `;
+            }).join('');
+            modalBody.innerHTML = `<ul>${listItems}</ul>`;
+        }
+        detailsModal.classList.add('is-visible');
+    }
+
+    function renderStrategicSummary(transactions, monthlySavingGoal, goalName, goalTargetAmount, cumulativeIdealSaving, allTimeTransactions) {
+        const incomes = transactions.filter(tx => tx.kind === 'income');
+        const expenses = transactions.filter(tx => tx.kind === 'expense');
+
+        const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        
+        const incomeByCategory = incomes.reduce((acc, tx) => {
+            const catName = tx.categories?.name || 'Senza Categoria';
+            acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
+            return acc;
+        }, {});
+        
+        const expenseByCategory = expenses.reduce((acc, tx) => {
+            const catName = tx.categories?.name || 'Senza Categoria';
+            acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
+            return acc;
+        }, {});
+
+        summaryContent.innerHTML = `
+            <div class="summary-card income-card interactive-box ripple glow-on-hover particles-container animate-fade-up animate-delay-1">
+                <div class="summary-card-header">
+                    <h3 data-type="income" class="animate-pulse">💰 ENTRATE</h3>
+                    <p>(∑ Entrate)</p>
+                    <div class="morphing-shape"></div>
+                </div>
+                <div class="summary-card-chart">
+                    <div class="custom-donut-chart">
+                        <svg viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="incomeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#2e7d32"/>
+                                    <stop offset="100%" style="stop-color:#81c784"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="bg-circle" cx="100" cy="100" r="90"/>
+                            <circle class="progress-circle income" cx="100" cy="100" r="90" style="--progress: ${Math.min(565, (totalIncome / 10000) * 565)}"/>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-value animated-counter" data-target="${totalIncome.toFixed(0)}">€0</div>
+                            <div class="donut-label">ENTRATE</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">TOTALE ENTRATE</span>
+                            <span class="breakdown-value income animated-counter" data-target="${totalIncome.toFixed(2)}">${totalIncome.toFixed(2)}€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="summary-card expense-card interactive-box ripple glow-on-hover particles-container animate-fade-up animate-delay-2">
+                <div class="summary-card-header">
+                    <h3 data-type="expense" class="animate-pulse">💸 USCITE</h3>
+                    <p>(∑ Spese)</p>
+                    <div class="morphing-shape"></div>
+                </div>
+                <div class="summary-card-chart">
+                    <div class="custom-donut-chart">
+                        <svg viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="expenseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#d32f2f"/>
+                                    <stop offset="100%" style="stop-color:#ff7675"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="bg-circle" cx="100" cy="100" r="90"/>
+                            <circle class="progress-circle expense" cx="100" cy="100" r="90" style="--progress: ${Math.min(565, (totalExpense / 10000) * 565)}"/>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-value animated-counter" data-target="${totalExpense.toFixed(0)}">€0</div>
+                            <div class="donut-label">SPESE</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">TOTALE USCITE</span>
+                            <span class="breakdown-value expense animated-counter" data-target="${totalExpense.toFixed(2)}">${totalExpense.toFixed(2)}€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="summary-card budget-card interactive-box ripple glow-on-hover particles-container animate-fade-up animate-delay-3">
+                <div class="summary-card-header">
+                    <h3 class="animate-pulse">📊 BUDGET</h3>
+                    <p>(∑ Entrate) - (∑ Spese + Quota Risparmio)</p>
+                    <div class="morphing-shape"></div>
+                </div>
+                <div class="summary-card-chart">
+                    <div class="custom-donut-chart">
+                        <svg viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="budgetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#6c5ce7"/>
+                                    <stop offset="100%" style="stop-color:#00cec9"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="bg-circle" cx="100" cy="100" r="90"/>
+                            <circle class="progress-circle budget" cx="100" cy="100" r="90" style="--progress: ${Math.min(565, (availableAmount / totalIncome) * 565)}"/>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-value animated-counter" data-target="${availableAmount.toFixed(0)}">€0</div>
+                            <div class="donut-label">DISPONIBILE</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-card-footer">
+                    <div class="footer-breakdown">
+                        <div class="breakdown-item"><span class="breakdown-label">ENTRATE</span><span class="breakdown-value income animated-counter" data-target="${totalIncome.toFixed(2)}">${totalIncome.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">SPESE</span><span class="breakdown-value expense animated-counter" data-target="${totalExpense.toFixed(2)}">${totalExpense.toFixed(2)}€</span></div>
+                        <div class="breakdown-item"><span class="breakdown-label">RISPARMIO OBIETTIVO</span><span class="breakdown-value net animated-counter" data-target="${(currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal).toFixed(2)}">${(currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal).toFixed(2)}€</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-3d animate-fade-up animate-delay-4">
+                <div class="card-3d-inner">
+                    <div class="card-3d-front">
+                        <div class="summary-card-header">
+                            <h3 class="animate-bounce">🎯 IL TUO OBIETTIVO</h3>
+                            <p class="goal-name-display">${goalName}</p>
+                            <p class="goal-amount-display animated-counter" data-target="${goalTargetAmount.toFixed(0)}">€${goalTargetAmount.toFixed(2)}</p>
+                            <div class="morphing-shape"></div>
+                        </div>
+                        <div class="goal-card-content">
+                            <div class="battery">
+                                <div class="battery-percentage animated-counter" data-target="${Math.min(100, (cumulativeIdealSaving / goalTargetAmount) * 100).toFixed(0)}">0%</div>
+                                <div class="battery-segments">
+                                    <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                                    <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                                    <div class="segment"></div><div class="segment"></div><div class="segment"></div>
+                                    <div class="segment"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-3d-back">
+                        <h3>💡 INSIGHTS OBIETTIVO</h3>
+                        <div style="display: flex; flex-direction: column; gap: 16px; text-align: left;">
+                            <div><strong>📈 Progresso:</strong> ${((cumulativeIdealSaving / goalTargetAmount) * 100).toFixed(1)}%</div>
+                            <div><strong>💰 Maturato:</strong> €${cumulativeIdealSaving.toFixed(2)}</div>
+                            <div><strong>🎯 Rimanente:</strong> €${(goalTargetAmount - cumulativeIdealSaving).toFixed(2)}</div>
+                            <div><strong>⏱️ Stima:</strong> ${Math.ceil((goalTargetAmount - cumulativeIdealSaving) / (monthlySavingGoal || 1))} mesi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add event listeners to new headers
+        summaryContent.querySelector('[data-type="income"]')?.addEventListener('click', () => showDetailsModal('Dettaglio Entrate', incomes, 'income'));
+        summaryContent.querySelector('[data-type="expense"]')?.addEventListener('click', () => showDetailsModal('Dettaglio Uscite', expenses, 'expense'));
+        
+        // Initialize interactive features for new content
+        setTimeout(() => {
+          initInteractiveFeatures();
+          renderGoal(cumulativeIdealSaving, goalTargetAmount);
+        }, 100);
+    }
+
+    function renderDeepDiveCharts(transactions, monthlySavingGoal, goalTargetAmount, cumulativeIdealSaving) {
+        deepDiveContent.style.display = 'grid';
+
+        const incomes = transactions.filter(tx => tx.kind === 'income');
+        const expenses = transactions.filter(tx => tx.kind === 'expense');
+        const totalIncome = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+        const totalExpense = expenses.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+
+        const incomeByCategory = incomes.reduce((acc, tx) => {
+            const catName = tx.categories?.name || 'Senza Categoria';
+            acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
+            return acc;
+        }, {});
+
+        const expenseByCategory = expenses.reduce((acc, tx) => {
+            const catName = tx.categories?.name || 'Senza Categoria';
+            acc[catName] = (acc[catName] || 0) + safeToNumber(tx.amount);
+            return acc;
+        }, {});
+        
+        const budgetBreakdown = {
+            'Entrate': totalIncome,
+            'Spese': -totalExpense,
+            'Risparmio': -(currentView === 'annual' ? monthlySavingGoal * 12 : monthlySavingGoal),
+        };
+
+        deepDiveContent.innerHTML = `
+            <div class="summary-card focus-panel interactive-box particles-container animate-fade-up animate-delay-1">${renderBreakdownList('📈 CLASSIFICA ENTRATE', incomeByCategory, totalIncome, 'income')}</div>
+            <div class="summary-card focus-panel interactive-box particles-container animate-fade-up animate-delay-2">${renderBreakdownList('📉 CLASSIFICA USCITE', expenseByCategory, totalExpense, 'expense')}</div>
+            <div class="summary-card focus-panel interactive-box particles-container animate-fade-up animate-delay-3">${renderBreakdownList('💹 DETTAGLIO BUDGET', budgetBreakdown, totalIncome, 'net')}</div>
+            <div class="summary-card focus-panel interactive-box particles-container animate-fade-up animate-delay-4" id="deep-dive-goal"></div>
+        `;
+        
+        const goalPanel = document.getElementById('deep-dive-goal');
+        const goalBreakdown = { 'Risparmio Maturato': cumulativeIdealSaving, 'Obiettivo Totale': goalTargetAmount };
+        goalPanel.innerHTML = renderBreakdownList('🎯 PROGRESSO OBIETTIVO', goalBreakdown, goalTargetAmount, 'net');
+        
+        // Re-initialize interactive features for new content
+        setTimeout(initInteractiveFeatures, 200);
+    }
+    
+    function renderBreakdownList(title, data, total, type) {
+        const sortedData = Object.entries(data).sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
+        const colorClass = type === 'income' ? 'income' : (type === 'expense' ? 'expense' : 'net');
+        const gradient = type === 'income' ? 'linear-gradient(90deg, #2e7d32, #81c784)' : 
+                         type === 'expense' ? 'linear-gradient(90deg, #d32f2f, #ff7675)' : 
+                         'linear-gradient(90deg, #6c5ce7, #00cec9)';
+
+        const listItems = sortedData.map(([label, value]) => {
+            const referenceTotal = title === 'DETTAGLIO BUDGET' ? data['Entrate'] || total : total;
+            const percentage = referenceTotal > 0 ? (Math.abs(value) / referenceTotal) * 100 : 0;
+            return `
+                <div class="focus-list-item">
+                    <div class="focus-item-info">
+                        <span class="focus-item-label">${label}</span>
+                        <span class="focus-item-amount ${colorClass} animated-counter" data-target="${Math.abs(value).toFixed(2)}">${value.toFixed(2)}€</span>
+                    </div>
+                    <div class="focus-progress-bar-bg">
+                        <div class="focus-progress-bar-fg animate-progress-bar" style="width: 0%; background: ${gradient};" data-width="${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="focus-panel-header">
+                <h4>${title}</h4>
+                <span class="total-value ${colorClass} animated-counter" data-target="${Math.abs(total).toFixed(2)}">${total.toFixed(2)}€</span>
+            </div>
+            <div class="focus-list">${listItems}</div>
+        `;
+    }
+
+    const centerTextPlugin = { id: 'centerText', beforeDraw: function(chart) { if (chart.options.plugins.centerText) { const ctx = chart.ctx; const centerConfig = chart.options.plugins.centerText; const amountText = centerConfig.amount; const percentageText = centerConfig.percentage; const hasPercentage = percentageText && percentageText.length > 0; ctx.save(); const chartArea = chart.chartArea; const centerX = (chartArea.left + chartArea.right) / 2; const centerY = (chartArea.top + chartArea.bottom) / 2; ctx.font = 'bold 1.8rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillStyle = '#333'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(amountText, centerX, hasPercentage ? centerY - 12 : centerY); if(hasPercentage) { ctx.font = '600 1rem ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillStyle = '#555'; ctx.fillText(percentageText, centerX, centerY + 18); } ctx.restore(); } } };
+    Chart.register(centerTextPlugin, ChartDataLabels);
+    function renderDoughnutChart(canvasId, data, colors, centerText = null, showDataLabels = false) { const ctx = document.getElementById(canvasId)?.getContext('2d'); if (!ctx) return; if (chartInstances[canvasId]) chartInstances[canvasId].destroy(); const filteredData = Object.entries(data).filter(([key, value]) => value > 0); const labels = filteredData.map(item => item[0]); const values = filteredData.map(item => item[1]); if (values.length === 0) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#999'; ctx.font = '16px ' + getComputedStyle(document.documentElement).getPropertyValue('--font-sans'); ctx.fillText('Nessun dato', ctx.canvas.width / 2, ctx.canvas.height / 2); ctx.restore(); return; } if (canvasId === 'budgetChart') { const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height); gradient.addColorStop(0, '#00cec9'); gradient.addColorStop(1, '#6c5ce7'); colors = ['#d32f2f', '#f39c12', gradient]; } const chartOptions = { type: 'doughnut', data: { labels: labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] }, options: { responsive: true, cutout: '70%', plugins: { legend: { display: false }, datalabels: { display: showDataLabels, formatter: (value, ctx) => { const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return (value / sum * 100).toFixed(1) + '%'; }, color: '#fff', font: { weight: 'bold', size: 14 }, textShadow: '0px 1px 3px rgba(0, 0, 0, 0.5)' } } } }; if(centerText) chartOptions.options.plugins.centerText = centerText; chartInstances[canvasId] = new Chart(ctx, chartOptions); }
+    function renderGoal(savedAmount, goalAmount) { const segments = document.querySelectorAll('.battery-segments .segment'); const percentageEl = document.querySelector('.battery-percentage'); if (!segments.length || !percentageEl) return; if (goalAmount <= 0) { segments.forEach(seg => seg.classList.remove('is-active')); percentageEl.textContent = '0%'; return; } const percentage = Math.max(0, Math.min(100, (savedAmount / goalAmount) * 100)); const activeSegmentsCount = Math.floor(percentage / 10); percentageEl.textContent = `${percentage.toFixed(1)}%`; segments.forEach((seg, index) => { seg.classList.toggle('is-active', index < activeSegmentsCount); }); }
+
+    async function getScheduledTransactions(startDate, endDate) {
+        const { data, error } = await supabase.from('transactions')
+            .select(`*, categories(name, icon)`)
+            .eq('created_by', user.id)
+            .eq('is_paid', false)
+            .gte('due_date', startDate.toISOString().split('T')[0])
+            .lte('due_date', endDate.toISOString().split('T')[0])
+            .order('due_date', { ascending: true });
+        
+        if (error) { console.error("Errore caricamento scadenze:", error); return []; }
+        return data;
+    }
+
+    function renderDeadlinesList(container, transactions) {
+        if (transactions.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
+            return;
+        }
+        container.innerHTML = '';
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        transactions.forEach(tx => {
+            const isIncome = tx.kind === 'income';
+            const dueDate = new Date(tx.due_date);
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+            const amountClass = isIncome ? 'income' : 'expense';
+            const amountSign = isIncome ? '+' : '-';
+            const buttonClass = isIncome ? 'receive' : 'pay';
+            const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="deadline-item">
+                    <div class="item-details">
+                        <span class="note">${tx.note}</span>
+                        <span class="category">${tx.categories?.name || ''}</span>
+                    </div>
+                    <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                    <span class="days-left">${daysLeftText}</span>
+                    <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                </div>
+            `);
+        });
+    }
+
+    async function updateNotifications() {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcomingDeadlines = await getScheduledTransactions(today, futureDate);
+        
+        if(upcomingDeadlines.length > 0) {
+            notificationBadge.textContent = upcomingDeadlines.length;
+            notificationBadge.classList.add('is-visible');
+        } else {
+            notificationBadge.classList.remove('is-visible');
+        }
+    }
+    
+    async function handleConfirmDeadline(id) {
+        if(!confirm("Confermare questa operazione? Verrà registrata con la data di oggi.")) return;
+        
+        const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id);
+        
+        if (error) {
+            alert("Errore nell'aggiornamento dell'operazione.");
+            console.error(error);
+        } else {
+            loadSummaryData();
+        }
+    }
+
+    function renderSubscriptionStatus(profile) {
+        if (!profile || !profile.plan_type) {
+            subscriptionStatusBtn.style.display = 'none';
+            return;
+        }
+
+        let text = '';
+        let link = '#';
+
+        switch(profile.plan_type) {
+            case 'starter':
+            case 'trial':
+                if (profile.trial_end) {
+                    const endDate = new Date(profile.trial_end);
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    const diffTime = endDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays >= 0) {
+                        if (diffDays > 10) {
+                            text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
+                        } else if (diffDays > 3) {
+                            text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
+                        } else {
+                             text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
+                        }
+                        link = '/it/pricing.html';
+                    } else {
+                        text = '😭 Prova Scaduta. Aggiorna ora!';
+                        link = '/it/pricing.html';
+                    }
+                }
+                break;
+            case 'plus':
+                text = 'MyHomesBudget PLUS';
+                link = '/it/account.html';
+                break;
+            case 'pro':
+                text = 'MyHomesBudget PRO';
+                link = '/it/account.html';
+                break;
+        }
+
+        if (text) {
+            subscriptionStatusBtn.textContent = text;
+            subscriptionStatusBtn.href = link;
+            subscriptionStatusBtn.style.display = 'flex';
+        } else {
+            subscriptionStatusBtn.style.display = 'none';
+        }
+    }
+
+    function positionSubscriptionButton() {
+        const topCenter = document.querySelector('.top-center');
+        const topActions = document.querySelector('.top-actions');
+        const subscriptionBtn = document.getElementById('subscription-status-btn');
+
+        if (!topCenter || !topActions || !subscriptionBtn) return;
+
+        if (window.innerWidth <= 1200) {
+            if (subscriptionBtn.parentElement !== topActions) {
+                topActions.prepend(subscriptionBtn);
+            }
+        } else {
+            if (subscriptionBtn.parentElement !== topCenter) {
+                topCenter.appendChild(subscriptionBtn);
+            }
+        }
+    }
+
+    // --- Inizializzazione pagina ---
+    async function initializePage() {
+      // Setup UI Listeners immediately
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const topActions = document.querySelector('.top-actions');
+      if(mobileMenuBtn && topActions) {
+        mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); });
+        document.addEventListener('click', (e) => { if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } });
+      }
+      
+      logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/"); });
+
+      monthSelector.addEventListener('change', loadSummaryData);
+      yearSelector.addEventListener('change', loadSummaryData);
+
+      const months = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+
+      schedulerBtn.addEventListener('click', async () => {
+        const selectedMonth = monthSelector.value;
+        const selectedYear = yearSelector.value;
+        const startDate = new Date(selectedYear, selectedMonth, 1);
+        const endDate = new Date(selectedYear, parseInt(selectedMonth) + 1, 0);
+        const scheduled = await getScheduledTransactions(startDate, endDate);
+        detailsModal.querySelector('.modal-title').textContent = `Scadenziario per ${months[selectedMonth]} ${selectedYear}`;
+        renderDeadlinesList(detailsModal.querySelector('.modal-body'), scheduled);
+        detailsModal.classList.add('is-visible');
       });
 
-      // Mobile accordion behavior
-      function updateAccordionState() {
-        const width = window.innerWidth;
-        const cards = document.querySelectorAll('.tech-card');
-        
-        if (width <= 480) {
-          cards.forEach((card, index) => {
-            if (index === 0) {
-              card.setAttribute('open', '');
-            } else {
-              card.removeAttribute('open');
-            }
-          });
-        } else if (width <= 1024) {
-          cards.forEach((card, index) => {
-            if (index < 2) {
-              card.setAttribute('open', '');
-            } else {
-              card.removeAttribute('open');
-            }
-          });
-        } else {
-          cards.forEach(card => {
-            card.setAttribute('open', '');
-          });
-        }
-      }
+      notificationsBtn.addEventListener('click', async () => {
+        const today = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(today.getDate() + 7);
+        const upcoming = await getScheduledTransactions(today, futureDate);
+        detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`;
+        renderDeadlinesList(detailsModal.querySelector('.modal-body'), upcoming);
+        detailsModal.classList.add('is-visible');
+      });
 
+      detailsModal.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
+            detailsModal.classList.remove('is-visible');
+        }
+        const actionButton = e.target.closest('.btn-action-deadline');
+        if (actionButton) { 
+            handleConfirmDeadline(actionButton.dataset.id).then(() => {
+                detailsModal.classList.remove('is-visible');
+            });
+        }
+      });
+
+      window.addEventListener('resize', positionSubscriptionButton);
+
+      // Load data
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error || !session){ location.replace("/it/login.html"); return; }
+        user = session.user;
+
+        const { data: profile, error: profileError } = await supabase.from('profiles').select('plan_type, trial_end').eq('id', user.id).single();
+        if (profileError) {
+          console.error("Errore nel caricare il profilo utente:", profileError);
+        } else if (profile) {
+            renderSubscriptionStatus(profile);
+            positionSubscriptionButton();
+
+            if (profile.plan_type === 'pro') {
+                annualSummaryBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (currentView === 'annual') return;
+                    currentView = 'annual';
+                    annualSummaryBtn.classList.add('is-active');
+                    monthlySummaryBtn.classList.remove('is-active');
+                    monthSelector.disabled = true;
+                    loadSummaryData();
+                });
+            } else {
+                annualSummaryBtn.innerHTML = '🔒 Riepilogo Annuale';
+                annualSummaryBtn.classList.add('is-locked');
+                annualSummaryBtn.href = '/it/pricing.html';
+                annualSummaryBtn.addEventListener('click', (e) => { /* Link diretto, nessun preventDefault */ });
+            }
+
+            monthlySummaryBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentView === 'monthly') return;
+                currentView = 'monthly';
+                monthlySummaryBtn.classList.add('is-active');
+                annualSummaryBtn.classList.remove('is-active');
+                monthSelector.disabled = false;
+                loadSummaryData();
+            });
+        }
+        
+        // Populate date selectors
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+        for(let i = currentYear - 2; i <= currentYear + 5; i++) {
+            yearSelector.add(new Option(i, i));
+        }
+        monthSelector.value = currentMonth;
+        yearSelector.value = currentYear;
+
+        await loadSummaryData();
+      } catch(e) {
+        console.error("Errore critico di inizializzazione:", e);
+        summaryContent.innerHTML = '<div class="summary-card empty-state"><p>Errore imprevisto. Ricarica la pagina.</p></div>';
+      }
+    }
+
+    // SUPER INTERACTIVE FEATURES INITIALIZATION - 25/09/2025
+    function initInteractiveFeatures() {
       // Animated Counter Function
       function animateCounter(element, target) {
         const start = 0;
@@ -1196,10 +1395,12 @@
           const easeOutCubic = 1 - Math.pow(1 - progress, 3);
           const current = Math.floor(start + (target - start) * easeOutCubic);
           
-          if (element.dataset.target.includes('.') || target < 100) {
-            element.textContent = target < 10 ? current : `€${current.toLocaleString('it-IT')}`;
-          } else {
+          if (element.textContent.includes('€')) {
             element.textContent = `€${current.toLocaleString('it-IT')}`;
+          } else if (element.textContent.includes('%')) {
+            element.textContent = `${current}%`;
+          } else {
+            element.textContent = current.toLocaleString('it-IT');
           }
           
           if (progress < 1) {
@@ -1210,21 +1411,15 @@
         requestAnimationFrame(update);
       }
 
-      // Initialize counters
-      function initCounters() {
-        const counters = document.querySelectorAll('.animated-counter');
-        counters.forEach(counter => {
-          const target = parseInt(counter.dataset.target);
-          animateCounter(counter, target);
-        });
-      }
-
       // Create particles
       function createParticles() {
         const containers = document.querySelectorAll('.particles-container');
         
         containers.forEach(container => {
-          for (let i = 0; i < 10; i++) {
+          // Clear existing particles
+          container.querySelectorAll('.particle').forEach(p => p.remove());
+          
+          for (let i = 0; i < 8; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
             particle.style.left = Math.random() * 100 + '%';
@@ -1236,119 +1431,98 @@
         });
       }
 
-      // Category animation
-      window.animateCategory = function(element) {
-        const amount = parseInt(element.dataset.amount);
-        const maxAmount = 2450; // Casa is the highest
-        const percentage = (amount / maxAmount) * 100;
-        
-        const progressFill = element.querySelector('.progress-fill');
-        const counter = element.querySelector('.animated-counter');
-        
-        // Reset animation
-        progressFill.style.width = '0%';
-        
-        setTimeout(() => {
-          progressFill.style.width = percentage + '%';
-          animateCounter(counter, amount);
-        }, 100);
-        
-        // Add celebration effect
-        element.style.transform = 'scale(1.05)';
-        setTimeout(() => {
-          element.style.transform = 'scale(1)';
-        }, 300);
-      };
-
-      // Show detail modal (placeholder)
-      window.showDetailModal = function(type) {
-        const messages = {
-          income: 'Dettagli Entrate:\n• Stipendio: €2,800\n• Freelance: €450\n• Investimenti: €200',
-          expense: 'Dettagli Spese:\n• Casa: €2,450\n• Trasporti: €1,230\n• Alimentari: €890',
-          savings: 'Dettagli Risparmi:\n• Conto risparmio: €3,200\n• Investimenti: €1,030',
-          goals: 'Obiettivi Attivi:\n• Vacanze Estate (65%)\n• Fondo Emergenza (40%)\n• Nuovo Laptop (80%)'
-        };
-        
-        alert(messages[type] || 'Dettagli non disponibili');
-      };
-
       // Animate progress bars
       function animateProgressBars() {
-        const progressBars = document.querySelectorAll('.progress-fill');
+        const progressBars = document.querySelectorAll('.animate-progress-bar');
         progressBars.forEach(bar => {
-          const width = bar.style.width;
-          bar.style.width = '0%';
+          const targetWidth = bar.dataset.width;
           setTimeout(() => {
-            bar.style.width = width;
-          }, 100);
+            bar.style.width = targetWidth;
+          }, Math.random() * 500 + 200);
         });
       }
 
-      // Intersection Observer for scroll animations
+      // Initialize counters with intersection observer
       const observerOptions = {
-        threshold: 0.1,
+        threshold: 0.3,
         rootMargin: '0px 0px -50px 0px'
       };
 
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-up');
-            
-            // Trigger counter animation when element comes into view
-            if (entry.target.querySelector('.animated-counter')) {
-              const counters = entry.target.querySelectorAll('.animated-counter');
-              counters.forEach(counter => {
-                if (!counter.classList.contains('animated')) {
-                  counter.classList.add('animated');
-                  const target = parseInt(counter.dataset.target);
-                  setTimeout(() => animateCounter(counter, target), 300);
-                }
-              });
+            // Animate counters
+            const counters = entry.target.querySelectorAll('.animated-counter:not(.animated)');
+            counters.forEach(counter => {
+              counter.classList.add('animated');
+              const target = parseFloat(counter.dataset.target);
+              if (!isNaN(target)) {
+                setTimeout(() => animateCounter(counter, target), Math.random() * 300);
+              }
+            });
+
+            // Animate progress bars
+            const progressBars = entry.target.querySelectorAll('.animate-progress-bar:not(.animated)');
+            progressBars.forEach(bar => {
+              bar.classList.add('animated');
+              const targetWidth = bar.dataset.width;
+              setTimeout(() => {
+                bar.style.width = targetWidth;
+              }, Math.random() * 500 + 200);
+            });
+
+            // Add fade up animation
+            if (!entry.target.classList.contains('animate-fade-up')) {
+              entry.target.classList.add('animate-fade-up');
             }
           }
         });
       }, observerOptions);
 
-      // Initialize everything
-      updateAccordionState();
-      createParticles();
-      
-      // Observe elements for animations
-      document.querySelectorAll('.stat-card, .card-3d, .category-item').forEach(el => {
-        observer.observe(el);
-      });
-
-      // Update on window resize
-      let resizeTimeout;
-      window.addEventListener('resize', function() {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(updateAccordionState, 150);
-      });
-
-      // Initialize with delay for better UX
+      // Observe all cards and interactive elements
       setTimeout(() => {
-        initCounters();
-        animateProgressBars();
-      }, 500);
-
-      // Auto-animate category progress bars
-      setTimeout(() => {
-        document.querySelectorAll('.category-item').forEach((item, index) => {
-          setTimeout(() => {
-            const amount = parseInt(item.dataset.amount);
-            const maxAmount = 2450;
-            const percentage = (amount / maxAmount) * 100;
-            const progressFill = item.querySelector('.progress-fill');
-            if (progressFill) {
-              progressFill.style.width = percentage + '%';
-            }
-          }, index * 200);
+        document.querySelectorAll('.summary-card, .focus-panel, .card-3d').forEach(el => {
+          observer.observe(el);
         });
-      }, 1000);
+        
+        createParticles();
+        animateProgressBars();
+      }, 100);
 
-    })();
-    /* END TECNICO PAGE INTERACTIVE FEATURES - 25/09/2025 */
+      // Ripple effect click handler
+      document.addEventListener('click', function(e) {
+        const rippleElement = e.target.closest('.ripple');
+        if (rippleElement) {
+          // Trigger ripple animation
+          rippleElement.classList.remove('ripple-active');
+          setTimeout(() => rippleElement.classList.add('ripple-active'), 10);
+        }
+      });
+
+      // Enhanced click effects for interactive boxes
+      document.addEventListener('click', function(e) {
+        const interactiveBox = e.target.closest('.interactive-box');
+        if (interactiveBox) {
+          interactiveBox.style.transform = 'translateY(-4px) scale(0.98)';
+          setTimeout(() => {
+            interactiveBox.style.transform = '';
+          }, 150);
+        }
+      });
+
+      console.log('🎉 Super Interactive Features Initialized!');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializePage();
+      setTimeout(initInteractiveFeatures, 500);
+    });
   </script>
+  
+  <!-- carica il client Supabase -->
+<script type="module" src="/it/supabase-client.js"></script>
+<!-- poi il nostro lettore che RIUSA window.supabase -->
+<script type="module" src="/js/goal-progress.js"></script>
+
 </body>
 </html>
