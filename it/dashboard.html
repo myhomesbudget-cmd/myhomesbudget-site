@@ -19,7 +19,7 @@
     }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans);background-color:var(--bg)}
-    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100svh;-webkit-overflow-scrolling:touch;}
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
     /* ====== TOPBAR ====== */
@@ -170,8 +170,8 @@
     .btn-action-deadline.receive{background:var(--success-color)}
 
     /* ====== Modal base (MODIFICATO PER ESSERE PIÙ AMPIO) ====== */
-    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}
-    .modal-overlay.is-visible{opacity:1;pointer-events:auto}
+    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease}
+    .modal-overlay.is-visible{display:flex;opacity:1;pointer-events:auto}
     .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
     .modal-overlay.is-visible .modal-content{transform:scale(1)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border);padding-bottom:12px;margin-bottom:16px}
@@ -221,132 +221,171 @@
     .status-message.success{background-color:var(--success-color);color:#fff}
     .status-message.error{background-color:var(--danger-color);color:#fff}
 
-    /* ====== GOALS (NUOVO LAYOUT ORDINATO) ====== */
-    #goals-section .header {
+    /* ====== GOALS (Layout v2 da Screenshot) ====== */
+    #goals-section.goals-v2 .header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 8px;
     }
-    #goals-section .header h3 {
+    #goals-section.goals-v2 .header h3 {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 1.2rem;
     }
-    #goals-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    .goal-card {
+    #goals-section.goals-v2 .goal-card {
         background: rgba(255,255,255,0.8);
         border: 1px solid var(--card-border);
         border-radius: 12px;
         padding: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.07);
     }
-    .goal-card-header {
+    #goals-section.goals-v2 .goal-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 12px;
     }
-    .goal-card-header h4 {
+    #goals-section.goals-v2 .goal-card-header h4 {
         margin: 0;
         font-size: 1.2rem;
         font-weight: 800;
         color: #333;
     }
-    .goal-card-main {
+    #goals-section.goals-v2 .goal-card-main {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
-        gap: 16px;
-        align-items: center;
+        gap: 24px;
+        align-items: flex-end;
     }
-    .goal-method-selector { grid-column: span 12; md:grid-column: span 5; }
-    .goal-quota-editor { grid-column: span 12; md:grid-column: span 7; }
-    
-    .goal-method-selector h5, .goal-quota-editor h5 {
+    #goals-section.goals-v2 .goal-method-selector { grid-column: span 12; }
+    #goals-section.goals-v2 .goal-quota-editor { grid-column: span 12; }
+    @media (min-width: 992px) {
+        #goals-section.goals-v2 .goal-method-selector { grid-column: span 7; }
+        #goals-section.goals-v2 .goal-quota-editor { grid-column: span 5; }
+    }
+
+    #goals-section.goals-v2 h5 {
         font-size: 0.8rem;
         font-weight: 700;
         color: #555;
-        margin: 0 0 8px;
+        margin: 0 0 10px;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
-    .method-chips {
+    #goals-section.goals-v2 .method-chips {
         display: flex;
+        gap: 10px;
         flex-wrap: wrap;
-        gap: 8px;
     }
-    .chip {
-        padding: 8px 12px;
+    #goals-section.goals-v2 .method-btn-wrapper {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        position: relative;
+    }
+    #goals-section.goals-v2 .chip.method-btn {
+        width: 100%;
+        justify-content: center;
         border-radius: 8px;
-        background: rgba(0,0,0,0.05);
-        font-weight: 600;
-        cursor: pointer;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(0,0,0,0.1);
+        background: #f0f2f5;
     }
-    .chip:hover { background: rgba(0,0,0,0.08); }
-    .chip.is-active {
+    #goals-section.goals-v2 .chip.method-btn.is-active {
         background: var(--grad);
         color: white;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: transparent;
     }
-    .method-input-group {
+    #goals-section.goals-v2 .method-input {
         margin-top: 8px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        position: relative;
+        display: none;
     }
-    .method-input-group input {
-        padding: 8px;
+    #goals-section.goals-v2 .chip.method-btn.is-active + .method-input {
+        display: block;
+    }
+    #goals-section.goals-v2 .method-input input {
+        width: 100%;
+        padding: 8px 12px;
         border-radius: 8px;
         border: 1px solid #ccc;
-        width: 100px;
+        background: #fff;
+        font-weight: 600;
+        text-align: center;
+        font-size: 1rem;
     }
-    .goal-quota-editor .quota-display {
+    #goals-section.goals-v2 .method-input .arrow-down {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #ccc;
+    }
+
+    #goals-section.goals-v2 .quota-display {
         display: flex;
+        gap: 8px;
         align-items: center;
-        gap: 12px;
-        background: rgba(255,255,255,0.7);
-        padding: 12px;
-        border-radius: 8px;
     }
-     .quota-display input {
+    #goals-section.goals-v2 .quota-value {
         flex-grow: 1;
-        font-size: 1.1rem;
+        padding: 11px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: #fff;
         font-weight: 700;
-        border: none;
-        background: transparent;
-        padding: 0;
+        font-size: 1.1rem;
+        text-align: right;
+        color: #333;
     }
-    .quota-display .btn {
-        padding: 8px 14px;
-        font-size: 0.9rem;
+    #goals-section.goals-v2 .quota-actions .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
-    .goal-card-footer {
+    #goals-section.goals-v2 .goal-card.is-locked .quota-actions .save-btn { display: none; }
+    #goals-section.goals-v2 .goal-card:not(.is-locked) .quota-actions .edit-btn { display: none; }
+
+    #goals-section.goals-v2 .goal-card-footer {
         margin-top: 16px;
         padding-top: 16px;
         border-top: 1px solid var(--card-border);
     }
-    .goal-progress-bar-container {
+    #goals-section.goals-v2 .goal-progress-bar-container {
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
-    .progress-info {
+    #goals-section.goals-v2 .progress-info {
         display: flex;
         justify-content: space-between;
         font-size: 0.9rem;
         font-weight: 600;
     }
-    .goal-main-actions {
-        margin-top: 12px;
+    #goals-section.goals-v2 .goal-main-actions {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--card-border);
         display: flex;
         justify-content: flex-end;
         gap: 12px;
+    }
+    #goals-section.goals-v2 .goal-card.is-locked .chip:not(.is-active) {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+     #goals-section.goals-v2 .goal-card.is-locked input {
+        pointer-events: none;
+        background-color: #f0f2f5 !important;
+        color: #999;
+        border-color: #e0e0e0;
     }
 
   </style>
@@ -458,10 +497,10 @@
       </form>
     </section>
 
-    <!-- 🎯 Sezione Obiettivi (Layout Originale) -->
-    <section id="goals-section" class="content-section" style="margin-top:12px;">
+    <!-- 🎯 Sezione Obiettivi (Layout v2) -->
+    <section id="goals-section" class="content-section goals-v2" style="margin-top:12px;">
       <div class="header">
-        <h3 style="margin:0;display:flex;align-items:center;gap:8px;">🎯 <span>I Tuoi Obiettivi</span></h3>
+        <h3><span style="font-size: 1.5rem; line-height: 1;">🎯</span>I Tuoi Obiettivi</h3>
         <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
       </div>
       <div id="goals-list">
@@ -492,7 +531,7 @@
     </div>
   </main>
 
-  <!-- Modals... (invariati) -->
+  <!-- Modals -->
   <div id="scheduler-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="scheduler-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="scheduler-modal-body" class="modal-body transaction-list"></div> </div> </div>
   <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
   <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
@@ -643,7 +682,7 @@
     function renderSummary(items, container, kind){
       container.innerHTML = '';
       const categoryMap = allCategories.filter(cat => cat.kind === kind).reduce((acc, cat)=>({ ...acc, [cat.id]: { name:cat.name, icon:cat.icon || (kind==='income'?'💰':'💸'), total:0 } }),{});
-      items.forEach(tx => { if (categoryMap[tx.category_id]) categoryMap[tx.category_id].total += safeToNumber(tx.amount); });
+      items.forEach(tx => { if (tx.category_id && categoryMap[tx.category_id]) categoryMap[tx.category_id].total += safeToNumber(tx.amount); });
       const totalAmount = items.reduce((sum, tx)=> sum + safeToNumber(tx.amount), 0);
       const categoriesToRender = Object.values(categoryMap).filter(cat => cat.total > 0).sort((a,b)=> b.total - a.total).slice(0,5);
       container.style.display = 'block';
@@ -1018,42 +1057,50 @@
 
     function createGoalCardHTML(goal, canDelete, isPlanLimited) {
         const id = goal.id;
-        const deleteBtnHTML = canDelete && !goal.is_onboarding ? `<button class="action-btn delete-btn delete-goal-btn" data-id="${id}" aria-label="Elimina obiettivo">🗑️</button>` : '';
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
         const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
-        const isPercent = internalMethod === 'percent_income';
-
-        const isLocked = isPlanLimited || (!userProfile || userProfile.plan_type !== 'pro') && !goal.is_onboarding;
-        const btnLabel = isLocked ? 'Modifica' : 'Salva';
 
         return `
-            <div id="goal-card-${id}" class="goal-card ${isLocked ? 'is-locked' : ''}">
+            <div id="goal-card-${id}" class="goal-card is-locked">
                 <div class="goal-card-header">
                     <h4>${goal.nome_obiettivo}</h4>
-                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
+                    <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
                 </div>
-                <div class="goal-card-main">
-                    <div class="goal-method-selector">
+                <div class="goal-editor">
+                    <div class="editor-group method-selector">
                         <h5>SELEZIONE METODO</h5>
                         <div class="method-chips">
-                            <div class="chip ${internalMethod === 'fixed' ? 'is-active' : ''}" data-method="fixed">CIFRA FISSA</div>
-                            <div class="chip ${internalMethod === 'variable' ? 'is-active' : ''}" data-method="variable">CIFRA VARIABILE</div>
-                            <div class="chip ${internalMethod === 'percent_income' ? 'is-active' : ''}" data-method="percent_income">% ENTRATE</div>
-                        </div>
-                        <div class="method-input-group">
-                             <input class="goal-amount-input" type="number" step="0.01" value="${!isPercent ? (goal.importo_mensile || '') : ''}" ${isPercent ? 'style="display:none;"' : ''}>
-                             <div class="percentage-input-group ${isPercent ? 'is-visible' : ''}">
-                                <input class="goal-percentage-input" type="number" step="0.1" value="${isPercent ? (goal.importo_mensile || '') : ''}" />
-                                <span>%</span>
+                            <div class="method-btn-wrapper">
+                                <button class="chip method-btn" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
+                                <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly>
+                                </div>
+                            </div>
+                            <div class="method-btn-wrapper">
+                                <button class="chip method-btn" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
+                                 <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly>
+                                </div>
+                            </div>
+                            <div class="method-btn-wrapper">
+                                <button class="chip method-btn" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
+                                 <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="goal-quota-editor">
+                    <div class="editor-group quota-editor">
                         <h5>QUOTA OBIETTIVO</h5>
                         <div class="quota-display">
-                            <input type="text" value="100,00€" readonly>
-                            <button class="btn btn-secondary">MODIFICA</button>
-                            <button class="btn btn-primary">SALVA</button>
+                            <div class="quota-value">0,00€</div>
+                            <div class="quota-actions">
+                                <button class="btn btn-secondary edit-btn">MODIFICA</button>
+                                <button class="btn btn-primary save-btn" style="display:none;">SALVA</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1063,10 +1110,12 @@
                             <span>Progresso</span>
                             <span id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
                         </div>
-                        <div class="progress-bar-bg"><div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div></div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div>
+                        </div>
                     </div>
                     <div class="goal-main-actions">
-                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">MODIFICA</button>
+                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">MODIFICA RISPARMI</button>
                         <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">REGISTRA RISPARMIO</button>
                     </div>
                 </div>
@@ -1078,104 +1127,97 @@
         const card = document.getElementById(`goal-card-${id}`);
         if (!card) return;
 
-        const methodWrap = card.querySelector('.method-chips');
-        const amountInput = card.querySelector('.goal-amount-input');
-        const percentageGroup = card.querySelector('.percentage-input-group');
-        const percentageInput = card.querySelector('.goal-percentage-input');
-        const totalIncomeEl = card.querySelector('.total-income-placeholder');
-        const productEl = card.querySelector('.product-amount');
-        const labelEl = card.querySelector('.goal-input label');
-        const saveEditBtn = card.querySelector('.save-edit-goal-btn');
+        const methodChips = card.querySelectorAll('.method-btn');
+        const amountInputs = card.querySelectorAll('.goal-amount-input, .goal-percentage-input');
+        const quotaValueEl = card.querySelector('.quota-value');
+        const editBtn = card.querySelector('.edit-btn');
+        const saveBtn = card.querySelector('.save-btn');
         const recordBtn = card.querySelector('.record-saving-btn');
-        const viewSavingsBtn = card.querySelector('.view-savings-btn');
-        let isLocked = card.classList.contains('is-locked');
-
-        const setLocked = (locked) => {
-            isLocked = locked;
-            card.classList.toggle('is-locked', locked);
-            if (saveEditBtn) saveEditBtn.textContent = locked ? 'Modifica' : 'Salva';
-        };
-        setLocked(isLocked);
-
-        const updateTotalIncomeDisplay = () => {
-            const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-            if(totalIncomeEl) totalIncomeEl.textContent = fmt(totalIncomes);
-            const perc = safeToNumber(percentageInput?.value);
-            const product = (perc / 100) * totalIncomes;
-            if (productEl) productEl.textContent = '= ' + fmt(product) + '€';
-        };
         
-        methodWrap.addEventListener('click', (e) => {
-            if (isLocked) return;
-            const chip = e.target.closest('.chip');
-            if (!chip) return;
-            methodWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
-            chip.classList.add('is-active');
-            const method = chip.dataset.method;
-            const isPercent = method === 'percent_income';
-            if(labelEl) labelEl.textContent = isPercent ? 'Percentuale (%)' : 'Importo Mensile (€)';
-            if(amountInput) amountInput.style.display = isPercent ? 'none' : 'block';
-            if(percentageGroup) percentageGroup.classList.toggle('is-visible', isPercent);
-            updateTotalIncomeDisplay();
+        let currentMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
+        let isEditing = false;
+
+        const updateUI = () => {
+            card.classList.toggle('is-locked', !isEditing);
+            
+            methodChips.forEach(chip => {
+                const method = chip.dataset.method;
+                const isActive = method === currentMethod;
+                chip.classList.toggle('is-active', isActive);
+                chip.setAttribute('aria-pressed', isActive);
+                chip.setAttribute('aria-disabled', !isEditing && !isActive);
+            });
+
+            amountInputs.forEach(input => {
+                input.readOnly = !isEditing;
+                const inputMethod = input.dataset.method;
+                if(inputMethod === currentMethod) {
+                    if (currentMethod === 'percent_income') {
+                       input.value = goal.importo_mensile || '';
+                    } else {
+                       input.value = goal.importo_mensile || '';
+                    }
+                }
+            });
+
+            const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            const quota = currentMethod === 'percent_income' 
+                ? (safeToNumber(goal.importo_mensile) / 100) * totalIncomes 
+                : safeToNumber(goal.importo_mensile);
+            
+            quotaValueEl.textContent = `${fmt(quota)}€`;
+            recordBtn.dataset.amount = quota;
+
+            editBtn.style.display = isEditing ? 'none' : 'block';
+            saveBtn.style.display = isEditing ? 'block' : 'none';
+        };
+
+        methodChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                if (isEditing) {
+                    currentMethod = chip.dataset.method;
+                    updateUI();
+                }
+            });
         });
 
-        if(saveEditBtn) saveEditBtn.addEventListener('click', async () => {
-            if (isLocked) {
-                setLocked(false);
-                return;
-            }
-            const activeChip = methodWrap.querySelector('.chip.is-active');
-            const method = activeChip.dataset.method;
-            const isPercent = method === 'percent_income';
-            const percValue = safeToNumber(percentageInput?.value);
-            const amountValue = safeToNumber(amountInput?.value);
-            const totalIncomes = allTransactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false).reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
-            const computedSaving = isPercent ? (percValue / 100) * totalIncomes : amountValue;
-            let table, eqColumn, eqValue;
-            if (goal.is_onboarding) {
-                table = 'profiles';
-                eqColumn = 'id';
-                eqValue = user.id;
-            } else {
-                table = 'obiettivi';
-                eqColumn = 'id';
-                eqValue = goal.id;
-            }
-            let payload;
-            if (table === 'profiles') {
-                payload = {
-                    contribution_method: mapInternalToContributionMethod(method),
-                    contribution_amount: isPercent ? percValue : amountValue
-                };
-            } else {
-                payload = {
-                    metodo_contribuzione: mapInternalToContributionMethod(method),
-                    importo_mensile: isPercent ? percValue : amountValue
-                };
-            }
-            const { error } = await supabase.from(table).update(payload).eq(eqColumn, eqValue);
+        editBtn.addEventListener('click', () => {
+            isEditing = true;
+            updateUI();
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            isEditing = false;
+            
+            let newAmount;
+            const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
+            if(activeInput) newAmount = safeToNumber(activeInput.value);
+
+            const payload = {
+                [goal.is_onboarding ? 'contribution_method' : 'metodo_contribuzione']: mapInternalToContributionMethod(currentMethod),
+                [goal.is_onboarding ? 'contribution_amount' : 'importo_mensile']: newAmount,
+            };
+
+            const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
+            const { error } = await supabase.from(table).update(payload).eq('id', goal.is_onboarding ? user.id : goal.id);
+
             if (error) {
                 showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
-                return;
+                isEditing = true;
+            } else {
+                showStatusMessage('Obiettivo aggiornato!', 'success');
+                const goalIndex = goalsData.findIndex(g => g.id === id);
+                if(goalIndex > -1) {
+                    goalsData[goalIndex].metodo_contribuzione = payload.metodo_contribuzione || payload.contribution_method;
+                    goalsData[goalIndex].importo_mensile = payload.importo_mensile || payload.contribution_amount;
+                    goal.metodo_contribuzione = goalsData[goalIndex].metodo_contribuzione;
+                    goal.importo_mensile = goalsData[goalIndex].importo_mensile;
+                }
             }
-            showStatusMessage('Obiettivo aggiornato!', 'success');
-            recordBtn.dataset.amount = computedSaving;
-            setLocked(true);
-            await loadAndRenderGoals();
+            updateUI();
         });
 
-        if(recordBtn) recordBtn.addEventListener('click', () => handleRecordSaving(goal, recordBtn));
-
-        if (viewSavingsBtn) {
-            viewSavingsBtn.addEventListener('click', () => showSavingsModal(goal));
-        }
-
-        const deleteBtn = card.querySelector('.delete-goal-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', () => handleDeleteGoal(goal.id));
-        }
-
-        updateTotalIncomeDisplay();
+        updateUI();
     }
 
     async function updateGoalProgress(goalId, is_onboarding) {
@@ -1329,81 +1371,87 @@
         });
     }
 
-    async function initializePage(){
-      try{
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { location.replace("/it/login.html"); return; }
-        user = session.user;
-        
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
-        userProfile = profile;
-        
-        renderSubscriptionStatus(profile);
-        positionSubscriptionButton();
-        window.addEventListener('resize', positionSubscriptionButton);
+    let __booted = false;
+    async function bootDashboard() {
+        if (__booted) return;
+        __booted = true;
 
-        const now = new Date();
-        const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
-        months.forEach((month, index) => monthSelector.add(new Option(month, index)));
-        for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
-        monthSelector.value = now.getMonth();
-        yearSelector.value = now.getFullYear();
-        document.getElementById('occurred_at').valueAsDate = new Date();
+        try{
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { location.replace("/it/login.html"); return; }
+            user = session.user;
+            
+            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
+            userProfile = profile;
+            
+            renderSubscriptionStatus(profile);
+            positionSubscriptionButton();
+            window.addEventListener('resize', positionSubscriptionButton);
 
-        await loadInitialData();
-        updateCategoryDropdown();
-        
-        await loadAndRenderGoals();
-        await loadAllDataForMonth();
+            const now = new Date();
+            const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+            months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+            for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
+            monthSelector.value = now.getMonth();
+            yearSelector.value = now.getFullYear();
+            document.getElementById('occurred_at').valueAsDate = new Date();
 
-        const mainContainer = document.querySelector('main.container');
-        function handleActionClicks(e){
-          const target = e.target.closest('button[data-id]');
-          if (!target) return;
-          const id = target.dataset.id;
-          const isModal = target.closest('.modal-overlay');
-          if (target.classList.contains('edit-btn')){ handleEdit(id); if (isModal) isModal.classList.remove('is-visible'); } 
-          else if (target.classList.contains('delete-btn') && !target.classList.contains('delete-goal-btn')){ handleDelete(id); } 
-          else if (target.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if (isModal) isModal.classList.remove('is-visible'); }
+            await loadInitialData();
+            updateCategoryDropdown();
+            
+            await loadAndRenderGoals();
+            await loadAllDataForMonth();
+
+            const mainContainer = document.querySelector('main.container');
+            function handleActionClicks(e){
+              const target = e.target.closest('button[data-id]');
+              if (!target) return;
+              const id = target.dataset.id;
+              const isModal = target.closest('.modal-overlay');
+              if (target.classList.contains('edit-btn')){ handleEdit(id); if (isModal) isModal.classList.remove('is-visible'); } 
+              else if (target.classList.contains('delete-btn') && !target.classList.contains('delete-goal-btn')){ handleDelete(id); } 
+              else if (target.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if (isModal) isModal.classList.remove('is-visible'); }
+            }
+            mainContainer.addEventListener('click', handleActionClicks);
+            schedulerModal.addEventListener('click', handleActionClicks);
+
+            kindSelect.addEventListener('change', updateCategoryDropdown);
+            categorySelect.addEventListener('change', () => updateSubcategories());
+            transactionForm.addEventListener('submit', handleFormSubmit);
+            cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+            monthSelector.addEventListener('change', loadAllDataForMonth);
+            yearSelector.addEventListener('change', loadAllDataForMonth);
+            listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, months); movementsModal.classList.add('is-visible');});
+            document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{ radio.addEventListener('change', (e)=>{ const v = e.target.value; advancedOptionsWrapper.style.display = 'block'; recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none'; dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none'; }); });
+            
+            schedulerBtn.addEventListener('click', async () => {
+              const today = new Date();
+              const futureDate = new Date();
+              futureDate.setDate(today.getDate() + 30);
+              const scheduled = await getScheduledTransactions(today, futureDate);
+              schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
+              renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
+              schedulerModal.classList.add('is-visible');
+            });
+
+            notificationsBtn.addEventListener('click', async () => { const t = new Date(); const f = new Date(); f.setDate(t.getDate()+7); const u = await getScheduledTransactions(t, f); schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u); schedulerModal.classList.add('is-visible'); });
+            document.body.addEventListener('click', (e)=>{ const m = e.target.closest('.modal-overlay'); if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){ m.classList.remove('is-visible'); } });
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn'); const topActions = document.querySelector('.top-actions'); if (mobileMenuBtn && topActions) { mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); }); document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } }); }
+            
+        } catch (err){
+            console.error("Errore critico durante l'inizializzazione:", err);
+            const body = document.querySelector('body');
+            if (body){
+              body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;"><h2>Errore Critico</h2><p>Impossibile caricare la dashboard.</p><p><strong>Dettaglio:</strong> ${err.message}</p><p>Prova a ricaricare la pagina.</p></div>`;
+            }
         }
-        mainContainer.addEventListener('click', handleActionClicks);
-        schedulerModal.addEventListener('click', handleActionClicks);
-
-        kindSelect.addEventListener('change', updateCategoryDropdown);
-        categorySelect.addEventListener('change', () => updateSubcategories());
-        transactionForm.addEventListener('submit', handleFormSubmit);
-        cancelEditBtn.addEventListener('click', resetFormToCreateMode);
-        logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
-        monthSelector.addEventListener('change', loadAllDataForMonth);
-        yearSelector.addEventListener('change', loadAllDataForMonth);
-        listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); renderMovementsListModal(allTransactions, months); movementsModal.classList.add('is-visible');});
-        document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{ radio.addEventListener('change', (e)=>{ const v = e.target.value; advancedOptionsWrapper.style.display = 'block'; recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none'; dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none'; }); });
-        
-        schedulerBtn.addEventListener('click', async () => {
-          const today = new Date();
-          const futureDate = new Date();
-          futureDate.setDate(today.getDate() + 30);
-          const scheduled = await getScheduledTransactions(today, futureDate);
-          schedulerModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`;
-          renderDeadlinesList(schedulerModal.querySelector('.modal-body'), scheduled);
-          schedulerModal.classList.add('is-visible');
-        });
-
-        notificationsBtn.addEventListener('click', async () => { const t = new Date(); const f = new Date(); f.setDate(t.getDate()+7); const u = await getScheduledTransactions(t, f); schedulerModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(schedulerModal.querySelector('.modal-body'), u); schedulerModal.classList.add('is-visible'); });
-        document.body.addEventListener('click', (e)=>{ const m = e.target.closest('.modal-overlay'); if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){ m.classList.remove('is-visible'); } });
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn'); const topActions = document.querySelector('.top-actions'); if (mobileMenuBtn && topActions) { mobileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); topActions.classList.toggle('is-open'); }); document.addEventListener('click', (e) => { if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) { topActions.classList.remove('is-open'); } }); }
-        
-      } catch (err){
-        console.error("Errore critico durante l'inizializzazione:", err);
-        const body = document.querySelector('body');
-        if (body){
-          body.innerHTML = `<div style="padding:40px;text-align:center;background-color:#fff;border-radius:12px;margin:50px auto;max-width:500px;"><h2>Errore Critico</h2><p>Impossibile caricare la dashboard.</p><p><strong>Dettaglio:</strong> ${err.message}</p><p>Prova a ricaricare la pagina.</p></div>`;
-        }
-      }
     }
 
-    document.addEventListener('DOMContentLoaded', initializePage);
+    document.addEventListener('DOMContentLoaded', () => bootDashboard(), { once: true });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) bootDashboard(); });
+    setTimeout(() => bootDashboard(), 4000);
   </script>
 </body>
 </html>
