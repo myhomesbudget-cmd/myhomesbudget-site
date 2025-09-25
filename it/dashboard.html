@@ -29,7 +29,7 @@
     }
     body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index:-1}
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin { to { transform: rotate(3D); } }
     
     /* Fix per iOS/Safari su background-attachment: fixed */
     @media (pointer: coarse) {
@@ -1648,7 +1648,7 @@
         } catch (err){
             console.error("Errore critico durante l'inizializzazione:", err);
             stopWatchdog();
-            showLoader(`Errore di inizializzazione. Dettaglio: ${err.message}`, true);
+            showLoader(`Errore di inizializzazione. Riprova?`, true);
             __booted = false;
         }
     }
