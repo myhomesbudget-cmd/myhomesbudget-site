@@ -163,11 +163,28 @@
     .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
 
     /* Pannello Scadenze (NUOVO STILE PULITO) */
-    #deadlines-section h3{color:var(--warning-color);border-bottom:2px solid var(--warning-color);padding-bottom:8px}
+    #deadlines-section{ margin-top:0; }
+    #deadlines-section .section-title{
+      display:flex;align-items:center;gap:8px;
+      font-weight:800;margin:0 0 8px;color:var(--warning-color);
+      border-bottom:2px solid var(--warning-color); padding-bottom:6px;
+      font-size:1rem;
+    }
+    #deadlines-section .transaction-list{ padding:8px 10px; }
+    #deadlines-section .deadline-item{
+      grid-template-columns: 110px 1fr auto auto auto; /* data | descr | importo | giorni | azioni */
+      padding:10px 0; font-size:.95rem;
+    }
+    #deadlines-section .deadline-item .date-badge{
+      font-weight:800; white-space:nowrap; color:#333;
+    }
+    #deadlines-section .item-actions .action-btn{ padding:6px 8px; font-size:.8rem; }
+    #deadlines-section .btn-action-deadline{ padding:6px 10px; font-size:.8rem; border-radius:8px; }
+    
     .deadlines-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     .deadlines-table tr { border-bottom: 1px solid rgba(0,0,0,.05); }
     .deadlines-table tr:last-child { border-bottom: none; }
-    .deadlines-table td { padding: 12px 8px; vertical-align: middle; }
+    .deadlines-table td { padding: 8px 6px; font-size:.9rem; vertical-align: middle; }
     .deadlines-table .description-cell { display: flex; flex-direction: column; }
     .deadlines-table .note-part { font-weight: 600; }
     .deadlines-table .category-part { font-size: 0.9em; color: #555; }
@@ -254,6 +271,7 @@
         border-radius: 12px;
         padding: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        margin-bottom: 18px;
     }
     #goals-section.goals-v2 .goal-card-header {
         display: flex;
@@ -263,14 +281,12 @@
     }
     #goals-section.goals-v2 .goal-card-header h4 {
         margin: 0;
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: #333;
+        font-size: 1rem;
     }
     #goals-section.goals-v2 .goal-editor {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
-      gap: 24px;
+      gap: 16px;
       align-items: flex-end;
     }
     #goals-section.goals-v2 .editor-group { grid-column: span 12; }
@@ -302,8 +318,8 @@
         width: 100%;
         justify-content: center;
         border-radius: 8px;
-        padding: 10px 12px;
-        font-size: 0.9rem;
+        padding: 8px 10px;
+        font-size: 0.85rem;
         border: 1px solid rgba(0,0,0,0.1);
         background: #f0f2f5;
     }
@@ -323,13 +339,13 @@
     }
     #goals-section.goals-v2 .method-input input {
         width: 100%;
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 8px;
         border: 1px solid #ccc;
         background: #fff;
         font-weight: 600;
         text-align: center;
-        font-size: 16px; /* iOS zoom fix */
+        font-size: 15px; /* iOS zoom fix */
     }
     #goals-section.goals-v2 .method-input .arrow-down {
         position: absolute;
@@ -350,12 +366,12 @@
     }
     #goals-section.goals-v2 .quota-value {
         flex-grow: 1;
-        padding: 11px 12px;
+        padding: 9px 10px;
         border-radius: 8px;
         border: 1px solid #ccc;
         background: #fff;
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1rem;
         text-align: right;
         color: #333;
     }
@@ -399,6 +415,12 @@
         background-color: #f0f2f5 !important;
         color: #999;
         border-color: #e0e0e0;
+    }
+    #goals-section.goals-v2 .goal-main-actions .btn,
+    #goals-section.goals-v2 .goal-card-header .btn {
+      padding: 6px 10px;
+      font-size: .85rem;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -453,7 +475,7 @@
 
     <!-- Scadenze -->
     <section id="deadlines-section" class="content-section" style="margin-top:12px;display:none;">
-      <h3>🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
+      <h3 class="section-title">🔔 Scadenze & Voci Future (Prossimi 30 giorni)</h3>
       <div id="deadlines-list" class="transaction-list"></div>
     </section>
 
@@ -772,7 +794,7 @@
         const isModal = container.closest('.modal-overlay');
 
         if(isModal) {
-            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Scadenza</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
+            container.innerHTML = '<table class="deadlines-table"><thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Importo</th><th scope="col">Tra</th><th scope="col">Azioni</th></tr></thead><tbody></tbody></table>';
             container = container.querySelector('tbody');
         }
 
@@ -795,10 +817,10 @@
             if (isModal) {
                 rowHTML = `
                     <tr>
+                        <td class="date-part">${formattedDueDate}</td>
                         <td class="description-cell">
                             <span class="note-part">${noteSafe}</span>
                             <span class="category-part">${categoryText}</span>
-                            <span class="date-part">🗓️ ${formattedDueDate}</span>
                         </td>
                         <td class="amount-cell ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</td>
                         <td class="days-left-cell">${daysLeftText}</td>
@@ -812,7 +834,7 @@
                     </tr>
                 `;
             } else {
-                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
+                 rowHTML = `<div class="item deadline-item"><div class="date-badge">${formattedDueDate}</div><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
             }
             container.insertAdjacentHTML('beforeend', rowHTML);
         });
@@ -1142,11 +1164,20 @@
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
         const titleSafe = escapeHTML(goal.nome_obiettivo);
 
+        const headerButtons = goal.is_onboarding
+          ? ''
+          : `
+            <div class="goal-hdr-actions" style="display:flex; gap:8px;">
+              <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding:6px 10px;font-size:.85rem;">Modifica</button>
+              <button class="btn btn-secondary delete-goal-btn" data-id="${id}" style="padding:6px 10px;font-size:.85rem;">Elimina</button>
+            </div>
+          `;
+
         return `
             <div id="goal-card-${id}" class="goal-card is-locked">
                 <div class="goal-card-header">
                     <h4>${titleSafe}</h4>
-                    <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
+                    ${headerButtons}
                 </div>
                 <div class="goal-editor">
                     <div class="editor-group method-selector">
@@ -1552,8 +1583,8 @@
                 if(yearSelector.options.length === 0) {
                     for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
                 }
-                monthSelector.value = now.getMonth();
-                yearSelector.value = now.getFullYear();
+                if (monthSelector.value === "") monthSelector.value = now.getMonth();
+                if (yearSelector.value === "") yearSelector.value = now.getFullYear();
                 document.getElementById('occurred_at').valueAsDate = new Date();
             }
 
@@ -1590,6 +1621,10 @@
                     const g = goalsData.find(x => String(x.id) === String(id));
                     if (g) showSavingsModal(g);
                   }
+                   if (btn.classList.contains('delete-goal-btn')) {
+                      const id = btn.dataset.id;
+                      handleDeleteGoal(id);
+                    }
                 });
 
                 kindSelect.addEventListener('change', updateCategoryDropdown);
