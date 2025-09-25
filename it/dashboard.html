@@ -584,6 +584,28 @@
     const goalsList = document.getElementById('goals-list');
     
     // --- UTILS ---
+    function escapeHTML(s){
+      return String(s ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+    function ymdLocal(d = new Date()){
+      return [
+        d.getFullYear(),
+        String(d.getMonth()+1).padStart(2,'0'),
+        String(d.getDate()).padStart(2,'0')
+      ].join('-');
+    }
+    function addOneMonthSafeUTC(d){
+      const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
+      const next = new Date(Date.UTC(y, m + 1, 1));
+      next.setUTCMonth(next.getUTCMonth() + 1, 0);
+      const lastDay = next.getUTCDate();
+      return new Date(Date.UTC(y, m + 1, Math.min(day, lastDay)));
+    }
     function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; }
     const fmt = (n) => Number(n || 0).toFixed(2);
     const dayMs = 86400000;
@@ -685,7 +707,7 @@
       const categoriesToRender = Object.values(categoryMap).filter(cat => cat.total > 0).sort((a,b)=> b.total - a.total).slice(0,5);
       container.style.display = 'block';
       const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
-      let barsHTML = categoriesToRender.map(cat=>{ const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0; return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${cat.icon}</span><span>${cat.name}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width:${percentage}%"></div></div></div>`; }).join('');
+      let barsHTML = categoriesToRender.map(cat=>{ const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0; return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${escapeHTML(cat.icon)}</span><span>${escapeHTML(cat.name)}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width:${percentage}%"></div></div></div>`; }).join('');
       const placeholdersNeeded = 5 - categoriesToRender.length;
       if (placeholdersNeeded > 0){ const placeholderHTML = `<div class="category-bar-item" aria-hidden="true"><div class="category-bar-info" style="visibility:hidden;"><span class="category-bar-label"><span class="icon">&nbsp;</span><span>-</span></span><span class="category-bar-amount">&nbsp;</span></div><div class="progress-bar-bg" style="visibility:hidden;"><div class="progress-bar-fg" style="width:0%;"></div></div></div>`; barsHTML += placeholderHTML.repeat(placeholdersNeeded); }
       container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
@@ -697,17 +719,17 @@
       const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
       const titleEl = document.createElement('div');
       titleEl.className = 'list-title';
-      titleEl.innerHTML = `<span>${titleText}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
+      titleEl.innerHTML = `<span>${escapeHTML(titleText)}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
       container.appendChild(titleEl);
       if (!items.length){ container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`); return; }
       items.forEach(tx=>{
         const cat = tx.categories;
         const sub = tx.subcategories;
         const icon = sub?.icon || cat?.icon || '💸';
-        const categoryText = `${cat?.name || 'N/A'}${(sub ? ` / ${sub.name}` : '')}`;
+        const categoryText = `${escapeHTML(cat?.name || 'N/A')}${(sub ? ` / ${escapeHTML(sub.name)}` : '')}`;
         const amountNum = safeToNumber(tx.amount);
         const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
-        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${icon}</div><div class="item-details"><span class="note">${tx.note ?? ''}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button></div></div>`);
+        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
       });
     }
 
@@ -742,15 +764,16 @@
             const buttonClass = isIncome ? 'receive' : 'pay';
             const buttonText = isIncome ? 'Incassa Ora' : 'Paga Ora';
             const sub = tx.subcategories;
-            const categoryText = `${tx.categories?.name || 'N/A'}${sub ? ` / ${sub.name}` : ''}`;
+            const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
             const formattedDueDate = dueDate ? dueDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' }) : '';
-            
+            const noteSafe = escapeHTML(tx.note || '');
+
             let rowHTML = '';
             if (isModal) {
                 rowHTML = `
                     <tr>
                         <td class="description-cell">
-                            <span class="note-part">${tx.note || ''}</span>
+                            <span class="note-part">${noteSafe}</span>
                             <span class="category-part">${categoryText}</span>
                             <span class="date-part">🗓️ ${formattedDueDate}</span>
                         </td>
@@ -758,15 +781,15 @@
                         <td class="days-left-cell">${daysLeftText}</td>
                         <td class="actions-cell">
                             <div class="item-actions">
-                                <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button>
-                                <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
+                                <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
+                                <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
                                 <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
                             </div>
                         </td>
                     </tr>
                 `;
             } else {
-                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${tx.note || ''}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
+                 rowHTML = `<div class="item deadline-item"><div class="item-details"><span class="note">${noteSafe}</span><span class="category">${categoryText}</span></div><span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span><span class="days-left">${daysLeftText}</span><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button><button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button></div></div>`;
             }
             container.insertAdjacentHTML('beforeend', rowHTML);
         });
@@ -782,8 +805,8 @@
       if (!transactions || transactions.length === 0){ modalBody.innerHTML = '<div class="empty-state"><p>Nessun movimento per il periodo selezionato.</p></div>'; modalFooter.innerHTML = ''; return; }
       const sortedTx = [...transactions].sort((a,b)=> new Date(a.occurred_at) - new Date(b.occurred_at));
       let totalIncome = 0, totalExpense = 0;
-      const rows = sortedTx.map(tx=>{ const amount = safeToNumber(tx.amount); if (tx.kind === 'income') totalIncome += amount; else totalExpense += amount; const date = new Date(tx.occurred_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}); const type = tx.kind === 'income' ? 'Entrata' : 'Uscita'; const note = tx.note || '-'; const category = tx.categories?.name || 'N/A'; const subcategory = tx.subcategories?.name || '-'; const amountFormatted = `${tx.kind==='income'?'+':'-'} ${amount.toFixed(2)} €`; return `<tr class="${tx.kind}"><td>${date}</td><td>${type}</td><td>${note}</td><td class="amount-col">${amountFormatted}</td><td>${category}</td><td>${subcategory}</td></tr>`; }).join('');
-      modalBody.innerHTML = `<table class="movements-table"><thead><tr><th>Data</th><th>Tipo</th><th>Nota</th><th class="amount-col">Importo</th><th>Categoria</th><th>Sottocategoria</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const rows = sortedTx.map(tx=>{ const amount = safeToNumber(tx.amount); if (tx.kind === 'income') totalIncome += amount; else totalExpense += amount; const date = new Date(tx.occurred_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}); const type = tx.kind === 'income' ? 'Entrata' : 'Uscita'; const note = escapeHTML(tx.note || '-'); const category = escapeHTML(tx.categories?.name || 'N/A'); const subcategory = escapeHTML(tx.subcategories?.name || '-'); const amountFormatted = `${tx.kind==='income'?'+':'-'} ${amount.toFixed(2)} €`; return `<tr class="${tx.kind}"><td>${date}</td><td>${type}</td><td>${note}</td><td class="amount-col">${amountFormatted}</td><td>${category}</td><td>${subcategory}</td></tr>`; }).join('');
+      modalBody.innerHTML = `<table class="movements-table"><thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Nota</th><th scope="col" class="amount-col">Importo</th><th scope="col">Categoria</th><th scope="col">Sottocategoria</th></tr></thead><tbody>${rows}</tbody></table>`;
       const balance = totalIncome - totalExpense;
       modalFooter.innerHTML = `<div class="summary-item"><div class="summary-label">Totale Entrate</div><div class="summary-value total-income">+ ${totalIncome.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Totale Uscite</div><div class="summary-value total-expense">- ${totalExpense.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Saldo</div><div class="summary-value balance">${balance.toFixed(2)} €</div></div>`;
     }
@@ -930,7 +953,15 @@
           const endDate = new Date(Date.UTC(endParts[0], endParts[1]-1, endParts[2]));
           let current = new Date(Date.UTC(y0, m0-1, d0));
           const children = [];
-          while (true){ current.setUTCMonth(current.getUTCMonth()+1); if (current > endDate) break; const yyyy = current.getUTCFullYear(); const mm = String(current.getUTCMonth()+1).padStart(2,'0'); const dd = String(current.getUTCDate()).padStart(2,'0'); const iso = `${yyyy}-${mm}-${dd}`; children.push({ ...payload, is_recurring_parent: false, parent_transaction_id: parentData.id, occurred_at: iso, due_date: iso, is_paid: false }); }
+          while (true){
+            current = addOneMonthSafeUTC(current);
+            if (current > endDate) break;
+            const yyyy = current.getUTCFullYear();
+            const mm = String(current.getUTCMonth()+1).padStart(2,'0');
+            const dd = String(current.getUTCDate()).padStart(2,'0');
+            const iso = `${yyyy}-${mm}-${dd}`;
+            children.push({ ...payload, is_recurring_parent: false, parent_transaction_id: parentData.id, occurred_at: iso, due_date: iso, is_paid: false });
+          }
           if (children.length){ const { error: chErr } = await supabase.from('transactions').insert(children); if (chErr) error = chErr; }
         } else {
           const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
@@ -949,7 +980,7 @@
     }
 
     async function handleConfirmDeadline(id){
-      showModal( 'Conferma Operazione', '<p>Vuoi registrare questa operazione con la data di oggi?</p>', [ { text: 'Annulla', class: 'btn-secondary' }, { text: 'Conferma', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: new Date().toISOString().split('T')[0] }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Errore nell'aggiornamento dell'operazione:", error); showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]); } } } ]);
+      showModal( 'Conferma Operazione', '<p>Vuoi registrare questa operazione con la data di oggi?</p>', [ { text: 'Annulla', class: 'btn-secondary' }, { text: 'Conferma', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: ymdLocal(new Date()) }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Errore nell'aggiornamento dell'operazione:", error); showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]); } } } ]);
     }
 
     function renderSubscriptionStatus(profile) {
@@ -1065,9 +1096,10 @@
 
         if (isPro) {
             addBtn.style.display = 'block';
-            addBtn.addEventListener('click', handleAddGoal);
+            addBtn.onclick = handleAddGoal;
         } else {
             addBtn.style.display = 'none';
+            addBtn.onclick = null;
         }
 
         if (goals.length === 0) {
@@ -1085,12 +1117,12 @@
     function createGoalCardHTML(goal, canDelete, isPlanLimited) {
         const id = goal.id;
         const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
-        const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
+        const titleSafe = escapeHTML(goal.nome_obiettivo);
 
         return `
             <div id="goal-card-${id}" class="goal-card is-locked">
                 <div class="goal-card-header">
-                    <h4>${goal.nome_obiettivo}</h4>
+                    <h4>${titleSafe}</h4>
                     <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding: 6px 12px; font-size: 0.9rem;">MODIFICA OBIETTIVO</button>
                 </div>
                 <div class="goal-editor">
@@ -1098,21 +1130,21 @@
                         <h5>SELEZIONE METODO</h5>
                         <div class="method-chips">
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
                                 <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly inputmode="decimal">
@@ -1280,7 +1312,7 @@
         let goalData;
         if (is_onboarding) {
              const { data: pData } = await supabase.from('profiles').select('goal_target_amount').eq('id', user.id).single();
-             goalData = { importo_target: pData.goal_target_amount };
+             goalData = { importo_target: pData?.goal_target_amount };
         } else {
              const { data: gData } = await supabase.from('obiettivi').select('importo_target').eq('id', goalId).single();
              goalData = gData;
@@ -1314,7 +1346,7 @@
             { text: 'Annulla', class: 'btn-secondary' },
             { text: 'Conferma', class: 'btn-primary', action: async () => {
                 const table = goal.is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
-                const base = { user_id: user.id, importo: amountToSave, data_registrazione: new Date().toISOString().split('T')[0] };
+                const base = { user_id: user.id, importo: amountToSave, data_registrazione: ymdLocal(new Date()) };
                 let payload = base;
                 if (goal.is_onboarding) {
                     const { data: p } = await supabase.from('profiles').select('goal_name, goal_target_amount, contribution_method, contribution_amount').eq('id', user.id).single();
