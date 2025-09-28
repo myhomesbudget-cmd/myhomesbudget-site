@@ -437,27 +437,46 @@
         }
 
         function renderSubscriptionStatus(profile) {
-            if (!profile || !profile.plan_type) { subscriptionStatusBtn.style.display = 'none'; return; }
-            let text = '', link = '#';
+            if (!profile || !profile.plan_type) {
+                subscriptionStatusBtn.style.display = 'none';
+                return;
+            }
+            let text = '';
+            let link = '/it/pricing.html'; // Default link
             switch(profile.plan_type) {
-                case 'starter': case 'trial':
+                case 'starter':
+                case 'trial':
                     if (profile.trial_end) {
                         const endDate = new Date(profile.trial_end);
-                        const today = new Date(); today.setHours(0,0,0,0);
+                        const today = new Date();
+                        today.setHours(0,0,0,0);
                         const diffTime = endDate - today;
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if (diffDays >= 0) {
                             if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
                             else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
                             else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
-                            link = '/it/pricing.html';
-                        } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; }
-                    } break;
-                case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break;
-                case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break;
+                        } else {
+                            text = '😭 Prova Scaduta. Aggiorna ora!';
+                        }
+                    }
+                    break;
+                case 'plus':
+                    text = 'MyHomesBudget PLUS';
+                    // In futuro questo potrebbe puntare a /it/account.html per la gestione
+                    break;
+                case 'pro':
+                    text = 'MyHomesBudget PRO';
+                    // In futuro questo potrebbe puntare a /it/account.html per la gestione
+                    break;
             }
-            if (text) { subscriptionStatusBtn.textContent = text; subscriptionStatusBtn.href = link; subscriptionStatusBtn.style.display = 'flex'; }
-            else { subscriptionStatusBtn.style.display = 'none'; }
+            if (text) {
+                subscriptionStatusBtn.textContent = text;
+                subscriptionStatusBtn.href = link;
+                subscriptionStatusBtn.style.display = 'flex';
+            } else {
+                subscriptionStatusBtn.style.display = 'none';
+            }
         }
 
         function positionSubscriptionButton() {
