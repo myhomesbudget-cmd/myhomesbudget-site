@@ -178,12 +178,6 @@
 
       .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
-      .modal-content { background: var(--bg); border-radius: var(--radius-lg); padding: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease; }
-      .modal-overlay.is-visible .modal-content { transform: scale(1); }
-      .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-bottom: 16px; }
-      .modal-title { margin: 0; font-size: 1.3rem; }
-      .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #888; line-height: 1; padding: 0; }
-      .modal-body { list-style: none; padding: 0; margin: 0; }
       
       /* Stili Modale da Dashboard */
       .modal-overlay.is-visible .modal-content-enhanced {
@@ -223,16 +217,25 @@
         align-items: center;
         gap: 12px;
       }
+       .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #fff; opacity: 0.8; line-height: 1; padding: 0; transition: opacity 0.2s ease; }
+       .modal-close:hover { opacity: 1; }
+
       .modal-body-enhanced {
         padding: 8px 24px 24px;
         overflow-y: auto;
         flex-grow: 1;
       }
+      .modal-footer {
+        padding: 16px 24px;
+        background-color: rgba(0,0,0,0.05);
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        justify-content: flex-end;
+      }
 
       .deadline-item-modal {
         display: grid;
         grid-template-columns: auto 1fr auto;
-        grid-template-areas: "date details right" "actions actions actions";
         gap: 12px 16px;
         align-items: center;
         background: rgba(255,255,255,0.7);
@@ -249,10 +252,10 @@
       .deadline-item-modal .date-box { grid-area: date; background-color: #f1f5f9; color: #334155; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; font-weight: 700; line-height: 1.1; }
       .deadline-item-modal .date-box .day { font-size: 1.1rem; }
       .deadline-item-modal .date-box .month { font-size: 0.75rem; text-transform: uppercase; }
-      .deadline-item-modal .details { grid-area: details; min-width: 0; }
+      .deadline-item-modal .details { min-width: 0; }
       .deadline-item-modal .details .note { font-weight: 600; font-size: 1rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .deadline-item-modal .details .category { font-size: 0.85rem; color: #555; }
-      .deadline-item-modal .right-section { grid-area: right; text-align: right; }
+      .deadline-item-modal .right-section { text-align: right; }
       .deadline-item-modal .amount { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 4px; }
       .deadline-item-modal .amount.expense { color: var(--danger-color); }
       .deadline-item-modal .amount.income { color: var(--success-color); }
@@ -260,13 +263,42 @@
       .deadline-item-modal .days-left-badge.due-soon { background-color: var(--danger-color); }
       .deadline-item-modal .days-left-badge.far-off { background-color: var(--warning-color); }
       .deadline-item-modal .days-left-badge.very-far { background-color: var(--success-color); }
-      .deadline-item-modal .actions { grid-area: actions; display: flex; gap: 12px; justify-content: flex-end; padding-top: 12px; margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); }
-      .action-btn{background:var(--grad);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:filter .2s ease,transform .2s ease}
-      .action-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
-      .action-btn.delete{background:var(--grad-danger)}
-      .btn-action-deadline{padding:8px 12px;font-size:.9rem; background: var(--warning-color); color: #fff; }
-      .btn-action-deadline.receive{background:var(--success-color);}
-
+      
+      /* Gemini AI Coach Section */
+      #ai-coach-result {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        min-height: 80px;
+        color: #333;
+        font-style: italic;
+        line-height: 1.6;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+      }
+      #ai-coach-result.is-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loader-dots {
+          display: flex;
+          gap: 8px;
+      }
+      .loader-dots div {
+          width: 10px;
+          height: 10px;
+          background-color: var(--primary-color);
+          border-radius: 50%;
+          animation: bounce 1.4s infinite ease-in-out both;
+      }
+      .loader-dots .dot1 { animation-delay: -0.32s; }
+      .loader-dots .dot2 { animation-delay: -0.16s; }
+      @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.0); }
+      }
     </style>
 </head>
 <body>
@@ -316,6 +348,7 @@
               <button class="modal-close" aria-label="Chiudi modale">&times;</button>
           </div>
           <div id="modal-body" class="modal-body-enhanced"></div>
+          <div id="modal-footer" class="modal-footer"></div>
       </div>
     </div>
 
@@ -568,8 +601,6 @@
 
                 const amountClass = isIncome ? 'income' : 'expense';
                 const amountSign = isIncome ? '+' : '-';
-                const buttonClass = isIncome ? 'receive' : 'pay';
-                const buttonText = isIncome ? 'Incassa' : 'Paga';
                 const categoryText = tx.categories?.name || '';
                 const day = String(dueDate.getDate()).padStart(2, '0');
                 const month = monthFormatter.format(dueDate).replace('.', '');
@@ -588,11 +619,6 @@
                             <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
                             <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
                         </div>
-                        <div class="actions">
-                            <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${tx.note}">✍🏼 Modifica</button>
-                            <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                            <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${tx.note}">🗑️</button>
-                        </div>
                     </div>
                 `;
             }).join('');
@@ -610,6 +636,21 @@
             }
         }
         
+        function setupModal(title, transactions) {
+            detailsModal.querySelector('.modal-title').textContent = title;
+            const modalBody = detailsModal.querySelector('#modal-body');
+            const modalFooter = detailsModal.querySelector('#modal-footer');
+            
+            renderDeadlinesList(modalBody, transactions);
+
+            if (transactions.length > 0) {
+                modalFooter.innerHTML = `<a href="/it/dashboard.html" class="btn btn-primary">Gestisci nella Dashboard</a>`;
+            } else {
+                modalFooter.innerHTML = '';
+            }
+            detailsModal.classList.add('is-visible');
+        }
+
         async function initializePage() {
             const { data: { session }, error: sessionError } = await supabase.auth.getSession();
             if (sessionError || !session) {
@@ -709,8 +750,20 @@
             document.getElementById('save-button').addEventListener('click', saveUserData);
             document.getElementById('get-advice-btn').addEventListener('click', getAIAssistantAdvice);
             document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); window.location.href = "/it/"; });
-            document.getElementById('scheduler-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 30); const scheduled = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), scheduled); detailsModal.classList.add('is-visible'); });
-            document.getElementById('notifications-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 7); const upcoming = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), upcoming); detailsModal.classList.add('is-visible'); });
+            document.getElementById('scheduler-btn').addEventListener('click', async () => { 
+                const today = new Date(); 
+                const futureDate = new Date(); 
+                futureDate.setDate(today.getDate() + 30); 
+                const scheduled = await getScheduledTransactions(today, futureDate); 
+                setupModal('Scadenziario (Prossimi 30 giorni)', scheduled);
+            });
+            document.getElementById('notifications-btn').addEventListener('click', async () => { 
+                const today = new Date(); 
+                const futureDate = new Date(); 
+                futureDate.setDate(today.getDate() + 7); 
+                const upcoming = await getScheduledTransactions(today, futureDate); 
+                setupModal('Notifiche (Prossimi 7 giorni)', upcoming);
+            });
             detailsModal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close')) { detailsModal.classList.remove('is-visible'); } });
 
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
