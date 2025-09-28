@@ -400,7 +400,8 @@
 
             const systemPrompt = "Agisci come un consulente finanziario amichevole e incoraggiante. Fornisci consigli pratici e personalizzati in un paragrafo breve e di facile comprensione. Parla direttamente all'utente usando il 'tu'.";
             const userQuery = `Ciao, il mio nome è ${userName} e il mio obiettivo finanziario principale è "${userGoal}". Basandoti su questo, dammi un consiglio finanziario personalizzato per iniziare.`;
-            const apiKey = ""; 
+            // Chiave API inserita
+            const apiKey = "AIzaSyCr2_-CYpwdhNYtQhyO01dd4ADPl73VEJw"; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             const payload = {
