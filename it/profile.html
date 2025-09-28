@@ -181,30 +181,29 @@
       .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
       .modal-overlay.is-visible .modal-content-enhanced { transform: translateY(0) scale(1); opacity: 1; }
-      .modal-content-enhanced { background: var(--bg); border-radius: var(--radius-lg); padding: 0; width: 90%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); transform: translateY(-30px) scale(0.98); opacity: 0; transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
+      .modal-content-enhanced { background: var(--bg); border-radius: var(--radius-lg); padding: 0; width: 90%; max-width: 500px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); transform: translateY(-30px) scale(0.98); opacity: 0; transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
       .modal-header-enhanced { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: var(--grad); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); flex-shrink: 0; }
       .modal-title-enhanced { margin: 0; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 12px; }
       .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #fff; opacity: 0.8; line-height: 1; padding: 0; transition: opacity 0.2s ease; }
       .modal-close:hover { opacity: 1; }
       .modal-body-enhanced { padding: 8px 24px 24px; overflow-y: auto; flex-grow: 1; }
       .modal-footer { padding: 16px 24px; background-color: rgba(0,0,0,0.05); border-top: 1px solid var(--card-border); display: flex; justify-content: flex-end; }
-      .deadline-item-modal { display: grid; grid-template-columns: auto 1fr auto; gap: 12px 16px; align-items: center; background: rgba(255,255,255,0.7); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-top: 12px; transition: transform .2s ease, box-shadow .2s ease; }
-      .deadline-item-modal:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-      .deadline-item-modal .date-box { grid-area: date; background-color: #f1f5f9; color: #334155; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; font-weight: 700; line-height: 1.1; }
-      .deadline-item-modal .date-box .day { font-size: 1.1rem; }
-      .deadline-item-modal .date-box .month { font-size: 0.75rem; text-transform: uppercase; }
-      .deadline-item-modal .details { min-width: 0; }
-      .deadline-item-modal .details .note { font-weight: 600; font-size: 1rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .deadline-item-modal .details .category { font-size: 0.85rem; color: #555; }
-      .deadline-item-modal .right-section { text-align: right; }
-      .deadline-item-modal .amount { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 4px; }
-      .deadline-item-modal .amount.expense { color: var(--danger-color); }
-      .deadline-item-modal .amount.income { color: var(--success-color); }
-      .deadline-item-modal .days-left-badge { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; }
-      .deadline-item-modal .days-left-badge.due-soon { background-color: var(--danger-color); }
-      .deadline-item-modal .days-left-badge.far-off { background-color: var(--warning-color); }
-      .deadline-item-modal .days-left-badge.very-far { background-color: var(--success-color); }
       .empty-state { text-align: center; padding: 40px 20px; color: #777; }
+
+      /* NUOVI STILI PER MODALE SINTETICO */
+      .modal-body-enhanced ul { list-style: none; padding: 0; margin: 0; }
+      .deadline-item-simple { display: flex; justify-content: space-between; align-items: center; padding: 14px 4px; border-bottom: 1px solid var(--card-border); }
+      .deadline-item-simple:last-child { border-bottom: none; }
+      .item-info .item-note { font-weight: 600; color: #333; font-size: 1rem; }
+      .item-info .item-category { font-size: 0.85rem; color: #666; }
+      .item-due { text-align: right; }
+      .item-due .item-amount { font-weight: 700; font-size: 1.1rem; }
+      .item-due .item-amount.expense { color: var(--danger-color); }
+      .item-due .item-amount.income { color: var(--success-color); }
+      .item-due .item-days-badge { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; color: #fff; margin-top: 4px; }
+      .item-days-badge.due-soon { background-color: var(--danger-color); }
+      .item-days-badge.far-off { background-color: var(--warning-color); }
+      .item-days-badge.very-far { background-color: var(--success-color); }
       
       /* Gemini AI Coach Section */
       #ai-coach-result { background: rgba(255, 255, 255, 0.7); border-radius: 12px; padding: 16px; margin-top: 16px; min-height: 80px; color: #333; font-style: italic; line-height: 1.6; border: 1px solid var(--card-border); transition: all 0.3s ease; }
@@ -515,9 +514,8 @@
             }
             const today = new Date(); today.setHours(0,0,0,0);
             const dayMs = 86400000;
-            const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
-
-            container.innerHTML = transactions.map(tx => {
+            
+            const listHtml = transactions.map(tx => {
                 const isIncome = tx.kind === 'income';
                 const dueDate = new Date(tx.due_date);
                 const diffTime = dueDate - today;
@@ -543,27 +541,21 @@
                 const amountClass = isIncome ? 'income' : 'expense';
                 const amountSign = isIncome ? '+' : '-';
                 const categoryText = tx.categories?.name || '';
-                const day = String(dueDate.getDate()).padStart(2, '0');
-                const month = monthFormatter.format(dueDate).replace('.', '');
 
-                // CORREZIONE CHIRURGICA: Ripristinato il layout corretto del modale
                 return `
-                    <div class="deadline-item-modal">
-                        <div class="date-box">
-                            <span class="day">${day}</span>
-                            <span class="month">${month.toUpperCase()}</span>
+                    <li class="deadline-item-simple">
+                        <div class="item-info">
+                            <span class="item-note">${escapeHTML(tx.note)}</span>
+                            <span class="item-category">${escapeHTML(categoryText)}</span>
                         </div>
-                        <div class="details">
-                            <p class="note">${escapeHTML(tx.note)}</p>
-                            <p class="category">${escapeHTML(categoryText)}</p>
+                        <div class="item-due">
+                            <span class="item-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                            <span class="item-days-badge ${daysLeftClass}">${daysLeftText}</span>
                         </div>
-                        <div class="right-section">
-                            <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                            <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
-                        </div>
-                    </div>
+                    </li>
                 `;
             }).join('');
+            container.innerHTML = `<ul>${listHtml}</ul>`;
         }
 
         async function updateNotifications() {
