@@ -71,7 +71,11 @@
       .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
       .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; }
       
-       max-width: 1200px; width: 100%; margin: 24px auto; animation: fadeInUp 0.5s ease-out forwards; }
+      /* MODIFICA: Rimosso max-width e margin per allineare alla nav */
+      .dashboard-panel{ 
+        width: 100%; 
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
 
       /* ====== Stili Profilo con Miglioramenti ====== */
       .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0;}
@@ -124,7 +128,6 @@
 
       @media(min-width: 640px) {
         .personal-info-grid{ grid-template-columns:1fr 1fr; }
-         padding-left: 24px; padding-right: 24px; }
       }
       @media(min-width: 768px) {
         .topbar { padding: 0 24px; }
@@ -259,15 +262,10 @@
         padding-top: 72px;
       }
       
-      body.is-mobile .dashboard-panel,
-      body.is-mobile .profile-info-row,
-      body.is-mobile .info-field {
+      body.is-mobile .dashboard-panel {
         border-radius: 16px;
         padding: 16px;
-      }
-      
-      body.is-mobile .dashboard-panel {
-        margin: 16px auto;
+        margin: 0;
         background:rgba(255,255,255,0.6);
         backdrop-filter:blur(12px);
         -webkit-backdrop-filter:blur(12px);
@@ -291,6 +289,7 @@
         background:rgba(255,255,255,0.6);
         border:1px solid var(--card-border);
         box-shadow:var(--shadow);
+        padding: 16px;
       }
 
       body.is-mobile .info-field {
@@ -299,8 +298,8 @@
         background:rgba(255,255,255,0.6);
         border:1px solid var(--card-border);
         box-shadow:var(--shadow);
+        padding: 16px;
       }
-
       
       body.is-mobile .profile-content > section {
         margin-bottom: 20px;
@@ -406,7 +405,6 @@
       /* Tablet Specifici */
       body.is-tablet .dashboard-panel {
         max-width: 600px;
-        padding: 20px;
       }
       
       body.is-tablet .profile-actions {
@@ -421,10 +419,6 @@
       }
 
       /* Desktop Miglioramenti */
-      body.is-desktop .dashboard-panel {
-        max-width: 800px;
-      }
-      
       body.is-desktop .personal-info-grid {
         grid-template-columns: 1fr 1fr;
       }
@@ -837,15 +831,6 @@
       }
       
       /* NUOVI STILI ACCURATI PER IL LAYOUT GRID */
-      .dashboard-panel {
-        background: transparent;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-      }
-
       .profile-grid {
         display: grid;
         grid-template-columns: 340px 1fr;
@@ -1470,3 +1455,4 @@
     </script>
 </body>
 </html>
+
