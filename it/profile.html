@@ -69,7 +69,7 @@
       .skeleton{ animation: shimmer 1.5s linear infinite; background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%); background-size: 800px 104px; height: 1.5rem; width: 60%; border-radius: 8px; display: inline-block; }
       .skeleton.skeleton-text { height: 1em; }
       .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
-      .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; }
+      .skeleton.skeleton-avatar { width: 140px; height: 140px; border-radius: 50%; }
       
       .dashboard-panel{ 
         background: transparent;
@@ -122,9 +122,9 @@
       /* ====== Stili Profilo con Miglioramenti ====== */
       .profile-header{display:flex; flex-direction: column; align-items:center;text-align:center;}
       @media(min-width: 768px){
-        .profile-header{flex-direction: row; text-align: left; gap: 24px;}
+        .profile-header{flex-direction: row; text-align: left; gap: 32px;}
       }
-      .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0; margin-bottom: 16px;}
+      .profile-avatar{position:relative;width:140px;height:140px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0; margin-bottom: 16px;}
       @media(min-width: 768px){ .profile-avatar { margin-bottom: 0; } }
 
       .profile-avatar img, .profile-avatar .skeleton-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;}
@@ -137,7 +137,9 @@
       .profile-avatar input{display:none;}
 
       .profile-name-section { flex-grow: 1; }
-      .profile-name{font-size:2.2rem;font-weight:800;margin:0 0 8px;min-height: 2.2rem;line-height:1.2;letter-spacing:-0.5px;}
+      .profile-name{font-size:2.2rem;font-weight:800;margin:0 0 4px;min-height: 2.2rem;line-height:1.2;letter-spacing:-0.5px;}
+      .profile-email {font-size: 1rem; color: #555; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; justify-content: center;}
+      @media(min-width: 768px){ .profile-email { justify-content: flex-start; } }
       .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem; display: inline-block;}
       
       .profile-section-title{font-weight:700;color:#333;margin-bottom:16px;font-size:1.3rem;letter-spacing:0.5px;display:flex;align-items:center;gap:8px;line-height:1.3;}
@@ -299,11 +301,11 @@
 
         function renderProfileData(profile, details) {
             userProfileData = profile; // Store for AI coach
-            document.getElementById('avatar-container').innerHTML = `<img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo"><label for="avatar-upload" class="avatar-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg><div class="avatar-loader"></div></label><input type="file" id="avatar-upload" accept="image/*">`;
+            document.getElementById('avatar-container').innerHTML = `<img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/140x140/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo"><label for="avatar-upload" class="avatar-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg><div class="avatar-loader"></div></label><input type="file" id="avatar-upload" accept="image/*">`;
             document.getElementById('avatar-upload').addEventListener('change', uploadAvatar);
             document.getElementById('user-name').textContent = profile?.name || 'Utente';
-            document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD';
             document.getElementById('user-email').textContent = currentUser?.email || '...';
+            document.getElementById('plan-type').textContent = profile?.plan_type || 'STANDARD';
             document.getElementById('plan-type-detail').textContent = profile?.plan_type || 'STANDARD';
             document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo';
             const form = document.getElementById('personal-info-form');
@@ -527,6 +529,9 @@
                         <div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div>
                         <div class="profile-name-section">
                             <h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1>
+                             <div class="profile-email">
+                                📧 <span id="user-email"><span class="skeleton skeleton-text"></span></span>
+                            </div>
                             <div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div>
                         </div>
                     </div>
@@ -536,14 +541,10 @@
                     <h2 class="profile-section-title">✨ Dettagli Account</h2>
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="info-label">📧 Mail</span>
-                            <span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span>
-                        </div>
-                        <div class="info-item">
                             <span class="info-label">💳 Abbonamento</span>
                             <span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span>
                         </div>
-                        <div class="info-item" style="grid-column: span 2;">
+                        <div class="info-item">
                              <span class="info-label">🎯 Obiettivo Principale</span>
                             <span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span>
                         </div>
