@@ -74,7 +74,7 @@
       .dashboard-panel{ background:rgba(255,255,255,0.6); backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px); border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border); box-shadow:var(--shadow); max-width: 800px; width: 100%; margin: 24px auto; animation: fadeInUp 0.5s ease-out forwards; }
 
       /* ====== Stili Profilo con Miglioramenti ====== */
-      .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom: 16px;}
+      .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:-80px;}
       .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0;}
       .profile-avatar img, .profile-avatar .skeleton-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;}
       .profile-avatar .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .3s ease;}
@@ -87,22 +87,24 @@
       .profile-name{font-size:2.2rem;font-weight:800;margin:16px 0 8px;min-height: 2.2rem;line-height:1.2;letter-spacing:-0.5px;}
       .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem;}
 
-      .profile-section-title{font-weight:700;color:#333;margin-bottom:12px;font-size:1.3rem;letter-spacing:0.5px;display:flex;align-items:center;gap:8px;line-height:1.3;}
-      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.4);padding:12px 16px;border-radius:12px;margin-bottom:12px;transition: all .3s ease;}
-      .profile-info-row:hover { box-shadow: 0 4px 15px rgba(0,0,0,.08); transform: translateY(-1px); }
+      .profile-content{margin-top:24px;display:grid;gap:16px;}
+      .profile-section-title{text-align:center;font-weight:700;color:#333;margin-bottom:20px;font-size:1.3rem;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px;line-height:1.3;}
+      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:16px;margin-bottom:24px;box-shadow:var(--shadow);transition: all .3s ease;}
+      .profile-info-row:hover { box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: translateY(-2px); }
       .info-label{font-weight:600;color:#444;display:flex;align-items:center;gap:8px;font-size:0.95rem;line-height:1.6;}
       .info-value{font-weight:500;font-size:1rem;min-height:1.5rem;line-height:1.6;}
 
-      .personal-info-grid{display:grid;grid-template-columns:1fr;gap:12px;}
-      .info-field{padding:12px 16px;border-radius:12px;background:rgba(255,255,255,0.4);}
+      .personal-info-grid{display:grid;grid-template-columns:1fr;gap:0;}
+      .info-field{background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:16px;margin-bottom:24px;box-shadow:var(--shadow);transition: all .3s ease;}
+      .info-field:hover { box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: translateY(-2px); }
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:flex; align-items:center; gap:8px; margin-bottom:4px;}
-      .info-field .data-display{font-size:1rem;font-weight:500;color:#333;min-height:24px;transition: opacity .3s ease;line-height:1.6;}
+      .info-field .data-display{font-size:1rem;font-weight:500;color:#333;min-height:24px;transition: opacity .3s ease;text-align:center;line-height:1.6;}
       .info-field .data-display.is-empty{color:#888;font-style:italic;}
-      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease;}
+      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease; text-align: center;}
       .is-editing .info-field .data-display { display: none; }
       .is-editing .info-field .data-input { display: block; }
 
-      .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:24px;}
+      .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:16px;}
       .btn{cursor:pointer;border:none;border-radius:10px;padding:10px 20px;height:42px;font-weight:600;font-size:0.9rem;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;display:flex;align-items:center;justify-content:center;}
       .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
       .btn:active:not(:disabled){transform:translateY(-1px) scale(0.98);}
@@ -166,6 +168,85 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+
+      /* Profile Grid Layout */
+      .profile-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+      @media(max-width:1024px){.profile-grid{grid-template-columns:1fr}}
+      .profile-name{font-size:28px;line-height:1.2;margin:8px 0 6px}
+      #plan-type{display:inline-block;padding:6px 12px;border-radius:9999px;
+        background:linear-gradient(90deg,#6c5ce7,#00cec9);color:#fff;font-weight:700;
+        text-transform:uppercase;letter-spacing:.4px;font-size:12px}
+      .profile-info-row{display:flex;justify-content:space-between;align-items:center;
+        background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.05);
+        border-radius:14px;padding:12px 14px;box-shadow:0 6px 18px rgba(0,0,0,.06);gap:12px}
+      .card,.profile-card{background:rgba(255,255,255,.6);backdrop-filter:blur(12px);border-radius:20px;padding:20px;transition:transform .3s,box-shadow .3s}
+      .card:hover,.profile-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+      .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s}
+      .reveal.is-visible{opacity:1;transform:none}
+      
+      .personal-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+      @media(max-width:1024px){.personal-info-grid{grid-template-columns:1fr}}
+      .info-field{background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.05);
+        border-radius:14px;padding:12px 14px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+      .profile-actions{display:flex;justify-content:center;margin-top:10px}
+
+      .details-card{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+      .details-card h2{grid-column:1/-1;margin-bottom:4px}
+      @media(max-width:900px){.details-card{grid-template-columns:1fr}}
+
+      .details-card .profile-info-row,
+      .profile-card .profile-info-row{min-height:60px;border-radius:14px}
+
+      .personal-card h2{margin-bottom:8px}
+      .personal-info-grid{grid-template-columns:1fr 1fr;gap:16px}
+      @media(max-width:900px){.personal-info-grid{grid-template-columns:1fr}}
+
+      .info-field{min-height:92px;display:grid;grid-template-rows:auto 1fr}
+      .info-field label{font-size:.82rem;font-weight:600;color:#6b7280;margin-bottom:4px}
+      .info-field .data-display,
+      .info-field .data-input{text-align:left;font-weight:600;font-size:1rem}
+
+      .profile-actions{margin-top:12px}
+
+      /* Enhanced card animations */
+      .card,.profile-card{
+        transition:transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease;
+        will-change: transform;
+      }
+      .card:hover,.profile-card:hover{ transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.14) }
+
+      .reveal{ opacity:0; transform:translateY(10px) scale(.995); }
+      .reveal.is-visible{ opacity:1; transform:none; }
+
+      /* Focus visibile tastiera */
+      button:focus-visible, .data-input:focus-visible, select:focus-visible, input:focus-visible{
+        outline:2px solid rgba(108,92,231,.9); outline-offset:2px; border-radius:10px;
+      }
+
+      /* Riduci animazioni se richiesto dal sistema */
+      @media (prefers-reduced-motion: reduce){
+        .card,.profile-card{ transition:none !important }
+        .reveal{ opacity:1 !important; transform:none !important; transition:none !important }
+      }
+
+      /* Details chip styling */
+      .details-card .profile-info-row{
+        display:flex; align-items:center; justify-content:space-between; gap:12px;
+        border-radius:9999px; padding:12px 16px;
+        background:rgba(255,255,255,.75); border:1px solid rgba(0,0,0,.05);
+        box-shadow:0 8px 22px rgba(0,0,0,.08);
+      }
+      .details-card .info-label{display:flex; align-items:center; gap:10px; font-weight:600; color:#374151}
+      .details-card .info-value{font-weight:700; letter-spacing:.2px}
+      .details-card .profile-info-row:hover{transform:translateY(-1px); box-shadow:0 12px 28px rgba(0,0,0,.12); transition:.22s}
+
+      /* Editing mode visual highlighting */
+      #personal-info-form{position:relative}
+      #personal-info-form.is-editing{
+        border-left:4px solid #6c5ce7; padding-left:16px; transition:border-color .2s ease;
+      }
+      .profile-actions{display:flex; justify-content:center; gap:12px}
+      #edit-button,#save-button{min-width:130px}
       
       .show-more-btn {
         color: var(--primary-color);
@@ -848,60 +929,6 @@
         right: 12px;
         transform: none;
       }
-      
-      /* NUOVI STILI PER IL LAYOUT GRID */
-      .profile-grid {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 20px;
-        align-items: start;
-      }
-      .col-right {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-      .profile-grid .card, .profile-grid .profile-card {
-        background: rgba(255,255,255,0.6);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-lg);
-        padding: 24px;
-        box-shadow: var(--shadow);
-        transition: transform .3s ease, box-shadow .3s ease;
-      }
-      .profile-grid .card:hover, .profile-grid .profile-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,.12);
-      }
-      /* Rimuove lo sfondo dal contenitore principale dato che ora le card lo hanno */
-      .dashboard-panel {
-        background: transparent;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-      }
-
-      @media(max-width: 1024px) {
-        .profile-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      
-      /* Micro-animazioni Reveal */
-      .reveal {
-        opacity: 0;
-        transform: translateY(12px);
-        transition: opacity .5s ease, transform .5s ease;
-      }
-      .reveal.is-visible {
-        opacity: 1;
-        transform: none;
-      }
-
     </style>
 </head>
 <body>
@@ -1001,19 +1028,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // NUOVA FUNZIONE PER LE ANIMAZIONI
-        function initRevealAnimations() {
-          const io = new IntersectionObserver((entries, obs) => {
-            entries.forEach(e => { 
-              if (e.isIntersecting) { 
-                e.target.classList.add('is-visible'); 
-                obs.unobserve(e.target);
-              } 
-            });
-          }, { threshold: 0.12 });
-          document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-        }
-
         function renderProfileData(profile, details) {
             document.getElementById('avatar-container').innerHTML = `<img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo"><label for="avatar-upload" class="avatar-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg><div class="avatar-loader"></div></label><input type="file" id="avatar-upload" accept="image/*">`;
             document.getElementById('avatar-upload').addEventListener('change', uploadAvatar);
@@ -1091,9 +1105,19 @@
         }
 
         function toggleEditMode(isEditing) {
-            document.querySelector('.personal-card').classList.toggle('is-editing', isEditing);
-            document.getElementById('edit-button').style.display = isEditing ? 'none' : 'flex';
-            document.getElementById('save-button').style.display = isEditing ? 'flex' : 'none';
+            const form = document.getElementById('personal-info-form');
+            const editBtn = document.getElementById('edit-button');
+            const saveBtn = document.getElementById('save-button');
+            form.classList.toggle('is-editing', isEditing);
+            if(isEditing){
+                editBtn.textContent = 'Annulla';
+                editBtn.style.display = 'block';
+                saveBtn.style.display = 'block';
+            }else{
+                editBtn.textContent = 'Modifica';
+                editBtn.style.display = 'block';
+                saveBtn.style.display = 'none';
+            }
         }
 
         function renderSubscriptionStatus(profile) {
@@ -1129,6 +1153,22 @@
         }
         
         const safeToNumber = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+
+        function initReveal(){
+          const items = Array.from(document.querySelectorAll('.profile-grid .reveal'));
+          const step = (window.matchMedia && window.matchMedia('(max-width:900px)').matches) ? 40 : 60;
+          const io = new IntersectionObserver((entries, obs)=>{
+            entries.forEach(e=>{
+              if(e.isIntersecting){
+                const idx = Math.max(0, items.indexOf(e.target));
+                e.target.style.transitionDelay = (idx * step) + 'ms';
+                e.target.classList.add('is-visible');
+                obs.unobserve(e.target);
+              }
+            });
+          }, { threshold: 0.12 });
+          items.forEach(el=>io.observe(el));
+        }
 
         async function getScheduledTransactions(startDate, endDate) {
             const { data, error } = await supabase.from('transactions').select(`*, categories(name, icon)`).eq('created_by', currentUser.id).eq('is_paid', false).gte('due_date', startDate.toISOString().split('T')[0]).lte('due_date', endDate.toISOString().split('T')[0]).order('due_date', { ascending: true });
@@ -1182,102 +1222,59 @@
                  console.error("Errore caricamento dettagli personali:", detailsResponse.error);
             }
             
-            // TEMPLATE HTML AGGIORNATO
-            document.querySelector('.dashboard-panel').innerHTML = `
-            <div class="profile-grid">
-              <aside class="col-left">
-                <div class="profile-card reveal">
-                  <div class="profile-header">
-                    <div id="avatar-container" class="profile-avatar">
-                      <div class="skeleton skeleton-avatar"></div>
-                    </div>
-                    <h1 id="user-name" class="profile-name">
-                      <span class="skeleton skeleton-title"></span>
-                    </h1>
-                    <div id="plan-type" class="profile-plan">
-                      <span class="skeleton skeleton-text" style="width: 50px;"></span>
-                    </div>
-                  </div>
+            document.querySelector('.dashboard-panel').innerHTML = `<div class="profile-grid reveal">
+  <aside class="col-left">
+    <div class="profile-card">
+      <div id="avatar-container" class="profile-avatar"></div>
+      <h1 id="user-name" class="profile-name"></h1>
+      <div id="plan-type" class="profile-plan"></div>
+      <div class="profile-info-row">
+        <span class="info-label">📧 Mail</span>
+        <span id="user-email" class="info-value"></span>
+      </div>
+    </div>
+  </aside>
 
-                  <div class="profile-info-row">
-                    <span class="info-label">📧 Mail di Registrazione</span>
-                    <span id="user-email" class="info-value">
-                      <span class="skeleton skeleton-text"></span>
-                    </span>
-                  </div>
-                </div>
-              </aside>
+  <section class="col-right">
+    <section class="card details-card reveal">
+      <h2>✨ Dettagli</h2>
+      <div class="profile-info-row"><span class="info-label">💳 Abbonamento</span><span id="plan-type-detail" class="info-value"></span></div>
+      <div class="profile-info-row"><span class="info-label">🎯 Obiettivo</span><span id="goal-name" class="info-value"></span></div>
+    </section>
 
-              <section class="col-right">
-                <section class="card details-card reveal" style="animation-delay: 0.1s;">
-                  <h2 class="profile-section-title">✨ Dettagli</h2>
-                  <div style="display:grid; gap:12px;">
-                    <div class="profile-info-row">
-                      <span class="info-label">💳 Abbonamento</span>
-                      <span id="plan-type-detail" class="info-value">
-                        <span class="skeleton skeleton-text"></span>
-                      </span>
-                    </div>
-                    <div class="profile-info-row">
-                      <span class="info-label">🎯 Obiettivo Configurato</span>
-                      <span id="goal-name" class="info-value">
-                        <span class="skeleton skeleton-text"></span>
-                      </span>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="card personal-card reveal" style="animation-delay: 0.2s;">
-                  <h2 class="profile-section-title">👤 Informazioni Personali</h2>
-                  <div id="personal-info-form">
-                    <div class="personal-info-grid">
-                        <div class="info-field">
-                          <label>🧑 Genere</label>
-                          <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                          <select class="data-input" id="gender-input">
-                            <option value="">Non specificato</option>
-                            <option value="Uomo">Uomo</option>
-                            <option value="Donna">Donna</option>
-                            <option value="Altro">Altro</option>
-                          </select>
-                        </div>
-
-                        <div class="info-field">
-                          <label>🎂 Data di Nascita</label>
-                          <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                          <input type="date" class="data-input" id="birthdate-input">
-                        </div>
-
-                        <div class="info-field">
-                          <label>🌍 Paese</label>
-                          <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                          <input type="text" placeholder="Es. Italia" class="data-input" id="country-input">
-                        </div>
-
-                        <div class="info-field">
-                          <label>📱 Numero di Telefono</label>
-                          <div class="data-display"><span class="skeleton skeleton-text"></span></div>
-                          <input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input">
-                        </div>
-                    </div>
-                  </div>
-
-                  <div class="profile-actions">
-                    <button id="edit-button" class="btn btn-secondary">Modifica</button>
-                    <button id="save-button" class="btn btn-primary">Salva Modifiche</button>
-                  </div>
-                </section>
-              </section>
-            </div>`;
+    <section class="card personal-card reveal">
+      <h2>👤 Informazioni Personali</h2>
+      <div id="personal-info-form" class="personal-info-grid">
+        <div class="info-field"><label>🧑 Genere</label><div class="data-display"></div>
+          <select id="gender-input" class="data-input"><option value="">Non specificato</option><option>Uomo</option><option>Donna</option><option>Altro</option></select>
+        </div>
+        <div class="info-field"><label>🎂 Data di Nascita</label><div class="data-display"></div><input id="birthdate-input" type="date" class="data-input"></div>
+        <div class="info-field"><label>🌍 Paese</label><div class="data-display"></div><input id="country-input" type="text" class="data-input" placeholder="Italia"></div>
+        <div class="info-field"><label>📱 Telefono</label><div class="data-display"></div><input id="phone-input" type="tel" class="data-input" placeholder="+39 ..."></div>
+      </div>
+      <div class="profile-actions">
+        <button id="edit-button" class="btn btn-secondary">Modifica</button>
+        <button id="save-button" class="btn btn-primary">Salva</button>
+      </div>
+    </section>
+  </section>
+</div>`;
 
             renderProfileData(profileResponse.data, detailsResponse.data);
-            initRevealAnimations(); // CHIAMATA ALLA NUOVA FUNZIONE
-            
             renderSubscriptionStatus(profileResponse.data);
             positionSubscriptionButton();
             updateNotifications();
+            initReveal();
 
-            document.getElementById('edit-button').addEventListener('click', () => toggleEditMode(true));
+            const planRow = document.getElementById('plan-type-detail')?.parentElement;
+            const goalRow = document.getElementById('goal-name')?.parentElement;
+            planRow?.setAttribute('title','Il tuo piano attuale');
+            goalRow?.setAttribute('title','Obiettivo configurato');
+
+            document.getElementById('edit-button').addEventListener('click', () => {
+                const isEditing = document.getElementById('personal-info-form').classList.contains('is-editing');
+                toggleEditMode(!isEditing);
+            });
             document.getElementById('save-button').addEventListener('click', saveUserData);
             document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); window.location.href = "/it/"; });
             document.getElementById('scheduler-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 30); const scheduled = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), scheduled); detailsModal.classList.add('is-visible'); });
