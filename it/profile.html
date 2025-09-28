@@ -179,15 +179,42 @@
       body.is-mobile .data-display.is-empty, body.is-tablet .data-display.is-empty { color: #666; }
 
       /* Layout Grid Profilo & Card */
-      .profile-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+      .profile-grid { 
+        display: grid; 
+        grid-template-columns: 340px 1fr; 
+        gap: 24px; 
+        align-items: stretch; /* MODIFICA: Assicura altezze uguali */
+      }
       .col-right { display: flex; flex-direction: column; gap: 24px; }
-      .profile-grid .card, .profile-grid .profile-card { background: rgba(255,255,255,0.75); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.5); border-radius: var(--radius-lg); box-shadow: 0 8px 32px rgba(0,0,0,.1); transition: transform .3s ease, box-shadow .3s ease; }
-      .profile-grid .card { padding: 32px; }
-      .profile-grid .profile-card { padding: 28px; }
+      
+      .profile-grid .card, .profile-grid .profile-card { 
+        background: rgba(255,255,255,0.75); 
+        backdrop-filter: blur(14px); 
+        -webkit-backdrop-filter: blur(14px); 
+        border: 1px solid rgba(255,255,255,0.5); 
+        border-radius: var(--radius-lg); 
+        box-shadow: 0 8px 32px rgba(0,0,0,.1); 
+        transition: transform .3s ease, box-shadow .3s ease; 
+        height: 100%; /* MODIFICA: Occupa tutta l'altezza della cella di griglia */
+      }
+      .profile-grid .card { 
+        padding: 32px; 
+      }
+      .profile-grid .profile-card { 
+        padding: 28px; 
+        display: flex; /* MODIFICA: Abilita flexbox */
+        flex-direction: column; /* MODIFICA: Dispone gli elementi in colonna */
+        justify-content: center; /* MODIFICA: Centra il contenuto verticalmente */
+        align-items: center; /* MODIFICA: Centra il contenuto orizzontalmente */
+      }
       .profile-grid .card:hover, .profile-grid .profile-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
 
       /* Tipografia Card */
-      .profile-header { text-align: center; margin-bottom: 24px; }
+      .profile-header { 
+        text-align: center; 
+        margin-bottom: 24px; 
+        width: 100%; /* MODIFICA: Assicura che occupi tutta la larghezza */
+      }
       .profile-name { font-size: 1.75rem; font-weight: 700; margin-top: 16px; margin-bottom: 4px; color: #222; }
       .profile-plan { font-size: 0.85rem; font-weight: 600; color: var(--primary-color); background: rgba(108, 92, 231, 0.1); padding: 4px 12px; border-radius: 99px; display: inline-block; }
       
@@ -211,7 +238,18 @@
 
 
       /* Stili Righe Info */
-      .profile-info-row { display: flex; justify-content: space-between; align-items: center; background: none; margin: 0; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.07);}
+      .profile-info-row { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        background: none; 
+        margin: 0; 
+        padding: 12px 0; 
+        border-bottom: 1px solid rgba(0,0,0,0.07);
+      }
+      .profile-card .profile-info-row {
+        width: 100%; /* MODIFICA: Assicura che occupi tutta la larghezza */
+      }
       .profile-card .profile-info-row:last-of-type, .details-card .profile-info-row:last-of-type { border-bottom: none; }
       .profile-card .profile-info-row { padding-left: 8px; padding-right: 8px; }
 
