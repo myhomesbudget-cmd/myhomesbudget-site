@@ -107,6 +107,7 @@
 
       /* Card di diverse dimensioni */
       .card-main { grid-column: span 12; }
+      .card-side { grid-column: span 12; }
       @media (min-width: 1024px) {
         .card-main { grid-column: span 8; }
         .card-side { grid-column: span 4; }
@@ -176,79 +177,19 @@
       .status-toast.success{background:var(--success-color);}
       .status-toast.error{background:var(--danger-color);}
 
+      /* ====== Stili Modali ====== */
       .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
       .modal-overlay.is-visible { opacity: 1; pointer-events: auto; }
-      
-      /* Stili Modale da Dashboard */
-      .modal-overlay.is-visible .modal-content-enhanced {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      .modal-content-enhanced {
-        background: var(--bg);
-        border-radius: var(--radius-lg);
-        padding: 0;
-        width: 90%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        box-shadow: var(--shadow);
-        transform: translateY(-30px) scale(0.98);
-        opacity: 0;
-        transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease;
-      }
-      .modal-header-enhanced {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        background: var(--grad);
-        color: #fff;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        flex-shrink: 0;
-      }
-      .modal-title-enhanced {
-        margin: 0;
-        font-size: 1.3rem;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-       .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #fff; opacity: 0.8; line-height: 1; padding: 0; transition: opacity 0.2s ease; }
-       .modal-close:hover { opacity: 1; }
-
-      .modal-body-enhanced {
-        padding: 8px 24px 24px;
-        overflow-y: auto;
-        flex-grow: 1;
-      }
-      .modal-footer {
-        padding: 16px 24px;
-        background-color: rgba(0,0,0,0.05);
-        border-top: 1px solid var(--card-border);
-        display: flex;
-        justify-content: flex-end;
-      }
-
-      .deadline-item-modal {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 12px 16px;
-        align-items: center;
-        background: rgba(255,255,255,0.7);
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid var(--card-border);
-        margin-top: 12px;
-        transition: transform .2s ease, box-shadow .2s ease;
-      }
-      .deadline-item-modal:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      }
+      .modal-overlay.is-visible .modal-content-enhanced { transform: translateY(0) scale(1); opacity: 1; }
+      .modal-content-enhanced { background: var(--bg); border-radius: var(--radius-lg); padding: 0; width: 90%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: var(--shadow); transform: translateY(-30px) scale(0.98); opacity: 0; transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease; }
+      .modal-header-enhanced { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: var(--grad); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2); flex-shrink: 0; }
+      .modal-title-enhanced { margin: 0; font-size: 1.3rem; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+      .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: #fff; opacity: 0.8; line-height: 1; padding: 0; transition: opacity 0.2s ease; }
+      .modal-close:hover { opacity: 1; }
+      .modal-body-enhanced { padding: 8px 24px 24px; overflow-y: auto; flex-grow: 1; }
+      .modal-footer { padding: 16px 24px; background-color: rgba(0,0,0,0.05); border-top: 1px solid var(--card-border); display: flex; justify-content: flex-end; }
+      .deadline-item-modal { display: grid; grid-template-columns: auto 1fr auto; gap: 12px 16px; align-items: center; background: rgba(255,255,255,0.7); padding: 16px; border-radius: 12px; border: 1px solid var(--card-border); margin-top: 12px; transition: transform .2s ease, box-shadow .2s ease; }
+      .deadline-item-modal:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
       .deadline-item-modal .date-box { grid-area: date; background-color: #f1f5f9; color: #334155; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; font-weight: 700; line-height: 1.1; }
       .deadline-item-modal .date-box .day { font-size: 1.1rem; }
       .deadline-item-modal .date-box .month { font-size: 0.75rem; text-transform: uppercase; }
@@ -265,39 +206,30 @@
       .deadline-item-modal .days-left-badge.very-far { background-color: var(--success-color); }
       
       /* Gemini AI Coach Section */
-      #ai-coach-result {
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 12px;
-        padding: 16px;
-        margin-top: 16px;
-        min-height: 80px;
-        color: #333;
-        font-style: italic;
-        line-height: 1.6;
-        border: 1px solid var(--card-border);
-        transition: all 0.3s ease;
-      }
-      #ai-coach-result.is-loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .loader-dots {
-          display: flex;
-          gap: 8px;
-      }
-      .loader-dots div {
-          width: 10px;
-          height: 10px;
-          background-color: var(--primary-color);
-          border-radius: 50%;
-          animation: bounce 1.4s infinite ease-in-out both;
-      }
+      #ai-coach-result { background: rgba(255, 255, 255, 0.7); border-radius: 12px; padding: 16px; margin-top: 16px; min-height: 80px; color: #333; font-style: italic; line-height: 1.6; border: 1px solid var(--card-border); transition: all 0.3s ease; }
+      #ai-coach-result.is-loading { display: flex; align-items: center; justify-content: center; }
+      .loader-dots { display: flex; gap: 8px; }
+      .loader-dots div { width: 10px; height: 10px; background-color: var(--primary-color); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
       .loader-dots .dot1 { animation-delay: -0.32s; }
       .loader-dots .dot2 { animation-delay: -0.16s; }
-      @keyframes bounce {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1.0); }
+      @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+      /* ====== NUOVO: REGOLE PER RESPONSIVE ====== */
+      @media (max-width: 768px) {
+        main.container { padding: 12px; padding-top: 72px; }
+        .dash-nav { flex-direction: column; }
+        .profile-grid { display: flex; flex-direction: column; }
+        .profile-card { padding: 16px; }
+        .profile-header { gap: 16px; }
+        .profile-avatar { width: 100px; height: 100px; }
+        .profile-name { font-size: 1.8rem; }
+        .profile-email { font-size: 0.9rem; }
+        .profile-section-title { font-size: 1.1rem; }
+        .info-grid { grid-template-columns: 1fr; }
+        .info-value, .info-field .data-display { word-break: break-all; }
+        .profile-actions { flex-direction: column; }
+        .btn { width: 100%; }
+        .modal-content-enhanced { width: 95%; max-height: 85vh; }
       }
     </style>
 </head>
@@ -354,6 +286,13 @@
 
     <script type="module">
         import { supabase } from "/it/supabase-client.js";
+        
+        // Funzione per escapare l'HTML e prevenire XSS
+        function escapeHTML(str) {
+            const p = document.createElement('p');
+            p.textContent = str;
+            return p.innerHTML;
+        }
         
         let currentUser = null;
         let userProfileData = null;
