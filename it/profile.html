@@ -190,23 +190,30 @@
       .profile-header { text-align: center; margin-bottom: 24px; }
       .profile-name { font-size: 1.75rem; font-weight: 700; margin-top: 16px; margin-bottom: 4px; color: #222; }
       .profile-plan { font-size: 0.85rem; font-weight: 600; color: var(--primary-color); background: rgba(108, 92, 231, 0.1); padding: 4px 12px; border-radius: 99px; display: inline-block; }
-      .profile-section-title { font-weight: 700; color: #1a1a1a; margin-bottom: 24px; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; }
+      
+      .profile-section-title { 
+        font-weight: 700; 
+        color: #1a1a1a; 
+        font-size: 1.1rem; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 8px; 
+        margin: 0 0 24px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .personal-card .profile-section-title {
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(0,0,0,0.08);
+      }
+
 
       /* Stili Righe Info */
-      .profile-info-row { display: flex; justify-content: space-between; align-items: center; background: none; margin: 0; }
-      .profile-card .profile-info-row { border-bottom: 1px solid rgba(0,0,0,0.07); padding: 14px 8px; }
-      .profile-card .profile-info-row:last-of-type { border-bottom: none; }
-      
-      .details-card .profile-info-row {
-        background: rgba(240, 242, 245, 0.8);
-        border: 1px solid transparent;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 12px;
-        transition: all 0.2s ease-in-out;
-      }
-      .details-card .profile-info-row:last-child { margin-bottom: 0; }
-      .details-card .profile-info-row:hover { transform: scale(1.02); background: rgba(255, 255, 255, 1); box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.05); }
+      .profile-info-row { display: flex; justify-content: space-between; align-items: center; background: none; margin: 0; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.07);}
+      .profile-card .profile-info-row:last-of-type, .details-card .profile-info-row:last-of-type { border-bottom: none; }
+      .profile-card .profile-info-row { padding-left: 8px; padding-right: 8px; }
 
       .info-label { font-weight: 500; color: #555; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
       .info-value { font-weight: 600; font-size: 0.95rem; color: #111; text-align: right; }
@@ -542,9 +549,9 @@
               </aside>
 
               <section class="col-right">
-                <section class="card details-card reveal">
+                <section class="card personal-card reveal">
                   <h2 class="profile-section-title">✨ Dettagli Account</h2>
-                  <div>
+                  <div class="details-card">
                     <div class="profile-info-row">
                       <span class="info-label">💳 Abbonamento</span>
                       <span id="plan-type-detail" class="info-value">
@@ -558,9 +565,7 @@
                       </span>
                     </div>
                   </div>
-                </section>
 
-                <section class="card personal-card reveal">
                   <h2 class="profile-section-title">👤 Informazioni Personali</h2>
                   <div id="personal-info-form">
                     <div class="personal-info-grid">
@@ -631,3 +636,4 @@
     </script>
 </body>
 </html>
+
