@@ -605,6 +605,7 @@
                 const day = String(dueDate.getDate()).padStart(2, '0');
                 const month = monthFormatter.format(dueDate).replace('.', '');
 
+                // Ripristinato il layout corretto senza azioni per riga
                 return `
                     <div class="deadline-item-modal">
                         <div class="date-box">
