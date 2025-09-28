@@ -71,11 +71,62 @@
       .skeleton.skeleton-title { height: 2.2rem; width: 40%; margin-bottom: 8px; }
       .skeleton.skeleton-avatar { width: 120px; height: 120px; border-radius: 50%; }
       
-      .dashboard-panel{ background:rgba(255,255,255,0.6); backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px); border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border); box-shadow:var(--shadow); max-width: 800px; width: 100%; margin: 24px auto; animation: fadeInUp 0.5s ease-out forwards; }
+      .dashboard-panel{ 
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+        margin: 24px auto; 
+        animation: none;
+      }
+
+      .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 24px;
+      }
+
+      .profile-card {
+        background:rgba(255,255,255,0.6); 
+        backdrop-filter:blur(12px);
+        -webkit-backdrop-filter:blur(12px); 
+        border-radius:var(--radius-lg);
+        padding:24px;
+        border:1px solid var(--card-border); 
+        box-shadow:var(--shadow);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease-out forwards;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      }
+
+      /* Card di diverse dimensioni */
+      .card-main { grid-column: span 12; }
+      @media (min-width: 1024px) {
+        .card-main { grid-column: span 8; }
+        .card-side { grid-column: span 4; }
+      }
+      
+      /* Staggered animation delays */
+      .card-main { animation-delay: 0.1s; }
+      .card-side { animation-delay: 0.2s; }
+      #personal-info-card { animation-delay: 0.3s; }
+      #ai-coach-card { animation-delay: 0.4s; }
+
 
       /* ====== Stili Profilo con Miglioramenti ====== */
-      .profile-header{display:flex;flex-direction:column;align-items:center;text-align:center;margin-top:-80px;}
-      .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0;}
+      .profile-header{display:flex; flex-direction: column; align-items:center;text-align:center;}
+      @media(min-width: 768px){
+        .profile-header{flex-direction: row; text-align: left; gap: 24px;}
+      }
+      .profile-avatar{position:relative;width:120px;height:120px;border:4px solid rgba(255,255,255,0.8);border-radius:50%;box-shadow:var(--shadow); flex-shrink: 0; margin-bottom: 16px;}
+      @media(min-width: 768px){ .profile-avatar { margin-bottom: 0; } }
+
       .profile-avatar img, .profile-avatar .skeleton-avatar{width:100%;height:100%;border-radius:50%;object-fit:cover;}
       .profile-avatar .avatar-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .3s ease;}
       .profile-avatar:hover .avatar-overlay{opacity:1;}
@@ -84,27 +135,30 @@
       .profile-avatar .avatar-overlay.is-loading .avatar-loader{display:block;}
       .profile-avatar .avatar-overlay.is-loading svg{display:none;}
       .profile-avatar input{display:none;}
-      .profile-name{font-size:2.2rem;font-weight:800;margin:16px 0 8px;min-height: 2.2rem;line-height:1.2;letter-spacing:-0.5px;}
-      .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem;}
 
-      .profile-content{margin-top:24px;display:grid;gap:16px;}
-      .profile-section-title{text-align:center;font-weight:700;color:#333;margin-bottom:20px;font-size:1.3rem;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:8px;line-height:1.3;}
-      .profile-info-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:16px;margin-bottom:24px;box-shadow:var(--shadow);transition: all .3s ease;}
-      .profile-info-row:hover { box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: translateY(-2px); }
-      .info-label{font-weight:600;color:#444;display:flex;align-items:center;gap:8px;font-size:0.95rem;line-height:1.6;}
-      .info-value{font-weight:500;font-size:1rem;min-height:1.5rem;line-height:1.6;}
-
-      .personal-info-grid{display:grid;grid-template-columns:1fr;gap:0;}
-      .info-field{background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:16px;margin-bottom:24px;box-shadow:var(--shadow);transition: all .3s ease;}
-      .info-field:hover { box-shadow: 0 8px 25px rgba(0,0,0,.12); transform: translateY(-2px); }
+      .profile-name-section { flex-grow: 1; }
+      .profile-name{font-size:2.2rem;font-weight:800;margin:0 0 8px;min-height: 2.2rem;line-height:1.2;letter-spacing:-0.5px;}
+      .profile-plan{font-size:0.9rem;font-weight:700;color: var(--primary-color);background:rgba(255,255,255,0.9);padding:6px 16px;border-radius:999px;border:1px solid var(--card-border); min-height: 1.5rem; display: inline-block;}
+      
+      .profile-section-title{font-weight:700;color:#333;margin-bottom:16px;font-size:1.3rem;letter-spacing:0.5px;display:flex;align-items:center;gap:8px;line-height:1.3;}
+      
+      .info-grid { display: grid; gap: 16px; }
+      @media(min-width: 600px) {
+        .info-grid { grid-template-columns: 1fr 1fr; }
+      }
+      .info-item { display: flex; flex-direction: column; gap: 4px; }
+      .info-label{font-weight:600;color:#555;display:flex;align-items:center;gap:8px;font-size:0.9rem;}
+      .info-value{font-weight:500;font-size:1rem;min-height:1.5rem;}
+      
+      .info-field{background:rgba(255,255,255,0.3); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.5); border-radius:var(--radius-lg);padding:12px;transition: all .3s ease;}
       .info-field label{font-size:0.8rem;font-weight:600;color:#666;display:flex; align-items:center; gap:8px; margin-bottom:4px;}
-      .info-field .data-display{font-size:1rem;font-weight:500;color:#333;min-height:24px;transition: opacity .3s ease;text-align:center;line-height:1.6;}
+      .info-field .data-display{font-size:1rem;font-weight:500;color:#333;min-height:24px;transition: opacity .3s ease;line-height:1.6;}
       .info-field .data-display.is-empty{color:#888;font-style:italic;}
-      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease; text-align: center;}
+      .info-field .data-input{display:none;width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:1rem;font-family:var(--font-sans); transition: opacity .3s ease;}
       .is-editing .info-field .data-display { display: none; }
       .is-editing .info-field .data-input { display: block; }
 
-      .profile-actions{display:flex;justify-content:center;gap:16px;margin-top:16px;}
+      .profile-actions{display:flex;justify-content:flex-end;gap:16px;margin-top:24px;}
       .btn{cursor:pointer;border:none;border-radius:10px;padding:10px 20px;height:42px;font-weight:600;font-size:0.9rem;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;display:flex;align-items:center;justify-content:center;}
       .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
       .btn:active:not(:disabled){transform:translateY(-1px) scale(0.98);}
@@ -173,719 +227,6 @@
         0%, 80%, 100% { transform: scale(0); }
         40% { transform: scale(1.0); }
       }
-
-      @media(min-width: 640px) {
-        .personal-info-grid{ grid-template-columns:1fr 1fr; }
-        .dashboard-panel{ padding: 24px; }
-        .profile-name{ font-size: 2rem; }
-        .info-label { font-size: 1rem; }
-        .info-value { font-size: 1.1rem; }
-        .info-field .data-display, .info-field .data-input { font-size: 1.1rem; }
-      }
-      @media(min-width: 768px) {
-        .topbar { padding: 0 24px; }
-        main.container { padding: 24px; padding-top: 84px; }
-      }
-
-      /* PROFILE MOBILE REDESIGN - 25/09/2025 */
-      
-      /* Utility Classes per Gestione Testi Lunghi */
-      .text-wrap {
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-      }
-      
-      .text-clip {
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      
-      .show-more-btn {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        margin-left: 8px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        background: rgba(108, 92, 231, 0.1);
-        transition: all 0.2s ease;
-      }
-      
-      .show-more-btn:hover {
-        background: rgba(108, 92, 231, 0.2);
-        transform: translateY(-1px);
-      }
-
-      /* Typography Fluida - Mobile (≤480px) */
-      body.is-mobile h1, body.is-mobile .profile-name {
-        font-size: clamp(1.3rem, 6vw, 1.8rem);
-        line-height: 1.2;
-      }
-      
-      body.is-mobile h2, body.is-mobile .profile-section-title {
-        font-size: clamp(1.1rem, 4.8vw, 1.4rem);
-        line-height: 1.25;
-      }
-      
-      body.is-mobile, body.is-mobile p, body.is-mobile .info-value, body.is-mobile .data-display {
-        font-size: clamp(0.95rem, 2.8vw, 1rem);
-        line-height: 1.6;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-      }
-
-      /* Typography Fluida - Tablet (481-1024px) */
-      body.is-tablet h1, body.is-tablet .profile-name {
-        font-size: clamp(1.6rem, 3.8vw, 2.1rem);
-        line-height: 1.2;
-      }
-      
-      body.is-tablet h2, body.is-tablet .profile-section-title {
-        font-size: clamp(1.2rem, 3.2vw, 1.6rem);
-        line-height: 1.25;
-      }
-
-      /* Layout Mobile Stacked per dettagli profilo */
-      body.is-mobile .profile-info-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        text-align: left;
-      }
-      
-      body.is-mobile .profile-info-row .info-label {
-        font-weight: 600;
-        color: #333;
-        font-size: 0.9rem;
-      }
-      
-      body.is-mobile .profile-info-row .info-value {
-        font-weight: 500;
-        color: #555;
-        font-size: 1rem;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-        min-width: 0;
-      }
-      
-      body.is-mobile .info-field {
-        text-align: left;
-      }
-      
-      body.is-mobile .info-field .data-display,
-      body.is-mobile .info-field .data-input {
-        text-align: left;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-        min-width: 0;
-      }
-
-      /* Pulsanti e Input con Tap Target */
-      body.is-mobile button, body.is-mobile .btn, body.is-mobile [role="button"] {
-        min-height: 44px;
-        padding: 10px 14px;
-        font-size: 0.95rem;
-        border-radius: 12px;
-      }
-      
-      body.is-mobile input, body.is-mobile select, body.is-mobile textarea {
-        min-height: 44px;
-        padding: 12px;
-        font-size: 1rem;
-        border-radius: 12px;
-      }
-      
-      body.is-mobile .top-btn, body.is-mobile .top-link {
-        min-height: 44px;
-        padding: 12px 16px;
-        font-size: 0.95rem;
-        border-radius: 12px;
-      }
-
-      /* Card e Contenitori */
-      body.is-mobile main.container {
-        padding: 16px;
-        padding-top: 72px;
-      }
-      
-      body.is-mobile .dashboard-panel,
-      body.is-mobile .profile-info-row,
-      body.is-mobile .info-field {
-        border-radius: 16px;
-        padding: 16px;
-      }
-      
-      body.is-mobile .dashboard-panel {
-        margin: 16px auto;
-      }
-      
-      body.is-mobile .profile-info-row,
-      body.is-mobile .info-field {
-        margin-bottom: 16px;
-        gap: 12px;
-      }
-      
-      body.is-mobile .profile-content > section {
-        margin-bottom: 20px;
-      }
-
-      /* Tabelle/Listati con Scroll Orizzontale */
-      body.is-mobile .modal-body {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      
-      body.is-mobile .deadline-item {
-        table-layout: fixed;
-        min-width: 300px;
-        white-space: nowrap;
-      }
-      
-      body.is-mobile .item-details .note,
-      body.is-mobile .item-details .category {
-        max-width: 120px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      
-      body.is-mobile .item-amount {
-        white-space: nowrap;
-        min-width: 80px;
-      }
-
-      /* Pulsanti Profilo */
-      body.is-mobile .profile-actions {
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 20px;
-      }
-      
-      body.is-mobile .profile-actions .btn {
-        width: 100%;
-        justify-content: center;
-        min-height: 44px;
-      }
-
-      /* Avatar Responsive */
-      body.is-mobile .profile-avatar {
-        width: 100px;
-        height: 100px;
-      }
-      
-      body.is-tablet .profile-avatar {
-        width: 110px;
-        height: 110px;
-      }
-
-      /* Grid Responsive */
-      body.is-mobile .personal-info-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      
-      body.is-tablet .personal-info-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      /* Navigation Responsive */
-      body.is-mobile .dash-nav {
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 20px;
-      }
-      
-      body.is-mobile .dash-nav a {
-        text-align: center;
-        padding: 12px 16px;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Modal Responsive */
-      body.is-mobile .modal-content {
-        width: 95%;
-        padding: 20px;
-        max-height: 85vh;
-        border-radius: 16px;
-      }
-      
-      body.is-mobile .modal-title {
-        font-size: clamp(1.1rem, 4.8vw, 1.4rem);
-      }
-
-      /* Status Toast Responsive */
-      body.is-mobile .status-toast {
-        left: 16px;
-        right: 16px;
-        transform: none;
-        border-radius: 12px;
-        font-size: 0.95rem;
-      }
-
-      /* Tablet Specifici */
-      body.is-tablet .dashboard-panel {
-        max-width: 600px;
-        padding: 20px;
-      }
-      
-      body.is-tablet .profile-actions {
-        flex-direction: row;
-        justify-content: center;
-        gap: 16px;
-      }
-      
-      body.is-tablet .btn {
-        min-width: 120px;
-        min-height: 44px;
-      }
-
-      /* Desktop Miglioramenti */
-      body.is-desktop .dashboard-panel {
-        max-width: 800px;
-      }
-      
-      body.is-desktop .personal-info-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      /* Accessibilità - Stati Focus Visibili */
-      button:focus, .btn:focus, a:focus, input:focus, select:focus, textarea:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-        border-radius: 8px;
-      }
-      
-      /* Contrasto Migliorato */
-      body.is-mobile .info-label, body.is-tablet .info-label {
-        color: #222;
-      }
-      
-      body.is-mobile .info-value, body.is-tablet .info-value {
-        color: #333;
-      }
-      
-      body.is-mobile .data-display.is-empty, body.is-tablet .data-display.is-empty {
-        color: #666;
-      }
-
-      /* PROFILE COMPACT MOBILE - 25/09/2025 */
-      /* Modalità compatta per schermi ≤480px - Ottimizza l'altezza verticale */
-      
-      /* Tipografia compatta */
-      body.compact-mobile h1, body.compact-mobile .profile-name {
-        font-size: 1.4rem !important;
-        margin-block: 8px !important;
-        line-height: 1.2;
-      }
-      
-      body.compact-mobile h2, body.compact-mobile .profile-section-title {
-        font-size: 1.1rem !important;
-        margin-block: 6px !important;
-        line-height: 1.25;
-      }
-      
-      body.compact-mobile, body.compact-mobile p, body.compact-mobile .info-value, 
-      body.compact-mobile .data-display, body.compact-mobile .info-label {
-        font-size: 0.95rem !important;
-        line-height: 1.45 !important;
-      }
-      
-      /* Tab navigation compatti */
-      body.compact-mobile .dash-nav {
-        margin-bottom: 8px;
-        gap: 6px;
-      }
-      
-      body.compact-mobile .dash-nav a {
-        padding: 6px 12px;
-        min-height: 44px;
-        font-size: 0.95rem;
-        border-radius: 12px;
-      }
-      
-      /* Card più dense */
-      body.compact-mobile .dashboard-panel {
-        padding: 12px;
-        border-radius: 12px;
-        margin: 10px auto;
-        box-shadow: 0 8px 20px rgba(0,0,0,.08);
-      }
-      
-      body.compact-mobile .profile-info-row,
-      body.compact-mobile .info-field {
-        padding: 12px;
-        border-radius: 12px;
-        margin-bottom: 10px;
-        gap: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,.06);
-      }
-      
-      body.compact-mobile .profile-content {
-        gap: 10px;
-      }
-      
-      body.compact-mobile .profile-content > section {
-        margin-bottom: 12px;
-      }
-      
-      /* Header profilo compatto */
-      body.compact-mobile .profile-header {
-        margin-top: -60px;
-      }
-      
-      body.compact-mobile .profile-avatar {
-        width: 72px;
-        height: 72px;
-        margin-bottom: 8px;
-      }
-      
-      body.compact-mobile .profile-plan {
-        font-size: 0.85rem;
-        padding: 4px 12px;
-        height: 24px;
-        min-height: 24px;
-        border-radius: 999px;
-      }
-      
-      /* Righe dettaglio compatte */
-      body.compact-mobile .profile-info-row {
-        gap: 6px;
-        line-height: 1.35;
-      }
-      
-      body.compact-mobile .profile-info-row .info-label {
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2px;
-      }
-      
-      body.compact-mobile .profile-info-row .info-value {
-        font-weight: 500;
-        font-size: 0.95rem;
-      }
-      
-      /* Container orizzontali compatti */
-      body.compact-mobile main.container {
-        padding: 12px;
-        padding-top: 72px;
-      }
-      
-      /* Pulsanti con tap target appropriati */
-      body.compact-mobile button, body.compact-mobile .btn, body.compact-mobile [role="button"] {
-        min-height: 40px;
-        padding: 8px 12px;
-        font-size: 0.9rem;
-        border-radius: 10px;
-      }
-      
-      body.compact-mobile .profile-actions {
-        margin-top: 16px;
-        gap: 10px;
-      }
-      
-      /* Sezioni accordion compatte (se presenti) */
-      body.compact-mobile details {
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 8px 12px;
-        margin-bottom: 10px;
-        background: rgba(255,255,255,0.6);
-        backdrop-filter: blur(12px);
-        box-shadow: 0 4px 12px rgba(0,0,0,.06);
-      }
-      
-      body.compact-mobile summary {
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 1.05rem;
-        padding: 8px 0;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        user-select: none;
-        list-style: none;
-      }
-      
-      body.compact-mobile summary::-webkit-details-marker {
-        display: none;
-      }
-      
-      body.compact-mobile summary::after {
-        content: '▼';
-        font-size: 0.8rem;
-        color: var(--primary-color);
-        transition: transform 0.2s ease;
-      }
-      
-      body.compact-mobile details[open] summary::after {
-        transform: rotate(180deg);
-      }
-      
-      body.compact-mobile details .personal-info-grid {
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid rgba(0,0,0,0.1);
-      }
-      
-      /* Modal compatti */
-      body.compact-mobile .modal-content {
-        padding: 16px;
-        border-radius: 16px;
-        max-height: 90vh;
-      }
-      
-      body.compact-mobile .modal-title {
-        font-size: 1.1rem;
-      }
-      
-      body.compact-mobile .modal-header {
-        padding-bottom: 8px;
-        margin-bottom: 12px;
-      }
-      
-      /* Toast compatti */
-      body.compact-mobile .status-toast {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        border-radius: 10px;
-      }
-      
-      /* Focus states accessibili */
-      body.compact-mobile button:focus, body.compact-mobile .btn:focus, 
-      body.compact-mobile a:focus, body.compact-mobile summary:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 1px;
-      }
-
-      /* PROFILE COMPACT CENTER - 25/09/2025 */
-      /* Allineamento centrale per compact-mobile mode */
-      
-      /* Titoli e sottotitoli centrati */
-      body.compact-mobile h1, body.compact-mobile .profile-name,
-      body.compact-mobile h2, body.compact-mobile .profile-section-title {
-        text-align: center !important;
-      }
-      
-      body.compact-mobile .profile-plan {
-        text-align: center;
-        margin: 0 auto;
-      }
-      
-      /* Tab navigation centrata */
-      body.compact-mobile .dash-nav {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 8px;
-      }
-      
-      body.compact-mobile .dash-nav a {
-        text-align: center;
-        justify-content: center;
-      }
-      
-      /* Card e sezioni con layout centrato */
-      body.compact-mobile .dashboard-panel {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-      
-      body.compact-mobile .profile-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: 100%;
-      }
-      
-      body.compact-mobile .profile-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        text-align: center;
-      }
-      
-      body.compact-mobile .profile-content > section {
-        width: 100%;
-        text-align: center;
-      }
-      
-      /* Righe "Etichetta : Valore" stacked e centrate */
-      body.compact-mobile .profile-info-row {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 6px;
-        width: 100%;
-      }
-      
-      body.compact-mobile .profile-info-row .info-label {
-        display: block;
-        text-align: center;
-        font-weight: 600;
-        opacity: 0.9;
-        width: 100%;
-      }
-      
-      body.compact-mobile .profile-info-row .info-value {
-        display: block;
-        text-align: center;
-        font-weight: 500;
-        width: 100%;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-      }
-      
-      /* Info fields centrati */
-      body.compact-mobile .info-field {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        width: 100%;
-      }
-      
-      body.compact-mobile .info-field label {
-        text-align: center;
-        width: 100%;
-        justify-content: center;
-      }
-      
-      body.compact-mobile .info-field .data-display,
-      body.compact-mobile .info-field .data-input {
-        text-align: center;
-        width: 100%;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-      }
-      
-      /* Gestione testi lunghi centrati */
-      body.compact-mobile .text-clip {
-        text-align: center;
-        width: 100%;
-      }
-      
-      body.compact-mobile .text-wrap {
-        text-align: center;
-        width: 100%;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-      }
-      
-      body.compact-mobile .show-more-btn {
-        display: block;
-        text-align: center;
-        margin: 4px auto 0;
-        width: fit-content;
-      }
-      
-      /* Pulsanti centrati */
-      body.compact-mobile .profile-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 10px;
-      }
-      
-      body.compact-mobile .profile-actions .btn {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-      }
-      
-      /* Grid informazioni personali centrata */
-      body.compact-mobile .personal-info-grid {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 12px;
-      }
-      
-      /* Tabelle/listati con header centrati */
-      body.compact-mobile .modal-title {
-        text-align: center;
-      }
-      
-      body.compact-mobile .modal-header {
-        text-align: center;
-      }
-      
-      body.compact-mobile .deadline-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 8px;
-        padding: 12px;
-      }
-      
-      body.compact-mobile .item-details {
-        text-align: center;
-        width: 100%;
-      }
-      
-      body.compact-mobile .item-details .note,
-      body.compact-mobile .item-details .category {
-        text-align: center;
-        max-width: none;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      
-      body.compact-mobile .item-amount {
-        text-align: center;
-        width: 100%;
-        font-weight: 700;
-      }
-      
-      body.compact-mobile .days-left {
-        text-align: center;
-        width: 100%;
-      }
-      
-      /* Accordion centrati */
-      body.compact-mobile details {
-        text-align: center;
-        width: 100%;
-      }
-      
-      body.compact-mobile summary {
-        text-align: center;
-        justify-content: center;
-        position: relative;
-      }
-      
-      body.compact-mobile summary::after {
-        position: absolute;
-        right: 12px;
-      }
-      
-      /* Toast centrati */
-      body.compact-mobile .status-toast {
-        text-align: center;
-        left: 12px;
-        right: 12px;
-        transform: none;
-      }
     </style>
 </head>
 <body>
@@ -896,7 +237,6 @@
           <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
           <span class="logo-text">MyHomesBudget</span>
       </a>
-      <!-- MODIFICA: Aggiunto l'elemento HTML per il bottone abbonamento -->
       <div class="top-center">
         <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
       </div>
@@ -940,35 +280,6 @@
     </div>
 
     <script type="module">
-        // PROFILE RESPONSIVE OPTIMIZER - Device Detection - 25/09/2025
-        function updateDeviceClass() {
-            const width = window.innerWidth;
-            const body = document.body;
-            
-            // Rimuovi tutte le classi device esistenti
-            body.classList.remove('is-mobile', 'is-tablet', 'is-desktop', 'compact-mobile');
-            
-            // Aggiungi la classe appropriata
-            if (width <= 480) {
-                body.classList.add('is-mobile');
-                body.classList.add('compact-mobile'); // PROFILE COMPACT MOBILE - 25/09/2025
-            } else if (width <= 1024) {
-                body.classList.add('is-tablet');
-            } else {
-                body.classList.add('is-desktop');
-            }
-        }
-        
-        // Inizializza al caricamento
-        updateDeviceClass();
-        
-        // Aggiorna al ridimensionamento con debounce
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(updateDeviceClass, 100);
-        });
-
         import { supabase } from "/it/supabase-client.js";
         
         let currentUser = null;
@@ -997,19 +308,19 @@
             document.getElementById('goal-name').textContent = profile?.goal_name || 'Nessun obiettivo';
             const form = document.getElementById('personal-info-form');
             const detailsData = details || {};
-            const genderDisplay = form.querySelector('.info-field:nth-child(1) .data-display');
+            const genderDisplay = form.querySelector('#gender-display');
             genderDisplay.textContent = detailsData.gender || emptyPlaceholder;
             genderDisplay.classList.toggle('is-empty', !detailsData.gender);
             document.getElementById('gender-input').value = detailsData.gender || '';
-            const birthdateDisplay = form.querySelector('.info-field:nth-child(2) .data-display');
+            const birthdateDisplay = form.querySelector('#birthdate-display');
             birthdateDisplay.textContent = detailsData.birthdate ? new Date(detailsData.birthdate).toLocaleDateString('it-IT') : 'Non impostata';
             birthdateDisplay.classList.toggle('is-empty', !detailsData.birthdate);
             document.getElementById('birthdate-input').value = detailsData.birthdate || '';
-            const countryDisplay = form.querySelector('.info-field:nth-child(3) .data-display');
+            const countryDisplay = form.querySelector('#country-display');
             countryDisplay.textContent = detailsData.country || emptyPlaceholder;
             countryDisplay.classList.toggle('is-empty', !detailsData.country);
             document.getElementById('country-input').value = detailsData.country || '';
-            const phoneDisplay = form.querySelector('.info-field:nth-child(4) .data-display');
+            const phoneDisplay = form.querySelector('#phone-display');
             phoneDisplay.textContent = detailsData.phone || emptyPlaceholder;
             phoneDisplay.classList.toggle('is-empty', !detailsData.phone);
             document.getElementById('phone-input').value = detailsData.phone || '';
@@ -1064,12 +375,11 @@
         }
 
         function toggleEditMode(isEditing) {
-            document.getElementById('personal-info-form').classList.toggle('is-editing', isEditing);
+            document.getElementById('personal-info-card').classList.toggle('is-editing', isEditing);
             document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block';
             document.getElementById('save-button').style.display = isEditing ? 'block' : 'none';
         }
         
-        // Gemini API Call
         async function getAIAssistantAdvice() {
             const resultContainer = document.getElementById('ai-coach-result');
             const getAdviceBtn = document.getElementById('get-advice-btn');
@@ -1210,7 +520,76 @@
                  console.error("Errore caricamento dettagli personali:", detailsResponse.error);
             }
             
-            document.querySelector('.dashboard-panel').innerHTML = `<div class="profile-header"><div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div><h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1><div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div></div><div class="profile-content"><section><div class="profile-info-row"><span class="info-label">📧 Mail di Registrazione</span><span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span></div></section><section><h2 class="profile-section-title">✨ Dettagli</h2><div style="display:grid; gap:12px;"><div class="profile-info-row"><span class="info-label">💳 Abbonamento</span><span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span></div><div class="profile-info-row"><span class="info-label">🎯 Obiettivo Configurato</span><span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span></div></div></section><section><h2 class="profile-section-title">👤 Informazioni Personali</h2><div id="personal-info-form" class="personal-info-grid"><div class="info-field"><label>🧑 Genere</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><select class="data-input" id="gender-input"><option value="">Non specificato</option><option value="Uomo">Uomo</option><option value="Donna">Donna</option><option value="Altro">Altro</option></select></div><div class="info-field"><label>🎂 Data di Nascita</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="date" class="data-input" id="birthdate-input"></div><div class="info-field"><label>🌍 Paese</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="text" placeholder="Es. Italia" class="data-input" id="country-input"></div><div class="info-field"><label>📱 Numero di Telefono</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input"></div></div></section><div class="profile-actions"><button id="edit-button" class="btn btn-secondary">Modifica</button><button id="save-button" class="btn btn-primary">Salva Modifiche</button></div> <section><h2 class="profile-section-title">🤖 Consulente Finanziario AI</h2><p style="text-align:center; max-width: 600px; margin: -10px auto 16px;">Ottieni un consiglio personalizzato basato sul tuo obiettivo finanziario.</p><div class="profile-actions"><button id="get-advice-btn" class="btn btn-primary">✨ Chiedi un consiglio</button></div><div id="ai-coach-result"></div></section></div>`;
+            document.querySelector('.dashboard-panel').innerHTML = `
+            <div class="profile-grid">
+                <div class="profile-card card-main">
+                    <div class="profile-header">
+                        <div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div>
+                        <div class="profile-name-section">
+                            <h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1>
+                            <div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card card-side">
+                    <h2 class="profile-section-title">✨ Dettagli Account</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">📧 Mail</span>
+                            <span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">💳 Abbonamento</span>
+                            <span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span>
+                        </div>
+                        <div class="info-item" style="grid-column: span 2;">
+                             <span class="info-label">🎯 Obiettivo Principale</span>
+                            <span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="personal-info-card" class="profile-card card-main">
+                    <h2 class="profile-section-title">👤 Informazioni Personali</h2>
+                    <div id="personal-info-form" class="info-grid">
+                        <div class="info-field">
+                            <label>🧑 Genere</label>
+                            <div id="gender-display" class="data-display"><span class="skeleton skeleton-text"></span></div>
+                            <select class="data-input" id="gender-input"><option value="">Non specificato</option><option value="Uomo">Uomo</option><option value="Donna">Donna</option><option value="Altro">Altro</option></select>
+                        </div>
+                        <div class="info-field">
+                            <label>🎂 Data di Nascita</label>
+                            <div id="birthdate-display" class="data-display"><span class="skeleton skeleton-text"></span></div>
+                            <input type="date" class="data-input" id="birthdate-input">
+                        </div>
+                        <div class="info-field">
+                            <label>🌍 Paese</label>
+                            <div id="country-display" class="data-display"><span class="skeleton skeleton-text"></span></div>
+                            <input type="text" placeholder="Es. Italia" class="data-input" id="country-input">
+                        </div>
+                        <div class="info-field">
+                            <label>📱 Telefono</label>
+                            <div id="phone-display" class="data-display"><span class="skeleton skeleton-text"></span></div>
+                            <input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input">
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button id="edit-button" class="btn btn-secondary">Modifica</button>
+                        <button id="save-button" class="btn btn-primary">Salva Modifiche</button>
+                    </div>
+                </div>
+                
+                <div id="ai-coach-card" class="profile-card card-side">
+                    <h2 class="profile-section-title">🤖 Consulente AI</h2>
+                    <p style="text-align:center; margin-top: -10px; margin-bottom: 20px;">Ottieni un consiglio personalizzato basato sul tuo obiettivo.</p>
+                    <div class="profile-actions" style="margin-top: auto;">
+                        <button id="get-advice-btn" class="btn btn-primary" style="width: 100%;">✨ Chiedi un consiglio</button>
+                    </div>
+                    <div id="ai-coach-result"></div>
+                </div>
+
+            </div>`;
 
             renderProfileData(profileResponse.data, detailsResponse.data);
             renderSubscriptionStatus(profileResponse.data);
@@ -1235,128 +614,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', initializePage);
-
-        // PROFILE MOBILE REDESIGN - Text Overflow Handler - 25/09/2025
-        (function() {
-            'use strict';
-            
-            // Funzione per applicare gestione testi lunghi
-            function initTextOverflowHandling() {
-                const longTextElements = document.querySelectorAll('#user-email, #plan-type-detail, #goal-name, .info-value, .data-display');
-                
-                longTextElements.forEach(element => {
-                    const text = element.textContent.trim();
-                    
-                    // Applica gestione solo a testi lunghi (>30 caratteri) su mobile
-                    if (text.length > 30 && document.body.classList.contains('is-mobile')) {
-                        // Verifica se non ha già un bottone "Mostra tutto"
-                        if (!element.nextElementSibling || !element.nextElementSibling.classList.contains('show-more-btn')) {
-                            element.classList.add('text-clip');
-                            
-                            // Crea bottone "Mostra tutto"
-                            const showMoreBtn = document.createElement('a');
-                            showMoreBtn.href = '#';
-                            showMoreBtn.className = 'show-more-btn';
-                            showMoreBtn.textContent = 'Mostra tutto';
-                            showMoreBtn.setAttribute('role', 'button');
-                            showMoreBtn.setAttribute('tabindex', '0');
-                            showMoreBtn.setAttribute('aria-label', `Mostra il testo completo: ${text}`);
-                            
-                            // Event handlers per click e keyboard
-                            const toggleText = (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                
-                                if (element.classList.contains('text-clip')) {
-                                    element.classList.remove('text-clip');
-                                    element.classList.add('text-wrap');
-                                    showMoreBtn.textContent = 'Nascondi';
-                                    showMoreBtn.setAttribute('aria-label', 'Nascondi il testo completo');
-                                } else {
-                                    element.classList.remove('text-wrap');
-                                    element.classList.add('text-clip');
-                                    showMoreBtn.textContent = 'Mostra tutto';
-                                    showMoreBtn.setAttribute('aria-label', `Mostra il testo completo: ${text}`);
-                                }
-                            };
-                            
-                            showMoreBtn.addEventListener('click', toggleText);
-                            showMoreBtn.addEventListener('keydown', (e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    toggleText(e);
-                                }
-                            });
-                            
-                            // Inserisci il bottone dopo l'elemento
-                            element.parentNode.insertBefore(showMoreBtn, element.nextSibling);
-                        }
-                    }
-                });
-            }
-            
-            // Gestione al ridimensionamento finestra
-            function handleResize() {
-                const isMobile = document.body.classList.contains('is-mobile');
-                const showMoreBtns = document.querySelectorAll('.show-more-btn');
-                
-                if (!isMobile) {
-                    // Rimuovi gestione su desktop/tablet
-                    showMoreBtns.forEach(btn => {
-                        const element = btn.previousElementSibling;
-                        if (element) {
-                            element.classList.remove('text-clip', 'text-wrap');
-                        }
-                        btn.remove();
-                    });
-                } else {
-                    // Applica gestione su mobile se non già presente
-                    if (showMoreBtns.length === 0) {
-                        initTextOverflowHandling();
-                    }
-                }
-            }
-            
-            // Observer per contenuti aggiunti dinamicamente
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                        // Attendi che il contenuto sia renderizzato
-                        setTimeout(() => {
-                            if (document.body.classList.contains('is-mobile')) {
-                                initTextOverflowHandling();
-                            }
-                        }, 100);
-                    }
-                });
-            });
-            
-            // Inizializza osservatore per il pannello dashboard
-            const dashboardPanel = document.querySelector('.dashboard-panel');
-            if (dashboardPanel) {
-                observer.observe(dashboardPanel, {
-                    childList: true,
-                    subtree: true
-                });
-            }
-            
-            // Event listener per ridimensionamento
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(handleResize, 200);
-            });
-            
-            // Inizializzazione iniziale dopo il caricamento del contenuto
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => {
-                    if (document.body.classList.contains('is-mobile')) {
-                        initTextOverflowHandling();
-                    }
-                }, 1000); // Attendi che tutto il contenuto dinamico sia caricato
-            });
-            
-        })();
+        
     </script>
 </body>
 </html>
-
