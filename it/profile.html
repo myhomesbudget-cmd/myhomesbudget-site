@@ -137,6 +137,42 @@
       .item-amount.expense{color:var(--danger-color);}
       .item-amount.income{color:var(--success-color);}
       .days-left { font-weight: 700; color: var(--warning-color); }
+      
+      /* Gemini AI Coach Section */
+      #ai-coach-result {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 16px;
+        min-height: 80px;
+        color: #333;
+        font-style: italic;
+        line-height: 1.6;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+      }
+      #ai-coach-result.is-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loader-dots {
+          display: flex;
+          gap: 8px;
+      }
+      .loader-dots div {
+          width: 10px;
+          height: 10px;
+          background-color: var(--primary-color);
+          border-radius: 50%;
+          animation: bounce 1.4s infinite ease-in-out both;
+      }
+      .loader-dots .dot1 { animation-delay: -0.32s; }
+      .loader-dots .dot2 { animation-delay: -0.16s; }
+      @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.0); }
+      }
 
       @media(min-width: 640px) {
         .personal-info-grid{ grid-template-columns:1fr 1fr; }
@@ -936,6 +972,7 @@
         import { supabase } from "/it/supabase-client.js";
         
         let currentUser = null;
+        let userProfileData = null;
         const emptyPlaceholder = 'Non impostato';
         const toast = document.getElementById('status-toast');
         const MAX_AVATAR_SIZE_MB = 2;
@@ -950,6 +987,7 @@
         }
 
         function renderProfileData(profile, details) {
+            userProfileData = profile; // Store for AI coach
             document.getElementById('avatar-container').innerHTML = `<img id="profile-pic" src="${profile?.avatar_url || `https://placehold.co/128x128/6c5ce7/FFFFFF?text=${(profile?.name || 'U').charAt(0)}`}" alt="Immagine del profilo"><label for="avatar-upload" class="avatar-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg><div class="avatar-loader"></div></label><input type="file" id="avatar-upload" accept="image/*">`;
             document.getElementById('avatar-upload').addEventListener('change', uploadAvatar);
             document.getElementById('user-name').textContent = profile?.name || 'Utente';
@@ -1029,6 +1067,61 @@
             document.getElementById('personal-info-form').classList.toggle('is-editing', isEditing);
             document.getElementById('edit-button').style.display = isEditing ? 'none' : 'block';
             document.getElementById('save-button').style.display = isEditing ? 'block' : 'none';
+        }
+        
+        // Gemini API Call
+        async function getAIAssistantAdvice() {
+            const resultContainer = document.getElementById('ai-coach-result');
+            const getAdviceBtn = document.getElementById('get-advice-btn');
+            
+            if (!userProfileData) {
+                resultContainer.textContent = "Dati del profilo non disponibili.";
+                return;
+            }
+
+            resultContainer.innerHTML = `<div class="loader-dots"><div class="dot1"></div><div class="dot2"></div><div class="dot3"></div></div>`;
+            resultContainer.classList.add('is-loading');
+            getAdviceBtn.disabled = true;
+
+            const userName = userProfileData.name || 'utente';
+            const userGoal = userProfileData.goal_name || 'risparmiare';
+
+            const systemPrompt = "Agisci come un consulente finanziario amichevole e incoraggiante. Fornisci consigli pratici e personalizzati in un paragrafo breve e di facile comprensione. Parla direttamente all'utente usando il 'tu'.";
+            const userQuery = `Ciao, il mio nome è ${userName} e il mio obiettivo finanziario principale è "${userGoal}". Basandoti su questo, dammi un consiglio finanziario personalizzato per iniziare.`;
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    resultContainer.textContent = text;
+                } else {
+                    resultContainer.textContent = "Non è stato possibile generare un consiglio. Riprova più tardi.";
+                }
+            } catch (error) {
+                console.error("Gemini API error:", error);
+                resultContainer.textContent = "Si è verificato un errore. Controlla la console per i dettagli.";
+            } finally {
+                resultContainer.classList.remove('is-loading');
+                getAdviceBtn.disabled = false;
+            }
         }
 
         function renderSubscriptionStatus(profile) {
@@ -1117,7 +1210,7 @@
                  console.error("Errore caricamento dettagli personali:", detailsResponse.error);
             }
             
-            document.querySelector('.dashboard-panel').innerHTML = `<div class="profile-header"><div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div><h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1><div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div></div><div class="profile-content"><section><div class="profile-info-row"><span class="info-label">📧 Mail di Registrazione</span><span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span></div></section><section><h2 class="profile-section-title">✨ Dettagli</h2><div style="display:grid; gap:12px;"><div class="profile-info-row"><span class="info-label">💳 Abbonamento</span><span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span></div><div class="profile-info-row"><span class="info-label">🎯 Obiettivo Configurato</span><span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span></div></div></section><section><h2 class="profile-section-title">👤 Informazioni Personali</h2><div id="personal-info-form" class="personal-info-grid"><div class="info-field"><label>🧑 Genere</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><select class="data-input" id="gender-input"><option value="">Non specificato</option><option value="Uomo">Uomo</option><option value="Donna">Donna</option><option value="Altro">Altro</option></select></div><div class="info-field"><label>🎂 Data di Nascita</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="date" class="data-input" id="birthdate-input"></div><div class="info-field"><label>🌍 Paese</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="text" placeholder="Es. Italia" class="data-input" id="country-input"></div><div class="info-field"><label>📱 Numero di Telefono</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input"></div></div></section><div class="profile-actions"><button id="edit-button" class="btn btn-secondary">Modifica</button><button id="save-button" class="btn btn-primary">Salva Modifiche</button></div></div>`;
+            document.querySelector('.dashboard-panel').innerHTML = `<div class="profile-header"><div id="avatar-container" class="profile-avatar"><div class="skeleton skeleton-avatar"></div></div><h1 id="user-name" class="profile-name"><span class="skeleton skeleton-title"></span></h1><div id="plan-type" class="profile-plan"><span class="skeleton skeleton-text" style="width: 50px;"></span></div></div><div class="profile-content"><section><div class="profile-info-row"><span class="info-label">📧 Mail di Registrazione</span><span id="user-email" class="info-value"><span class="skeleton skeleton-text"></span></span></div></section><section><h2 class="profile-section-title">✨ Dettagli</h2><div style="display:grid; gap:12px;"><div class="profile-info-row"><span class="info-label">💳 Abbonamento</span><span id="plan-type-detail" class="info-value"><span class="skeleton skeleton-text"></span></span></div><div class="profile-info-row"><span class="info-label">🎯 Obiettivo Configurato</span><span id="goal-name" class="info-value"><span class="skeleton skeleton-text"></span></span></div></div></section><section><h2 class="profile-section-title">👤 Informazioni Personali</h2><div id="personal-info-form" class="personal-info-grid"><div class="info-field"><label>🧑 Genere</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><select class="data-input" id="gender-input"><option value="">Non specificato</option><option value="Uomo">Uomo</option><option value="Donna">Donna</option><option value="Altro">Altro</option></select></div><div class="info-field"><label>🎂 Data di Nascita</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="date" class="data-input" id="birthdate-input"></div><div class="info-field"><label>🌍 Paese</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="text" placeholder="Es. Italia" class="data-input" id="country-input"></div><div class="info-field"><label>📱 Numero di Telefono</label><div class="data-display"><span class="skeleton skeleton-text"></span></div><input type="tel" placeholder="Es. +39 123..." class="data-input" id="phone-input"></div></div></section><div class="profile-actions"><button id="edit-button" class="btn btn-secondary">Modifica</button><button id="save-button" class="btn btn-primary">Salva Modifiche</button></div> <section><h2 class="profile-section-title">🤖 Consulente Finanziario AI</h2><p style="text-align:center; max-width: 600px; margin: -10px auto 16px;">Ottieni un consiglio personalizzato basato sul tuo obiettivo finanziario.</p><div class="profile-actions"><button id="get-advice-btn" class="btn btn-primary">✨ Chiedi un consiglio</button></div><div id="ai-coach-result"></div></section></div>`;
 
             renderProfileData(profileResponse.data, detailsResponse.data);
             renderSubscriptionStatus(profileResponse.data);
@@ -1126,6 +1219,7 @@
 
             document.getElementById('edit-button').addEventListener('click', () => toggleEditMode(true));
             document.getElementById('save-button').addEventListener('click', saveUserData);
+            document.getElementById('get-advice-btn').addEventListener('click', getAIAssistantAdvice);
             document.getElementById('logout-btn').addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); window.location.href = "/it/"; });
             document.getElementById('scheduler-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 30); const scheduled = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Scadenziario (Prossimi 30 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), scheduled); detailsModal.classList.add('is-visible'); });
             document.getElementById('notifications-btn').addEventListener('click', async () => { const today = new Date(); const futureDate = new Date(); futureDate.setDate(today.getDate() + 7); const upcoming = await getScheduledTransactions(today, futureDate); detailsModal.querySelector('.modal-title').textContent = `Notifiche (Prossimi 7 giorni)`; renderDeadlinesList(detailsModal.querySelector('#modal-body'), upcoming); detailsModal.classList.add('is-visible'); });
@@ -1265,3 +1359,4 @@
     </script>
 </body>
 </html>
+
