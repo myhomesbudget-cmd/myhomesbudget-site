@@ -204,21 +204,21 @@
     }
 
     /* ════════════════════════════════════════════════════════════════════
-       STICKY CTA BAR (appears on scroll)
+       STICKY CTA BAR (appears on scroll - completely independent)
        ════════════════════════════════════════════════════════════════════ */
     .sticky-cta-bar{
-      position:fixed;top:0;left:0;right:0;z-index:90;
-      background:rgba(15,15,16,.92);
-      backdrop-filter:saturate(1.2) blur(12px);
-      -webkit-backdrop-filter:saturate(1.2) blur(12px);
-      border-bottom:1px solid rgba(255,255,255,.08);
-      padding:10px 20px;
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      position:fixed;top:0;left:0;right:0;z-index:150;
+      background:rgba(10,10,12,.96);
+      backdrop-filter:saturate(1.3) blur(16px);
+      -webkit-backdrop-filter:saturate(1.3) blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.12);
+      padding:12px 24px;
+      display:flex;align-items:center;justify-content:center;gap:16px;
       transform:translateY(-100%);
       opacity:0;
       transition:transform var(--dur-m) var(--ease),opacity var(--dur-m) var(--ease);
       pointer-events:none;
-      box-shadow:0 4px 24px rgba(0,0,0,.2);
+      box-shadow:0 8px 32px rgba(0,0,0,.4);
     }
     .sticky-cta-bar.visible{
       transform:translateY(0);
@@ -227,28 +227,29 @@
     }
     .sticky-cta-bar .headline{
       font-weight:700;font-size:1rem;color:#fff;
-      flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      max-width:500px;
     }
-    .sticky-cta-bar .actions{display:flex;gap:8px;align-items:center}
+    .sticky-cta-bar .actions{display:flex;gap:12px;align-items:center}
     .sticky-cta-bar .cta-small{
-      display:inline-block;padding:8px 14px;border-radius:8px;
-      background:var(--grad);color:#fff;font-weight:700;font-size:.9rem;
+      display:inline-block;padding:10px 20px;border-radius:10px;
+      background:var(--grad);color:#fff;font-weight:800;font-size:.95rem;
       text-decoration:none;white-space:nowrap;
-      transition:transform var(--dur-s) var(--ease),filter var(--dur-s) var(--ease);
+      box-shadow:0 4px 16px rgba(108,92,231,.3);
+      transition:transform var(--dur-s) var(--ease),
+                 filter var(--dur-s) var(--ease),
+                 box-shadow var(--dur-s) var(--ease);
     }
     .sticky-cta-bar .cta-small:hover{
-      transform:translateY(-1px);
-      filter:brightness(1.1);
+      transform:translateY(-2px) scale(1.05);
+      filter:brightness(1.15);
+      box-shadow:0 6px 24px rgba(108,92,231,.4);
     }
-    .sticky-cta-bar .link-small{
-      color:#00cec9;text-decoration:none;font-weight:600;font-size:.9rem;
-      white-space:nowrap;
-    }
-    .sticky-cta-bar .link-small:hover{text-decoration:underline}
     
     @media(max-width:768px){
-      .sticky-cta-bar .headline{font-size:.85rem}
-      .sticky-cta-bar .link-small{display:none}
+      .sticky-cta-bar{padding:10px 16px;gap:10px}
+      .sticky-cta-bar .headline{font-size:.9rem;max-width:200px}
+      .sticky-cta-bar .cta-small{padding:8px 16px;font-size:.85rem}
     }
 
     /* ════════════════════════════════════════════════════════════════════
@@ -498,26 +499,35 @@
     }
     
     .value-grid{
-      display:grid;gap:20px;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      display:grid;gap:24px;
+      grid-template-columns:repeat(3,1fr);
+    }
+    
+    @media(max-width:900px){
+      .value-grid{grid-template-columns:1fr}
+    }
+    
+    @media(min-width:901px) and (max-width:1100px){
+      .value-grid{gap:20px}
     }
     
     .value-card{
-      background:rgba(255,255,255,.55);
-      backdrop-filter:saturate(1.1) blur(8px);
-      -webkit-backdrop-filter:saturate(1.1) blur(8px);
-      border:1px solid var(--card-border);
-      border-radius:16px;padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.1);
+      background:rgba(255,255,255,.58);
+      backdrop-filter:saturate(1.15) blur(10px);
+      -webkit-backdrop-filter:saturate(1.15) blur(10px);
+      border:1px solid rgba(0,0,0,.05);
+      border-radius:20px;padding:28px 24px;
+      box-shadow:0 12px 40px rgba(0,0,0,.08);
       text-align:center;
       transition:transform var(--dur-m) var(--ease),
                  box-shadow var(--dur-m) var(--ease),
                  background var(--dur-m) var(--ease),
                  border-color var(--dur-m) var(--ease);
       opacity:0;
-      transform:translateY(20px) scale(.98);
+      transform:translateY(30px) scale(.96);
       position:relative;
       overflow:hidden;
+      will-change:transform;
     }
     
     /* Animated border gradient on hover */
@@ -542,13 +552,16 @@
       transform:translateY(0) scale(1);
     }
     .value-card:hover{
-      transform:translateY(-8px) scale(1.03) rotate(-1deg);
-      box-shadow:0 20px 50px rgba(108,92,231,.25);
-      background:rgba(255,255,255,.75);
-      border-color:transparent;
+      transform:translateY(-12px) scale(1.04);
+      box-shadow:0 24px 60px rgba(108,92,231,.22);
+      background:rgba(255,255,255,.78);
+      border-color:rgba(108,92,231,.15);
     }
     .value-card:hover::before{
       opacity:1;
+    }
+    .value-card:active{
+      transform:translateY(-8px) scale(1.02);
     }
     
     /* Icon animation on hover */
@@ -684,35 +697,47 @@
     
     .pricing-grid{
       display:grid;gap:24px;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      grid-template-columns:repeat(3,1fr);
+    }
+    
+    @media(max-width:900px){
+      .pricing-grid{grid-template-columns:1fr}
+    }
+    
+    @media(min-width:901px) and (max-width:1100px){
+      .pricing-grid{gap:20px}
     }
     
     .price-card{
       position:relative;
-      background:rgba(255,255,255,.58);
-      backdrop-filter:saturate(1.1) blur(10px);
-      -webkit-backdrop-filter:saturate(1.1) blur(10px);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:18px;padding:32px 20px 24px;
-      box-shadow:0 12px 36px rgba(0,0,0,.1);
+      background:rgba(255,255,255,.6);
+      backdrop-filter:saturate(1.15) blur(12px);
+      -webkit-backdrop-filter:saturate(1.15) blur(12px);
+      border:1px solid rgba(0,0,0,.05);
+      border-radius:20px;padding:36px 24px 28px;
+      box-shadow:0 12px 40px rgba(0,0,0,.08);
       display:flex;flex-direction:column;gap:16px;text-align:center;
       transition:transform var(--dur-m) var(--ease),
                  box-shadow var(--dur-m) var(--ease),
                  border-color var(--dur-m) var(--ease),
                  background var(--dur-m) var(--ease);
       opacity:0;
-      transform:translateY(20px);
+      transform:translateY(30px) scale(.96);
       cursor:pointer;
+      will-change:transform;
     }
     .price-card.reveal-in{
       opacity:1;
-      transform:translateY(0);
+      transform:translateY(0) scale(1);
     }
     .price-card:hover{
-      transform:translateY(-8px) scale(1.02);
-      box-shadow:0 20px 60px rgba(108,92,231,.2);
-      background:rgba(255,255,255,.68);
-      border-color:rgba(108,92,231,.2);
+      transform:translateY(-12px) scale(1.03);
+      box-shadow:0 24px 60px rgba(108,92,231,.18);
+      background:rgba(255,255,255,.72);
+      border-color:rgba(108,92,231,.18);
+    }
+    .price-card:active{
+      transform:translateY(-8px) scale(1.01);
     }
     
     /* Pulse effect on price */
@@ -725,17 +750,19 @@
       50%{transform:scale(1.1)}
     }
     
-    /* Popular card (Plus) - emphasized */
+    /* Popular card (Plus) - emphasized with gradient border */
     .price-card.popular{
       border:2px solid transparent;
-      background:rgba(255,255,255,.68);
-      background-image:linear-gradient(rgba(255,255,255,.68),rgba(255,255,255,.68)),var(--grad);
+      background:rgba(255,255,255,.72);
+      background-image:linear-gradient(rgba(255,255,255,.72),rgba(255,255,255,.72)),var(--grad);
       background-origin:border-box;
       background-clip:padding-box,border-box;
-      padding-top:48px;
+      padding-top:52px;
+      box-shadow:0 16px 48px rgba(108,92,231,.12);
     }
     .price-card.popular:hover{
-      box-shadow:0 20px 60px rgba(108,92,231,.25);
+      box-shadow:0 28px 70px rgba(108,92,231,.22);
+      transform:translateY(-14px) scale(1.04);
     }
     
     .price-card .badge{
@@ -946,7 +973,6 @@
       .hero{padding:30px 16px}
       .cta{padding:12px 20px;font-size:1rem}
       .section-title{font-size:1.5rem}
-      .value-grid,.pricing-grid{grid-template-columns:1fr;gap:16px}
     }
   </style>
 </head>
@@ -972,13 +998,12 @@
   </nav>
 
   <!-- ════════════════════════════════════════════════════════════════════
-       STICKY CTA BAR (appears on scroll)
+       STICKY CTA BAR (appears on scroll - independent from topbar)
        ════════════════════════════════════════════════════════════════════ -->
   <div class="sticky-cta-bar" id="sticky-cta" aria-hidden="true">
-    <div class="headline"><!-- STICKY HEADLINE --></div>
+    <div class="headline" id="sticky-headline">Inizia il tuo percorso verso un bilancio perfetto</div>
     <div class="actions">
-      <a href="signup.html?plan=starter" class="cta-small" id="sticky-cta-btn">Prova gratis</a>
-      <a href="/it/pricing.html" class="link-small">Prezzi</a>
+      <a href="signup.html?plan=starter" class="cta-small" id="sticky-cta-btn">Inizia gratis ora</a>
     </div>
   </div>
 
@@ -1456,7 +1481,7 @@
       }
 
       // ════════════════════════════════════════════════════════════════
-      // 6) REVEAL ANIMATION (IntersectionObserver with stagger)
+      // 6) REVEAL ANIMATION (IntersectionObserver with intelligent stagger)
       // ════════════════════════════════════════════════════════════════
       function initReveal(){
         if(prefersReducedMotion) return;
@@ -1464,45 +1489,66 @@
         const reveals = document.querySelectorAll('.reveal');
         if(!reveals.length) return;
 
+        // Group elements by section for better stagger control
+        const sections = {};
+        reveals.forEach(el => {
+          const section = el.closest('section');
+          const sectionId = section?.id || section?.className || 'default';
+          if(!sections[sectionId]) sections[sectionId] = [];
+          sections[sectionId].push(el);
+        });
+
         const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry, index) => {
+          entries.forEach((entry) => {
             if(entry.isIntersecting){
+              const section = entry.target.closest('section');
+              const sectionId = section?.id || section?.className || 'default';
+              const items = sections[sectionId] || [entry.target];
+              const index = items.indexOf(entry.target);
+              
               setTimeout(() => {
                 entry.target.classList.add('reveal-in');
-              }, index * 80); // stagger
+              }, index * 120); // smoother stagger
+              
               observer.unobserve(entry.target);
             }
           });
         }, {
-          threshold: 0.1,
-          rootMargin: '0px 0px -50px 0px'
+          threshold: 0.15,
+          rootMargin: '0px 0px -80px 0px'
         });
 
         reveals.forEach(el => observer.observe(el));
       }
 
       // ════════════════════════════════════════════════════════════════
-      // 7) STICKY CTA BAR (appears on scroll >40%)
+      // 7) STICKY CTA BAR (appears on scroll >35%, hides when scrolling up)
       // ════════════════════════════════════════════════════════════════
       function initStickyCTA(){
         const stickyBar = document.getElementById('sticky-cta');
-        const headline = stickyBar.querySelector('.headline');
         if(!stickyBar) return;
-
-        headline.textContent = 'Inizia il tuo percorso verso un bilancio perfetto';
 
         let ticking = false;
         let lastScrollY = 0;
+        let isVisible = false;
 
         function updateSticky(){
           const scrollY = window.pageYOffset;
           const docHeight = document.documentElement.scrollHeight - window.innerHeight;
           const scrollPercent = (scrollY / docHeight) * 100;
+          const scrollingDown = scrollY > lastScrollY;
 
-          if(scrollPercent > 40 && scrollY > lastScrollY){
+          // Show when scrolling down past 35% of page
+          if(scrollPercent > 35 && scrollingDown && !isVisible){
             stickyBar.classList.add('visible');
-          } else if(scrollPercent < 20){
+            stickyBar.setAttribute('aria-hidden', 'false');
+            isVisible = true;
+          } 
+          // Hide when scrolling up OR at top of page
+          else if((scrollPercent < 15 || !scrollingDown) && isVisible){
             stickyBar.classList.remove('visible');
+            stickyBar.setAttribute('aria-hidden', 'true');
+            isVisible = false;
           }
 
           lastScrollY = scrollY;
