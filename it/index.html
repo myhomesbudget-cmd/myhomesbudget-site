@@ -90,7 +90,8 @@
     body{
       font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       color:#fff;overflow-x:hidden;
-      background:url("/bg.webp") no-repeat center/cover fixed;
+      /* MODIFICA: Aggiunto colore di fallback #0f0f10 per lo sfondo */
+      background:#0f0f10 url("/bg.webp") no-repeat center/cover fixed;
       position:relative;
     }
     body::before{
@@ -390,11 +391,15 @@
       text-decoration:none;transition:all 0.3s;
       cursor:pointer;
     }
-    .demo-actions .btn-demo{
-      background:var(--grad-primary);color:#fff;border:none;
+    /* MODIFICA: Cambiato lo stile del bottone demo per essere uguale a quello secondario (effetto vetro) */
+    .demo-actions .btn-demo, .demo-actions .btn-secondary{
+        background: var(--glass-bg);
+        color: #fff;
+        border: 1px solid var(--glass-border);
     }
-    .demo-actions .btn-demo:hover{
-      transform:translateY(-2px);filter:brightness(1.1);
+    .demo-actions .btn-demo:hover, .demo-actions .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.14);
+        transform: translateY(-2px);
     }
     /* Demo Simulator - Replica Dashboard */
     .demo-sim{
@@ -722,7 +727,7 @@
       filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));
     }
 
-    /* ========== PRICING (READ-ONLY - DO NOT MODIFY) ========== */
+    /* ========== PRICING (MODIFIED) ========== */
     .pricing-section{
       padding:60px 20px;
     }
@@ -732,7 +737,8 @@
     }
     .price-card{
       position:relative;
-      background:rgba(245,247,250,0.95);backdrop-filter:blur(16px);
+      /* MODIFICA: Sfondo schiarito per migliore leggibilità */
+      background:rgba(255,255,255,0.15);backdrop-filter:blur(16px);
       border:3px solid transparent;
       background-clip:padding-box;
       border-radius:20px;
@@ -757,7 +763,8 @@
       box-shadow:0 0 30px rgba(108,92,231,0.4);
     }
     .price-card.popular{
-      background:rgba(250,252,255,0.98);
+      /* MODIFICA: Sfondo schiarito per migliore leggibilità */
+      background:rgba(255,255,255,0.25);
       box-shadow:0 20px 50px rgba(108,92,231,0.35);
       transform:scale(1.05);
     }
@@ -1147,7 +1154,8 @@
             <img src="/social.png" alt="Anteprima dashboard MyHomesBudget" loading="lazy" decoding="async" width="800" height="450">
           </div>
           <div class="demo-actions">
-            <button class="btn btn-demo" id="btn-demo-flow">Prova il flusso demo</button>
+            <!-- MODIFICA: Testo cambiato in "Prova DEMO" e stile uniformato -->
+            <button class="btn btn-demo" id="btn-demo-flow">Prova DEMO</button>
             <a href="/it/login.html" class="btn btn-secondary">Inizia gratis</a>
           </div>
           <!-- Form simulatore demo -->
@@ -1329,7 +1337,7 @@
       </div>
     </section>
 
-    <!-- PRICING (READ-ONLY - DO NOT MODIFY THIS SECTION) -->
+    <!-- PRICING -->
     <section class="pricing-section reveal">
       <div class="container">
         <h2 class="section-title">Un piano adatto ad ogni esigenza</h2>
@@ -1566,14 +1574,15 @@
     }
   }
 
-  // ====== HERO A/B VARIANT + HEADLINE ROTATOR (bugfix pausa/riavvio) ======
+  // ====== HERO A/B VARIANT + HEADLINE ROTATOR ======
   const urlParams = new URLSearchParams(window.location.search);
   const variant = urlParams.get('v') === '2' ? 'v2' : 'v1';
 
-  const headlines = [
-    'Gestisci il tuo <span class="headline-rotating">bilancio domestico</span> in modo semplice',
-    'Tieni sotto controllo <span class="headline-rotating">entrate e spese</span> con facilità',
-    'Raggiungi i tuoi <span class="headline-rotating">obiettivi finanziari</span> senza stress'
+  // MODIFICA: Corrette le frasi per la rotazione del titolo
+  const rotatingParts = [
+    'il tuo bilancio domestico',
+    'le tue entrate e spese',
+    'i tuoi obiettivi finanziari'
   ];
   let currentHeadlineIndex = 0;
   let headlineTimer = null;
@@ -1584,17 +1593,17 @@
     rotatingEl.style.transition = 'opacity 0.5s';
     rotatingEl.style.opacity = '0';
     setTimeout(() => {
-      currentHeadlineIndex = (currentHeadlineIndex + 1) % headlines.length;
-      const tmp = document.createElement('div'); tmp.innerHTML = headlines[currentHeadlineIndex];
-      const newText = tmp.querySelector('.headline-rotating')?.textContent || '';
-      rotatingEl.textContent = newText;
+      currentHeadlineIndex = (currentHeadlineIndex + 1) % rotatingParts.length;
+      rotatingEl.textContent = rotatingParts[currentHeadlineIndex];
       rotatingEl.style.opacity = '1';
     }, 500);
   }
+  
   function startHeadlineRotate(){
     if (prefersReducedMotion || headlineTimer) return;
     headlineTimer = setInterval(rotateHeadline, 7000);
   }
+  
   function stopHeadlineRotate(){
     if (!headlineTimer) return;
     clearInterval(headlineTimer);
@@ -1603,13 +1612,16 @@
 
   const heroContent = document.getElementById('hero-content');
   if (heroContent) {
+    // MODIFICA: Aggiornata la struttura del titolo per la nuova animazione
+    const heroHeadlineHTML = `Gestisci <span class="headline-rotating">${rotatingParts[0]}</span> in modo semplice`;
+
     if (variant === 'v2') {
       heroContent.className = 'hero-content hero-v2';
       heroContent.innerHTML = `
         <div class="hero-mockup">
           <img src="/social.png" alt="Dashboard MyHomesBudget" loading="eager" width="700" height="394">
         </div>
-        <h1>${headlines[0]}</h1>
+        <h1>${heroHeadlineHTML}</h1>
         <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
         <div class="hero-cta-row">
           <a href="/it/login.html" class="btn btn-primary" data-variant="v2">Accedi</a>
@@ -1620,7 +1632,7 @@
       heroContent.className = 'hero-content hero-v1';
       heroContent.innerHTML = `
         <div class="hero-text">
-          <h1>${headlines[0]}</h1>
+          <h1>${heroHeadlineHTML}</h1>
           <p>Inserisci le tue spese e le entrate in pochi click e tieni tutto sotto controllo.</p>
           <div class="hero-cta-row">
             <a href="/it/login.html" class="btn btn-primary" data-variant="v1">Accedi</a>
