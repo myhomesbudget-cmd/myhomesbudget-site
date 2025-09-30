@@ -81,64 +81,69 @@
   <style id="mhb-landing-enhance">
     :root{
       --grad-primary: linear-gradient(135deg,#6c5ce7,#00cec9);
-      --glass-bg: rgba(255,255,255,0.08);
-      --glass-border: rgba(255,255,255,0.12);
       --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
       --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+       /* MODIFICA: Variabili copiate da profile.html */
+      --glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);
+      --shadow:0 15px 35px rgba(0,0,0,.1);
+      --radius-lg:16px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
+    /* MODIFICA: Stile body copiato da profile.html */
     body{
+      margin:0;
+      color:#fff;
       font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      color:#fff;overflow-x:hidden;
-      /* MODIFICA: Colore di sfondo cambiato */
-      background:#a4a4fc url("/bg.webp") no-repeat center/cover fixed;
-      position:relative;
+      background:url("/bg.webp") no-repeat center/cover fixed;
+      min-height:100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
     }
     body.mobile-nav-is-open {
-      /* Non più necessario bloccare lo scroll per il dropdown */
+      overflow: hidden;
     }
+    /* MODIFICA: Stile ::before copiato da profile.html */
     body::before{
-      content:"";position:fixed;inset:0;
-      background:linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(0,206,201,0.12) 100%);
-      animation:breatheGradient 12s ease-in-out infinite;
-      z-index:-1;pointer-events:none;
+      content:"";
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));
+      z-index:-1;
+      animation: none; /* Rimossa animazione breathe per coerenza */
     }
-    body::after{
-      content:"";position:fixed;inset:0;
-      background:rgba(255,255,255,0.02);
-      z-index:-1;pointer-events:none;
-    }
-    @keyframes breatheGradient{
-      0%,100%{opacity:0.12}
-      50%{opacity:0.18}
-    }
-    @media (prefers-reduced-motion:reduce){
-      body::before{animation:none}
-    }
+    body::after{ display: none; }
+
     a:focus-visible,button:focus-visible{
       outline:3px solid #00cec9;outline-offset:3px;border-radius:8px;
     }
 
-    /* ========== TOPBAR ========== */
+    /* ========== TOPBAR (MODIFICATA) ========== */
     .topbar{
-      position:fixed;top:0;left:0;right:0;z-index:100;
-      background:rgba(15,15,16,0.7);backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--glass-border);
+      position:fixed;top:0;left:0;right:0;height:60px;padding:0 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--glass);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--card-border);
+      z-index:100;
       transition:transform 0.3s var(--ease-smooth);
     }
+
     .topbar.hidden{transform:translateY(-100%)}
     .topbar-inner{
-      max-width:1200px;margin:0 auto;padding:12px 20px;
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      width: 100%;
+      max-width:1200px;margin:0 auto;padding:0;
+      display:flex;align-items:center;justify-content:space-between;
     }
     .logo-link{
       display:flex;align-items:center;gap:10px;text-decoration:none;
     }
     .logo-image{height:36px;width:auto}
     .logo-text{
-      font-weight:700;font-size:1.1rem;color:#fff;
-      background:var(--grad-primary);
-      -webkit-background-clip:text;background-clip:text;color:transparent;
+      font-weight:700;font-size:1.1rem;
+      color: #222; /* Testo scuro per sfondo chiaro */
     }
     .topbar-actions{
       display:flex;align-items:center;gap:12px;
@@ -146,7 +151,7 @@
     .top-link{
       padding:8px 16px;border-radius:8px;font-weight:700;font-size:0.95rem;
       text-decoration:none;color:#fff;
-      background:var(--glass-bg);border:1px solid var(--glass-border);
+      background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
       transition:all 0.2s var(--ease-smooth);
     }
     .top-link:hover{
@@ -162,10 +167,13 @@
     .lang-selector a{
       text-decoration:none;padding:6px 8px;border-radius:6px;
       transition:background 0.2s;
+      color: #555; /* Testo scuro */
     }
-    .lang-selector a:hover{background:rgba(255,255,255,0.1)}
+    .lang-selector a:hover{background:rgba(0,0,0,0.05)}
     .user-greeting{
-      display:flex;align-items:center;gap:8px;color:#fff;font-size:0.95rem;
+      display:flex;align-items:center;gap:8px;
+      color:#333;
+      font-size:0.95rem;
     }
     .btn-logout{
       padding:6px 12px;border-radius:6px;font-size:0.9rem;font-weight:600;
@@ -178,9 +186,10 @@
 
     /* ========== STICKY CTA BAR ========== */
     .sticky-cta-bar{
-      position:fixed;top:0;left:0;right:0;z-index:99;
+      position:fixed;top:60px; /* Sotto la nuova topbar */
+      left:0;right:0;z-index:99;
       background:rgba(15,15,16,0.95);backdrop-filter:blur(16px);
-      border-bottom:1px solid var(--glass-border);
+      border-bottom:1px solid rgba(255,255,255,0.12);
       padding:12px 20px;
       display:flex;align-items:center;justify-content:center;gap:16px;
       transform:translateY(-100%);
@@ -200,13 +209,13 @@
     }
     .sticky-cta-bar .btn-primary:hover{filter:brightness(1.1)}
     .sticky-cta-bar .btn-secondary{
-      background:var(--glass-bg);color:#fff;border:1px solid var(--glass-border);
+      background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.12);
     }
     .sticky-cta-bar .btn-secondary:hover{background:rgba(255,255,255,0.14)}
 
     /* ========== MAIN CONTAINER ========== */
     .container{
-      max-width:1200px;margin:0 auto;padding:0 20px;
+      max-width:1200px;margin:0 auto;padding:0 16px;
     }
 
     /* ========== HERO SECTION ========== */
@@ -264,11 +273,11 @@
       box-shadow:0 8px 24px rgba(0,0,0,0.15);
     }
     .hero-cta-row .btn-primary,
-    .hero-cta-row .btn-secondary { /* MODIFICA: Unificato stile pulsanti hero */
+    .hero-cta-row .btn-secondary {
       background:var(--grad-primary);color:#fff; border: none;
     }
     .hero-cta-row .btn-primary:hover,
-    .hero-cta-row .btn-secondary:hover { /* MODIFICA: Unificato stile hover */
+    .hero-cta-row .btn-secondary:hover {
       transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.25);
       filter:brightness(1.1);
     }
@@ -290,8 +299,8 @@
     }
     .hero-v2 .hero-mockup{
       max-width:700px;margin:0 auto 32px;
-      background:var(--glass-bg);backdrop-filter:blur(12px);
-      border:1px solid var(--glass-border);border-radius:20px;padding:20px;
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:20px;
     }
     .hero-v2 .hero-mockup img{
       width:100%;height:auto;border-radius:12px;
@@ -315,9 +324,8 @@
     .trust-pills{
       display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
     }
-    /* MODIFICA: Stile trust-pill aggiornato */
     .trust-pill{
-      padding:12px 24px;border-radius:12px; /* MODIFICA: Angoli meno arrotondati per effetto bottone */
+      padding:12px 24px;border-radius:12px;
       background:var(--grad-primary);
       backdrop-filter:blur(8px);
       border: none;
@@ -340,7 +348,7 @@
     }
     .demo-box{
       max-width:1000px;margin:0 auto;
-      background:var(--glass-bg);backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
       border:2px solid transparent;
       background-clip:padding-box;
       border-radius:20px;
@@ -382,12 +390,11 @@
       display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
     }
     .demo-actions .btn{
-      padding:12px 24px;border-radius:10px;font-weight:800; /* MODIFICA: Peso del font uniformato */
-      font-size: 1rem; /* MODIFICA: Dimensione del font uniformata */
+      padding:12px 24px;border-radius:10px;font-weight:800;
+      font-size: 1rem;
       text-decoration:none;transition:all 0.3s;
       cursor:pointer;
     }
-    /* MODIFICA: Stile bottoni demo uniformato con gradiente */
     .demo-actions .btn-demo, .demo-actions .btn-secondary{
         background: var(--grad-primary);
         color: #fff;
@@ -497,7 +504,7 @@
     }
     .demo-results{
       margin-top:28px;padding-top:28px;
-      border-top:1px solid var(--glass-border);
+      border-top:1px solid rgba(255,255,255,0.12);
     }
     .demo-results h4{
       font-size:1.2rem;margin-bottom:16px;color:#111;font-weight:800;
@@ -671,7 +678,6 @@
     .grid{
       display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
     }
-    /* MODIFICA: Stile .card uniformato a .price-card */
     .card{
       background:rgba(255, 255, 255, 0.8);
       backdrop-filter:blur(16px);
@@ -709,12 +715,12 @@
     }
     .card h3{
       font-size:1.5rem;margin-bottom:12px;
-      color:#111; /* MODIFICA: Testo scuro */
+      color:#111;
       font-weight:800;
     }
     .card p{
       font-size:1rem;
-      color:#333; /* MODIFICA: Testo scuro */
+      color:#333;
       line-height:1.6;
     }
     .howto-icon{
@@ -856,7 +862,7 @@
       max-width:1200px;margin:0 auto;
     }
     .testimonial-card{
-      background:var(--glass-bg);backdrop-filter:blur(12px);
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
       border:2px solid transparent;
       background-clip:padding-box;
       border-radius:16px;
@@ -923,8 +929,8 @@
     .lead-magnet{
       position:fixed;bottom:20px;right:20px;z-index:90;
       max-width:340px;
-      background:var(--glass-bg);backdrop-filter:blur(16px);
-      border:1px solid var(--glass-border);border-radius:16px;
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,0.12);border-radius:16px;
       padding:24px;box-shadow:0 12px 32px rgba(0,0,0,0.3);
       animation:slideInRight 0.5s var(--ease-smooth);
     }
@@ -943,7 +949,7 @@
       display:flex;flex-direction:column;gap:10px;
     }
     .lead-magnet input{
-      padding:10px;border-radius:8px;border:1px solid var(--glass-border);
+      padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);
       background:rgba(255,255,255,0.1);color:#fff;font-size:0.95rem;
     }
     .lead-magnet input::placeholder{color:rgba(255,255,255,0.5)}
@@ -979,7 +985,7 @@
     .exit-modal{
       max-width:500px;width:90%;
       background:rgba(20,20,24,0.98);backdrop-filter:blur(20px);
-      border:1px solid var(--glass-border);border-radius:20px;
+      border:1px solid rgba(255,255,255,0.12);border-radius:20px;
       padding:40px;text-align:center;position:relative;
       animation:scaleIn 0.4s var(--ease-bounce);
     }
@@ -1017,7 +1023,7 @@
     /* ========== FOOTER ========== */
     .footer{
       padding:40px 20px;text-align:center;
-      border-top:1px solid var(--glass-border);
+      border-top:1px solid rgba(255,255,255,0.12);
       color:rgba(255,255,255,0.7);font-size:0.95rem;
     }
     .footer a{
@@ -1037,93 +1043,51 @@
       .reveal{opacity:1;transform:none;transition:none}
     }
 
-    /* MODIFICA: Stili per il menu hamburger */
+    /* MODIFICA: Stili per il menu hamburger (da profile.html) */
     .mobile-nav-toggle {
-      display: none; /* Nascosto di default */
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      z-index: 101;
-    }
-    .hamburger-icon {
-      display: block;
-      width: 24px;
-      height: 2px;
-      background: #fff;
-      position: relative;
-      transition: background 0.2s;
-    }
-    .hamburger-icon::before,
-    .hamburger-icon::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      background: #fff;
-      left: 0;
-      transition: transform 0.3s var(--ease-smooth);
-    }
-    .hamburger-icon::before { top: -8px; }
-    .hamburger-icon::after { top: 8px; }
-    
-    /* MODIFICA: Stili per il menu a discesa mobile */
-    .mobile-dropdown-menu {
       display: none;
-      position: absolute;
-      top: 100%; /* Appena sotto la topbar */
-      left: 0;
-      right: 0;
-      background: var(--grad-primary);
-      padding: 16px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      background:var(--grad-primary);
+      border:none;
+      border-radius:10px;
+      width:40px;
+      height:38px;
+      cursor:pointer;
+      padding:0;
+      z-index:101;
+      box-shadow:0 4px 12px rgba(0,0,0,.15)
     }
-
-    .mobile-dropdown-menu.is-open {
-      display: block;
-    }
-
-    .mobile-dropdown-menu .links {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .mobile-dropdown-menu .links a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 1.1rem;
-      padding: 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.1);
-      text-align: center;
-    }
-
-    .mobile-dropdown-menu .links a:hover {
-      background: rgba(255,255,255,0.2);
-    }
-
-
-    /* Modifiche per stato aperto icona hamburger */
-    body.mobile-nav-is-open .hamburger-icon {
-      background: transparent;
-    }
-    body.mobile-nav-is-open .hamburger-icon::before {
-      transform: rotate(45deg) translate(5px, 6px);
-    }
-    body.mobile-nav-is-open .hamburger-icon::after {
-      transform: rotate(-45deg) translate(5px, -6px);
-    }
-
+    .mobile-nav-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+    
     /* ========== RESPONSIVE ========== */
+    @media(max-width:960px){
+      .mobile-nav-toggle{display:block}
+      .topbar-actions{
+        position:fixed;
+        top:70px;
+        right:16px;
+        background:rgba(255,255,255,0.9);
+        backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px);
+        border-radius:var(--radius-lg);
+        box-shadow:var(--shadow);
+        padding:16px;
+        flex-direction:column;
+        gap:16px;
+        align-items:stretch;
+        width:220px;
+        transform:translateY(-20px) scale(.95);
+        opacity:0;
+        pointer-events:none;
+        transition:transform .2s ease-out,opacity .2s ease-out;
+        z-index:100;
+        border:1px solid var(--card-border)
+      }
+      .topbar-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+      .topbar-actions .top-link{width:100%;text-align:center;}
+    }
+
     @media(max-width:600px){
-      .topbar { position: relative; } /* Per posizionare il dropdown */
-      .topbar-inner{padding:10px 16px; flex-wrap: nowrap; justify-content: space-between;}
-      .topbar-actions { display: none; }
-      .mobile-nav-toggle { display: block; }
+      .topbar-inner{padding:0 16px;}
       .hero-section{padding:80px 16px 40px}
       .section{padding:40px 16px}
       .sticky-cta-bar{flex-direction:column;gap:10px}
@@ -1139,8 +1103,14 @@
         <img src="/homes.png" alt="Logo MyHomesBudget" class="logo-image" loading="eager" width="36" height="36">
         <span class="logo-text">MyHomesBudget</span>
       </a>
+      
+      <!-- MODIFICA: Struttura topbar e menu mobile adattata da profile.html -->
+      <button class="mobile-nav-toggle" id="mobile-menu-btn" aria-label="Apri menu">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
       <div class="topbar-actions" id="topbar-actions">
-        <!-- Login-aware content injected by JS -->
+        <!-- I link verranno iniettati qui o sono già presenti a seconda dello stato di login -->
         <a class="top-link primary" href="/it/login.html">Accedi</a>
         <a class="top-link primary" href="/it/pricing.html">Prezzi</a>
         <span class="lang-selector" aria-label="Selettore lingua">
@@ -1149,17 +1119,6 @@
           <a href="/es/" title="Español" lang="es" aria-label="Español">🇪🇸</a>
         </span>
       </div>
-      <!-- MODIFICA: Pulsante Hamburger per mobile -->
-      <button class="mobile-nav-toggle" aria-label="Apri menu" aria-expanded="false">
-        <span class="hamburger-icon"></span>
-      </button>
-    </div>
-    <!-- MODIFICA: Menu a discesa mobile -->
-    <div class="mobile-dropdown-menu" id="mobile-dropdown">
-        <nav class="links">
-            <a href="/it/login.html">Accedi</a>
-            <a href="/it/pricing.html">Prezzi</a>
-        </nav>
     </div>
   </nav>
 
@@ -1607,19 +1566,20 @@
   const topbarActions = document.getElementById('topbar-actions');
   if (topbarActions) {
     if (isLoggedIn) {
+      // Se l'utente è loggato, mostra link diversi.
       topbarActions.innerHTML = `
         <a class="top-link" href="/it/dashboard.html">Riepilogo</a>
         <a class="top-link" href="/it/pricing.html">Prezzi</a>
         <span class="user-greeting">Ciao, <strong>${user.name}</strong></span>
         <button class="btn-logout" id="btn-logout">Esci</button>
-        <span class="lang-selector" aria-label="Selettore lingua">
-          <a href="/it/" title="Italiano" lang="it" aria-label="Italiano">🇮🇹</a>
-          <a href="/en/" title="English" lang="en" aria-label="English">🇬🇧</a>
-          <a href="/es/" title="Español" lang="es" aria-label="Español">🇪🇸</a>
-        </span>
       `;
-      const btnLogout = document.getElementById('btn-logout');
-      if (btnLogout) btnLogout.addEventListener('click', logout);
+      document.getElementById('btn-logout').addEventListener('click', logout);
+      // Nascondi il selettore lingua e il menu hamburger se loggato
+      const langSelector = document.querySelector('.lang-selector');
+      if(langSelector) langSelector.style.display = 'none';
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
+
     }
   }
 
@@ -1627,7 +1587,6 @@
   const urlParams = new URLSearchParams(window.location.search);
   const variant = urlParams.get('v') === '2' ? 'v2' : 'v1';
 
-  // MODIFICA: Corrette le frasi per la rotazione del titolo
   const rotatingParts = [
     'il tuo bilancio domestico',
     'le tue entrate e spese',
@@ -1661,7 +1620,6 @@
 
   const heroContent = document.getElementById('hero-content');
   if (heroContent) {
-    // MODIFICA: Aggiornata la struttura del titolo per la nuova animazione
     const heroHeadlineHTML = `Gestisci <span class="headline-rotating">${rotatingParts[0]}</span> in modo semplice`;
 
     if (variant === 'v2') {
@@ -1694,7 +1652,6 @@
       `;
     }
 
-    // GA4 tracking for hero CTAs
     heroContent.querySelectorAll('.btn').forEach(btn => {
       btn.addEventListener('click', () => safeGtag('cta_hero_click', { label: btn.dataset.variant || 'v1' }));
     });
@@ -1775,7 +1732,6 @@
   const demoForm = document.getElementById('demo-form');
   const demoResults = document.getElementById('demo-results');
   
-  // Categorie e sottocategorie dummy
   const demoCategories = {
     expense: [
       { id: 'casa', name: '🏠 Casa', subs: ['Affitto', 'Bollette', 'Manutenzione'] },
@@ -1794,7 +1750,6 @@
   let demoTransactions = [];
   let demoCategoryTotals = {};
 
-  // Popola select categorie
   function populateDemoCategories(kind) {
     const catSelect = document.getElementById('demo-category');
     const subSelect = document.getElementById('demo-subcategory');
@@ -1811,7 +1766,6 @@
     });
   }
 
-  // Aggiorna sottocategorie
   function updateDemoSubcategories() {
     const catSelect = document.getElementById('demo-category');
     const subSelect = document.getElementById('demo-subcategory');
@@ -1837,13 +1791,11 @@
     });
   }
 
-  // Close demo button
   const demoCloseBtn = document.getElementById('demo-close-btn');
   if (demoCloseBtn) {
     demoCloseBtn.addEventListener('click', () => {
       demoSim.classList.remove('active');
       btnDemo.style.display = '';
-      // Reset demo
       demoTransactions = [];
       demoCategoryTotals = {};
       demoForm.reset();
@@ -1870,25 +1822,21 @@
 
       if (!catId || amount <= 0) return;
 
-      // Aggiungi transazione
       demoTransactions.unshift({
         kind, amount, note, catId, catText, subText, 
         date: new Date().toLocaleDateString('it-IT')
       });
 
-      // Aggiorna totali per categoria
       const key = `${kind}-${catId}`;
       if (!demoCategoryTotals[key]) {
         demoCategoryTotals[key] = { kind, catId, catText, total: 0 };
       }
       demoCategoryTotals[key].total += amount;
 
-      // Reset form
       demoForm.reset();
       document.getElementById('demo-kind').value = kind;
       populateDemoCategories(kind);
 
-      // Mostra risultati
       renderDemoResults();
     });
   }
@@ -1896,7 +1844,6 @@
   function renderDemoResults() {
     demoResults.style.display = 'block';
 
-    // Calcola totali
     let totalIncome = 0, totalExpense = 0;
     demoTransactions.forEach(t => {
       if (t.kind === 'income') totalIncome += t.amount;
@@ -1906,29 +1853,24 @@
     document.getElementById('demo-total-income').textContent = `€${totalIncome.toFixed(2)}`;
     document.getElementById('demo-total-expense').textContent = `€${totalExpense.toFixed(2)}`;
 
-    // Render Donut Chart (only if both income and expense exist)
     const donutWrapper = document.getElementById('demo-donut-wrapper');
     if (totalIncome > 0 && totalExpense > 0) {
       const total = totalIncome + totalExpense;
       const incomePercent = (totalIncome / total) * 100;
-      const expensePercent = (totalExpense / total) * 100;
-      const circumference = 2 * Math.PI * 90; // r=90
+      const circumference = 2 * Math.PI * 90;
       
       const incomeArc = (incomePercent / 100) * circumference;
-      const expenseArc = (expensePercent / 100) * circumference;
+      const expenseArc = circumference - incomeArc;
       
       const incomeCircle = document.getElementById('demo-donut-income');
       const expenseCircle = document.getElementById('demo-donut-expense');
       
-      // Income (starts at 0)
       incomeCircle.style.strokeDasharray = `${incomeArc} ${circumference}`;
       incomeCircle.style.strokeDashoffset = '0';
       
-      // Expense (starts after income)
       expenseCircle.style.strokeDasharray = `${expenseArc} ${circumference}`;
       expenseCircle.style.strokeDashoffset = `-${incomeArc}`;
       
-      // Balance
       const balance = totalIncome - totalExpense;
       const balanceEl = document.getElementById('demo-donut-balance');
       balanceEl.textContent = `€${Math.abs(balance).toFixed(2)}`;
@@ -1944,7 +1886,6 @@
       donutWrapper.classList.remove('show');
     }
 
-    // Render categorie
     const categoriesDiv = document.getElementById('demo-categories');
     categoriesDiv.innerHTML = '';
 
@@ -1966,7 +1907,6 @@
       categoriesDiv.appendChild(div);
     });
 
-    // Render transazioni (max 5)
     const transactionsDiv = document.getElementById('demo-transactions-list');
     transactionsDiv.innerHTML = '';
     demoTransactions.slice(0, 5).forEach(t => {
@@ -2040,7 +1980,6 @@
       try { sessionStorage.setItem('mhb_exit_shown','1'); } catch(e){}
       safeGtag('exit_intent_open',{});
 
-      // focus trap
       const focusable = Array.from(dialog.querySelectorAll(FOCUS_SELECTOR));
       const first = focusable[0], last = focusable[focusable.length - 1];
       if (first) first.focus();
@@ -2068,27 +2007,24 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && exitOverlay.classList.contains('active')) closeModal(); });
   }
 
-  // MODIFICA: Logica per il menu a discesa mobile
-  const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
-  const mobileDropdown = document.getElementById('mobile-dropdown');
+  // MODIFICA: Logica per il menu mobile (da profile.html)
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const topActions = document.querySelector('.topbar-actions');
 
-  if (mobileNavToggle && mobileDropdown) {
-    mobileNavToggle.addEventListener('click', (event) => {
-      event.stopPropagation(); // Impedisce che il click si propaghi al document
-      const isOpen = mobileDropdown.classList.toggle('is-open');
-      mobileNavToggle.setAttribute('aria-expanded', isOpen);
-      document.body.classList.toggle('mobile-nav-is-open', isOpen);
+  if (mobileMenuBtn && topActions) {
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = topActions.classList.toggle('is-open');
+      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
     });
-
-    // Chiudi il menu se si clicca fuori
-    document.addEventListener('click', (event) => {
-      if (mobileDropdown.classList.contains('is-open') && !mobileNavToggle.contains(event.target)) {
-        mobileDropdown.classList.remove('is-open');
-        mobileNavToggle.setAttribute('aria-expanded', 'false');
-        document.body.classList.remove('mobile-nav-is-open');
+    document.addEventListener('click', (e) => {
+      if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        topActions.classList.remove('is-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
       }
     });
   }
+
 
   // ====== PAGE VIEW ======
   safeGtag('view_landing', { lang: 'it', variant });
