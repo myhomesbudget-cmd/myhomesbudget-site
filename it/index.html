@@ -75,7 +75,7 @@
   <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
   <link rel="preconnect" href="https://region1.google-analytics.com" crossorigin>
   <link rel="icon" href="/favicon.ico">
-  <meta name="theme-color" content="#0f0f10">
+  <meta name="theme-color" content="#f4f7fa">
   <meta name="color-scheme" content="light dark">
 
   <style id="mhb-landing-enhance">
@@ -83,19 +83,20 @@
       --grad-primary: linear-gradient(135deg,#6c5ce7,#00cec9);
       --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
       --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-       /* MODIFICA: Variabili copiate da profile.html */
+       /* MODIFICA: Variabili copiate da dashboard.html */
       --glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);
-      --shadow:0 15px 35px rgba(0,0,0,.1);
+      --shadow:0 10px 30px rgba(0,0,0,.08);
       --radius-lg:16px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    /* MODIFICA: Stile body copiato da profile.html */
+    /* MODIFICA: Stile body copiato da dashboard.html */
     body{
       margin:0;
       color:#fff;
       font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-      background:url("/bg.webp") no-repeat center/cover fixed;
+      background:url("/bg.webp") no-repeat center/cover;
+      background-attachment: scroll;
       min-height:100vh;
       display: flex;
       flex-direction: column;
@@ -104,16 +105,21 @@
     body.mobile-nav-is-open {
       overflow: hidden;
     }
-    /* MODIFICA: Stile ::before copiato da profile.html */
+    /* MODIFICA: Stile ::before copiato da dashboard.html */
     body::before{
       content:"";
-      position:fixed;
+      position:absolute; /* Usato absolute per scrollare con la pagina */
       inset:0;
       background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));
       z-index:-1;
-      animation: none; /* Rimossa animazione breathe per coerenza */
+      animation: none;
     }
     body::after{ display: none; }
+
+    /* Fix per iOS/Safari su background-attachment: fixed */
+    @media (pointer: coarse) {
+      body { background-attachment: scroll !important; }
+    }
 
     a:focus-visible,button:focus-visible{
       outline:3px solid #00cec9;outline-offset:3px;border-radius:8px;
@@ -140,10 +146,12 @@
     .logo-link{
       display:flex;align-items:center;gap:10px;text-decoration:none;
     }
-    .logo-image{height:36px;width:auto}
+    .logo-image{height:32px;width:auto}
     .logo-text{
-      font-weight:700;font-size:1.1rem;
-      color: #222; /* Testo scuro per sfondo chiaro */
+      font-weight:600;
+      color:#fff;
+      font-size:1.1rem;
+      text-shadow:0 1px 2px rgba(0,0,0,.35);
     }
     .topbar-actions{
       display:flex;align-items:center;gap:12px;
@@ -167,9 +175,10 @@
     .lang-selector a{
       text-decoration:none;padding:6px 8px;border-radius:6px;
       transition:background 0.2s;
-      color: #555; /* Testo scuro */
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
-    .lang-selector a:hover{background:rgba(0,0,0,0.05)}
+    .lang-selector a:hover{background:rgba(255,255,255,0.15)}
     .user-greeting{
       display:flex;align-items:center;gap:8px;
       color:#333;
@@ -1043,7 +1052,7 @@
       .reveal{opacity:1;transform:none;transition:none}
     }
 
-    /* MODIFICA: Stili per il menu hamburger (da profile.html) */
+    /* MODIFICA: Stili per il menu hamburger (da dashboard.html) */
     .mobile-nav-toggle {
       display: none;
       background:var(--grad-primary);
@@ -1084,6 +1093,8 @@
       }
       .topbar-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
       .topbar-actions .top-link{width:100%;text-align:center;}
+      .topbar-actions .lang-selector { flex-direction: column; width: 100%; gap: 8px;}
+      .topbar-actions .lang-selector a { background: rgba(0,0,0,0.05); color: #333; text-align: center; text-shadow: none; }
     }
 
     @media(max-width:600px){
@@ -1104,13 +1115,12 @@
         <span class="logo-text">MyHomesBudget</span>
       </a>
       
-      <!-- MODIFICA: Struttura topbar e menu mobile adattata da profile.html -->
+      <!-- MODIFICA: Struttura topbar e menu mobile adattata da dashboard.html -->
       <button class="mobile-nav-toggle" id="mobile-menu-btn" aria-label="Apri menu">
           <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
 
       <div class="topbar-actions" id="topbar-actions">
-        <!-- I link verranno iniettati qui o sono già presenti a seconda dello stato di login -->
         <a class="top-link primary" href="/it/login.html">Accedi</a>
         <a class="top-link primary" href="/it/pricing.html">Prezzi</a>
         <span class="lang-selector" aria-label="Selettore lingua">
@@ -2007,7 +2017,7 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && exitOverlay.classList.contains('active')) closeModal(); });
   }
 
-  // MODIFICA: Logica per il menu mobile (da profile.html)
+  // MODIFICA: Logica per il menu mobile (da dashboard.html)
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   const topActions = document.querySelector('.topbar-actions');
 
