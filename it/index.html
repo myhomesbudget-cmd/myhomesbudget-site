@@ -735,47 +735,32 @@
     }
     .price-card{
       position:relative;
-      /* MODIFICA: Stile uniformato alla pagina pricing.html */
-      background: rgba(255,255,255,.62);
+      /* CORREZIONE: Stile delle card ripristinato e semplificato per leggibilità */
+      background:rgba(255, 255, 255, 0.8);
       backdrop-filter:blur(16px);
-      border: 1px solid rgba(0,0,0,.06);
+      border:1px solid rgba(0,0,0,.06);
       border-radius:20px;
       padding:48px 32px 36px;text-align:center;
       transition:all 0.3s var(--ease-smooth);
       overflow:visible;
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
     }
     .price-card::before{
+      /* Rimosso l'effetto gradiente superfluo */
       content:'';
-      position:absolute;
-      inset:-1px;
-      border-radius:20px;
-      z-index:-1;
-      transition:all 0.3s;
-      opacity:0;
+      display: none;
     }
     .price-card:hover{
       transform:translateY(-8px) scale(1.02);
       box-shadow:0 24px 60px rgba(0,0,0,0.15);
     }
-    .price-card:hover::before{
-      opacity:1;
-    }
     .price-card.popular{
+      background:rgba(255, 255, 255, 0.95);
       outline:3px solid #6c5ce7;
       transform:scale(1.05);
     }
-    .price-card.popular::before{
-      display: none;
-    }
-    @keyframes borderPulse{
-      0%,100%{opacity:1;transform:scale(1)}
-      50%{opacity:0.85;transform:scale(1.01)}
-    }
     .price-card.popular:hover{
       transform:translateY(-8px) scale(1.07);
-    }
-    .price-card.popular:hover::before{
-      animation:none;
     }
     .price-card-emoji{
       position:absolute;top:-30px;left:50%;transform:translateX(-50%);
@@ -805,13 +790,11 @@
       50%{transform:translateX(-50%) scale(1.1);filter:drop-shadow(0 8px 20px rgba(108,92,231,0.6)) brightness(1.3)}
     }
     .price-card .badge{
+      /* CORREZIONE: Stile del badge ripristinato dal file pricing.html */
       position:absolute;top:14px; right:14px; font-size:.85rem;
       background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
       box-shadow:0 6px 18px rgba(108,92,231,.35);
-    }
-    @keyframes pulse{
-      0%,100%{transform:translateX(-50%) scale(1)}
-      50%{transform:translateX(-50%) scale(1.05)}
+      animation: none; /* Rimossa animazione pulse per coerenza */
     }
     .plan-title{
       font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#333;
@@ -825,34 +808,24 @@
     }
     .plan-title .plan-name{display:block;margin-bottom:4px}
     .plan-title .price-inline{
+      /* CORREZIONE: Stile del prezzo ripristinato */
       font-size:2.5rem;font-weight:900;
-      background:var(--grad);
+      background: var(--grad-primary);
       -webkit-background-clip:text;background-clip:text;color:transparent;
       display:block;margin-top:12px;
-      text-shadow: none;
-      filter: none;
-      animation: none;
-    }
-    @keyframes priceGlow{
-      0%,100%{filter:drop-shadow(0 0 12px rgba(0,239,209,0.4))}
-      50%{filter:drop-shadow(0 0 20px rgba(0,239,209,0.7))}
+      text-shadow: none; filter: none; animation: none;
     }
     .price-card.popular .price-inline{
       font-size:2.8rem;
-      animation:none;
-    }
-    @keyframes priceGlowStrong{
-      0%,100%{filter:drop-shadow(0 0 16px rgba(0,239,209,0.5))}
-      50%{filter:drop-shadow(0 0 24px rgba(0,239,209,0.9))}
     }
     .plan-title .price-inline small{
       font-size:1.1rem;
       background:none;-webkit-background-clip:unset;
-      background-clip:unset;color: #333;
+      background-clip:unset;color: #555;
       font-weight: 500;
     }
     .features{
-      margin:20px 0;color:#111;
+      margin:20px 0;color:#333; /* Colore testo più scuro */
     }
     .features ul{list-style:none;padding:0}
     .features li{
@@ -861,23 +834,24 @@
     .features li::before{
       content:"✓";color:#00cec9;font-weight:900;
     }
-    .price-card .btn-secondary{
+    /* CORREZIONE: Stile del bottone ripristinato */
+    .pricing-section .btn-secondary{
       display:inline-block;padding:14px 32px;border-radius:12px;
-      background:var(--grad);
+      background:var(--grad-primary);
       color:#fff;font-weight:800;font-size:1.05rem;
       text-decoration:none;transition:all 0.3s var(--ease-smooth);
       box-shadow:0 8px 24px rgba(0,0,0,0.14);
       position:relative;overflow:hidden;
     }
-    .price-card .btn-secondary::before{
-      display: none;
+    .pricing-section .btn-secondary::before{
+       content: ''; display: none;
     }
-    .price-card .btn-secondary:hover{
+    .pricing-section .btn-secondary:hover{
       transform:translateY(-3px);
       box-shadow:0 12px 32px rgba(0,0,0,0.2);
-      filter: brightness(1.07);
+      filter: brightness(1.1);
     }
-    .price-card .btn-secondary:hover::before{
+    .pricing-section .btn-secondary:hover::before{
       opacity:0;
     }
 
