@@ -1094,6 +1094,54 @@
       .sticky-cta-bar .mini-headline{font-size:0.85rem}
     }
   </style>
+
+  <style id="mhb-alignment-overrides">
+    /* TASK 1 & 2 — TOPBAR (glass-effect, logo e link bianchi) */
+    .topbar {
+        background: rgba(255,255,255,0.15) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border-bottom: 1px solid rgba(255,255,255,0.20) !important;
+    }
+
+    .topbar .logo-text {
+        color: #fff !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    }
+
+    .topbar .top-link, 
+    .topbar .lang-selector a {
+        color: #fff !important;
+        /* Rimuove lo sfondo scuro al passaggio del mouse sui selettori di lingua */
+        background-color: transparent !important; 
+    }
+    
+    .topbar-actions a.top-link.primary {
+      color: #fff !important;
+    }
+    
+    .topbar .lang-selector a:hover {
+        background: rgba(255,255,255,.12) !important;
+    }
+
+    .topbar .logo-image {
+        filter: brightness(0) invert(1);
+    }
+
+    /* TASK 3 — SFONDO NITIDO */
+    .hero-orb {
+        display: none !important;
+        filter: none !important;
+    }
+
+    body::before {
+        content: none !important;
+    }
+
+    .hero-section {
+        filter: none !important;
+    }
+  </style>
 </head>
 <body>
   <!-- TOPBAR -->
