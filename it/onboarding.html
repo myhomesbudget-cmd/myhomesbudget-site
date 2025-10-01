@@ -273,6 +273,7 @@
       categories: []
     };
     let currentStep = 1;
+    let user = null;
 
     const backBtn = document.getElementById('back-btn');
     const nextBtn = document.getElementById('next-btn');
@@ -386,36 +387,40 @@
       });
     }
 
-    /* ====== Preselezione dati ====== */
-    function preselectFormData(profile, userCategories){
+    /* ====== MODIFICA CHIRURGICA: Preselezione dati ====== */
+    function preselectFormData(profile){
       if(profile){
-         // Preselezione Goal
-        const typeRadio=document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
+        // Preselezione Goal (passo 1)
+        const typeRadio = document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
         if(typeRadio){
           typeRadio.checked=true;
           const parentDiv=typeRadio.closest('div');
-          const nameInput=parentDiv.querySelector('input[name="goal_name"]');
-          const amountInput=parentDiv.querySelector('input[name="goal_target_amount"]');
-          const dateInput=parentDiv.querySelector('input[name="goal_target_date"]');
-          if(nameInput) nameInput.value = profile.goal_name ?? '';
-          if(amountInput) amountInput.value = profile.goal_target_amount ?? '';
-          if(dateInput) dateInput.value = profile.goal_target_date ?? '';
+          if(parentDiv.querySelector('input[name="goal_name"]')) parentDiv.querySelector('input[name="goal_name"]').value = profile.goal_name ?? '';
+          if(parentDiv.querySelector('input[name="goal_target_amount"]')) parentDiv.querySelector('input[name="goal_target_amount"]').value = profile.goal_target_amount ?? '';
+          if(parentDiv.querySelector('input[name="goal_target_date"]')) parentDiv.querySelector('input[name="goal_target_date"]').value = profile.goal_target_date ?? '';
         }
 
-        // Preselezione Metodo Contribuzione
-        const methodRadio=document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
-         if(methodRadio){
+        // Preselezione Metodo Contribuzione (passo 2)
+        const methodRadio = document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
+        if(methodRadio){
           methodRadio.checked=true;
           const parentDiv=methodRadio.closest('div');
-          const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
-          if(amountInput) amountInput.value = profile.contribution_amount ?? '';
+          if(parentDiv.querySelector('input[name="contribution_amount"]')) parentDiv.querySelector('input[name="contribution_amount"]').value = profile.contribution_amount ?? '';
+        }
+
+        // Preselezione Categorie (passo 3) - LEGGE DA PROFILES.ONBOARDING_CATEGORIES
+        if (profile.onboarding_categories && Array.isArray(profile.onboarding_categories)) {
+          const selectedNames = profile.onboarding_categories.map(c => c.name);
+          document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            try {
+              const catObj = JSON.parse(checkbox.value);
+              if (selectedNames.includes(catObj.name)) {
+                checkbox.checked = true;
+              }
+            } catch(e){}
+          });
         }
       }
-     
-      const selectedNames=(userCategories||[]).map(c=>c.name);
-      document.querySelectorAll('input[name="category"]').forEach(checkbox=>{
-        try{ const catObj=JSON.parse(checkbox.value); if(selectedNames.includes(catObj.name)) checkbox.checked=true; }catch(e){}
-      });
       updateCategoryCounters();
       updateGoalSuggestion();
     }
@@ -434,19 +439,12 @@
       const inc=selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
       const exp=selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
 
-      const revGoal=document.getElementById('rev-goal');
-      const revTarget=document.getElementById('rev-target');
-      const revMethod=document.getElementById('rev-method');
-      const revParam=document.getElementById('rev-param');
-      const revInc=document.getElementById('rev-inc');
-      const revExp=document.getElementById('rev-exp');
-
-      if(revGoal) revGoal.textContent = type || '—';
-      if(revTarget) revTarget.textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — ${date}`:'') || '—';
-      if(revMethod) revMethod.textContent = method || '—';
-      if(revParam) revParam.textContent = (amount!=null && !Number.isNaN(amount)) ? (method==='Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/mese`) : '—';
-      if(revInc) revInc.textContent = inc;
-      if(revExp) revExp.textContent = exp;
+      document.getElementById('rev-goal').textContent = type || '—';
+      document.getElementById('rev-target').textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — ${date}`:'') || '—';
+      document.getElementById('rev-method').textContent = method || '—';
+      document.getElementById('rev-param').textContent = (amount!=null && !Number.isNaN(amount)) ? (method==='Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/mese`) : '—';
+      document.getElementById('rev-inc').textContent = inc;
+      document.getElementById('rev-exp').textContent = exp;
     }
 
     /* ====== Validazione ====== */
@@ -491,102 +489,62 @@
       return true;
     }
 
-    /* ====== Salvataggio (MODIFICATO CON ERRORI SPECIFICI) ====== */
-    async function saveOnboardingToSupabase(user, existingUserCategories){
-      nextBtn.disabled=true; nextBtn.textContent='Salvataggio...';
+    /* ====== MODIFICA CHIRURGICA: Salvataggio ====== */
+    async function saveOnboardingToSupabase(user) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Salvataggio...';
+
       try {
-        // --- 1. Aggiornamento Profilo ---
+        // Prepara tutti i dati da salvare nella tabella 'profiles'
         const profileUpdateData = {
-            onboarded: true,
-            goal_type: state.goal_type,
-            goal_name: state.goal_name,
-            goal_target_amount: state.goal_target_amount,
-            goal_target_date: state.goal_target_date,
-            contribution_method: state.contribution_method,
-            contribution_amount: state.contribution_amount
+          onboarded: true,
+          goal_type: state.goal_type,
+          goal_name: state.goal_name,
+          goal_target_amount: state.goal_target_amount,
+          goal_target_date: state.goal_target_date,
+          contribution_method: state.contribution_method,
+          contribution_amount: state.contribution_amount,
+          onboarding_categories: state.categories // Salva l'array JSON delle categorie scelte
         };
 
-        const { error: profileError } = await supabase.from('profiles').update(profileUpdateData).eq('id', user.id);
-        if (profileError) {
-          console.error('Errore Supabase (profiles.update):', profileError);
-          if (profileError.message.includes("does not exist")) {
-             throw new Error("Errore DB: una colonna in 'profiles' manca. Controlla la console.");
-          }
-          throw new Error("Errore durante l'aggiornamento del profilo.");
-        }
+        // Esegui un singolo aggiornamento sulla tabella 'profiles'
+        const { error } = await supabase
+          .from('profiles')
+          .update(profileUpdateData)
+          .eq('id', user.id);
 
-        // --- 2. Gestione Categorie ---
-        const existingNames = existingUserCategories.map(c=>c.name);
-        const selectedObjects = state.categories;
-        const selectedNames = selectedObjects.map(c=>c.name);
-        const categoriesToInsert = selectedObjects.filter(obj=>!existingNames.includes(obj.name));
-        const categoriesToDelete = existingUserCategories.filter(cat=>!selectedNames.includes(cat.name));
-
-        if(categoriesToDelete.length > 0){
-          const idsToDelete = categoriesToDelete.map(c=>c.id);
-          const { error: deleteError } = await supabase.from('categories').delete().in('id', idsToDelete);
-          if (deleteError) {
-              console.error('Errore Supabase (categories.delete):', deleteError);
-              throw new Error("Errore durante l'eliminazione delle vecchie categorie.");
-          }
-        }
-
-        let createdCategories=[];
-        if(categoriesToInsert.length > 0){
-          const payload = categoriesToInsert.map(obj=>({ name:obj.name, icon:obj.icon, kind:obj.kind, created_by:user.id }));
-          const { data, error: insertError } = await supabase.from('categories').insert(payload).select();
-          if(insertError) {
-              console.error('Errore Supabase (categories.insert):', insertError);
-              throw new Error("Errore durante l'inserimento delle nuove categorie.");
-          }
-          createdCategories = data;
-        }
-
-        // --- 3. Gestione Sottocategorie ---
-        if(createdCategories.length > 0){
-          const { data: defaults, error: defaultsError } = await supabase
-            .from('default_subcategories').select(`name, icon, default_categories ( name )`);
-          if(defaultsError) {
-              console.error('Errore Supabase (default_subcategories.select):', defaultsError);
-              throw new Error("Errore nel caricamento delle sottocategorie predefinite.");
-          }
-          const subpayload=[];
-          for(const cat of createdCategories){
-            const matches = (defaults||[]).filter(def=>def.default_categories.name===cat.name);
-            for(const sub of matches){ subpayload.push({ name:sub.name, icon:sub.icon, category_id:cat.id }); }
-          }
-          if(subpayload.length>0){ 
-            const { error: subInsertError } = await supabase.from('subcategories').insert(subpayload);
-            if (subInsertError) {
-                console.error('Errore Supabase (subcategories.insert):', subInsertError);
-                throw new Error("Errore nell'inserimento delle sottocategorie.");
-            }
-          }
+        if (error) {
+          console.error("Errore Supabase (profiles.update):", error);
+          throw new Error("Errore durante l'aggiornamento del profilo. Verifica le policy RLS sulla tabella 'profiles'.");
         }
         
+        // L'operazione è andata a buon fine
         return true;
 
-      } catch(err) {
+      } catch (err) {
         console.error('Errore nel salvataggio:', err);
         showError(err.message || 'Si è verificato un errore critico. Riprova.');
-        nextBtn.disabled=false; nextBtn.textContent='Fine';
+        nextBtn.disabled = false;
+        nextBtn.textContent = 'Fine';
         return false;
       }
     }
 
-    /* ====== Init ====== */
+
+    /* ====== MODIFICA CHIRURGICA: Init ====== */
     async function initializePage(){
       try{
-        const { data:{ user } } = await supabase.auth.getUser();
-        if(!user){ location.replace(itPrefix()+'login.html'); return; }
+        const { data } = await supabase.auth.getUser();
+        if(!data.user){ location.replace(itPrefix()+'login.html'); return; }
+        user = data.user;
 
-        const [profileRes, userCatRes, defaultCatRes] = await Promise.all([
+        // Carica solo i dati necessari: profilo e categorie di default
+        const [profileRes, defaultCatRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
-          supabase.from('categories').select('*').eq('created_by', user.id),
           supabase.from('default_categories').select('name, icon, kind').order('id'),
         ]);
 
-        for(const res of [profileRes,userCatRes,defaultCatRes]){
+        for(const res of [profileRes, defaultCatRes]){
           if(res.error && res.error.code !== 'PGRST116'){ 
              console.error('Errore durante il caricamento dati:', res.error); 
              showError('Impossibile caricare i dati. Ricarica la pagina.'); 
@@ -595,9 +553,7 @@
         }
 
         const profile = profileRes.data;
-        const userCategories = userCatRes.data || [];
         const defaultCategories = defaultCatRes.data || [];
-
         const isEditing = new URLSearchParams(location.search).get('edit')==='1';
         
         if(profile && profile.onboarded && !isEditing){
@@ -605,13 +561,13 @@
         }
 
         populateCategoriesFromDB(defaultCategories);
-        preselectFormData(profile, userCategories);
+        preselectFormData(profile); // <-- MODIFICATO
         renderStep(1);
 
         nextBtn.addEventListener('click', async ()=>{
           if(!validateAndUpdateState(currentStep)) return;
           if(currentStep===TOTAL_STEPS){
-            const success = await saveOnboardingToSupabase(user, userCategories);
+            const success = await saveOnboardingToSupabase(user); // <-- MODIFICATO
             if(success) location.replace(itPrefix()+'dashboard.html');
           }else{
             currentStep++; renderStep(currentStep);
