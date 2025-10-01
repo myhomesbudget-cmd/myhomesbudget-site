@@ -1053,22 +1053,62 @@
       return dt;
     }
 
+    /* ====== MODIFICA CHIRURGICA: loadInitialData ====== */
     async function loadInitialData(){
-      try{
-        const { data: categories, error: cError } = await supabase.from('categories').select('*').eq('created_by', user.id);
+      try {
+        // 1. Leggi il profilo utente per ottenere le categorie configurate
+        const { data: profile, error: pError } = await supabase
+          .from('profiles')
+          .select('onboarding_categories')
+          .eq('id', user.id)
+          .single();
+        
+        if (pError) throw pError;
+
+        // Estrai i nomi delle categorie che l'utente ha scelto durante l'onboarding
+        const selectedCategoryNames = (profile?.onboarding_categories || []).map(cat => cat.name);
+        
+        // Se non ci sono categorie configurate, non possiamo fare nulla
+        if (selectedCategoryNames.length === 0) {
+            allCategories = [];
+            allSubcategories = [];
+            console.warn("Nessuna categoria trovata in profiles.onboarding_categories. L'utente ha completato l'onboarding?");
+            return;
+        }
+
+        // 2. Carica TUTTE le categorie create dall'utente dalla tabella 'categories'
+        // Ci servono per avere gli ID da usare nelle transazioni e per le sottocategorie
+        const { data: allUserCategoriesWithIds, error: cError } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('created_by', user.id);
+        
         if (cError) throw cError;
-        allCategories = categories || [];
-        if (allCategories.length){
-          const ids = allCategories.map(c=>c.id);
-          const { data: subcategories, error: sError } = await supabase.from('subcategories').select('*').in('category_id', ids);
+
+        // 3. Filtra le categorie con ID per includere solo quelle i cui nomi corrispondono
+        // a quelle salvate nel profilo. Questa è la fonte di verità per la UI.
+        allCategories = (allUserCategoriesWithIds || []).filter(cat => selectedCategoryNames.includes(cat.name));
+
+        // 4. Carica le sottocategorie solo per le categorie filtrate e valide
+        if (allCategories.length > 0){
+          const ids = allCategories.map(c => c.id);
+          const { data: subcategories, error: sError } = await supabase
+            .from('subcategories')
+            .select('*')
+            .in('category_id', ids);
+            
           if (sError) throw sError;
           allSubcategories = subcategories || [];
+        } else {
+          allSubcategories = [];
         }
+
       } catch (error){
         console.error("Errore nel caricamento dei dati iniziali:", error);
-        showModal('Errore', `<p>Impossibile caricare le categorie. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
+        showModal('Errore', `<p>Impossibile caricare le categorie dal tuo profilo. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
       }
     }
+
 
     function updateCategoryDropdown(){
       const selectedKind = kindSelect.value;
