@@ -11,8 +11,8 @@
         content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
-                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com;
+                 script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://esm.sh;
+                 connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in;
                  font-src 'self' https: data:;
                  frame-ancestors 'none';
                  base-uri 'self';
@@ -1550,9 +1550,10 @@
   </div>
 
   <!-- MAIN SCRIPT -->
-  <script id="mhb-landing-enhance">
-(function(){
+  <script id="mhb-landing-enhance" type="module">
+(async function(){
   'use strict';
+  import { supabase } from "/it/supabase-client.js";
 
   // ====== UTILS ======
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1572,63 +1573,119 @@
   }
 
   // ====== LOGIN AWARENESS ======
-  function getUser() {
-    try {
-      const mhbUser = localStorage.getItem('mhb_user');
-      if (mhbUser) return JSON.parse(mhbUser);
+  async function setupAuthUI() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const isLoggedIn = !!session?.user;
+    const user = session?.user;
 
-      // Fallback: sessione Supabase
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.includes('supabase.auth')) {
-          try {
-            const data = JSON.parse(localStorage.getItem(key));
-            if (data && (data.user || data.currentSession?.user)) {
-              const u = data.user || data.currentSession.user;
-              return { name: u.user_metadata?.full_name || (u.email?.split('@')[0]) || 'Utente', email: u.email };
-            }
-          } catch(e){}
+    const topbarActions = document.getElementById('topbar-actions');
+    if (topbarActions) {
+      if (isLoggedIn) {
+        const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Utente';
+        topbarActions.innerHTML = `
+          <a class="top-link" href="/it/dashboard.html">Riepilogo</a>
+          <a class="top-link" href="/it/pricing.html">Prezzi</a>
+          <span class="user-greeting">Ciao, <strong>${name}</strong></span>
+          <button class="btn-logout" id="btn-logout">Esci</button>
+        `;
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+          await supabase.auth.signOut();
+          window.location.href = '/it/login.html';
+        });
+        
+        const langSelector = document.querySelector('.lang-selector');
+        if(langSelector) langSelector.style.display = 'none';
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
+      }
+    }
+
+    // LEAD MAGNET
+    if (!isLoggedIn) {
+      const leadMagnet = document.getElementById('lead-magnet');
+      const closeLead = document.getElementById('close-lead');
+      const leadForm = document.getElementById('lead-form');
+
+      try {
+        const leadShown = sessionStorage.getItem('mhb_lead_shown');
+        const leadDismissed = localStorage.getItem('mhb_lead_dismissed');
+        if (!leadShown && !leadDismissed) {
+          setTimeout(() => {
+            if(leadMagnet) leadMagnet.classList.remove('hidden');
+          }, 8000);
         }
+      } catch(e){}
+
+      if (closeLead) {
+        closeLead.addEventListener('click', () => {
+          leadMagnet.classList.add('hidden');
+          try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
+        });
       }
-    } catch(e){}
-    return null;
-  }
 
-  function logout() {
-    try {
-      localStorage.removeItem('mhb_user');
-      // pulizia chiavi supabase
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k && k.includes('supabase')) localStorage.removeItem(k);
+      if (leadForm) {
+        leadForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const emailInput = leadForm.querySelector('input[type="email"]');
+          const email = emailInput ? emailInput.value : '';
+          safeGtag('lead_submit', { email_domain: (email.split('@')[1] || 'unknown') });
+          leadMagnet.innerHTML = '<p style="text-align:center;padding:40px 20px;color:#fff;">✅ Grazie! Controlla la tua email.</p>';
+          setTimeout(() => {
+            leadMagnet.classList.add('hidden');
+            try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
+          }, 3000);
+        });
       }
-    } catch(e){}
-    window.location.href = '/it/login.html';
-  }
+    }
 
-  const user = getUser();
-  const isLoggedIn = !!user;
+    // EXIT-INTENT MODAL
+    if (!isLoggedIn && isDesktop) {
+      const exitOverlay = document.getElementById('exit-modal-overlay');
+      const closeExitModal = document.getElementById('close-exit-modal');
+      const dialog = exitOverlay?.querySelector('.exit-modal');
+      let exitShown = false, lastFocused = null;
 
-  // Update topbar (aggiungo Riepilogo e mantengo Prezzi quando loggato)
-  const topbarActions = document.getElementById('topbar-actions');
-  if (topbarActions) {
-    if (isLoggedIn) {
-      // Se l'utente è loggato, mostra link diversi.
-      topbarActions.innerHTML = `
-        <a class="top-link" href="/it/dashboard.html">Riepilogo</a>
-        <a class="top-link" href="/it/pricing.html">Prezzi</a>
-        <span class="user-greeting">Ciao, <strong>${user.name}</strong></span>
-        <button class="btn-logout" id="btn-logout">Esci</button>
-      `;
-      document.getElementById('btn-logout').addEventListener('click', logout);
-      // Nascondi il selettore lingua e il menu hamburger se loggato
-      const langSelector = document.querySelector('.lang-selector');
-      if(langSelector) langSelector.style.display = 'none';
-      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-      if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
+      try { exitShown = sessionStorage.getItem('mhb_exit_shown') === '1'; } catch(e){}
 
+      const FOCUS_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
+      function showExitModal() {
+        if (exitShown || !exitOverlay) return;
+        lastFocused = document.activeElement;
+        exitOverlay.classList.add('active');
+        exitShown = true;
+        try { sessionStorage.setItem('mhb_exit_shown','1'); } catch(e){}
+        safeGtag('exit_intent_open',{});
+
+        const focusable = dialog ? Array.from(dialog.querySelectorAll(FOCUS_SELECTOR)) : [];
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (first) first.focus();
+
+        function onKeydown(e){
+          if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+          if (e.key === 'Tab' && focusable.length) {
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          }
+        }
+        exitOverlay.addEventListener('keydown', onKeydown);
+        exitOverlay._trap = onKeydown;
+      }
+
+      function closeModal() {
+        if (!exitOverlay) return;
+        exitOverlay.classList.remove('active');
+        if (exitOverlay._trap) exitOverlay.removeEventListener('keydown', exitOverlay._trap);
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+      }
+
+      document.addEventListener('mouseleave', (e) => { if (e.clientY < 10 && !exitShown) showExitModal(); });
+      if (closeExitModal) closeExitModal.addEventListener('click', closeModal);
+      exitOverlay.addEventListener('click', (e) => { if (e.target === exitOverlay) closeModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && exitOverlay.classList.contains('active')) closeModal(); });
     }
   }
+
 
   // ====== HERO A/B VARIANT + HEADLINE ROTATOR ======
   const urlParams = new URLSearchParams(window.location.search);
@@ -1743,6 +1800,7 @@
   // ====== STICKY CTA BAR ======
   const stickyCta = document.getElementById('sticky-cta-bar');
   function updateStickyCta() {
+    if (!stickyCta) return;
     const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
     if (scrollPercent > 40 && scrollPercent < 95) {
       stickyCta.classList.add('visible');
@@ -1761,9 +1819,12 @@
     }
   }, { passive: true });
 
-  stickyCta.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('click', () => safeGtag('cta_sticky_click', { label: btn.dataset.gaLabel }));
-  });
+  if (stickyCta) {
+    stickyCta.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => safeGtag('cta_sticky_click', { label: btn.dataset.gaLabel }));
+    });
+  }
+  
 
   // ====== DEMO-LIGHT ======
   const demoPreview = document.getElementById('demo-preview');
@@ -1889,6 +1950,7 @@
   }
 
   function renderDemoResults() {
+    if(!demoResults) return;
     demoResults.style.display = 'block';
 
     let totalIncome = 0, totalExpense = 0;
@@ -1901,7 +1963,7 @@
     document.getElementById('demo-total-expense').textContent = `€${totalExpense.toFixed(2)}`;
 
     const donutWrapper = document.getElementById('demo-donut-wrapper');
-    if (totalIncome > 0 && totalExpense > 0) {
+    if (donutWrapper && totalIncome > 0 && totalExpense > 0) {
       const total = totalIncome + totalExpense;
       const incomePercent = (totalIncome / total) * 100;
       const circumference = 2 * Math.PI * 90;
@@ -1929,12 +1991,12 @@
       balanceEl.style.color = 'transparent';
       
       donutWrapper.classList.add('show');
-    } else {
+    } else if (donutWrapper) {
       donutWrapper.classList.remove('show');
     }
 
     const categoriesDiv = document.getElementById('demo-categories');
-    categoriesDiv.innerHTML = '';
+    if(categoriesDiv) categoriesDiv.innerHTML = '';
 
     const maxTotal = Math.max(...Object.values(demoCategoryTotals).map(c => c.total), 1);
     
@@ -1951,11 +2013,11 @@
           <div class="demo-category-bar-fill" style="width:${percent}%"></div>
         </div>
       `;
-      categoriesDiv.appendChild(div);
+      if(categoriesDiv) categoriesDiv.appendChild(div);
     });
 
     const transactionsDiv = document.getElementById('demo-transactions-list');
-    transactionsDiv.innerHTML = '';
+    if(transactionsDiv) transactionsDiv.innerHTML = '';
     demoTransactions.slice(0, 5).forEach(t => {
       const div = document.createElement('div');
       div.className = `demo-transaction-item ${t.kind}`;
@@ -1966,92 +2028,8 @@
         </div>
         <div class="demo-transaction-amount">${t.kind === 'income' ? '+' : '-'}€${t.amount.toFixed(2)}</div>
       `;
-      transactionsDiv.appendChild(div);
+      if(transactionsDiv) transactionsDiv.appendChild(div);
     });
-  }
-
-  // ====== LEAD MAGNET ======
-  if (!isLoggedIn) {
-    const leadMagnet = document.getElementById('lead-magnet');
-    const closeLead = document.getElementById('close-lead');
-    const leadForm = document.getElementById('lead-form');
-
-    try {
-      const leadShown = sessionStorage.getItem('mhb_lead_shown');
-      const leadDismissed = localStorage.getItem('mhb_lead_dismissed');
-      if (!leadShown && !leadDismissed) {
-        setTimeout(() => {
-          leadMagnet.classList.remove('hidden');
-          sessionStorage.setItem('mhb_lead_shown', '1');
-        }, 8000);
-      }
-    } catch(e){}
-
-    if (closeLead) {
-      closeLead.addEventListener('click', () => {
-        leadMagnet.classList.add('hidden');
-        try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
-      });
-    }
-
-    if (leadForm) {
-      leadForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = leadForm.querySelector('input[type="email"]').value;
-        safeGtag('lead_submit', { email_domain: (email.split('@')[1] || 'unknown') });
-        leadMagnet.innerHTML = '<p style="text-align:center;padding:40px 20px;color:#fff;">✅ Grazie! Controlla la tua email.</p>';
-        setTimeout(() => {
-          leadMagnet.classList.add('hidden');
-          try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
-        }, 3000);
-      });
-    }
-  }
-
-  // ====== EXIT-INTENT MODAL (con focus-trap & restore) ======
-  if (!isLoggedIn && isDesktop) {
-    const exitOverlay = document.getElementById('exit-modal-overlay');
-    const closeExitModal = document.getElementById('close-exit-modal');
-    const dialog = exitOverlay?.querySelector('.exit-modal');
-    let exitShown = false, lastFocused = null;
-
-    try { exitShown = sessionStorage.getItem('mhb_exit_shown') === '1'; } catch(e){}
-
-    const FOCUS_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
-
-    function showExitModal() {
-      if (exitShown) return;
-      lastFocused = document.activeElement;
-      exitOverlay.classList.add('active');
-      exitShown = true;
-      try { sessionStorage.setItem('mhb_exit_shown','1'); } catch(e){}
-      safeGtag('exit_intent_open',{});
-
-      const focusable = Array.from(dialog.querySelectorAll(FOCUS_SELECTOR));
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (first) first.focus();
-
-      function onKeydown(e){
-        if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
-        if (e.key === 'Tab' && focusable.length) {
-          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-        }
-      }
-      exitOverlay.addEventListener('keydown', onKeydown);
-      exitOverlay._trap = onKeydown;
-    }
-
-    function closeModal() {
-      exitOverlay.classList.remove('active');
-      if (exitOverlay._trap) exitOverlay.removeEventListener('keydown', exitOverlay._trap);
-      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    }
-
-    document.addEventListener('mouseleave', (e) => { if (e.clientY < 10 && !exitShown) showExitModal(); });
-    if (closeExitModal) closeExitModal.addEventListener('click', closeModal);
-    exitOverlay.addEventListener('click', (e) => { if (e.target === exitOverlay) closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && exitOverlay.classList.contains('active')) closeModal(); });
   }
 
   // MODIFICA: Logica per il menu mobile (da profile.html)
@@ -2062,7 +2040,7 @@
     mobileMenuBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = topActions.classList.toggle('is-open');
-      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+      mobileMenuBtn.setAttribute('aria-expanded', String(isOpen));
     });
     document.addEventListener('click', (e) => {
       if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
@@ -2072,9 +2050,11 @@
     });
   }
 
-
   // ====== PAGE VIEW ======
   safeGtag('view_landing', { lang: 'it', variant });
+
+  // Init Auth UI
+  await setupAuthUI();
 
 })();
 </script>
