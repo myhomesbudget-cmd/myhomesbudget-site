@@ -67,8 +67,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1.2rem; /* Aumentato per dare più importanza */
+      font-weight: 700;   /* Aumentato per dare più importanza */
       cursor: pointer;
       background: rgba(255,255,255,0.9);
       border-bottom: 1px solid var(--card-border);
@@ -206,7 +206,7 @@
       
       .dash-card__header {
         padding: 12px 16px;
-        font-size: 1.1rem;
+        /* Rimosso font-size per ereditare quello base più grande */
       }
       
       .dash-card__content {
@@ -214,6 +214,7 @@
       }
     }
     
+    /* Desktop - Hide accordion behavior */
     @media (min-width: 1025px) {
       .dash-card { margin-block:24px; }
       .dash-card__header { display:flex; }   /* visibile anche su desktop */
@@ -901,10 +902,10 @@
     <!-- Sezione Form -->
     <details class="dash-card content-section form-section" open>
       <summary class="dash-card__header">
-        <span class="dash-card__title">Nuova Operazione</span>
+        <span class="dash-card__title">✍🏼 Nuova Operazione</span>
       </summary>
       <div class="dash-card__content">
-        <h2 id="form-title" style="margin:0 0 16px;">Nuova Operazione</h2>
+        <h2 id="form-title" style="margin:0 0 16px;">✍🏼 Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group kind">
@@ -1155,7 +1156,7 @@
     });
 
     function resetFormToCreateMode(){
-      formTitle.textContent = "Nuova Operazione";
+      formTitle.textContent = "✍🏼 Nuova Operazione";
       submitBtn.textContent = "Aggiungi";
       submitBtn.style.width = '100%';
       transactionIdInput.value = "";
@@ -1282,7 +1283,7 @@
         const categoryText = `${escapeHTML(cat?.name || 'N/A')}${(sub ? ` / ${escapeHTML(sub.name)}` : '')}`;
         const amountNum = safeToNumber(tx.amount);
         const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
-        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
+        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}"> Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
       });
     }
 
@@ -2011,73 +2012,79 @@
         return;
       }
       const items = data || [];
-      if (!items.length) { showModal('Risparmi registrati', '<p>Nessun risparmio presente.</p>', [{ text:'Chiudi' }]); return; }
+      if (!items.length) { showModal('Risparmi Registrati', '<p>Nessun risparmio registrato.</p>', [{ text:'Chiudi' }]); return; }
 
-      const rows = items.map(r => {
+      const rows = items.map(r=>{
         const date = r.data_registrazione || (r.created_at||'').toString().split('T')[0] || '';
         return `
-          <li data-id="${r.id}">
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border);">
             <span><strong>${fmt(r.importo)}€</strong> — ${escapeHTML(date)}</span>
-            <span class="item-actions" style="display:flex;gap:8px;">
+            <span class="item-actions" style="display:flex;gap:6px;">
               <button class="action-btn saving-edit-btn" data-id="${r.id}" data-table="${table}">✍🏼</button>
               <button class="action-btn delete saving-delete-btn" data-id="${r.id}" data-table="${table}">🗑️</button>
             </span>
           </li>`;
       }).join('');
 
-      showModal('Risparmi registrati', `<ul id="savings-list" style="list-style:none;padding:0;margin:0;">${rows}</ul>`, [{ text:'Chiudi' }]);
+      showModal('Modifica Risparmi', `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`, [{ text:'Chiudi' }]);
 
-      const modalBody = document.getElementById('generic-modal-body');
-      const handler = async (e) => {
-        const editBtn = e.target.closest('.edit-saving');
-        const delBtn  = e.target.closest('.delete-saving');
+      // --- FIX: Inizio della correzione per i bottoni del modale ---
+      let modalBody = document.getElementById('generic-modal-body');
+      // Pulisce i vecchi "event listener" clonando il nodo e rimpiazzandolo.
+      // Questo previene che i click vengano registrati più volte.
+      const newModalBody = modalBody.cloneNode(true);
+      modalBody.parentNode.replaceChild(newModalBody, modalBody);
+      modalBody = newModalBody;
+      // --- FIX: Fine della correzione ---
 
-        // Modifica importo
-        if (editBtn) {
-          const id = editBtn.dataset.id;
-          const row = data.find(r => String(r.id) === String(id));
-          const newStr = prompt('Nuovo importo (€):', row ? fmt(row.importo) : '');
-          if (newStr === null) return;
+      modalBody.addEventListener('click', onSavingsClick);
 
-          const amount = safeToNumber(String(newStr).replace(',', '.'));
-          if (!Number.isFinite(amount) || amount <= 0) {
-            showStatusMessage('Importo non valido', 'error');
-            return;
-          }
-          const { error: upErr } = await supabase.from(table).update({ importo: amount }).eq('id', id);
-          if (upErr) {
-            showModal('Errore', `Aggiornamento fallito: ${upErr.message}`, [{ text:'Chiudi' }]);
-            return;
-          }
-          // aggiorna UI locale
-          const li = editBtn.closest('li');
-          if (li) li.querySelector('strong').textContent = `${fmt(amount)}€`;
-          const idx = data.findIndex(r => String(r.id) === String(id));
-          if (idx > -1) data[idx].importo = amount;
+      function onSavingsClick(e){
+        const btn = e.target.closest('button'); if(!btn) return;
+        const id = btn.dataset.id, tbl = btn.dataset.table;
 
-          showStatusMessage('Risparmio aggiornato', 'success');
-          updateGoalProgress(goal.id, goal.is_onboarding); // aggiorna subito la barra
-          return;
+        if (btn.classList.contains('saving-delete-btn')) {
+          showModal('Conferma Eliminazione',
+            '<p>Eliminare questo risparmio?</p>',
+            [
+              { text:'Annulla', class:'btn-secondary' },
+              { text:'Elimina', class:'delete', keepOpen:true, action: async ()=>{
+                  const { error } = await supabase.from(tbl).delete().eq('id', id);
+                  if (error) { showModal('Errore', `<p>Impossibile eliminare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  closeModal(document.getElementById('generic-modal'));
+                  showStatusMessage('Risparmio eliminato.', 'success');
+                  updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
+                  showSavingsModal(goal); // Ricarica il modale
+              } }
+            ]);
         }
 
-        // Elimina riga
-        if (delBtn) {
-          const id = delBtn.dataset.id;
-          const { error: delErr } = await supabase.from(table).delete().eq('id', id);
-          if (delErr) {
-            showModal('Errore', `Eliminazione fallita: ${delErr.message}`, [{ text:'Chiudi' }]);
-            return;
-          }
-          const li = delBtn.closest('li'); if (li) li.remove();
-          const k = data.findIndex(r => String(r.id) === String(id));
-          if (k > -1) data.splice(k, 1);
-
-          showStatusMessage('Risparmio eliminato', 'success');
-          updateGoalProgress(goal.id, goal.is_onboarding); // aggiorna subito la barra
-          return;
+        if (btn.classList.contains('saving-edit-btn')) {
+          const item = items.find(x => String(x.id) === String(id));
+          const dateVal = (item?.data_registrazione || (item?.created_at||'').toString().split('T')[0] || '');
+          showModal('Modifica Risparmio', `
+            <div class="form-group"><label>Importo (€)</label>
+              <input id="edit-saving-amount" type="number" step="0.01" value="${fmt(item.importo)}" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:8px"><label>Data</label>
+              <input id="edit-saving-date" type="date" value="${escapeHTML(dateVal)}"></div>`,
+            [
+              { text:'Annulla', class:'btn-secondary' },
+              { text:'Salva', class:'btn-primary', action: async ()=>{
+                  const amt = safeToNumber(String(document.getElementById('edit-saving-amount').value).replace(',','.'));
+                  const date = document.getElementById('edit-saving-date').value || null;
+                  const payload = { importo: amt };
+                  if (date) payload.data_registrazione = date;
+                  const { error } = await supabase.from(tbl).update(payload).eq('id', id);
+                  if (error) { showModal('Errore', `<p>Impossibile aggiornare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  closeModal(document.getElementById('generic-modal'));
+                  showStatusMessage('Risparmio aggiornato.', 'success');
+                  updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
+                  showSavingsModal(goal); // Ricarica il modale
+              } }
+            ]
+          );
         }
-      };
-      modalBody.addEventListener('click', handler, { once: false });
+      }
     }
 
 
@@ -2417,6 +2424,20 @@
       });
     }
     
+    function injectCollapseButtons(){
+      document.querySelectorAll('details.dash-card > summary').forEach(summary=>{
+        if(summary.querySelector('.collapse-btn')) return;
+        const details = summary.parentElement;
+        const host = summary.querySelector('.dash-card__actions') || summary;
+        const btn = document.createElement('button');
+        btn.type='button';
+        btn.className='collapse-btn';
+        const setLabel = () => btn.textContent = details.hasAttribute('open') ? 'Comprimi' : 'Espandi';
+        setLabel();
+        btn.addEventListener('click', (e)=>{ e.stopPropagation(); details.toggleAttribute('open'); setLabel(); });
+        host.appendChild(btn);
+      });
+    }
     injectCollapseButtons();
     
     const dashNavToggle = document.getElementById('dash-nav-toggle');
@@ -2424,16 +2445,6 @@
     if (dashNavToggle && dashNavMenu) {
       dashNavToggle.addEventListener('click', ()=> dashNavMenu.classList.toggle('is-open'));
     }
-
-    // Persisti lo stato open/close dei box senza toolbar extra
-    document.querySelectorAll('details.dash-card').forEach((d, idx) => {
-      const key = `dash_open_${d.id || idx}`;
-      const saved = localStorage.getItem(key);
-      if (saved !== null) d.open = saved === '1';
-      d.addEventListener('toggle', () => {
-        localStorage.setItem(key, d.open ? '1' : '0');
-      });
-    });
 
   </script>
 </body>
