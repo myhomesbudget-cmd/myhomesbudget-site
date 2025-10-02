@@ -902,10 +902,10 @@
     <!-- Sezione Form -->
     <details class="dash-card content-section form-section" open>
       <summary class="dash-card__header">
-        <span class="dash-card__title">✍ Nuova Operazione</span>
+        <span class="dash-card__title">✍🏼 Nuova Operazione</span>
       </summary>
       <div class="dash-card__content">
-        <h2 id="form-title" style="margin:0 0 16px;">✍ Nuova Operazione</h2>
+        <h2 id="form-title" style="margin:0 0 16px;">✍🏼 Nuova Operazione</h2>
       <form id="transaction-form" class="transaction-form">
         <input type="hidden" id="transaction-id" name="transaction-id">
         <div class="form-group kind">
@@ -1156,7 +1156,7 @@
     });
 
     function resetFormToCreateMode(){
-      formTitle.textContent = "✍ Nuova Operazione";
+      formTitle.textContent = "✍🏼 Nuova Operazione";
       submitBtn.textContent = "Aggiungi";
       submitBtn.style.width = '100%';
       transactionIdInput.value = "";
@@ -1283,7 +1283,7 @@
         const categoryText = `${escapeHTML(cat?.name || 'N/A')}${(sub ? ` / ${escapeHTML(sub.name)}` : '')}`;
         const amountNum = safeToNumber(tx.amount);
         const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
-        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">✍🏼 Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
+        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}"> Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
       });
     }
 
