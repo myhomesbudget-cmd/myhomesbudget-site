@@ -9,8 +9,8 @@
 
   <style>
     :root{
-      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
-      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,0.6);
+      --card-border:rgba(0,0,0,0.08);--shadow:0 10px 30px rgba(0,0,0,0.08);
       --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
       --warning-color:#f39c12;
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
@@ -41,7 +41,7 @@
       content:"";
       position:fixed; /* era absolute: lo rendiamo fisso */
       inset:0;
-      background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));
+      background:linear-gradient(135deg,rgba(108,92,231,0.05),rgba(0,206,201,0.05));
       z-index:0;
       pointer-events:none;
     }
@@ -248,26 +248,26 @@
     /* ====== TOPBAR ====== */
     .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border); position: relative; z-index: 1;}
     .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,0.35)}
     .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
     .top-actions{display:flex;gap:12px;align-items:center}
-    .top-link,.top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
-    .top-link:hover,.top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+    .top-link, .top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
+    .top-link:hover, .top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
 
     .date-selectors{display:flex;gap:8px}
-    .select-wrapper{position:relative;display:flex;align-items:center;height:34px;border-radius:10px;background:var(--grad);box-shadow:0 4px 12px rgba(0,0,0,.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
-    .select-wrapper:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.20)}
+    .select-wrapper{position:relative;display:flex;align-items:center;height:34px;border-radius:10px;background:var(--grad);box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .select-wrapper:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
     .select-wrapper::after{content:'▼';font-size:10px;color:rgba(255,255,255,0.8);position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none}
     .topbar-select{appearance:none;background:transparent;color:#fff;border:none;padding:6px 28px 6px 12px;font-size:.9rem;font-weight:600;cursor:pointer}
     .topbar-select option{background:#fff;color:#000}
-    .topbar-select:disabled{opacity:.7}
+    .topbar-select:disabled{opacity:0.7}
 
     .notification-bell{position:relative}
     #scheduler-btn,#notifications-btn{width:38px;padding:0}
     .notification-badge{position:absolute;top:-5px;right:-5px;background:var(--danger-color);color:#fff;border-radius:50%;width:20px;height:20px;font-size:12px;font-weight:bold;display:none;align-items:center;justify-content:center;border:2px solid #fff}
     .notification-badge.is-visible{display:flex}
 
-    .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:101;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:101;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
     .mobile-menu-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
     .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
 
@@ -282,11 +282,11 @@
 
     /* ====== Contenuto Principale ====== */
     main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%; position: relative; z-index: 1;}
-    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:12px;margin-bottom:24px}
-    .dash-nav a,.dash-nav button{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:var(--grad);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.1);border:none;font-family:var(--font-sans);font-size:1rem;cursor:pointer}
-    .dash-nav a:hover,.dash-nav button:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,.15)}
-    .dash-nav a.is-active,.dash-nav button.is-active{filter:brightness(1.15);box-shadow:0 6px 16px rgba(0,0,0,.20),inset 0 1px 2px rgba(255,255,255,0.2)}
-    .content-section{background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .dash-nav{display:flex;gap:8px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px;margin-bottom:24px}
+    .dash-nav a, .dash-nav button{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:var(--grad);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:none;font-family:var(--font-sans);font-size:1rem;cursor:pointer}
+    .dash-nav a:hover, .dash-nav button:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.15)}
+    .dash-nav a.is-active, .dash-nav button.is-active{filter:brightness(1.15);box-shadow:0 6px 16px rgba(0,0,0,0.20),inset 0 1px 2px rgba(255,255,255,0.2)}
+    .content-section{background:rgba(255,255,255,0.85);border-radius:var(--radius-lg);padding:16px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
 
     .dashboard-panel{background:rgba(255,255,255,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
     .dashboard-panel .content-section,.dashboard-panel .summary-card{box-shadow:none;border:none}
@@ -320,13 +320,13 @@
     .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
     .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
     .btn:disabled{opacity:.6;cursor:not-allowed}
-    .btn-primary{background:var(--grad);box-shadow:0 10px 24px rgba(0,0,0,.18)}
-    .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,.22)}
+    .btn-primary{background:var(--grad);box-shadow:0 10px 24px rgba(0,0,0,0.18)}
+    .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,0.22)}
     .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
     .btn-secondary:hover:not(:disabled){background:#e5e5e5;border-color:#ccc;color:#333}
 
     .top-link:focus-visible,.top-btn:focus-visible,.dash-card__header:focus-visible,button:focus-visible {
-      outline: 3px solid rgba(108,92,231,.6);
+      outline: 3px solid rgba(108,92,231,0.6);
       outline-offset: 2px;
     }
 
@@ -365,7 +365,7 @@
     .income .list-total-amount{color:var(--success-color)}
     .expense .list-total-amount{color:var(--danger-color)}
 
-    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,.05)}
+    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,0.05)}
     .item:last-child{border-bottom:none}
     .item-icon{font-size:1.5rem;flex-shrink:0}
     .item-details{display:flex;flex-direction:column;min-width:0}
@@ -386,7 +386,7 @@
         align-items: center;
         padding: 12px 4px;
         gap: 16px;
-        border-bottom: 1px solid rgba(0,0,0,.05);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
      #deadlines-list .expense-item:last-child {
         border-bottom: none;
@@ -569,8 +569,8 @@
     .modal-body li{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--card-border)}
     .modal-body li:last-child{border-bottom:none}
     .modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:12px}
-    .modal-footer .btn.delete{background:var(--grad-danger);box-shadow:0 8px 20px rgba(211,47,47,.25)}
-    .modal-footer .btn.delete:hover{box-shadow:0 12px 24px rgba(211,47,47,.3)}
+    .modal-footer .btn.delete{background:var(--grad-danger);box-shadow:0 8px 20px rgba(211,47,47,0.25)}
+    .modal-footer .btn.delete:hover{box-shadow:0 12px 24px rgba(211,47,47,0.3)}
     .modal-footer .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
     .modal-footer .btn-secondary:hover{background:#e5e5e5;border-color:#ccc;color:#333}
 
@@ -578,7 +578,7 @@
     .modal-content-large{max-width:90vw;width:1000px}
     .movements-table-container{max-height:60vh;overflow-y:auto}
     .movements-table{width:100%;border-collapse:collapse}
-    .movements-table th,.movements-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--card-border);white-space:nowrap}
+    .movements-table th, .movements-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--card-border);white-space:nowrap}
     .movements-table th{font-weight:700;background-color:rgba(0,0,0,0.05);font-size:.9rem;position:sticky;top:0}
     .movements-table td{font-size:.95rem}
     .movements-table .amount-col{text-align:right;font-weight:700}
@@ -593,7 +593,7 @@
     .summary-value.balance{color:var(--fg)}
 
     /* ====== Modal Animazione ====== */
-    .animation-modal-overlay{position:fixed;inset:0;background:rgba(10,25,47,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s ease;overflow:hidden}
+    .animation-modal-overlay{position:fixed;inset:0;background:rgba(10,25,47,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s ease;overflow:hidden}
     .animation-modal-overlay.is-visible{display:flex;opacity:1;pointer-events:auto}
     .animation-container{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
     .animation-bg-image{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,0,0,0.4))}
@@ -783,9 +783,9 @@
   </div>
   <div id="boot-loader" style="
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: rgba(244,247,250,.9); z-index: 2000; flex-direction: column; gap: 12px;">
+    background: rgba(244,247,250,0.9); z-index: 2000; flex-direction: column; gap: 12px;">
     <div class="spinner" style="
-      width: 36px; height: 36px; border: 3px solid rgba(0,0,0,.15);
+      width: 36px; height: 36px; border: 3px solid rgba(0,0,0,0.15);
       border-top-color: #6c5ce7; border-radius: 50%;
       animation: spin 1s linear infinite;"></div>
     <div id="boot-loader-text" style="font-weight:700;color:#333;">Caricamento…</div>
