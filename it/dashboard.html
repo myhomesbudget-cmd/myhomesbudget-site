@@ -1053,52 +1053,47 @@
       return dt;
     }
 
-    /* ====== MODIFICA CHIRURGICA: loadInitialData ====== */
     async function loadInitialData(){
       try {
-        // 1. Leggi il profilo utente per ottenere le categorie configurate
+        // 1) Leggi profilo
         const { data: profile, error: pError } = await supabase
           .from('profiles')
-          .select('onboarding_categories')
+          .select('selected_category_ids, onboarding_categories')
           .eq('id', user.id)
           .single();
-        
         if (pError) throw pError;
 
-        // Estrai i nomi delle categorie che l'utente ha scelto durante l'onboarding
-        const selectedCategoryNames = (profile?.onboarding_categories || []).map(cat => cat.name);
-        
-        // Se non ci sono categorie configurate, non possiamo fare nulla
-        if (selectedCategoryNames.length === 0) {
-            allCategories = [];
-            allSubcategories = [];
-            console.warn("Nessuna categoria trovata in profiles.onboarding_categories. L'utente ha completato l'onboarding?");
-            return;
-        }
+        const selectedIds = Array.isArray(profile?.selected_category_ids) ? profile.selected_category_ids : [];
+        const selectedNames = Array.isArray(profile?.onboarding_categories)
+  ? profile.onboarding_categories.map(c => typeof c === 'string' ? c : c.name)
+  : [];
 
-        // 2. Carica TUTTE le categorie create dall'utente dalla tabella 'categories'
-        // Ci servono per avere gli ID da usare nelle transazioni e per le sottocategorie
-        const { data: allUserCategoriesWithIds, error: cError } = await supabase
-            .from('categories')
-            .select('*')
-            .eq('created_by', user.id);
-        
+        // 2) Recupera tutte le categorie dell’utente
+        let { data: allUserCategories, error: cError } = await supabase
+          .from('categories')
+          .select('*')
+          .or(`created_by.eq.${user.id},created_by.is.null`);
         if (cError) throw cError;
 
-        // 3. Filtra le categorie con ID per includere solo quelle i cui nomi corrispondono
-        // a quelle salvate nel profilo. Questa è la fonte di verità per la UI.
-        allCategories = (allUserCategoriesWithIds || []).filter(cat => selectedCategoryNames.includes(cat.name));
+        // 3) Filtro: preferisco gli ID, se ci sono
+        let filtered;
+        if (selectedIds.length > 0) {
+          filtered = (allUserCategories || []).filter(cat => selectedIds.includes(cat.id));
+        } else {
+          filtered = (allUserCategories || []).filter(cat => selectedNames.includes(cat.name));
+        }
 
-        // 4. Carica le sottocategorie solo per le categorie filtrate e valide
-        if (allCategories.length > 0){
+        allCategories = filtered;
+
+        // 4) Recupero le sottocategorie
+        if (allCategories.length > 0) {
           const ids = allCategories.map(c => c.id);
-          const { data: subcategories, error: sError } = await supabase
+          const { data: subs, error: sError } = await supabase
             .from('subcategories')
             .select('*')
             .in('category_id', ids);
-            
           if (sError) throw sError;
-          allSubcategories = subcategories || [];
+          allSubcategories = subs || [];
         } else {
           allSubcategories = [];
         }
@@ -2151,3 +2146,4 @@
   </script>
 </body>
 </html>
+
