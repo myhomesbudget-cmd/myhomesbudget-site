@@ -867,7 +867,7 @@
           <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
           <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
-        <a href="#" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
+        <a href="/it/onboarding.html" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
         <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
         <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
           <span>🔔</span>
@@ -2311,15 +2311,6 @@
                   const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
                   renderDeadlinesList(document.getElementById('scheduler-modal-body'), u, currentFilter);
                   openModal(schedulerModal);
-                });
-                
-                document.getElementById('edit-goal-top')?.addEventListener('click', (e) => {
-                  e.preventDefault();
-                  // qui puoi riusare la UI già esistente delle card per mostrare l’editor
-                  showModal('Modifica Obiettivo', `
-                    <p>Apri l’obiettivo principale e modifica importo/metodo direttamente.</p>
-                    <p><small>Se vuoi, in step successivo portiamo qui l’editor completo.</small></p>
-                  `, [{ text:'Chiudi' }]);
                 });
 
                 const deadlinesKindSelect = document.getElementById('deadlines-kind');
