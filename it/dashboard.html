@@ -23,12 +23,28 @@
     body{
       margin:0;
       color:var(--fg);
-      background: url("/bg.webp") no-repeat center/cover;
-      background-attachment: scroll;
       min-height:100svh;
       -webkit-overflow-scrolling:touch;
     }
-    body::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));z-index: 0;}
+    
+    /* Background layer fisso in alta qualità */
+    #bg{position:fixed;inset:0;z-index:-1;pointer-events:none}
+    #bg img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center;
+      image-rendering:auto; /* niente pixel art */
+      transform:translateZ(0);will-change:transform; /* evita banding/artefatti */
+      filter:none;
+    }
+    /* Mantieni il lieve velo colorato sopra lo sfondo */
+    body::before{
+      content:"";
+      position:fixed; /* era absolute: lo rendiamo fisso */
+      inset:0;
+      background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));
+      z-index:0;
+      pointer-events:none;
+    }
 
     /* DASHBOARD MOBILE ACCORDION - 25/09/2025 */
     
@@ -531,8 +547,19 @@
 
 
     /* ====== Modal base (MODIFICATO PER ESSERE PIÙ AMPIO) ====== */
-    .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s ease; position: relative; z-index: 1;}
-    .modal-overlay.is-visible{display:flex;opacity:1;pointer-events:auto}
+    .modal-overlay{
+      position:fixed;
+      top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.6);
+      display:none;
+      align-items:center;justify-content:center;
+      z-index:1000;
+      opacity:0;pointer-events:none;
+      transition:opacity .3s ease;
+    }
+    .modal-overlay.is-visible{
+      display:flex;opacity:1;pointer-events:auto;
+    }
     .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
     .modal-overlay.is-visible .modal-content{transform:scale(1)}
     .modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border);padding-bottom:12px;margin-bottom:16px}
@@ -751,6 +778,9 @@
   </style>
 </head>
 <body>
+  <div id="bg" aria-hidden="true">
+    <img src="/bg.webp" alt="" loading="eager" decoding="async">
+  </div>
   <div id="boot-loader" style="
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
     background: rgba(244,247,250,.9); z-index: 2000; flex-direction: column; gap: 12px;">
@@ -806,6 +836,14 @@
       </summary>
       <div class="dash-card__content">
         <h2 style="font-size: 1.5rem; margin: 0 0 16px; display:none;" class="deadlines-desktop-title">🔔 Scadenze & Voci Future</h2>
+        <div id="deadlines-filter" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <label for="deadlines-kind" style="font-weight:600;">Filtra:</label>
+          <select id="deadlines-kind" style="padding:6px 10px;border-radius:8px;border:1px solid #ccc;background:#fff;">
+            <option value="expense" selected>Solo Spese</option>
+            <option value="income">Solo Entrate</option>
+            <option value="all">Tutte</option>
+          </select>
+        </div>
         <div id="deadlines-list" class="transaction-list"></div>
       </div>
     </details>
@@ -1188,85 +1226,94 @@
       }
     }
 
-    function renderDeadlinesList(container, transactions){
-        if (transactions.length === 0){ container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>'; return; }
-        container.innerHTML = '';
-        const today = new Date(); today.setHours(0,0,0,0);
-        const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
+    function renderDeadlinesList(container, transactions, filter='expense'){
+      // filtro per tipo
+      let txs = transactions || [];
+      if (filter === 'expense') txs = txs.filter(t => t.kind === 'expense');
+      else if (filter === 'income') txs = txs.filter(t => t.kind === 'income');
 
-        const isModal = container.closest('.modal-overlay');
+      if (txs.length === 0){
+        container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
+        return;
+      }
 
-        transactions.forEach(tx=>{
-            const isIncome = tx.kind === 'income';
-            const dueDate = toLocalMidnight(String(tx.due_date));
-            const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
-            const diffDays = Math.ceil(diffTime / dayMs);
-            const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
-            const amountClass = isIncome ? 'income' : 'expense';
-            const amountSign = isIncome ? '+' : '-';
-            const buttonClass = isIncome ? 'receive' : 'pay';
-            const buttonText = isIncome ? 'Incassa' : 'Paga';
-            const sub = tx.subcategories;
-            const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
-            const noteSafe = escapeHTML(tx.note || '');
-            const day = dueDate ? String(dueDate.getDate()).padStart(2, '0') : '--';
-            const month = dueDate ? monthFormatter.format(dueDate).replace('.', '') : '---';
+      container.innerHTML = '';
+      const today = new Date(); today.setHours(0,0,0,0);
+      const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
 
-            let rowHTML = '';
+      const isModal = container.closest('.modal-overlay');
 
-            if (isModal) {
-                let daysLeftClass = '';
-                if (diffDays < 0) daysLeftClass = 'due-soon';
-                else if (diffDays <= 7) daysLeftClass = 'due-soon';
-                else if (diffDays <= 15) daysLeftClass = 'far-off';
-                else daysLeftClass = 'very-far';
+      txs.forEach(tx=>{
+          const isIncome = tx.kind === 'income';
+          const dueDate = toLocalMidnight(String(tx.due_date));
+          const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
+          const diffDays = Math.ceil(diffTime / dayMs);
+          const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+          const amountClass = isIncome ? 'income' : 'expense';
+          const amountSign = isIncome ? '+' : '-';
+          const buttonClass = isIncome ? 'receive' : 'pay';
+          const buttonText = isIncome ? 'Incassa' : 'Paga';
+          const sub = tx.subcategories;
+          const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
+          const noteSafe = escapeHTML(tx.note || '');
+          const day = dueDate ? String(dueDate.getDate()).padStart(2, '0') : '--';
+          const month = dueDate ? monthFormatter.format(dueDate).replace('.', '') : '---';
 
-                rowHTML = `
-                    <div class="deadline-item-modal">
-                        <div class="date-box">
-                            <span class="day">${day}</span>
-                            <span class="month">${month}</span>
-                        </div>
-                        <div class="details">
-                            <p class="note">${noteSafe}</p>
-                            <p class="category">${categoryText}</p>
-                        </div>
-                        <div class="right-section">
-                            <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                            <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
-                        </div>
-                        <div class="actions">
-                            <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼 Modifica</button>
-                            <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                            <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                 rowHTML = `
-                    <div class="expense-item">
-                        <div class="expense-actual-date">
-                            <span class="date-day">${day}</span>
-                            <span class="date-month">${month}</span>
-                        </div>
-                        <div class="expense-details">
-                            <p>${noteSafe}</p>
-                            <p>${categoryText}</p>
-                        </div>
-                        <div class="expense-right-section">
-                            <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
-                            <span class="expense-due-date">${daysLeftText}</span>
-                            <div class="item-actions">
-                                 <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                                 <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
-                                 <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-            container.insertAdjacentHTML('beforeend', rowHTML);
-        });
+          let rowHTML = '';
+
+          if (isModal) {
+              let daysLeftClass = '';
+              if (diffDays < 0) daysLeftClass = 'due-soon';
+              else if (diffDays <= 7) daysLeftClass = 'due-soon';
+              else if (diffDays <= 15) daysLeftClass = 'far-off';
+              else daysLeftClass = 'very-far';
+
+              rowHTML = `
+                  <div class="deadline-item-modal">
+                      <div class="date-box">
+                          <span class="day">${day}</span>
+                          <span class="month">${month}</span>
+                      </div>
+                      <div class="details">
+                          <p class="note">${noteSafe}</p>
+                          <p class="category">${categoryText}</p>
+                      </div>
+                      <div class="right-section">
+                          <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                          <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
+                      </div>
+                      <div class="actions">
+                          <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼 Modifica</button>
+                          <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                          <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                      </div>
+                  </div>
+              `;
+          } else {
+               rowHTML = `
+                  <div class="expense-item">
+                      <div class="expense-actual-date">
+                          <span class="date-day">${day}</span>
+                          <span class="date-month">${month}</span>
+                      </div>
+                      <div class="expense-details">
+                          <p>${noteSafe}</p>
+                          <p>${categoryText}</p>
+                      </div>
+                      <div class="expense-right-section">
+                          <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                          <span class="expense-due-date">${daysLeftText}</span>
+                          <div class="item-actions">
+                               <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                               <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
+                               <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                          </div>
+                      </div>
+                  </div>
+              `;
+          }
+          container.insertAdjacentHTML('beforeend', rowHTML);
+      });
     }
 
     function renderMovementsListModal(transactions, months){
@@ -1569,7 +1616,7 @@
              goalsList.innerHTML = `<div class="goal-card"><div class="goal-title">🎯 <span>Obiettivo non impostato</span></div><p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p><div class="goal-confirm" style="text-align:left;"><a class="btn btn-primary" href="/it/onboarding.html">Configura Obiettivo</a></div></div>`;
         } else {
             goals.forEach(goal => {
-                const canDelete = goals.length > 1;
+                const canDelete = !goal.is_onboarding;
                 goalsList.insertAdjacentHTML('beforeend', createGoalCardHTML(goal, canDelete, isPlanLimited));
                 bindGoalEditor(goal);
                 updateGoalProgress(goal.id, goal.is_onboarding); 
@@ -1887,7 +1934,9 @@
         }
         const listItems = data.map(r => {
             const date = r.data_registrazione || r.created_at || '';
-            return `<li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border);"><span><strong>${fmt(r.importo)}€</strong> — ${date}</span></li>`;
+            const d = new Date(date); 
+            const ds = isNaN(d) ? date : d.toLocaleDateString('it-IT');
+            return `<li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border);"><span><strong>${fmt(r.importo)}€</strong> — ${ds}</span></li>`;
         }).join('');
         showModal('Risparmi Registrati', `<ul style="list-style:none;padding:0;margin:0;">${listItems}</ul>`, [ { text:'Chiudi' } ]);
     }
@@ -1999,11 +2048,16 @@
         startWatchdog();
 
         try{
-            const { data: { session } } = await supabase.auth.getSession();
+            const [{ data: sessionData }, profileRes] = await Promise.all([
+              supabase.auth.getSession(),
+              supabase.from('profiles').select('*').eq('id', user.id).single()
+            ]);
+            const session = sessionData.session;
+
             if (!session) { location.replace("/it/login.html"); return; }
             user = session.user;
             
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            const profile = profileRes.data;
             if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
             userProfile = profile;
             
@@ -2085,7 +2139,8 @@
                   futureDate.setDate(today.getDate() + 30);
                   const scheduled = await getScheduledTransactions(today, futureDate);
                   document.getElementById('scheduler-modal-title').innerHTML = `🗓️ Scadenziario (Prossimi 30 giorni)`;
-                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), scheduled);
+                  const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), scheduled, currentFilter);
                   openModal(schedulerModal);
                 });
 
@@ -2094,9 +2149,21 @@
                   const f = new Date(); f.setDate(t.getDate()+7);
                   const u = await getScheduledTransactions(t, f);
                   document.getElementById('scheduler-modal-title').innerHTML = `🔔 Notifiche (Prossimi 7 giorni)`;
-                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), u);
+                  const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), u, currentFilter);
                   openModal(schedulerModal);
                 });
+                
+                const deadlinesKindSelect = document.getElementById('deadlines-kind');
+                if (deadlinesKindSelect){
+                  deadlinesKindSelect.addEventListener('change', async () => {
+                    const today = new Date();
+                    const futureDate = new Date(); futureDate.setDate(today.getDate()+30);
+                    const imminentDeadlines = await getScheduledTransactions(today, futureDate);
+                    renderDeadlinesList(deadlinesList, imminentDeadlines, deadlinesKindSelect.value);
+                  });
+                }
+
 
                 document.body.addEventListener('click', (e)=>{
                   const m = e.target.closest('.modal-overlay');
@@ -2126,6 +2193,14 @@
             __ready = true;
             stopWatchdog();
             hideLoader();
+            
+            // safety: chiudi qualsiasi overlay rimasto visibile per errore
+            document.querySelectorAll('.modal-overlay').forEach(el => {
+              el.classList.remove('is-visible');
+              el.style.display = 'none';
+              el.style.opacity = '0';
+            });
+
 
         } catch (err){
             console.error("Errore critico durante l'inizializzazione:", err);
