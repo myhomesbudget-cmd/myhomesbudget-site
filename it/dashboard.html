@@ -24,7 +24,6 @@
       margin:0;
       color:var(--fg);
       min-height:100svh;
-      -webkit-overflow-scrolling:touch;
     }
     
     /* Background layer fisso in alta qualità */
@@ -778,9 +777,7 @@
   </style>
 </head>
 <body>
-  <div id="bg" aria-hidden="true">
-    <img src="/bg.webp" alt="" loading="eager" decoding="async">
-  </div>
+  <div id="bg" aria-hidden="true"><img src="/bg.webp" alt=""></div>
   <div id="boot-loader" style="
     position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
     background: rgba(244,247,250,0.9); z-index: 2000; flex-direction: column; gap: 12px;">
@@ -810,7 +807,7 @@
           <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
           <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
-        <a href="/it/onboarding.html?edit=1" class="top-link">🎯 Obiettivo</a>
+        <a href="#" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
         <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
         <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
           <span>🔔</span>
@@ -1615,7 +1612,7 @@
              goalsList.innerHTML = `<div class="goal-card"><div class="goal-title">🎯 <span>Obiettivo non impostato</span></div><p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p><div class="goal-confirm" style="text-align:left;"><a class="btn btn-primary" href="/it/onboarding.html">Configura Obiettivo</a></div></div>`;
         } else {
             goals.forEach(goal => {
-                const canDelete = !goal.is_onboarding;
+                const canDelete = !goal.is_onboarding && goals.length > 1;
                 goalsList.insertAdjacentHTML('beforeend', createGoalCardHTML(goal, canDelete, isPlanLimited));
                 bindGoalEditor(goal);
                 updateGoalProgress(goal.id, goal.is_onboarding); 
@@ -2040,27 +2037,29 @@
     attachRetry();
 
     async function bootDashboard() {
-        if (__booted) return;
-        __booted = true;
+      if (__booted) return;
+      __booted = true;
 
-        showLoader('Caricamento…', false);
-        startWatchdog();
+      showLoader('Caricamento…', false);
+      startWatchdog();
 
-        try{
-            const [{ data: sessionData }, profileRes] = await Promise.all([
-              supabase.auth.getSession(),
-              supabase.from('profiles').select('*').eq('id', user.id).single()
-            ]);
-            const session = sessionData.session;
+      try {
+        // 1) Prendi la sessione
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace("/it/login.html"); return; }
+        user = session.user;
 
-            if (!session) { location.replace("/it/login.html"); return; }
-            user = session.user;
-            
-            const profile = profileRes.data;
-            if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
-            userProfile = profile;
-            
-            renderSubscriptionStatus(profile);
+        // 2) Ora puoi usare user.id
+        const { data: profile, error: pErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (pErr) throw pErr;
+
+        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
+        userProfile = profile;
+        renderSubscriptionStatus(profile);
             
             if(!__eventsBound) {
                 positionSubscriptionButton();
@@ -2153,6 +2152,15 @@
                   openModal(schedulerModal);
                 });
                 
+                document.getElementById('edit-goal-top')?.addEventListener('click', (e) => {
+                  e.preventDefault();
+                  // qui puoi riusare la UI già esistente delle card per mostrare l’editor
+                  showModal('Modifica Obiettivo', `
+                    <p>Apri l’obiettivo principale e modifica importo/metodo direttamente.</p>
+                    <p><small>Se vuoi, in step successivo portiamo qui l’editor completo.</small></p>
+                  `, [{ text:'Chiudi' }]);
+                });
+
                 const deadlinesKindSelect = document.getElementById('deadlines-kind');
                 if (deadlinesKindSelect){
                   deadlinesKindSelect.addEventListener('change', async () => {
