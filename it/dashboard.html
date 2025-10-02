@@ -16,6 +16,7 @@
       --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
       --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
+      --grad-warning: linear-gradient(135deg,#f39c12,#fdd835);
     }
     *{box-sizing:border-box}
     html{font-family:var(--font-sans);background-color:var(--bg)}
@@ -294,6 +295,15 @@
     .dashboard-panel .content-section,.dashboard-panel .summary-card{box-shadow:none;border:none}
     .dashboard-panel .content-section{background:rgba(255,255,255,0.7)}
 
+    .dash-select{
+      appearance:none;
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,0.15);
+      background:#fff;
+      font-weight:600;
+    }
+
     /* ====== Layout ====== */
     .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
     @media(min-width:1024px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
@@ -330,6 +340,35 @@
     .top-link:focus-visible, .top-btn:focus-visible, .dash-card__header:focus-visible, button:focus-visible {
       outline: 3px solid rgba(108,92,231,0.6);
       outline-offset: 2px;
+    }
+
+    /* Delete sempre rosso gradiente */
+    .btn.delete,.goal-card .btn.delete,.modal-footer .btn.delete{
+      background: var(--grad-danger);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(211,47,47,0.25);
+      border: none;
+    }
+    .btn.delete:hover{
+      filter: brightness(1.08);
+      box-shadow: 0 12px 24px rgba(211,47,47,0.30);
+      transform: translateY(-2px);
+    }
+
+    #deadlines-section.content-section{
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(243,156,18,0.25);
+    }
+    #deadlines-section .dash-card__header{
+      background: var(--grad-warning);
+      color: #fff;
+      border-bottom: none;
+    }
+    #deadlines-section .dash-card__title{ color: #fff; }
+    #deadlines-list .expense-due-date{
+      background-color:#fff3cd;
+      border:1px solid #ffe58f;
+      color:#8a6d3b;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -831,6 +870,15 @@
       <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
       <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
       <button id="list-movements-btn">Lista Movimenti</button>
+      <div class="dash-tools" style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <label for="section-open" style="font-weight:600;">Apri:</label>
+        <select id="section-open" class="dash-select">
+          <option value="deadlines">Scadenze</option>
+          <option value="form">Nuova Operazione</option>
+          <option value="goals">Obiettivi</option>
+          <option value="summary">Riepilogo Mensile</option>
+        </select>
+      </div>
     </nav>
 
     <!-- Scadenze -->
@@ -1074,31 +1122,31 @@
       openModal(modal);
     }
 
-    function openModal(modal){
-      if(!modal) return;
+    function openModal(el){
+      if(!el) return;
       // annulla eventuali stili inline rimasti
-      modal.style.removeProperty('display');
-      modal.style.removeProperty('opacity');
-      modal.style.removeProperty('pointer-events');
-      modal.classList.add('is-visible');
+      el.style.removeProperty('display');
+      el.style.removeProperty('opacity');
+      el.style.removeProperty('pointer-events');
+      el.classList.add('is-visible');
       document.body.style.overflow = 'hidden';
 
       const timeout = setTimeout(() => {
         // se per qualunque motivo non è visibile, sblocca lo scroll
-        if(!modal.classList.contains('is-visible')) {
+        if(!el.classList.contains('is-visible')) {
           document.body.style.overflow = '';
         }
       }, 400);
 
       // chiudi con ESC
-      const onKey = (e) => { if(e.key === 'Escape') closeModal(modal); };
-      modal.dataset.esc = '1';
+      const onKey = (e) => { if(e.key === 'Escape') closeModal(el); };
+      el.dataset.esc = '1';
       document.addEventListener('keydown', onKey, { once:true });
     }
     
-    function closeModal(modal){
-      if(!modal) return;
-      modal.classList.remove('is-visible');
+    function closeModal(el){
+      if(!el) return;
+      el.classList.remove('is-visible');
       document.body.style.overflow = '';
       // non mettere display:none inline: lascia fare al CSS
     }
@@ -1107,7 +1155,6 @@
       const overlay = e.target.closest('.modal-overlay');
       if(overlay && e.target === overlay){ closeModal(overlay); }
     });
-
 
     function resetFormToCreateMode(){
       formTitle.textContent = "Nuova Operazione";
@@ -2170,7 +2217,8 @@
                   });
                 });
                 
-                schedulerBtn.addEventListener('click', async () => {
+                schedulerBtn.addEventListener('click', async (e) => {
+                  e.preventDefault(); e.stopPropagation();
                   const today = new Date();
                   const futureDate = new Date();
                   futureDate.setDate(today.getDate() + 30);
@@ -2181,7 +2229,8 @@
                   openModal(schedulerModal);
                 });
 
-                notificationsBtn.addEventListener('click', async () => {
+                notificationsBtn.addEventListener('click', async (e) => {
+                  e.preventDefault(); e.stopPropagation();
                   const t = new Date();
                   const f = new Date(); f.setDate(t.getDate()+7);
                   const u = await getScheduledTransactions(t, f);
@@ -2291,6 +2340,26 @@
       observer.observe(deadlines, { attributes: true, attributeFilter: ['style'] });
     })();
     /* END DASHBOARD MOBILE ACCORDION - 25/09/2025 */
+
+    // Selettore per aprire/chiudere box
+    const openSelect = document.getElementById('section-open');
+    if (openSelect) {
+      const map = {
+        deadlines: '#deadlines-section',
+        form: '.form-section',
+        goals: '#goals-section',
+        summary: '.dashboard-panel'
+      };
+      openSelect.addEventListener('change', e => {
+        const sel = map[e.target.value];
+        document.querySelectorAll('.dash-card').forEach(el => el.removeAttribute('open'));
+        const target = document.querySelector(sel);
+        if (target) {
+          target.setAttribute('open','');
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
   </script>
 </body>
 </html>
