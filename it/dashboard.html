@@ -1076,14 +1076,19 @@
 
     function openModal(modal){
       if(!modal) return;
+      // annulla eventuali stili inline rimasti
+      modal.style.removeProperty('display');
+      modal.style.removeProperty('opacity');
+      modal.style.removeProperty('pointer-events');
       modal.classList.add('is-visible');
+      document.body.style.overflow = 'hidden';
+
       const timeout = setTimeout(() => {
         // se per qualunque motivo non è visibile, sblocca lo scroll
         if(!modal.classList.contains('is-visible')) {
           document.body.style.overflow = '';
         }
       }, 400);
-      document.body.style.overflow = 'hidden';
 
       // chiudi con ESC
       const onKey = (e) => { if(e.key === 'Escape') closeModal(modal); };
@@ -1095,20 +1100,12 @@
       if(!modal) return;
       modal.classList.remove('is-visible');
       document.body.style.overflow = '';
+      // non mettere display:none inline: lascia fare al CSS
     }
     
     document.body.addEventListener('click', (e)=>{
       const overlay = e.target.closest('.modal-overlay');
       if(overlay && e.target === overlay){ closeModal(overlay); }
-    });
-
-    ['scheduler-btn','notifications-btn','list-movements-btn'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.addEventListener('click', (e)=>{ 
-          e.preventDefault(); 
-          e.stopPropagation(); 
-          // La logica per aprire il modale è nel boot
-      });
     });
 
 
@@ -2245,9 +2242,9 @@
             
             // safety: chiudi qualsiasi overlay rimasto visibile per errore
             document.querySelectorAll('.modal-overlay').forEach(el => {
-              el.classList.remove('is-visible');
-              el.style.display = 'none';
-              el.style.opacity = '0';
+                el.classList.remove('is-visible');
+                el.style.removeProperty('display');
+                el.style.removeProperty('opacity');
             });
 
 
