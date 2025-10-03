@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Riepilogo - MyHomesBudget</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-main: #0f172a;
+      --bg-secondary: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(148, 163, 184, 0.2);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Topbar Glass */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .topbar-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .topbar-nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .topbar-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .topbar-link:hover,
+    .topbar-link.active {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .month-year-selectors {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    select {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select:hover {
+      border-color: var(--primary);
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Glass Cards */
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
+    }
+
+    .card:hover {
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .kpi-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-value.positive {
+      color: var(--success);
+    }
+
+    .kpi-value.negative {
+      color: var(--danger);
+    }
+
+    .kpi-value.neutral {
+      color: var(--primary);
+    }
+
+    .kpi-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Progress Bars */
+    .progress-section {
+      margin-bottom: 2rem;
+    }
+
+    .progress-item {
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .progress-amount {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .progress-bar-container {
+      height: 0.75rem;
+      background: rgba(148, 163, 184, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      border-radius: 9999px;
+      transition: width 0.5s ease;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    tr:hover {
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .amount-positive {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .amount-negative {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    /* Loading Spinner */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(99, 102, 241, 0.1);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 1rem;
+      }
+
+      .topbar-left,
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">📊 Riepilogo</div>
+      <nav class="topbar-nav">
+        <a href="/it/dashboard.html" class="topbar-link">Dashboard</a>
+        <a href="/it/riepilogo.html" class="topbar-link active">Riepilogo</a>
+        <a href="/it/onboarding.html?from=dashboard&force=1&step=1" class="topbar-link">🎯 Obiettivo</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="month-year-selectors">
+        <select id="month-selector"></select>
+        <select id="year-selector"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Entrate Totali</div>
+        <div class="kpi-value positive" id="kpi-income">€0</div>
+        <div class="kpi-subtitle">del mese selezionato</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Uscite Totali</div>
+        <div class="kpi-value negative" id="kpi-expenses">€0</div>
+        <div class="kpi-subtitle">del mese selezionato</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Saldo Mese</div>
+        <div class="kpi-value neutral" id="kpi-balance">€0</div>
+        <div class="kpi-subtitle">Entrate - Uscite</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tasso Risparmio</div>
+        <div class="kpi-value neutral" id="kpi-savings-rate">0%</div>
+        <div class="kpi-subtitle">percentuale risparmiata</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <!-- Income vs Expenses Chart -->
+      <div class="card">
+        <h2 class="card-title">Entrate vs Uscite (Settimanale)</h2>
+        <div class="chart-container">
+          <canvas id="income-expenses-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Category Breakdown Chart -->
+      <div class="card">
+        <h2 class="card-title">Distribuzione Uscite per Categoria</h2>
+        <div class="chart-container">
+          <canvas id="category-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trend Chart -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <h2 class="card-title">Trend Ultimi 12 Mesi</h2>
+      <div class="chart-container" style="height: 350px;">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Goals Progress -->
+    <div class="card progress-section" id="goals-section" style="display: none;">
+      <h2 class="card-title">Progress Obiettivi</h2>
+      <div id="goals-container"></div>
+    </div>
+
+    <!-- Upcoming Deadlines -->
+    <div class="card">
+      <h2 class="card-title">Prossime Scadenze (Non Pagate)</h2>
+      <div class="table-container">
+        <table id="deadlines-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrizione</th>
+              <th>Categoria</th>
+              <th>Importo</th>
+            </tr>
+          </thead>
+          <tbody id="deadlines-tbody">
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-secondary);">
+                Nessuna scadenza nel mese selezionato
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  
+  <!-- Main App -->
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    // Italian month names
+    const MESI_ITA = [
+      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ];
+
+    // State
+    let currentUser = null;
+    let currentProfile = null;
+    let selectedMonth = new Date().getMonth();
+    let selectedYear = new Date().getFullYear();
+
+    // Charts
+    let incomeExpensesChart = null;
+    let categoryChart = null;
+    let trendChart = null;
+
+    // Initialize
+    async function init() {
+      try {
+        // Check auth
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          location.replace("/it/login.html");
+          return;
+        }
+        currentUser = session.user;
+
+        // Load profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+        
+        currentProfile = profile;
+
+        // Initialize selectors
+        initSelectors();
+
+        // Load data
+        await loadAllDataForMonth();
+      } catch (error) {
+        console.error('Init error:', error);
+        alert('Errore nel caricamento dei dati');
+      }
+    }
+
+    // Initialize month/year selectors
+    function initSelectors() {
+      const monthSelect = document.getElementById('month-selector');
+      const yearSelect = document.getElementById('year-selector');
+
+      // Populate months
+      MESI_ITA.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = month;
+        if (index === selectedMonth) option.selected = true;
+        monthSelect.appendChild(option);
+      });
+
+      // Populate years (current year and 2 years back)
+      const currentYear = new Date().getFullYear();
+      for (let year = currentYear - 2; year <= currentYear; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === selectedYear) option.selected = true;
+        yearSelect.appendChild(option);
+      }
+
+      // Event listeners
+      monthSelect.addEventListener('change', async (e) => {
+        selectedMonth = parseInt(e.target.value);
+        await loadAllDataForMonth();
+      });
+
+      yearSelect.addEventListener('change', async (e) => {
+        selectedYear = parseInt(e.target.value);
+        await loadAllDataForMonth();
+      });
+    }
+
+    // Calculate month boundaries (UTC)
+    function getMonthBoundaries(year, month) {
+      const monthStart = new Date(Date.UTC(year, month, 1));
+      const nextMonthStart = new Date(Date.UTC(year, month + 1, 1));
+      const startStr = monthStart.toISOString().split('T')[0];
+      const nextStartStr = nextMonthStart.toISOString().split('T')[0];
+      const endStr = new Date(Date.UTC(year, month, new Date(year, month + 1, 0).getDate()))
+        .toISOString().split('T')[0];
+      
+      return { startStr, nextStartStr, endStr };
+    }
+
+    // Load all data for selected month
+    async function loadAllDataForMonth() {
+      try {
+        const { startStr, nextStartStr, endStr } = getMonthBoundaries(selectedYear, selectedMonth);
+
+        // Parallel queries
+        const [
+          { data: transactions },
+          { data: categories },
+          { data: deadlines },
+          { data: goals }
+        ] = await Promise.all([
+          // Transactions of the month
+          supabase
+            .from('transactions')
+            .select('*')
+            .eq('created_by', currentUser.id)
+            .gte('occurred_at', startStr)
+            .lt('occurred_at', nextStartStr)
+            .order('occurred_at', { ascending: false }),
+          
+          // Categories
+          supabase
+            .from('categories')
+            .select('*')
+            .or(`created_by.eq.${currentUser.id},created_by.is.null`),
+          
+          // Deadlines
+          supabase
+            .from('transactions')
+            .select('*, categories(*), subcategories(*)')
+            .eq('created_by', currentUser.id)
+            .eq('is_paid', false)
+            .gte('due_date', startStr)
+            .lte('due_date', endStr)
+            .order('due_date', { ascending: true }),
+          
+          // Goals (only if pro)
+          currentProfile?.plan_type === 'pro'
+            ? supabase.from('obiettivi').select('*').eq('user_id', currentUser.id)
+            : Promise.resolve({ data: [] })
+        ]);
+
+        // Update UI
+        updateKPIs(transactions || []);
+        await updateCharts(transactions || [], categories || []);
+        updateDeadlines(deadlines || []);
+        await updateGoalsProgress(goals || []);
+      } catch (error) {
+        console.error('Load data error:', error);
+      }
+    }
+
+    // Update KPIs
+    function updateKPIs(transactions) {
+      const income = transactions
+        .filter(t => t.kind === 'income' && t.is_paid !== false)
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      
+      const expenses = transactions
+        .filter(t => t.kind === 'expense' && t.is_paid !== false)
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      
+      const balance = income - expenses;
+      const savingsRate = income > 0 ? (Math.max(0, balance) / income * 100) : 0;
+
+      document.getElementById('kpi-income').textContent = `€${income.toFixed(2)}`;
+      document.getElementById('kpi-expenses').textContent = `€${expenses.toFixed(2)}`;
+      
+      const balanceEl = document.getElementById('kpi-balance');
+      balanceEl.textContent = `€${balance.toFixed(2)}`;
+      balanceEl.className = `kpi-value ${balance >= 0 ? 'positive' : 'negative'}`;
+      
+      document.getElementById('kpi-savings-rate').textContent = `${savingsRate.toFixed(1)}%`;
+    }
+
+    // Update all charts
+    async function updateCharts(transactions, categories) {
+      await updateIncomeExpensesChart(transactions);
+      updateCategoryChart(transactions, categories);
+      await updateTrendChart();
+    }
+
+    // Income vs Expenses Chart (Weekly)
+    async function updateIncomeExpensesChart(transactions) {
+      const ctx = document.getElementById('income-expenses-chart');
+      
+      // Group by week
+      const weeks = ['Sett. 1', 'Sett. 2', 'Sett. 3', 'Sett. 4'];
+      const incomeByWeek = [0, 0, 0, 0];
+      const expensesByWeek = [0, 0, 0, 0];
+
+      transactions.forEach(t => {
+        if (t.is_paid === false) return;
+        const day = new Date(t.occurred_at).getDate();
+        const weekIndex = Math.min(Math.floor((day - 1) / 7), 3);
+        
+        if (t.kind === 'income') {
+          incomeByWeek[weekIndex] += t.amount || 0;
+        } else if (t.kind === 'expense') {
+          expensesByWeek[weekIndex] += t.amount || 0;
+        }
+      });
+
+      if (incomeExpensesChart) {
+        incomeExpensesChart.destroy();
+      }
+
+      incomeExpensesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: weeks,
+          datasets: [
+            {
+              label: 'Entrate',
+              data: incomeByWeek,
+              backgroundColor: 'rgba(16, 185, 129, 0.7)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'Uscite',
+              data: expensesByWeek,
+              backgroundColor: 'rgba(239, 68, 68, 0.7)',
+              borderColor: 'rgba(239, 68, 68, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#f1f5f9' }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            },
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    // Category Breakdown Chart
+    function updateCategoryChart(transactions, categories) {
+      const ctx = document.getElementById('category-chart');
+      
+      // Group expenses by category
+      const categoryMap = {};
+      categories.forEach(cat => {
+        categoryMap[cat.id] = cat.name;
+      });
+
+      const expensesByCategory = {};
+      transactions.forEach(t => {
+        if (t.kind === 'expense' && t.is_paid !== false && t.category_id) {
+          const catName = categoryMap[t.category_id] || 'Altro';
+          expensesByCategory[catName] = (expensesByCategory[catName] || 0) + (t.amount || 0);
+        }
+      });
+
+      // Sort and take top 5
+      const sortedCategories = Object.entries(expensesByCategory)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      const labels = sortedCategories.map(([name]) => name);
+      const data = sortedCategories.map(([, amount]) => amount);
+      const colors = [
+        'rgba(99, 102, 241, 0.7)',
+        'rgba(239, 68, 68, 0.7)',
+        'rgba(245, 158, 11, 0.7)',
+        'rgba(16, 185, 129, 0.7)',
+        'rgba(168, 85, 247, 0.7)'
+      ];
+
+      if (categoryChart) {
+        categoryChart.destroy();
+      }
+
+      categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderColor: colors.map(c => c.replace('0.7', '1')),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: '#f1f5f9' }
+            }
+          }
+        }
+      });
+    }
+
+    // Trend Chart (Last 12 months)
+    async function updateTrendChart() {
+      const ctx = document.getElementById('trend-chart');
+      
+      const months = [];
+      const incomeData = [];
+      const expensesData = [];
+
+      // Calculate last 12 months
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(selectedYear, selectedMonth - i, 1);
+        const year = d.getFullYear();
+        const month = d.getMonth();
+        
+        months.push(MESI_ITA[month]);
+
+        const { startStr, nextStartStr } = getMonthBoundaries(year, month);
+        
+        const { data: transactions } = await supabase
+          .from('transactions')
+          .select('amount, kind, is_paid')
+          .eq('created_by', currentUser.id)
+          .gte('occurred_at', startStr)
+          .lt('occurred_at', nextStartStr);
+
+        const income = (transactions || [])
+          .filter(t => t.kind === 'income' && t.is_paid !== false)
+          .reduce((sum, t) => sum + (t.amount || 0), 0);
+        
+        const expenses = (transactions || [])
+          .filter(t => t.kind === 'expense' && t.is_paid !== false)
+          .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+        incomeData.push(income);
+        expensesData.push(expenses);
+      }
+
+      if (trendChart) {
+        trendChart.destroy();
+      }
+
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Entrate',
+              data: incomeData,
+              borderColor: 'rgba(16, 185, 129, 1)',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.4
+            },
+            {
+              label: 'Uscite',
+              data: expensesData,
+              borderColor: 'rgba(239, 68, 68, 1)',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#f1f5f9' }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            },
+            x: {
+              ticks: { color: '#94a3b8' },
+              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    // Update deadlines table
+    function updateDeadlines(deadlines) {
+      const tbody = document.getElementById('deadlines-tbody');
+      
+      if (!deadlines || deadlines.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-secondary);">
+              Nessuna scadenza nel mese selezionato
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = deadlines.map(d => {
+        const date = new Date(d.due_date).toLocaleDateString('it-IT');
+        const category = d.categories?.name || 'N/A';
+        const note = d.note || 'Scadenza';
+        const amount = d.amount || 0;
+        
+        return `
+          <tr>
+            <td>${date}</td>
+            <td>${note}</td>
+            <td>${category}</td>
+            <td class="amount-negative">€${amount.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update goals progress
+    async function updateGoalsProgress(goals) {
+      const section = document.getElementById('goals-section');
+      const container = document.getElementById('goals-container');
+
+      // Check if user has main goal
+      const hasMainGoal = currentProfile?.goal_name && currentProfile?.goal_target_amount;
+      const hasProGoals = currentProfile?.plan_type === 'pro' && goals && goals.length > 0;
+
+      if (!hasMainGoal && !hasProGoals) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      let html = '';
+
+      // Main goal
+      if (hasMainGoal) {
+        // Calculate YTD savings (simplified: positive balance)
+        const { startStr } = getMonthBoundaries(selectedYear, 0); // Start of year
+        const { nextStartStr } = getMonthBoundaries(selectedYear, selectedMonth);
+        
+        const { data: ytdTransactions } = await supabase
+          .from('transactions')
+          .select('amount, kind, is_paid')
+          .eq('created_by', currentUser.id)
+          .gte('occurred_at', startStr)
+          .lt('occurred_at', nextStartStr);
+
+        const ytdIncome = (ytdTransactions || [])
+          .filter(t => t.kind === 'income' && t.is_paid !== false)
+          .reduce((sum, t) => sum + (t.amount || 0), 0);
+        
+        const ytdExpenses = (ytdTransactions || [])
+          .filter(t => t.kind === 'expense' && t.is_paid !== false)
+          .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+        const ytdSavings = Math.max(0, ytdIncome - ytdExpenses);
+        const target = currentProfile.goal_target_amount;
+        const progress = Math.min(100, (ytdSavings / target) * 100);
+
+        html += `
+          <div class="progress-item">
+            <div class="progress-header">
+              <span class="progress-name">${currentProfile.goal_name}</span>
+              <span class="progress-amount">€${ytdSavings.toFixed(2)} / €${target.toFixed(2)}</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: ${progress}%"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Pro goals
+      if (hasProGoals) {
+        goals.forEach(goal => {
+          const saved = 0; // Simplified - you would calculate actual saved amount
+          const target = goal.importo_target || 0;
+          const progress = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
+
+          html += `
+            <div class="progress-item">
+              <div class="progress-header">
+                <span class="progress-name">${goal.nome_obiettivo || 'Obiettivo'}</span>
+                <span class="progress-amount">€${saved.toFixed(2)} / €${target.toFixed(2)}</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${progress}%"></div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Start app
+    init();
+  </script>
+</body>
+</html>
