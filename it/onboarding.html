@@ -538,7 +538,6 @@
         if(!data.user){ location.replace(itPrefix()+'login.html'); return; }
         user = data.user;
 
-        // Carica solo i dati necessari: profilo e categorie di default
         const [profileRes, defaultCatRes] = await Promise.all([
           supabase.from('profiles').select('*').eq('id', user.id).single(),
           supabase.from('default_categories').select('name, icon, kind').order('id'),
@@ -551,24 +550,37 @@
              return; 
           }
         }
-
+        
         const profile = profileRes.data;
         const defaultCategories = defaultCatRes.data || [];
-        const isEditing = new URLSearchParams(location.search).get('edit')==='1';
         
-        if(profile && profile.onboarded && !isEditing){
-          location.replace(itPrefix()+'dashboard.html'); return;
+        const params = new URLSearchParams(location.search);
+        const force = params.get('force') === '1' || sessionStorage.getItem('onboarding_force') === '1';
+        const step  = parseInt(params.get('step') || sessionStorage.getItem('onboarding_step') || '1', 10);
+        
+        sessionStorage.removeItem('onboarding_force');
+        sessionStorage.removeItem('onboarding_step');
+
+        if (profile?.onboarded && force) {
+            currentStep = step;
+        } else if (profile?.onboarded && !force) {
+            location.replace(itPrefix() + 'dashboard.html');
+            return;
         }
 
         populateCategoriesFromDB(defaultCategories);
-        preselectFormData(profile); // <-- MODIFICATO
-        renderStep(1);
+        preselectFormData(profile);
+        renderStep(currentStep);
 
         nextBtn.addEventListener('click', async ()=>{
           if(!validateAndUpdateState(currentStep)) return;
           if(currentStep===TOTAL_STEPS){
-            const success = await saveOnboardingToSupabase(user); // <-- MODIFICATO
-            if(success) location.replace(itPrefix()+'dashboard.html');
+            const success = await saveOnboardingToSupabase(user);
+            if(success) {
+              const returnTo = sessionStorage.getItem('mhb_onboarding_return_to') || (itPrefix() + 'dashboard.html');
+              sessionStorage.removeItem('mhb_onboarding_return_to');
+              location.replace(returnTo);
+            }
           }else{
             currentStep++; renderStep(currentStep);
           }
