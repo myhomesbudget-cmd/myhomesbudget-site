@@ -867,7 +867,11 @@
           <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
           <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
-        <a href="/it/onboarding.html?force=1&step=1" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
+        <a
+          href="/it/onboarding.html?from=dashboard&force=1&step=1"
+          id="edit-goal-top"
+          class="top-link"
+        >🎯 Obiettivo</a>
         <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
         <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
           <span>🔔</span>
@@ -1702,7 +1706,14 @@
         }
 
         if (goals.length === 0) {
-             goalsList.innerHTML = `<div class="goal-card"><div class="goal-title">🎯 <span>Obiettivo non impostato</span></div><p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p><div class="goal-confirm" style="text-align:left;"><a class="btn btn-primary" href="/it/onboarding.html?force=1&step=1">Configura Obiettivo</a></div></div>`;
+             goalsList.innerHTML = `
+      <div class="goal-card">
+        <div class="goal-title">🎯 <span>Obiettivo non impostato</span></div>
+        <p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p>
+        <div class="goal-confirm" style="text-align:left;">
+          <a class="btn btn-primary" href="/it/onboarding.html?from=dashboard&force=1&step=1">Configura Obiettivo</a>
+        </div>
+      </div>`;
         } else {
             goals.forEach(goal => {
                 const canDelete = !goal.is_onboarding;
@@ -2277,6 +2288,24 @@
                 transactionForm.addEventListener('submit', handleFormSubmit);
                 cancelEditBtn.addEventListener('click', resetFormToCreateMode);
                 logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+                
+                const goalsLinkTop = document.getElementById('edit-goal-top');
+                if (goalsLinkTop) {
+                  goalsLinkTop.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Opzionale: memorizzo da dove arrivo, utile per "torna indietro"
+                    sessionStorage.setItem('mhb_onboarding_return_to', '/it/dashboard.html');
+
+                    const url = new URL('/it/onboarding.html', location.origin);
+                    url.searchParams.set('from', 'dashboard');
+                    url.searchParams.set('force', '1');
+                    url.searchParams.set('step', '1');
+
+                    // nav "secca" come fa il Profilo
+                    location.assign(url.toString());
+                  });
+                }
+
                 monthSelector.addEventListener('change', loadAllDataForMonth);
                 yearSelector.addEventListener('change', loadAllDataForMonth);
                 const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
@@ -2346,22 +2375,7 @@
                     }
                   });
                 }
-                
-                const editGoalTop = document.getElementById('edit-goal-top');
-                if (editGoalTop) {
-                  editGoalTop.addEventListener('click', () => {
-                    if (topActions && topActions.classList.contains('is-open')) {
-                      topActions.classList.remove('is-open');
-                      const btn = document.getElementById('mobile-menu-btn');
-                      if (btn) btn.setAttribute('aria-expanded', 'false');
-                    }
-                    // Indichiamo alla onboarding che vogliamo forzare l’accesso e partire dal passo 1
-                    sessionStorage.setItem('onboarding_force', '1');
-                    sessionStorage.setItem('onboarding_step', '1');
-                    // nessun preventDefault: lasciamo navigare
-                  });
-                }
-                
+                                
                 __eventsBound = true;
             }
 
