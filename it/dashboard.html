@@ -261,7 +261,7 @@
       .mobile-menu-toggle{display:block}
       .top-actions{position:fixed;top:70px;right:16px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;transform:translateY(-20px) scale(.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:1220;border:1px solid var(--card-border)}
       .top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-      .top-actions .top-link, .top-actions .top-btn, .top-actions .select-wrapper, .top-actions .date-selectors{width:100%;text-align:center;flex-direction:column}
+      .top-actions .top-link,.top-actions .top-btn,.top-actions .select-wrapper,.top-actions .date-selectors{width:100%;text-align:center;flex-direction:column}
       #scheduler-btn,#notifications-btn{width:100%}
     }
 
@@ -867,7 +867,7 @@
           <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
           <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
-        <a href="/it/onboarding.html" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
+        <a href="/it/onboarding.html?force=1&step=1" id="edit-goal-top" class="top-link">🎯 Obiettivo</a>
         <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
         <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
           <span>🔔</span>
@@ -2347,17 +2347,18 @@
                   });
                 }
                 
-                // FIX CHIRURGICO (A)
                 const editGoalTop = document.getElementById('edit-goal-top');
                 if (editGoalTop) {
                   editGoalTop.addEventListener('click', () => {
-                    // Chiudi il menu mobile (se aperto) prima di navigare
                     if (topActions && topActions.classList.contains('is-open')) {
                       topActions.classList.remove('is-open');
                       const btn = document.getElementById('mobile-menu-btn');
                       if (btn) btn.setAttribute('aria-expanded', 'false');
                     }
-                    // Nessun preventDefault: lasciamo fare al browser
+                    // Indichiamo alla onboarding che vogliamo forzare l’accesso e partire dal passo 1
+                    sessionStorage.setItem('onboarding_force', '1');
+                    sessionStorage.setItem('onboarding_step', '1');
+                    // nessun preventDefault: lasciamo navigare
                   });
                 }
                 
