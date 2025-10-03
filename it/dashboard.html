@@ -1702,7 +1702,7 @@
         }
 
         if (goals.length === 0) {
-             goalsList.innerHTML = `<div class="goal-card"><div class="goal-title">🎯 <span>Obiettivo non impostato</span></div><p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p><div class="goal-confirm" style="text-align:left;"><a class="btn btn-primary" href="/it/onboarding.html">Configura Obiettivo</a></div></div>`;
+             goalsList.innerHTML = `<div class="goal-card"><div class="goal-title">🎯 <span>Obiettivo non impostato</span></div><p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p><div class="goal-confirm" style="text-align:left;"><a class="btn btn-primary" href="/it/onboarding.html?force=1&step=1">Configura Obiettivo</a></div></div>`;
         } else {
             goals.forEach(goal => {
                 const canDelete = !goal.is_onboarding;
