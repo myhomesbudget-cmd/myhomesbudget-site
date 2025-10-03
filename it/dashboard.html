@@ -2346,6 +2346,21 @@
                     }
                   });
                 }
+                
+                // FIX CHIRURGICO (A)
+                const editGoalTop = document.getElementById('edit-goal-top');
+                if (editGoalTop) {
+                  editGoalTop.addEventListener('click', () => {
+                    // Chiudi il menu mobile (se aperto) prima di navigare
+                    if (topActions && topActions.classList.contains('is-open')) {
+                      topActions.classList.remove('is-open');
+                      const btn = document.getElementById('mobile-menu-btn');
+                      if (btn) btn.setAttribute('aria-expanded', 'false');
+                    }
+                    // Nessun preventDefault: lasciamo fare al browser
+                  });
+                }
+                
                 __eventsBound = true;
             }
 
