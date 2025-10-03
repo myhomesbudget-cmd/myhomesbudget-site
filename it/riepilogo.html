@@ -1,201 +1,259 @@
-<!DOCTYPE html>
-<html lang="it">
+<!doctype html>
+<html lang="it" data-app="myhomesbudget">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Riepilogo - MyHomesBudget</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riepilogo — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
+
   <style>
-    * {
-      margin: 0;
+    :root{
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,0.6);
+      --card-border:rgba(0,0,0,0.08);--shadow:0 10px 30px rgba(0,0,0,0.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color:#f39c12;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
+      --grad-warning: linear-gradient(135deg,#f39c12,#fdd835);
+    }
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    html, body { position: relative; }
+    body{
+      margin:0;
+      color:var(--fg);
+      min-height:100svh;
+      -webkit-overflow-scrolling:touch;
+    }
+    
+    /* Background identico */
+    #bg{position:fixed;inset:0;z-index:-1;pointer-events:none}
+    #bg img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center;
+      image-rendering:auto;
+      transform:translateZ(0);will-change:transform;
+      filter:none;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,rgba(108,92,231,0.05),rgba(0,206,201,0.05));
+      z-index:0;
+      pointer-events:none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    @media (pointer: coarse) {
+      body { background-attachment: scroll !important; }
+    }
+
+    /* ====== TOPBAR identica ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border); z-index: 1200;}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,0.35)}
+    .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link, .top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
+    .top-link:hover, .top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
+
+    .date-selectors{display:flex;gap:8px}
+    .select-wrapper{position:relative;display:flex;align-items:center;height:34px;border-radius:10px;background:var(--grad);box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .select-wrapper:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
+    .select-wrapper::after{content:'▼';font-size:10px;color:rgba(255,255,255,0.8);position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none}
+    .topbar-select{appearance:none;background:transparent;color:#fff;border:none;padding:6px 28px 6px 12px;font-size:.9rem;font-weight:600;cursor:pointer}
+    .topbar-select option{background:#fff;color:#000}
+    .topbar-select:disabled{opacity:0.7}
+
+    .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:1230;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .mobile-menu-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+    .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+
+    @media (max-width: 1200px) { .top-center { display: none; } }
+    @media (max-width:960px){
+      .mobile-menu-toggle{display:block}
+      .top-actions{position:fixed;top:70px;right:16px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;transform:translateY(-20px) scale(.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:1220;border:1px solid var(--card-border)}
+      .top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+      .top-actions .top-link,.top-actions .top-btn,.top-actions .select-wrapper,.top-actions .date-selectors{width:100%;text-align:center;flex-direction:column}
+    }
+
+    /* ====== Contenuto Principale ====== */
+    main.container{padding: 72px 24px 24px;max-width:1280px;margin:0 auto;width:100%; position: relative; z-index: 1;}
+    
+    .dash-nav{display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px;margin-bottom:24px}
+    .dash-nav a, .dash-nav button{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:var(--grad);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:none;font-family:var(--font-sans);font-size:1rem;cursor:pointer}
+    .dash-nav a:hover, .dash-nav button:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.15)}
+    .dash-nav a.is-active, .dash-nav button.is-active{filter:brightness(1.15);box-shadow:0 6px 16px rgba(0,0,0,0.20),inset 0 1px 2px rgba(255,255,255,0.2)}
+
+    /* Mobile accordion cards */
+    .dash-card {
+      border-radius: 12px;
       padding: 0;
-      box-sizing: border-box;
+      margin-block: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
     }
-
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg-main: #0f172a;
-      --bg-secondary: #1e293b;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --glass-bg: rgba(30, 41, 59, 0.7);
-      --glass-border: rgba(148, 163, 184, 0.2);
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Topbar Glass */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--glass-border);
-      padding: 1rem 2rem;
+    
+    .dash-card__header {
+      min-height: 44px;
+      padding: 10px 14px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .topbar-title {
-      font-size: 1.5rem;
+      gap: 12px;
+      font-size: 1.2rem;
       font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .topbar-nav {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .topbar-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      transition: all 0.2s;
-    }
-
-    .topbar-link:hover,
-    .topbar-link.active {
-      color: var(--text-primary);
-      background: rgba(99, 102, 241, 0.1);
-    }
-
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .month-year-selectors {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    select {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-size: 0.875rem;
       cursor: pointer;
-      transition: all 0.2s;
+      background: rgba(255,255,255,0.9);
+      border-bottom: 1px solid var(--card-border);
+      list-style: none;
+    }
+    
+    .dash-card__header::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .dash-card[open] .dash-card__header::after {
+      transform: rotate(45deg);
+    }
+    
+    .dash-card__title {
+      flex: 1;
+      color: var(--fg);
+    }
+    
+    .dash-card__content {
+      padding: 12px 14px;
     }
 
-    select:hover {
-      border-color: var(--primary);
+    @media (max-width: 480px) {
+      main.container {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 72px; 
+        padding-bottom: 12px;
+      }
     }
 
-    select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    @media (min-width: 1025px) {
+      .dash-card { margin-block:24px; }
+      .dash-card__header { display:flex; }
+      .dash-card__content { padding:24px; }
     }
 
-    /* Main Content */
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    /* Glass Cards */
-    .card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s;
-    }
-
-    .card:hover {
-      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .card-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      color: var(--text-primary);
-    }
-
-    /* KPI Grid */
+    /* ====== KPI Cards ====== */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .kpi-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border);
-      border-radius: 1rem;
-      padding: 1.5rem;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
       text-align: center;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
 
-    .kpi-label {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12);
     }
 
-    .kpi-value {
-      font-size: 2rem;
+    .kpi-card__icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .kpi-card__label {
+      font-size: 0.85rem;
       font-weight: 700;
-      margin-bottom: 0.25rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
     }
 
-    .kpi-value.positive {
-      color: var(--success);
+    .kpi-card__value {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 4px;
     }
 
-    .kpi-value.negative {
-      color: var(--danger);
+    .kpi-card__value.positive {
+      color: var(--success-color);
     }
 
-    .kpi-value.neutral {
-      color: var(--primary);
+    .kpi-card__value.negative {
+      color: var(--danger-color);
     }
 
-    .kpi-subtitle {
+    .kpi-card__value.neutral {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .kpi-card__subtitle {
       font-size: 0.75rem;
-      color: var(--text-secondary);
+      color: #777;
     }
 
-    /* Charts Grid */
+    /* ====== Charts Grid ====== */
     .charts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2rem;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .chart-full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .chart-card {
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-card__title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .chart-container {
@@ -203,48 +261,56 @@
       height: 300px;
     }
 
-    /* Progress Bars */
-    .progress-section {
-      margin-bottom: 2rem;
+    .chart-container.tall {
+      height: 350px;
     }
 
+    /* ====== Progress Section ====== */
     .progress-item {
-      margin-bottom: 1.5rem;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
     }
 
     .progress-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      align-items: center;
+      margin-bottom: 10px;
     }
 
     .progress-name {
-      font-weight: 600;
-      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--fg);
     }
 
     .progress-amount {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
+      font-size: 0.9rem;
+      color: #555;
+      font-weight: 600;
     }
 
     .progress-bar-container {
-      height: 0.75rem;
-      background: rgba(148, 163, 184, 0.1);
-      border-radius: 9999px;
+      height: 12px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 999px;
       overflow: hidden;
     }
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-      border-radius: 9999px;
-      transition: width 0.5s ease;
+      background: var(--grad);
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Table */
+    /* ====== Table ====== */
     .table-container {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
@@ -254,139 +320,154 @@
 
     th {
       text-align: left;
-      padding: 0.75rem;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
+      padding: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #555;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--glass-border);
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--card-border);
+      background: rgba(0,0,0,0.02);
     }
 
     td {
-      padding: 0.75rem;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
     }
 
     tr:hover {
-      background: rgba(99, 102, 241, 0.05);
+      background: rgba(108,92,231,0.04);
     }
 
-    .amount-positive {
-      color: var(--success);
-      font-weight: 600;
+    .amount-expense {
+      color: var(--danger-color);
+      font-weight: 700;
     }
 
-    .amount-negative {
-      color: var(--danger);
-      font-weight: 600;
+    .amount-income {
+      color: var(--success-color);
+      font-weight: 700;
     }
 
-    /* Loading Spinner */
-    .loading {
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #777;
+    }
+
+    .empty-state__icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* Loading */
+    #boot-loader {
+      position: fixed;
+      inset: 0;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 200px;
+      justify-content: center;
+      background: rgba(244,247,250,0.95);
+      z-index: 3000;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .spinner {
-      border: 3px solid rgba(99, 102, 241, 0.1);
-      border-top: 3px solid var(--primary);
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(0,0,0,0.15);
+      border-top-color: #6c5ce7;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
       animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .topbar {
-        padding: 1rem;
-      }
-
-      .topbar-left,
-      .topbar-right {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .container {
-        padding: 1rem;
-      }
-
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-title">📊 Riepilogo</div>
-      <nav class="topbar-nav">
-        <a href="/it/dashboard.html" class="topbar-link">Dashboard</a>
-        <a href="/it/riepilogo.html" class="topbar-link active">Riepilogo</a>
-        <a href="/it/onboarding.html?from=dashboard&force=1&step=1" class="topbar-link">🎯 Obiettivo</a>
-      </nav>
-    </div>
-    <div class="topbar-right">
-      <div class="month-year-selectors">
-        <select id="month-selector"></select>
-        <select id="year-selector"></select>
-      </div>
-    </div>
+  <div id="bg" aria-hidden="true"><img src="/bg.webp" alt=""></div>
+  
+  <!-- Loading -->
+  <div id="boot-loader">
+    <div class="spinner"></div>
+    <div style="font-weight:700;color:#333;">Caricamento dati...</div>
   </div>
 
-  <!-- Main Content -->
-  <div class="container">
+  <!-- Topbar identica -->
+  <nav class="topbar">
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-nav-right">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="top-actions">
+        <div class="date-selectors">
+          <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
+          <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
+        </div>
+        <a href="/it/onboarding.html?from=dashboard&force=1&step=1" class="top-link">🎯 Obiettivo</a>
+        <a href="#" id="logout-btn" class="top-link">Esci</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Nav -->
+    <nav class="dash-nav">
+      <a href="/it/profile.html">Profilo</a>
+      <a href="/it/dashboard.html">Operazioni</a>
+      <a href="/it/dashboard-riepilogo.html" class="is-active" aria-current="page">📊 Riepilogo</a>
+    </nav>
+
     <!-- KPI Cards -->
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-label">Entrate Totali</div>
-        <div class="kpi-value positive" id="kpi-income">€0</div>
-        <div class="kpi-subtitle">del mese selezionato</div>
+        <span class="kpi-card__icon">💰</span>
+        <div class="kpi-card__label">Entrate Totali</div>
+        <div class="kpi-card__value positive" id="kpi-income">€0.00</div>
+        <div class="kpi-card__subtitle">mese selezionato</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Uscite Totali</div>
-        <div class="kpi-value negative" id="kpi-expenses">€0</div>
-        <div class="kpi-subtitle">del mese selezionato</div>
+        <span class="kpi-card__icon">💸</span>
+        <div class="kpi-card__label">Uscite Totali</div>
+        <div class="kpi-card__value negative" id="kpi-expenses">€0.00</div>
+        <div class="kpi-card__subtitle">mese selezionato</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Saldo Mese</div>
-        <div class="kpi-value neutral" id="kpi-balance">€0</div>
-        <div class="kpi-subtitle">Entrate - Uscite</div>
+        <span class="kpi-card__icon">💵</span>
+        <div class="kpi-card__label">Saldo Mese</div>
+        <div class="kpi-card__value neutral" id="kpi-balance">€0.00</div>
+        <div class="kpi-card__subtitle">entrate - uscite</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Tasso Risparmio</div>
-        <div class="kpi-value neutral" id="kpi-savings-rate">0%</div>
-        <div class="kpi-subtitle">percentuale risparmiata</div>
+        <span class="kpi-card__icon">📈</span>
+        <div class="kpi-card__label">Tasso Risparmio</div>
+        <div class="kpi-card__value neutral" id="kpi-savings-rate">0%</div>
+        <div class="kpi-card__subtitle">% risparmiata</div>
       </div>
     </div>
 
     <!-- Charts -->
     <div class="charts-grid">
-      <!-- Income vs Expenses Chart -->
-      <div class="card">
-        <h2 class="card-title">Entrate vs Uscite (Settimanale)</h2>
+      <!-- Income vs Expenses -->
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span>⚖️ Entrate vs Uscite</span>
+        </div>
         <div class="chart-container">
           <canvas id="income-expenses-chart"></canvas>
         </div>
       </div>
 
-      <!-- Category Breakdown Chart -->
-      <div class="card">
-        <h2 class="card-title">Distribuzione Uscite per Categoria</h2>
+      <!-- Category Breakdown -->
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span>🎯 Distribuzione per Categoria</span>
+        </div>
         <div class="chart-container">
           <canvas id="category-chart"></canvas>
         </div>
@@ -394,43 +475,54 @@
     </div>
 
     <!-- Trend Chart -->
-    <div class="card" style="margin-bottom: 2rem;">
-      <h2 class="card-title">Trend Ultimi 12 Mesi</h2>
-      <div class="chart-container" style="height: 350px;">
-        <canvas id="trend-chart"></canvas>
+    <div class="charts-grid">
+      <div class="chart-card chart-full-width">
+        <div class="chart-card__title">
+          <span>📊 Trend Ultimi 12 Mesi</span>
+        </div>
+        <div class="chart-container tall">
+          <canvas id="trend-chart"></canvas>
+        </div>
       </div>
     </div>
 
     <!-- Goals Progress -->
-    <div class="card progress-section" id="goals-section" style="display: none;">
-      <h2 class="card-title">Progress Obiettivi</h2>
-      <div id="goals-container"></div>
-    </div>
+    <details class="dash-card" id="goals-section" style="display:none;" open>
+      <summary class="dash-card__header">
+        <span class="dash-card__title">🎯 Progress Obiettivi</span>
+      </summary>
+      <div class="dash-card__content" id="goals-container"></div>
+    </details>
 
     <!-- Upcoming Deadlines -->
-    <div class="card">
-      <h2 class="card-title">Prossime Scadenze (Non Pagate)</h2>
-      <div class="table-container">
-        <table id="deadlines-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Descrizione</th>
-              <th>Categoria</th>
-              <th>Importo</th>
-            </tr>
-          </thead>
-          <tbody id="deadlines-tbody">
-            <tr>
-              <td colspan="4" style="text-align: center; color: var(--text-secondary);">
-                Nessuna scadenza nel mese selezionato
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <details class="dash-card" open>
+      <summary class="dash-card__header">
+        <span class="dash-card__title">🔔 Prossime Scadenze</span>
+      </summary>
+      <div class="dash-card__content">
+        <div class="table-container">
+          <table id="deadlines-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrizione</th>
+                <th>Categoria</th>
+                <th style="text-align:right">Importo</th>
+              </tr>
+            </thead>
+            <tbody id="deadlines-tbody">
+              <tr>
+                <td colspan="4" class="empty-state">
+                  <div class="empty-state__icon">📅</div>
+                  <p>Nessuna scadenza nel mese selezionato</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  </div>
+    </details>
+  </main>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
@@ -439,60 +531,44 @@
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
 
-    // Italian month names
-    const MESI_ITA = [
-      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
-    ];
+    const MESI_ITA = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 
-    // State
-    let currentUser = null;
-    let currentProfile = null;
+    let user = null;
+    let userProfile = null;
     let selectedMonth = new Date().getMonth();
     let selectedYear = new Date().getFullYear();
-
-    // Charts
     let incomeExpensesChart = null;
     let categoryChart = null;
     let trendChart = null;
 
-    // Initialize
     async function init() {
       try {
-        // Check auth
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
           location.replace("/it/login.html");
           return;
         }
-        currentUser = session.user;
+        user = session.user;
 
-        // Load profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single();
-        
-        currentProfile = profile;
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        userProfile = profile;
 
-        // Initialize selectors
         initSelectors();
-
-        // Load data
+        initMobileMenu();
+        initLogout();
         await loadAllDataForMonth();
+        
+        document.getElementById('boot-loader').style.display = 'none';
       } catch (error) {
         console.error('Init error:', error);
-        alert('Errore nel caricamento dei dati');
+        alert('Errore nel caricamento. Riprova.');
       }
     }
 
-    // Initialize month/year selectors
     function initSelectors() {
       const monthSelect = document.getElementById('month-selector');
       const yearSelect = document.getElementById('year-selector');
 
-      // Populate months
       MESI_ITA.forEach((month, index) => {
         const option = document.createElement('option');
         option.value = index;
@@ -501,7 +577,6 @@
         monthSelect.appendChild(option);
       });
 
-      // Populate years (current year and 2 years back)
       const currentYear = new Date().getFullYear();
       for (let year = currentYear - 2; year <= currentYear; year++) {
         const option = document.createElement('option');
@@ -511,7 +586,6 @@
         yearSelect.appendChild(option);
       }
 
-      // Event listeners
       monthSelect.addEventListener('change', async (e) => {
         selectedMonth = parseInt(e.target.value);
         await loadAllDataForMonth();
@@ -523,62 +597,46 @@
       });
     }
 
-    // Calculate month boundaries (UTC)
+    function initMobileMenu() {
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const topActions = document.querySelector('.top-actions');
+      menuBtn?.addEventListener('click', () => topActions.classList.toggle('is-open'));
+    }
+
+    function initLogout() {
+      document.getElementById('logout-btn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        location.replace('/it/login.html');
+      });
+    }
+
     function getMonthBoundaries(year, month) {
       const monthStart = new Date(Date.UTC(year, month, 1));
       const nextMonthStart = new Date(Date.UTC(year, month + 1, 1));
       const startStr = monthStart.toISOString().split('T')[0];
       const nextStartStr = nextMonthStart.toISOString().split('T')[0];
-      const endStr = new Date(Date.UTC(year, month, new Date(year, month + 1, 0).getDate()))
-        .toISOString().split('T')[0];
-      
+      const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+      const endStr = new Date(Date.UTC(year, month, daysInMonth)).toISOString().split('T')[0];
       return { startStr, nextStartStr, endStr };
     }
 
-    // Load all data for selected month
     async function loadAllDataForMonth() {
       try {
         const { startStr, nextStartStr, endStr } = getMonthBoundaries(selectedYear, selectedMonth);
 
-        // Parallel queries
         const [
           { data: transactions },
           { data: categories },
           { data: deadlines },
           { data: goals }
         ] = await Promise.all([
-          // Transactions of the month
-          supabase
-            .from('transactions')
-            .select('*')
-            .eq('created_by', currentUser.id)
-            .gte('occurred_at', startStr)
-            .lt('occurred_at', nextStartStr)
-            .order('occurred_at', { ascending: false }),
-          
-          // Categories
-          supabase
-            .from('categories')
-            .select('*')
-            .or(`created_by.eq.${currentUser.id},created_by.is.null`),
-          
-          // Deadlines
-          supabase
-            .from('transactions')
-            .select('*, categories(*), subcategories(*)')
-            .eq('created_by', currentUser.id)
-            .eq('is_paid', false)
-            .gte('due_date', startStr)
-            .lte('due_date', endStr)
-            .order('due_date', { ascending: true }),
-          
-          // Goals (only if pro)
-          currentProfile?.plan_type === 'pro'
-            ? supabase.from('obiettivi').select('*').eq('user_id', currentUser.id)
-            : Promise.resolve({ data: [] })
+          supabase.from('transactions').select('*').eq('created_by', user.id).gte('occurred_at', startStr).lt('occurred_at', nextStartStr).order('occurred_at', { ascending: false }),
+          supabase.from('categories').select('*').or(`created_by.eq.${user.id},created_by.is.null`),
+          supabase.from('transactions').select('*, categories(*), subcategories(*)').eq('created_by', user.id).eq('is_paid', false).gte('due_date', startStr).lte('due_date', endStr).order('due_date', { ascending: true }),
+          userProfile?.plan_type === 'pro' ? supabase.from('obiettivi').select('*').eq('user_id', user.id) : Promise.resolve({ data: [] })
         ]);
 
-        // Update UI
         updateKPIs(transactions || []);
         await updateCharts(transactions || [], categories || []);
         updateDeadlines(deadlines || []);
@@ -588,16 +646,9 @@
       }
     }
 
-    // Update KPIs
     function updateKPIs(transactions) {
-      const income = transactions
-        .filter(t => t.kind === 'income' && t.is_paid !== false)
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      
-      const expenses = transactions
-        .filter(t => t.kind === 'expense' && t.is_paid !== false)
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      
+      const income = transactions.filter(t => t.kind === 'income' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
+      const expenses = transactions.filter(t => t.kind === 'expense' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
       const balance = income - expenses;
       const savingsRate = income > 0 ? (Math.max(0, balance) / income * 100) : 0;
 
@@ -606,42 +657,32 @@
       
       const balanceEl = document.getElementById('kpi-balance');
       balanceEl.textContent = `€${balance.toFixed(2)}`;
-      balanceEl.className = `kpi-value ${balance >= 0 ? 'positive' : 'negative'}`;
+      balanceEl.className = `kpi-card__value ${balance >= 0 ? 'positive' : 'negative'}`;
       
       document.getElementById('kpi-savings-rate').textContent = `${savingsRate.toFixed(1)}%`;
     }
 
-    // Update all charts
     async function updateCharts(transactions, categories) {
-      await updateIncomeExpensesChart(transactions);
+      updateIncomeExpensesChart(transactions);
       updateCategoryChart(transactions, categories);
       await updateTrendChart();
     }
 
-    // Income vs Expenses Chart (Weekly)
-    async function updateIncomeExpensesChart(transactions) {
+    function updateIncomeExpensesChart(transactions) {
       const ctx = document.getElementById('income-expenses-chart');
-      
-      // Group by week
-      const weeks = ['Sett. 1', 'Sett. 2', 'Sett. 3', 'Sett. 4'];
-      const incomeByWeek = [0, 0, 0, 0];
-      const expensesByWeek = [0, 0, 0, 0];
+      const weeks = ['Sett. 1', 'Sett. 2', 'Sett. 3', 'Sett. 4', 'Sett. 5'];
+      const incomeByWeek = [0, 0, 0, 0, 0];
+      const expensesByWeek = [0, 0, 0, 0, 0];
 
       transactions.forEach(t => {
         if (t.is_paid === false) return;
         const day = new Date(t.occurred_at).getDate();
-        const weekIndex = Math.min(Math.floor((day - 1) / 7), 3);
-        
-        if (t.kind === 'income') {
-          incomeByWeek[weekIndex] += t.amount || 0;
-        } else if (t.kind === 'expense') {
-          expensesByWeek[weekIndex] += t.amount || 0;
-        }
+        const weekIndex = Math.min(Math.floor((day - 1) / 7), 4);
+        if (t.kind === 'income') incomeByWeek[weekIndex] += t.amount || 0;
+        else if (t.kind === 'expense') expensesByWeek[weekIndex] += t.amount || 0;
       });
 
-      if (incomeExpensesChart) {
-        incomeExpensesChart.destroy();
-      }
+      if (incomeExpensesChart) incomeExpensesChart.destroy();
 
       incomeExpensesChart = new Chart(ctx, {
         type: 'bar',
@@ -651,16 +692,18 @@
             {
               label: 'Entrate',
               data: incomeByWeek,
-              backgroundColor: 'rgba(16, 185, 129, 0.7)',
-              borderColor: 'rgba(16, 185, 129, 1)',
-              borderWidth: 1
+              backgroundColor: 'rgba(46, 125, 50, 0.8)',
+              borderColor: 'rgba(46, 125, 50, 1)',
+              borderWidth: 2,
+              borderRadius: 8,
             },
             {
               label: 'Uscite',
               data: expensesByWeek,
-              backgroundColor: 'rgba(239, 68, 68, 0.7)',
-              borderColor: 'rgba(239, 68, 68, 1)',
-              borderWidth: 1
+              backgroundColor: 'rgba(211, 47, 47, 0.8)',
+              borderColor: 'rgba(211, 47, 47, 1)',
+              borderWidth: 2,
+              borderRadius: 8,
             }
           ]
         },
@@ -669,33 +712,31 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              labels: { color: '#f1f5f9' }
+              labels: { 
+                color: '#333',
+                font: { weight: 600, size: 13 }
+              }
             }
           },
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+              ticks: { color: '#555', font: { weight: 600 } },
+              grid: { color: 'rgba(0,0,0,0.06)' }
             },
             x: {
-              ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+              ticks: { color: '#555', font: { weight: 600 } },
+              grid: { display: false }
             }
           }
         }
       });
     }
 
-    // Category Breakdown Chart
     function updateCategoryChart(transactions, categories) {
       const ctx = document.getElementById('category-chart');
-      
-      // Group expenses by category
       const categoryMap = {};
-      categories.forEach(cat => {
-        categoryMap[cat.id] = cat.name;
-      });
+      categories.forEach(cat => { categoryMap[cat.id] = cat.name; });
 
       const expensesByCategory = {};
       transactions.forEach(t => {
@@ -705,24 +746,12 @@
         }
       });
 
-      // Sort and take top 5
-      const sortedCategories = Object.entries(expensesByCategory)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
+      const sortedCategories = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1]).slice(0, 6);
       const labels = sortedCategories.map(([name]) => name);
       const data = sortedCategories.map(([, amount]) => amount);
-      const colors = [
-        'rgba(99, 102, 241, 0.7)',
-        'rgba(239, 68, 68, 0.7)',
-        'rgba(245, 158, 11, 0.7)',
-        'rgba(16, 185, 129, 0.7)',
-        'rgba(168, 85, 247, 0.7)'
-      ];
+      const colors = ['#6c5ce7', '#00cec9', '#fd79a8', '#f39c12', '#2e7d32', '#d32f2f'];
 
-      if (categoryChart) {
-        categoryChart.destroy();
-      }
+      if (categoryChart) categoryChart.destroy();
 
       categoryChart = new Chart(ctx, {
         type: 'doughnut',
@@ -731,8 +760,9 @@
           datasets: [{
             data,
             backgroundColor: colors,
-            borderColor: colors.map(c => c.replace('0.7', '1')),
-            borderWidth: 1
+            borderColor: '#fff',
+            borderWidth: 3,
+            hoverOffset: 8
           }]
         },
         options: {
@@ -741,53 +771,40 @@
           plugins: {
             legend: {
               position: 'right',
-              labels: { color: '#f1f5f9' }
+              labels: { 
+                color: '#333',
+                font: { weight: 600, size: 12 },
+                padding: 12
+              }
             }
           }
         }
       });
     }
 
-    // Trend Chart (Last 12 months)
     async function updateTrendChart() {
       const ctx = document.getElementById('trend-chart');
-      
       const months = [];
       const incomeData = [];
       const expensesData = [];
 
-      // Calculate last 12 months
       for (let i = 11; i >= 0; i--) {
         const d = new Date(selectedYear, selectedMonth - i, 1);
         const year = d.getFullYear();
         const month = d.getMonth();
-        
         months.push(MESI_ITA[month]);
 
         const { startStr, nextStartStr } = getMonthBoundaries(year, month);
-        
-        const { data: transactions } = await supabase
-          .from('transactions')
-          .select('amount, kind, is_paid')
-          .eq('created_by', currentUser.id)
-          .gte('occurred_at', startStr)
-          .lt('occurred_at', nextStartStr);
+        const { data: transactions } = await supabase.from('transactions').select('amount, kind, is_paid').eq('created_by', user.id).gte('occurred_at', startStr).lt('occurred_at', nextStartStr);
 
-        const income = (transactions || [])
-          .filter(t => t.kind === 'income' && t.is_paid !== false)
-          .reduce((sum, t) => sum + (t.amount || 0), 0);
-        
-        const expenses = (transactions || [])
-          .filter(t => t.kind === 'expense' && t.is_paid !== false)
-          .reduce((sum, t) => sum + (t.amount || 0), 0);
+        const income = (transactions || []).filter(t => t.kind === 'income' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
+        const expenses = (transactions || []).filter(t => t.kind === 'expense' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
 
         incomeData.push(income);
         expensesData.push(expenses);
       }
 
-      if (trendChart) {
-        trendChart.destroy();
-      }
+      if (trendChart) trendChart.destroy();
 
       trendChart = new Chart(ctx, {
         type: 'line',
@@ -797,16 +814,24 @@
             {
               label: 'Entrate',
               data: incomeData,
-              borderColor: 'rgba(16, 185, 129, 1)',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              tension: 0.4
+              borderColor: '#2e7d32',
+              backgroundColor: 'rgba(46, 125, 50, 0.1)',
+              tension: 0.4,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: true
             },
             {
               label: 'Uscite',
               data: expensesData,
-              borderColor: 'rgba(239, 68, 68, 1)',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              tension: 0.4
+              borderColor: '#d32f2f',
+              backgroundColor: 'rgba(211, 47, 47, 0.1)',
+              tension: 0.4,
+              borderWidth: 3,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              fill: true
             }
           ]
         },
@@ -815,33 +840,36 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              labels: { color: '#f1f5f9' }
+              labels: { 
+                color: '#333',
+                font: { weight: 600, size: 13 }
+              }
             }
           },
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+              ticks: { color: '#555', font: { weight: 600 } },
+              grid: { color: 'rgba(0,0,0,0.06)' }
             },
             x: {
-              ticks: { color: '#94a3b8' },
-              grid: { color: 'rgba(148, 163, 184, 0.1)' }
+              ticks: { color: '#555', font: { weight: 600 } },
+              grid: { display: false }
             }
           }
         }
       });
     }
 
-    // Update deadlines table
     function updateDeadlines(deadlines) {
       const tbody = document.getElementById('deadlines-tbody');
       
       if (!deadlines || deadlines.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="4" style="text-align: center; color: var(--text-secondary);">
-              Nessuna scadenza nel mese selezionato
+            <td colspan="4" class="empty-state">
+              <div class="empty-state__icon">📅</div>
+              <p>Nessuna scadenza nel mese selezionato</p>
             </td>
           </tr>
         `;
@@ -849,30 +877,30 @@
       }
 
       tbody.innerHTML = deadlines.map(d => {
-        const date = new Date(d.due_date).toLocaleDateString('it-IT');
+        const date = new Date(d.due_date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
         const category = d.categories?.name || 'N/A';
         const note = d.note || 'Scadenza';
         const amount = d.amount || 0;
+        const amountClass = d.kind === 'income' ? 'amount-income' : 'amount-expense';
+        const sign = d.kind === 'income' ? '+' : '-';
         
         return `
           <tr>
             <td>${date}</td>
             <td>${note}</td>
             <td>${category}</td>
-            <td class="amount-negative">€${amount.toFixed(2)}</td>
+            <td class="${amountClass}" style="text-align:right">${sign}€${amount.toFixed(2)}</td>
           </tr>
         `;
       }).join('');
     }
 
-    // Update goals progress
     async function updateGoalsProgress(goals) {
       const section = document.getElementById('goals-section');
       const container = document.getElementById('goals-container');
 
-      // Check if user has main goal
-      const hasMainGoal = currentProfile?.goal_name && currentProfile?.goal_target_amount;
-      const hasProGoals = currentProfile?.plan_type === 'pro' && goals && goals.length > 0;
+      const hasMainGoal = userProfile?.goal_name && userProfile?.goal_target_amount;
+      const hasProGoals = userProfile?.plan_type === 'pro' && goals && goals.length > 0;
 
       if (!hasMainGoal && !hasProGoals) {
         section.style.display = 'none';
@@ -882,35 +910,21 @@
       section.style.display = 'block';
       let html = '';
 
-      // Main goal
       if (hasMainGoal) {
-        // Calculate YTD savings (simplified: positive balance)
-        const { startStr } = getMonthBoundaries(selectedYear, 0); // Start of year
+        const { startStr } = getMonthBoundaries(selectedYear, 0);
         const { nextStartStr } = getMonthBoundaries(selectedYear, selectedMonth);
-        
-        const { data: ytdTransactions } = await supabase
-          .from('transactions')
-          .select('amount, kind, is_paid')
-          .eq('created_by', currentUser.id)
-          .gte('occurred_at', startStr)
-          .lt('occurred_at', nextStartStr);
+        const { data: ytdTransactions } = await supabase.from('transactions').select('amount, kind, is_paid').eq('created_by', user.id).gte('occurred_at', startStr).lt('occurred_at', nextStartStr);
 
-        const ytdIncome = (ytdTransactions || [])
-          .filter(t => t.kind === 'income' && t.is_paid !== false)
-          .reduce((sum, t) => sum + (t.amount || 0), 0);
-        
-        const ytdExpenses = (ytdTransactions || [])
-          .filter(t => t.kind === 'expense' && t.is_paid !== false)
-          .reduce((sum, t) => sum + (t.amount || 0), 0);
-
+        const ytdIncome = (ytdTransactions || []).filter(t => t.kind === 'income' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
+        const ytdExpenses = (ytdTransactions || []).filter(t => t.kind === 'expense' && t.is_paid !== false).reduce((sum, t) => sum + (t.amount || 0), 0);
         const ytdSavings = Math.max(0, ytdIncome - ytdExpenses);
-        const target = currentProfile.goal_target_amount;
+        const target = userProfile.goal_target_amount;
         const progress = Math.min(100, (ytdSavings / target) * 100);
 
         html += `
           <div class="progress-item">
             <div class="progress-header">
-              <span class="progress-name">${currentProfile.goal_name}</span>
+              <span class="progress-name">🎯 ${userProfile.goal_name}</span>
               <span class="progress-amount">€${ytdSavings.toFixed(2)} / €${target.toFixed(2)}</span>
             </div>
             <div class="progress-bar-container">
@@ -920,17 +934,16 @@
         `;
       }
 
-      // Pro goals
       if (hasProGoals) {
         goals.forEach(goal => {
-          const saved = 0; // Simplified - you would calculate actual saved amount
+          const saved = 0;
           const target = goal.importo_target || 0;
           const progress = target > 0 ? Math.min(100, (saved / target) * 100) : 0;
 
           html += `
             <div class="progress-item">
               <div class="progress-header">
-                <span class="progress-name">${goal.nome_obiettivo || 'Obiettivo'}</span>
+                <span class="progress-name">🎯 ${goal.nome_obiettivo || 'Obiettivo'}</span>
                 <span class="progress-amount">€${saved.toFixed(2)} / €${target.toFixed(2)}</span>
               </div>
               <div class="progress-bar-container">
@@ -944,7 +957,6 @@
       container.innerHTML = html;
     }
 
-    // Start app
     init();
   </script>
 </body>
