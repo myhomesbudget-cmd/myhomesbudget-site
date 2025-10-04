@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyHomesBudget — Simple Family Budget</title>
-  <meta name="description" content="Manage income, expenses, and savings easily. Try it free for 30 days.">
+  <title>MyHomesBudget — Simple Family Budgeting</title>
+  <meta name="description" content="Manage income, expenses, and savings easily. Try free for 30 days.">
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
@@ -31,7 +31,7 @@
   <script>
     (function(){
       function enPrefix(){
-        var m = location.pathname.match(/^\/(en)(\/|$)/i);
+        var m = location.pathname.match(/^\/(en|eng)(\/|$)/i);
         return m ? ("/" + m[1].toLowerCase() + "/") : "/en/";
       }
       var prefix = enPrefix();
@@ -62,8 +62,8 @@
   <link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en"/>
   <link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es"/>
   <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default"/>
-  <meta property="og:title" content="MyHomesBudget — Manage your household budget simply and intuitively"/>
-  <meta property="og:description" content="Enter your income and expenses in a few clicks and keep everything under control. Try it free for 30 days."/>
+  <meta property="og:title" content="MyHomesBudget — Manage your home budget in a simple and intuitive way"/>
+  <meta property="og:description" content="Enter your expenses and income in just a few clicks and keep everything under control. Try free for 30 days."/>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://www.myhomesbudget.com/en/"/>
   <meta property="og:image" content="https://www.myhomesbudget.com/social.png"/>
@@ -83,12 +83,14 @@
       --grad-primary: linear-gradient(135deg,#6c5ce7,#00cec9);
       --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
       --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+       /* MODIFICA: Variabili copiate da profile.html */
       --glass:rgba(255,255,255,.6);
       --card-border:rgba(0,0,0,.08);
       --shadow:0 15px 35px rgba(0,0,0,.1);
       --radius-lg:16px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
+    /* MODIFICA: Stile body copiato da profile.html */
     body{
       margin:0;
       color:#fff;
@@ -99,14 +101,17 @@
       flex-direction: column;
       overflow-x: hidden;
     }
-    body.mobile-nav-is-open { overflow: hidden; }
+    body.mobile-nav-is-open {
+      overflow: hidden;
+    }
+    /* MODIFICA: Stile ::before copiato da profile.html */
     body::before{
       content:"";
       position:fixed;
       inset:0;
       background:linear-gradient(135deg,rgba(108,92,231,.05),rgba(0,206,201,.05));
       z-index:-1;
-      animation: none;
+      animation: none; /* Rimossa animazione breathe per coerenza */
     }
     body::after{ display: none; }
 
@@ -114,7 +119,7 @@
       outline:3px solid #00cec9;outline-offset:3px;border-radius:8px;
     }
 
-    /* TOPBAR */
+    /* ========== TOPBAR (MODIFICATA) ========== */
     .topbar{
       position:fixed;top:0;left:0;right:0;height:60px;padding:0 16px;
       display:flex;align-items:center;justify-content:space-between;
@@ -125,35 +130,63 @@
       z-index:100;
       transition:transform 0.3s var(--ease-smooth);
     }
+
     .topbar.hidden{transform:translateY(-100%)}
     .topbar-inner{
       width: 100%;
       max-width:1200px;margin:0 auto;padding:0;
       display:flex;align-items:center;justify-content:space-between;
     }
-    .logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-link{
+      display:flex;align-items:center;gap:10px;text-decoration:none;
+    }
     .logo-image{height:36px;width:auto}
-    .logo-text{font-weight:700;font-size:1.1rem;color:#222;}
-    .topbar-actions{display:flex;align-items:center;gap:12px;}
+    .logo-text{
+      font-weight:700;font-size:1.1rem;
+      color: #222; /* Testo scuro per sfondo chiaro */
+    }
+    .topbar-actions{
+      display:flex;align-items:center;gap:12px;
+    }
     .top-link{
       padding:8px 16px;border-radius:8px;font-weight:700;font-size:0.95rem;
       text-decoration:none;color:#fff;
       background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
       transition:all 0.2s var(--ease-smooth);
     }
-    .top-link:hover{background:rgba(255,255,255,0.14);transform:translateY(-1px);}
-    .top-link.primary{background:var(--grad-primary);border:none;}
-    .top-link.primary:hover{filter:brightness(1.1);}
+    .top-link:hover{
+      background:rgba(255,255,255,0.14);transform:translateY(-1px);
+    }
+    .top-link.primary{
+      background:var(--grad-primary);border:none;
+    }
+    .top-link.primary:hover{
+      filter:brightness(1.1);
+    }
     .lang-selector{display:flex;gap:6px;font-size:1.3rem}
     .lang-selector a{
       text-decoration:none;padding:6px 8px;border-radius:6px;
-      transition:background 0.2s;color:#555;
+      transition:background 0.2s;
+      color: #555; /* Testo scuro */
     }
     .lang-selector a:hover{background:rgba(0,0,0,0.05)}
+    .user-greeting{
+      display:flex;align-items:center;gap:8px;
+      color:#333;
+      font-size:0.95rem;
+    }
+    .btn-logout{
+      padding:6px 12px;border-radius:6px;font-size:0.9rem;font-weight:600;
+      background:rgba(255,59,48,0.15);border:1px solid rgba(255,59,48,0.3);
+      color:#ff3b30;cursor:pointer;transition:all 0.2s;
+    }
+    .btn-logout:hover{
+      background:rgba(255,59,48,0.25);transform:translateY(-1px);
+    }
 
-    /* STICKY CTA BAR */
+    /* ========== STICKY CTA BAR ========== */
     .sticky-cta-bar{
-      position:fixed;top:60px;
+      position:fixed;top:60px; /* Sotto la nuova topbar */
       left:0;right:0;z-index:99;
       background:rgba(15,15,16,0.95);backdrop-filter:blur(16px);
       border-bottom:1px solid rgba(255,255,255,0.12);
@@ -164,116 +197,895 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
     .sticky-cta-bar.visible{transform:translateY(0)}
-    .sticky-cta-bar .mini-headline{font-weight:700;font-size:0.95rem;color:#fff;}
+    .sticky-cta-bar .mini-headline{
+      font-weight:700;font-size:0.95rem;color:#fff;
+    }
     .sticky-cta-bar .btn{
       padding:8px 16px;border-radius:8px;font-weight:700;font-size:0.9rem;
       text-decoration:none;transition:all 0.2s;
     }
-    .sticky-cta-bar .btn-primary{background:var(--grad-primary);color:#fff;border:none;}
+    .sticky-cta-bar .btn-primary{
+      background:var(--grad-primary);color:#fff;border:none;
+    }
     .sticky-cta-bar .btn-primary:hover{filter:brightness(1.1)}
     .sticky-cta-bar .btn-secondary{
       background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.12);
     }
     .sticky-cta-bar .btn-secondary:hover{background:rgba(255,255,255,0.14)}
 
-    .container{max-width:1200px;margin:0 auto;padding:0 16px;}
+    /* ========== MAIN CONTAINER ========== */
+    .container{
+      max-width:1200px;margin:0 auto;padding:0 16px;
+    }
 
-    /* HERO */
-    .hero-section{min-height:90vh;display:flex;align-items:center;justify-content:center;
-      padding:100px 20px 60px;position:relative;overflow:hidden;}
-    .hero-content{position:relative;z-index:2;max-width:1100px;width:100%;}
-    .hero-v2{text-align:center;}
+    /* ========== HERO SECTION ========== */
+    .hero-section{
+      min-height:90vh;display:flex;align-items:center;justify-content:center;
+      padding:100px 20px 60px;position:relative;overflow:hidden;
+    }
+    .hero-orb{
+      position:absolute;width:600px;height:600px;border-radius:50%;
+      background:radial-gradient(circle, rgba(108,92,231,0.2) 0%, transparent 70%);
+      filter:blur(80px);pointer-events:none;
+      animation:floatOrb 20s ease-in-out infinite;
+    }
+    @keyframes floatOrb{
+      0%,100%{transform:translate(0,0) scale(1)}
+      33%{transform:translate(30px,-20px) scale(1.05)}
+      66%{transform:translate(-20px,30px) scale(0.95)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .hero-orb{animation:none}
+    }
+    .hero-content{
+      position:relative;z-index:2;max-width:1100px;width:100%;
+    }
+
+    /* HERO V1: testo sx + mockup dx */
+    .hero-v1{
+      display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+    }
+    @media(max-width:900px){
+      .hero-v1{grid-template-columns:1fr;gap:40px;text-align:center}
+    }
+    .hero-text h1{
+      font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.15;margin-bottom:16px;
+      font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.3);
+    }
+    .hero-text .headline-rotating{
+      display:inline-block;min-height:1.2em;
+      background:var(--grad-primary);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .hero-text p{
+      font-size:1.25rem;line-height:1.6;color:rgba(255,255,255,0.9);
+      margin-bottom:24px;
+    }
+    .hero-cta-row{
+      display:flex;gap:12px;flex-wrap:wrap;
+    }
+    @media(max-width:900px){
+      .hero-cta-row{justify-content:center}
+    }
+    .hero-cta-row .btn{
+      padding:14px 28px;border-radius:12px;font-weight:800;font-size:1rem;
+      text-decoration:none;transition:all 0.3s var(--ease-smooth);
+      box-shadow:0 8px 24px rgba(0,0,0,0.15);
+    }
+    .hero-cta-row .btn-primary,
+    .hero-cta-row .btn-secondary {
+      background:var(--grad-primary);color:#fff; border: none;
+    }
+    .hero-cta-row .btn-primary:hover,
+    .hero-cta-row .btn-secondary:hover {
+      transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.25);
+      filter:brightness(1.1);
+    }
+    .hero-mockup{
+      position:relative;
+    }
+    .hero-mockup img{
+      width:100%;height:auto;border-radius:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.3);
+      transition:transform 0.3s var(--ease-smooth);
+    }
+    .hero-mockup:hover img{
+      transform:scale(1.02);
+    }
+
+    /* HERO V2: mockup centrale + headline sotto */
+    .hero-v2{
+      text-align:center;
+    }
     .hero-v2 .hero-mockup{
       max-width:700px;margin:0 auto 32px;
       background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
       border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:20px;
     }
-    .hero-v2 h1{font-size:clamp(2rem,4.5vw,3rem);line-height:1.2;margin-bottom:16px;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,0.3);}
-    .hero-v2 p{font-size:1.2rem;line-height:1.6;color:rgba(255,255,255,0.9);margin-bottom:24px;max-width:700px;margin-left:auto;margin-right:auto;}
-    .hero-cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-    .hero-cta-row .btn{padding:14px 28px;border-radius:12px;font-weight:800;font-size:1rem;
-      text-decoration:none;transition:all 0.3s var(--ease-smooth);box-shadow:0 8px 24px rgba(0,0,0,0.15);}
-    .hero-cta-row .btn-primary,.hero-cta-row .btn-secondary{background:var(--grad-primary);color:#fff;border:none;}
-    .hero-cta-row .btn-primary:hover,.hero-cta-row .btn-secondary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,0.25);filter:brightness(1.1);}
+    .hero-v2 .hero-mockup img{
+      width:100%;height:auto;border-radius:12px;
+    }
+    .hero-v2 h1{
+      font-size:clamp(2rem,4.5vw,3rem);line-height:1.2;margin-bottom:16px;
+      font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.3);
+    }
+    .hero-v2 p{
+      font-size:1.2rem;line-height:1.6;color:rgba(255,255,255,0.9);
+      margin-bottom:24px;max-width:700px;margin-left:auto;margin-right:auto;
+    }
+    .hero-v2 .hero-cta-row{
+      justify-content:center;
+    }
 
-    /* Sections shared */
-    .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease-smooth),transform .6s var(--ease-smooth);}
-    .reveal.visible{opacity:1;transform:translateY(0);}
-    .trust-row{padding:40px 20px;text-align:center;}
-    .trust-pills{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
-    .trust-pill{padding:12px 24px;border-radius:12px;background:var(--grad-primary);font-size:0.95rem;font-weight:600;color:#fff;transition:all .3s var(--ease-smooth);box-shadow:0 4px 15px rgba(0,0,0,.2);}
-    .trust-pill:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 24px rgba(108,92,231,.4);}
+    /* ========== TRUST ROW ========== */
+    .trust-row{
+      padding:40px 20px;text-align:center;
+    }
+    .trust-pills{
+      display:flex;gap:16px;justify-content:center;flex-wrap:wrap;
+    }
+    .trust-pill{
+      padding:12px 24px;border-radius:12px;
+      background:var(--grad-primary);
+      backdrop-filter:blur(8px);
+      border: none;
+      font-size:0.95rem;font-weight:600;color:#fff;
+      transition:all 0.3s var(--ease-smooth);
+      position:relative;overflow:hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .trust-pill::before{
+      display: none;
+    }
+    .trust-pill:hover{
+      transform:translateY(-2px) scale(1.02);
+      box-shadow:0 8px 24px rgba(108,92,231,0.4);
+    }
+    
+    /* ========== DEMO-LIGHT ========== */
+    .demo-section{
+      padding:60px 20px;
+    }
+    .demo-box{
+      max-width:1000px;margin:0 auto;
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
+      border:2px solid transparent;
+      background-clip:padding-box;
+      border-radius:20px;
+      padding:32px;text-align:center;
+      position:relative;overflow:hidden;
+    }
+    .demo-box::before{
+      content:'';position:absolute;inset:-2px;
+      background:linear-gradient(135deg,rgba(108,92,231,0.3),rgba(0,206,201,0.3));
+      border-radius:20px;z-index:-1;opacity:0.6;
+    }
+    .demo-box h2{
+      font-size:2rem;margin-bottom:16px;color:#fff;font-weight:800;
+    }
+    .demo-box p{
+      font-size:1.1rem;color:rgba(255,255,255,0.85);margin-bottom:24px;
+    }
+    .demo-preview{
+      position:relative;border-radius:12px;overflow:hidden;
+      background:#1a1a1d;margin-bottom:20px;
+    }
+    .demo-preview img{
+      width:100%;height:auto;display:block;
+      opacity:0;transition:opacity 0.5s;
+    }
+    .demo-preview img.loaded{opacity:1}
+    .demo-skeleton{
+      position:absolute;inset:0;
+      background:linear-gradient(90deg, #2a2a2d 25%, #3a3a3d 50%, #2a2a2d 75%);
+      background-size:200% 100%;
+      animation:shimmer 1.5s infinite;
+    }
+    @keyframes shimmer{
+      0%{background-position:200% 0}
+      100%{background-position:-200% 0}
+    }
+    .demo-preview.loaded .demo-skeleton{display:none}
+    .demo-actions{
+      display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+    }
+    .demo-actions .btn{
+      padding:12px 24px;border-radius:10px;font-weight:800;
+      font-size: 1rem;
+      text-decoration:none;transition:all 0.3s;
+      cursor:pointer;
+    }
+    .demo-actions .btn-demo, .demo-actions .btn-secondary{
+        background: var(--grad-primary);
+        color: #fff;
+        border: none;
+    }
+    .demo-actions .btn-demo:hover, .demo-actions .btn-secondary:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+    }
+    /* Demo Simulator - Replica Dashboard */
+    .demo-sim{
+      display:none;margin-top:24px;padding:32px 24px;position:relative;
+      background:linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,251,252,0.98) 100%);
+      backdrop-filter:blur(20px);
+      border:2px solid rgba(108,92,231,0.15);
+      border-radius:20px;
+      text-align:left;
+      box-shadow:0 8px 24px rgba(0,0,0,0.08);
+      position:relative;overflow:hidden;
+    }
+    .demo-close-btn{
+      position:absolute;top:16px;right:16px;
+      width:36px;height:36px;border-radius:50%;
+      background:rgba(231,76,60,0.1);
+      border:2px solid rgba(231,76,60,0.3);
+      color:#e74c3c;font-size:1.3rem;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all 0.3s var(--ease-smooth);
+      z-index:10;
+    }
+    .demo-close-btn:hover{
+      background:rgba(231,76,60,0.15);
+      border-color:#e74c3c;
+      transform:scale(1.1) rotate(90deg);
+    }
+    .demo-sim.active{display:block;animation:fadeInUp 0.5s}
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(20px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    .demo-sim h3{
+      font-size:1.6rem;margin-bottom:20px;font-weight:800;
+      background:linear-gradient(135deg,rgba(108,92,231,0.8),rgba(0,206,201,0.8));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      text-shadow:none;
+    }
+    .demo-form{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;
+      margin-bottom:24px;
+    }
+    @media(max-width:768px){
+      .demo-form{grid-template-columns:1fr}
+    }
+    .demo-form-group{
+      display:flex;flex-direction:column;gap:6px;
+    }
+    .demo-form-group.full-width{
+      grid-column:span 2;
+    }
+    @media(max-width:768px){
+      .demo-form-group.full-width{grid-column:span 1}
+    }
+    .demo-form-group label{
+      font-size:0.9rem;font-weight:700;color:#333;
+      text-transform:uppercase;letter-spacing:0.3px;
+    }
+    .demo-form-group input,
+    .demo-form-group select{
+      padding:11px 14px;border-radius:8px;border:2px solid #ddd;
+      background:#fff;color:#111;font-size:1rem;
+      transition:all 0.2s;font-weight:500;
+    }
+    .demo-form-group input::placeholder{
+      color:#999;
+    }
+    .demo-form-group input:focus,
+    .demo-form-group select:focus{
+      outline:none;border-color:#6c5ce7;
+      box-shadow:0 0 0 3px rgba(108,92,231,0.1);
+    }
+    .demo-form-group select option{
+      background:#fff;color:#111;
+    }
+    .demo-submit-btn{
+      grid-column:span 2;padding:14px 24px;border-radius:12px;
+      font-weight:800;
+      background:linear-gradient(135deg,rgba(108,92,231,0.85),rgba(162,155,254,0.85));
+      color:#fff;border:none;cursor:pointer;
+      transition:all 0.3s var(--ease-smooth);
+      font-size:1.05rem;
+      box-shadow:0 4px 16px rgba(108,92,231,0.2);
+      position:relative;overflow:hidden;
+    }
+    .demo-submit-btn:hover{
+      background:linear-gradient(135deg,rgba(108,92,231,1),rgba(162,155,254,1));
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(108,92,231,0.3);
+    }
+    .demo-submit-btn span{
+      position:relative;z-index:1;
+    }
+    @media(max-width:768px){
+      .demo-submit-btn{grid-column:span 1}
+    }
+    .demo-submit-btn:hover{
+      transform:translateY(-2px);filter:brightness(1.1);
+    }
+    .demo-results{
+      margin-top:28px;padding-top:28px;
+      border-top:1px solid rgba(255,255,255,0.12);
+    }
+    .demo-results h4{
+      font-size:1.2rem;margin-bottom:16px;color:#111;font-weight:800;
+    }
+    .demo-summary{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;
+      margin-bottom:24px;
+    }
+    @media(max-width:768px){
+      .demo-summary{grid-template-columns:1fr}
+    }
+    .demo-summary-card{
+      padding:24px;background:#fff;border-radius:16px;
+      border:2px solid #f0f0f0;
+      box-shadow:0 2px 12px rgba(0,0,0,0.04);
+      transition:all 0.3s var(--ease-smooth);
+    }
+    .demo-summary-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 4px 20px rgba(0,0,0,0.08);
+      border-color:#e8e8e8;
+    }
+    .demo-summary-card h5{
+      font-size:0.85rem;color:#888;
+      margin:0 0 8px;font-weight:700;text-transform:uppercase;
+      letter-spacing:0.8px;
+    }
+    .demo-summary-card .amount{
+      font-size:2rem;font-weight:900;
+    }
+    .demo-summary-card.income .amount{
+      color:#27ae60;
+    }
+    .demo-summary-card.expense .amount{
+      color:#e74c3c;
+    }
+    
+    /* Donut Chart */
+    .demo-donut-wrapper{
+      display:none;margin:24px auto;max-width:320px;
+      text-align:center;
+    }
+    .demo-donut-wrapper.show{
+      display:block;animation:scaleIn 0.6s var(--ease-bounce);
+    }
+    @keyframes scaleIn{
+      0%{opacity:0;transform:scale(0.8)}
+      100%{opacity:1;transform:scale(1)}
+    }
+    .demo-donut-title{
+      font-size:1.1rem;font-weight:700;color:#333;
+      margin-bottom:16px;text-align:center;
+    }
+    .demo-donut-chart{
+      position:relative;width:240px;height:240px;margin:0 auto 20px;
+    }
+    .demo-donut-chart svg{
+      transform:rotate(-90deg);filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+    }
+    .demo-donut-center{
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      pointer-events:none;
+    }
+    .demo-donut-center-label{
+      font-size:0.85rem;color:#666;font-weight:600;
+      text-transform:uppercase;letter-spacing:0.5px;
+    }
+    .demo-donut-center-value{
+      font-size:2rem;font-weight:800;
+      background:linear-gradient(135deg,#27ae60,#2ecc71);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .demo-donut-legend{
+      display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+    }
+    .demo-donut-legend-item{
+      display:flex;align-items:center;gap:8px;
+    }
+    .demo-donut-legend-color{
+      width:16px;height:16px;border-radius:4px;
+    }
+    .demo-donut-legend-color.income{
+      background:linear-gradient(135deg,#27ae60,#2ecc71);
+    }
+    .demo-donut-legend-color.expense{
+      background:linear-gradient(135deg,#e74c3c,#ec7063);
+    }
+    .demo-donut-legend-text{
+      font-size:0.95rem;font-weight:600;color:#333;
+    }
+    .demo-categories{
+      display:flex;flex-direction:column;gap:14px;
+    }
+    .demo-category-item{
+      background:#fafafa;padding:20px;border-radius:14px;
+      border:2px solid #f0f0f0;
+      box-shadow:0 2px 8px rgba(0,0,0,0.03);
+      transition:all 0.3s var(--ease-smooth);
+    }
+    .demo-category-item:hover{
+      background:#fff;
+      border-color:#e8e8e8;
+      box-shadow:0 4px 16px rgba(0,0,0,0.06);
+    }
+    .demo-category-header{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:12px;
+    }
+    .demo-category-name{
+      font-size:1.05rem;font-weight:700;color:#333;
+      display:flex;align-items:center;gap:8px;
+    }
+    .demo-category-total{
+      font-size:1.2rem;font-weight:800;color:#e74c3c;
+    }
+    .demo-category-bar{
+      width:100%;height:14px;background:#f5f5f5;
+      border-radius:999px;overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .demo-category-bar-fill{
+      height:100%;
+      background:linear-gradient(90deg,rgba(108,92,231,0.7),rgba(162,155,254,0.7));
+      border-radius:999px;transition:width 0.6s var(--ease-smooth);
+    }
+    .demo-transactions-list{
+      margin-top:20px;max-height:320px;overflow-y:auto;
+      display:flex;flex-direction:column;gap:10px;
+      padding-right:4px;
+    }
+    .demo-transaction-item{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px 16px;background:#fafafa;
+      border-radius:10px;border:1px solid #f0f0f0;
+      transition:all 0.2s;
+    }
+    .demo-transaction-item:hover{
+      background:#fff;
+      border-color:#e8e8e8;
+      box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    }
+    .demo-transaction-info{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    .demo-transaction-note{
+      font-size:1rem;font-weight:700;color:#111;
+    }
+    .demo-transaction-cat{
+      font-size:0.85rem;color:#666;font-weight:500;
+    }
+    .demo-transaction-amount{
+      font-size:1.15rem;font-weight:800;
+    }
+    .demo-transaction-item.income .demo-transaction-amount{
+      color:#27ae60;
+    }
+    .demo-transaction-item.expense .demo-transaction-amount{
+      color:#e74c3c;
+    }
 
-    .section{padding:60px 20px;}
-    .section-title{font-size:2.5rem;font-weight:800;text-align:center;margin-bottom:40px;background:var(--grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent;}
-    .grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));}
-    .card{background:rgba(255,255,255,.8);backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:28px;text-align:center;transition:all .3s var(--ease-smooth);box-shadow:0 10px 30px rgba(0,0,0,.10);}
-    .card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.15);}
-    .card-emoji{font-size:4rem;margin-bottom:16px;display:block;filter:drop-shadow(0 4px 12px rgba(0,0,0,.15));}
-    .howto-icon{width:64px;height:64px;margin:0 auto 16px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));}
+    /* ========== BENEFITS / HOW-TO (MODIFIED) ========== */
+    .section{
+      padding:60px 20px;
+    }
+    .section-title{
+      font-size:2.5rem;font-weight:800;text-align:center;margin-bottom:40px;
+      background:var(--grad-primary);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .grid{
+      display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
+    .card{
+      background:rgba(255, 255, 255, 0.8);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:16px;
+      padding:28px;text-align:center;
+      transition:all 0.3s var(--ease-smooth);
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      display: none;
+    }
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 16px 40px rgba(0,0,0,0.15);
+    }
+    .card-emoji{
+      font-size:4rem;margin-bottom:16px;
+      display:block;
+      animation:float 3s ease-in-out infinite;
+      filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+    }
+    @keyframes float{
+      0%,100%{transform:translateY(0px)}
+      50%{transform:translateY(-10px)}
+    }
+    .card:hover .card-emoji{
+      animation:bounce 0.6s ease;
+    }
+    @keyframes bounce{
+      0%,100%{transform:scale(1)}
+      50%{transform:scale(1.15)}
+    }
+    .card h3{
+      font-size:1.5rem;margin-bottom:12px;
+      color:#111;
+      font-weight:800;
+    }
+    .card p{
+      font-size:1rem;
+      color:#333;
+      line-height:1.6;
+    }
+    .howto-icon{
+      width:64px;height:64px;margin:0 auto 16px;
+      filter:drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+    }
 
-    /* Pricing */
-    .pricing-section{padding:60px 20px;}
-    .pricing-grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));max-width:1100px;margin:0 auto;}
-    .price-card{position:relative;background:rgba(255,255,255,.8);backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:48px 32px 36px;text-align:center;transition:all .3s var(--ease-smooth);box-shadow:0 10px 30px rgba(0,0,0,.10);}
-    .price-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 24px 60px rgba(0,0,0,.15);}
-    .price-card.popular{background:rgba(255,255,255,.95);outline:3px solid #6c5ce7;transform:scale(1.05);}
-    .price-card.popular:hover{transform:translateY(-8px) scale(1.07);}
-    .price-card-emoji{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:3.5rem;filter:drop-shadow(0 8px 16px rgba(0,0,0,.3));z-index:10;}
-    .badge{position:absolute;top:14px; right:14px; font-size:.85rem;background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;box-shadow:0 6px 18px rgba(108,92,231,.35);}
-    .plan-title{font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#333;display:flex;flex-direction:column;gap:8px;}
-    .plan-name{font-size:1.5rem;background:linear-gradient(135deg,#333,#555);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900;}
-    .price-inline{font-size:2.5rem;font-weight:900;background: var(--grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-top:12px;}
-    .features{margin:20px 0;color:#333;}
+    /* ========== PRICING (MODIFIED) ========== */
+    .pricing-section{
+      padding:60px 20px;
+    }
+    .pricing-grid{
+      display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      max-width:1100px;margin:0 auto;
+    }
+    .price-card{
+      position:relative;
+      background:rgba(255, 255, 255, 0.8);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:20px;
+      padding:48px 32px 36px;text-align:center;
+      transition:all 0.3s var(--ease-smooth);
+      overflow:visible;
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
+    }
+    .price-card::before{
+      content:'';
+      display: none;
+    }
+    .price-card:hover{
+      transform:translateY(-8px) scale(1.02);
+      box-shadow:0 24px 60px rgba(0,0,0,0.15);
+    }
+    .price-card.popular{
+      background:rgba(255, 255, 255, 0.95);
+      outline:3px solid #6c5ce7;
+      transform:scale(1.05);
+    }
+    .price-card.popular:hover{
+      transform:translateY(-8px) scale(1.07);
+    }
+    .price-card-emoji{
+      position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+      font-size:3.5rem;
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+      z-index:10;
+    }
+    .price-card-emoji.rocket{
+      animation:rocketFloat 2s ease-in-out infinite;
+    }
+    @keyframes rocketFloat{
+      0%,100%{transform:translateX(-50%) translateY(0px) rotate(-5deg)}
+      50%{transform:translateX(-50%) translateY(-8px) rotate(5deg)}
+    }
+    .price-card-emoji.stars{
+      animation:starsSparkle 1.5s ease-in-out infinite;
+    }
+    @keyframes starsSparkle{
+      0%,100%{transform:translateX(-50%) scale(1) rotate(0deg)}
+      50%{transform:translateX(-50%) scale(1.15) rotate(5deg)}
+    }
+    .price-card-emoji.diamond{
+      animation:diamondShine 2s ease-in-out infinite;
+    }
+    @keyframes diamondShine{
+      0%,100%{transform:translateX(-50%) scale(1);filter:drop-shadow(0 8px 16px rgba(0,0,0,0.3)) brightness(1)}
+      50%{transform:translateX(-50%) scale(1.1);filter:drop-shadow(0 8px 20px rgba(108,92,231,0.6)) brightness(1.3)}
+    }
+    .price-card .badge{
+      position:absolute;top:14px; right:14px; font-size:.85rem;
+      background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
+      box-shadow:0 6px 18px rgba(108,92,231,.35);
+      animation: none;
+    }
+    .plan-title{
+      font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#333;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .plan-name{
+      font-size:1.5rem;
+      background:linear-gradient(135deg,#333,#555);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      font-weight:900;
+    }
+    .plan-title .plan-name{display:block;margin-bottom:4px}
+    .plan-title .price-inline{
+      font-size:2.5rem;font-weight:900;
+      background: var(--grad-primary);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      display:block;margin-top:12px;
+      text-shadow: none; filter: none; animation: none;
+    }
+    .price-card.popular .price-inline{
+      font-size:2.8rem;
+    }
+    .plan-title .price-inline small{
+      font-size:1.1rem;
+      background:none;-webkit-background-clip:unset;
+      background-clip:unset;color: #555;
+      font-weight: 500;
+    }
+    .features{
+      margin:20px 0;color:#333;
+    }
     .features ul{list-style:none;padding:0}
-    .features li{padding:6px 0;display:flex;align-items:center;justify-content:center;gap:8px;}
-    .features li::before{content:"✓";color:#00cec9;font-weight:900;}
-    .pricing-section .btn-secondary{display:inline-block;padding:14px 32px;border-radius:12px;background:var(--grad-primary);color:#fff;font-weight:800;font-size:1.05rem;text-decoration:none;transition:all .3s var(--ease-smooth);box-shadow:0 8px 24px rgba(0,0,0,.14);}
+    .features li{
+      padding:6px 0;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .features li::before{
+      content:"✓";color:#00cec9;font-weight:900;
+    }
+    .pricing-section .btn-secondary{
+      display:inline-block;padding:14px 32px;border-radius:12px;
+      background:var(--grad-primary);
+      color:#fff;font-weight:800;font-size:1.05rem;
+      text-decoration:none;transition:all 0.3s var(--ease-smooth);
+      box-shadow:0 8px 24px rgba(0,0,0,0.14);
+      position:relative;overflow:hidden;
+    }
+    .pricing-section .btn-secondary::before{
+       content: ''; display: none;
+    }
+    .pricing-section .btn-secondary:hover{
+      transform:translateY(-3px);
+      box-shadow:0 12px 32px rgba(0,0,0,0.2);
+      filter: brightness(1.1);
+    }
+    .pricing-section .btn-secondary:hover::before{
+      opacity:0;
+    }
 
-    /* Demo light */
-    .demo-section{padding:60px 20px;}
-    .demo-box{max-width:1000px;margin:0 auto;background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border:2px solid transparent;background-clip:padding-box;border-radius:20px;padding:32px;text-align:center;position:relative;overflow:hidden;}
-    .demo-box::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,rgba(108,92,231,0.3),rgba(0,206,201,0.3));border-radius:20px;z-index:-1;opacity:0.6;}
-    .demo-box h2{font-size:2rem;margin-bottom:16px;color:#fff;font-weight:800;}
-    .demo-box p{font-size:1.1rem;color:rgba(255,255,255,0.85);margin-bottom:24px;}
-    .demo-preview{position:relative;border-radius:12px;overflow:hidden;background:#1a1a1d;margin-bottom:20px;}
-    .demo-preview img{width:100%;height:auto;display:block;}
-    .demo-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-    .demo-actions .btn{padding:12px 24px;border-radius:10px;font-weight:800;font-size:1rem;text-decoration:none;transition:all 0.3s;cursor:pointer;}
-    .demo-actions .btn-demo, .demo-actions .btn-secondary{background: var(--grad-primary);color: #fff;border: none;}
+    /* ========== TESTIMONIALS ========== */
+    .testimonials-section{
+      padding:60px 20px;
+    }
+    .testimonials-grid{
+      display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      max-width:1200px;margin:0 auto;
+    }
+    .testimonial-card{
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);
+      border:2px solid transparent;
+      background-clip:padding-box;
+      border-radius:16px;
+      padding:28px;
+      transition:all 0.3s var(--ease-smooth);
+      position:relative;overflow:hidden;
+    }
+    .testimonial-card::before{
+      content:'';position:absolute;inset:-2px;
+      background:linear-gradient(135deg,rgba(108,92,231,0.25),rgba(0,206,201,0.25));
+      border-radius:16px;z-index:-1;
+      transition:opacity 0.3s;opacity:0.4;
+    }
+    .testimonial-card:hover{
+      transform:translateY(-4px);
+      box-shadow:0 12px 32px rgba(0,0,0,0.15);
+    }
+    .testimonial-card:hover::before{
+      opacity:0.7;
+    }
+    .testimonial-header{
+      display:flex;align-items:center;gap:16px;
+      margin-bottom:16px;
+    }
+    .testimonial-avatar{
+      width:56px;height:56px;border-radius:50%;
+      background:linear-gradient(135deg,#6c5ce7,#00cec9);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.5rem;font-weight:800;color:#fff;
+      box-shadow:0 4px 12px rgba(108,92,231,0.3);
+    }
+    .testimonial-info{
+      flex:1;
+    }
+    .testimonial-name{
+      font-size:1.1rem;font-weight:800;color:#fff;
+      margin-bottom:4px;
+    }
+    .testimonial-role{
+      font-size:0.9rem;color:rgba(255,255,255,0.7);
+    }
+    .testimonial-stars{
+      display:flex;gap:4px;margin-bottom:16px;
+    }
+    .testimonial-stars span{
+      color:#ffd700;font-size:1.2rem;
+      filter:drop-shadow(0 2px 4px rgba(255,215,0,0.3));
+    }
+    .testimonial-text{
+      font-size:1rem;line-height:1.6;
+      color:rgba(255,255,255,0.9);
+      font-style:italic;
+    }
+    .testimonial-text::before{
+      content:'"';font-size:2rem;color:rgba(108,92,231,0.3);
+      line-height:0;position:relative;top:8px;margin-right:4px;
+    }
+    .testimonial-text::after{
+      content:'"';font-size:2rem;color:rgba(108,92,231,0.3);
+      line-height:0;position:relative;top:8px;margin-left:4px;
+    }
 
-    /* Testimonials */
-    .testimonials-section{padding:60px 20px;}
-    .testimonials-grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));max-width:1200px;margin:0 auto;}
-    .testimonial-card{background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border:2px solid transparent;background-clip:padding-box;border-radius:16px;padding:28px;transition:all .3s var(--ease-smooth);position:relative;overflow:hidden;}
-    .testimonial-header{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
-    .testimonial-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#6c5ce7,#00cec9);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(108,92,231,0.3);}
-    .testimonial-name{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;}
-    .testimonial-role{font-size:0.9rem;color:rgba(255,255,255,0.7);}
-    .testimonial-stars{display:flex;gap:4px;margin-bottom:16px;}
-    .testimonial-stars span{color:#ffd700;font-size:1.2rem;}
+    /* ========== LEAD MAGNET ========== */
+    .lead-magnet{
+      position:fixed;bottom:20px;right:20px;z-index:90;
+      max-width:340px;
+      background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,0.12);border-radius:16px;
+      padding:24px;box-shadow:0 12px 32px rgba(0,0,0,0.3);
+      animation:slideInRight 0.5s var(--ease-smooth);
+    }
+    @keyframes slideInRight{
+      from{transform:translateX(400px);opacity:0}
+      to{transform:translateX(0);opacity:1}
+    }
+    .lead-magnet.hidden{display:none}
+    .lead-magnet h3{
+      font-size:1.2rem;margin-bottom:8px;color:#fff;font-weight:800;
+    }
+    .lead-magnet p{
+      font-size:0.95rem;color:rgba(255,255,255,0.85);margin-bottom:16px;
+    }
+    .lead-magnet form{
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .lead-magnet input{
+      padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.1);color:#fff;font-size:0.95rem;
+    }
+    .lead-magnet input::placeholder{color:rgba(255,255,255,0.5)}
+    .lead-magnet button{
+      padding:10px;border-radius:8px;font-weight:700;
+      background:var(--grad-primary);color:#fff;border:none;cursor:pointer;
+      transition:filter 0.2s;
+    }
+    .lead-magnet button:hover{filter:brightness(1.1)}
+    .lead-magnet .close-lead{
+      position:absolute;top:12px;right:12px;
+      background:transparent;border:none;color:rgba(255,255,255,0.6);
+      font-size:1.5rem;cursor:pointer;line-height:1;
+      transition:color 0.2s;
+    }
+    .lead-magnet .close-lead:hover{color:#fff}
+    @media(max-width:600px){
+      .lead-magnet{bottom:10px;right:10px;left:10px;max-width:none}
+    }
 
-    /* Footer */
-    .footer{padding:40px 20px;text-align:center;border-top:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);font-size:0.95rem;}
-    .footer a{color:#fff;text-decoration:none;transition:color 0.2s;}
+    /* ========== EXIT-INTENT MODAL ========== */
+    .exit-modal-overlay{
+      position:fixed;inset:0;z-index:200;
+      background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);
+      display:none;align-items:center;justify-content:center;
+      animation:fadeIn 0.3s;
+    }
+    @keyframes fadeIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+    .exit-modal-overlay.active{display:flex}
+    .exit-modal{
+      max-width:500px;width:90%;
+      background:rgba(20,20,24,0.98);backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,0.12);border-radius:20px;
+      padding:40px;text-align:center;position:relative;
+      animation:scaleIn 0.4s var(--ease-bounce);
+    }
+    @keyframes scaleIn{
+      from{transform:scale(0.8);opacity:0}
+      to{transform:scale(1);opacity:1}
+    }
+    .exit-modal h2{
+      font-size:2rem;margin-bottom:12px;color:#fff;font-weight:800;
+    }
+    .exit-modal p{
+      font-size:1.1rem;color:rgba(255,255,255,0.85);margin-bottom:24px;
+      line-height:1.6;
+    }
+    .exit-modal .btn{
+      padding:14px 32px;border-radius:12px;font-weight:800;font-size:1.05rem;
+      text-decoration:none;display:inline-block;
+      background:var(--grad-primary);color:#fff;
+      transition:all 0.3s;
+    }
+    .exit-modal .btn:hover{
+      transform:translateY(-2px);filter:brightness(1.1);
+    }
+    .exit-modal .close-modal{
+      position:absolute;top:16px;right:16px;
+      background:transparent;border:none;color:rgba(255,255,255,0.6);
+      font-size:2rem;cursor:pointer;line-height:1;
+      transition:color 0.2s;
+    }
+    .exit-modal .close-modal:hover{color:#fff}
+    @media (prefers-reduced-motion:reduce){
+      .exit-modal{animation:fadeIn 0.3s}
+    }
+
+    /* ========== FOOTER ========== */
+    .footer{
+      padding:40px 20px;text-align:center;
+      border-top:1px solid rgba(255,255,255,0.12);
+      color:rgba(255,255,255,0.7);font-size:0.95rem;
+    }
+    .footer a{
+      color:#fff;text-decoration:none;transition:color 0.2s;
+    }
     .footer a:hover{color:#00cec9}
 
-    /* Mobile menu */
-    .mobile-nav-toggle {display:none;background:var(--grad-primary);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:101;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    /* ========== REVEAL ANIMATION ========== */
+    .reveal{
+      opacity:0;transform:translateY(20px);
+      transition:opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+    }
+    .reveal.visible{
+      opacity:1;transform:translateY(0);
+    }
+    @media (prefers-reduced-motion:reduce){
+      .reveal{opacity:1;transform:none;transition:none}
+    }
+
+    /* MODIFICA: Stili per il menu hamburger (da profile.html) */
+    .mobile-nav-toggle {
+      display: none;
+      background:var(--grad-primary);
+      border:none;
+      border-radius:10px;
+      width:40px;
+      height:38px;
+      cursor:pointer;
+      padding:0;
+      z-index:101;
+      box-shadow:0 4px 12px rgba(0,0,0,.15)
+    }
     .mobile-nav-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+    
+    /* ========== RESPONSIVE ========== */
     @media(max-width:960px){
       .mobile-nav-toggle{display:block}
       .topbar-actions{
-        position:fixed;top:70px;right:16px;background:rgba(255,255,255,0.9);
-        backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-        border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;
-        flex-direction:column;gap:16px;align-items:stretch;width:220px;
-        transform:translateY(-20px) scale(.95);opacity:0;pointer-events:none;
-        transition:transform .2s ease-out,opacity .2s ease-out;z-index:100;border:1px solid var(--card-border)
+        position:fixed;
+        top:70px;
+        right:16px;
+        background:rgba(255,255,255,0.9);
+        backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px);
+        border-radius:var(--radius-lg);
+        box-shadow:var(--shadow);
+        padding:16px;
+        flex-direction:column;
+        gap:16px;
+        align-items:stretch;
+        width:220px;
+        transform:translateY(-20px) scale(.95);
+        opacity:0;
+        pointer-events:none;
+        transition:transform .2s ease-out,opacity .2s ease-out;
+        z-index:100;
+        border:1px solid var(--card-border)
       }
       .topbar-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
       .topbar-actions .top-link{width:100%;text-align:center;}
     }
+
     @media(max-width:600px){
       .topbar-inner{padding:0 16px;}
       .hero-section{padding:80px 16px 40px}
@@ -282,27 +1094,76 @@
       .sticky-cta-bar .mini-headline{font-size:0.85rem}
     }
   </style>
+
+  <style id="mhb-alignment-overrides">
+    /* Stili per allineare l'aspetto della topbar a quello della pagina profile.html */
+    .topbar {
+        background: rgba(255, 255, 255, 0.6) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .topbar .logo-text {
+        color: #fff !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    }
+
+    .topbar .top-link, 
+    .topbar .lang-selector a {
+        color: #fff !important;
+        background-color: transparent !important; 
+    }
+    
+    .topbar-actions a.top-link.primary {
+      color: #fff !important;
+    }
+    
+    .topbar .lang-selector a:hover {
+        background: rgba(255,255,255,.12) !important;
+    }
+
+    .topbar .logo-image {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Stili per rendere lo sfondo nitido */
+    .hero-orb {
+        display: none !important;
+        filter: none !important;
+    }
+
+    body::before {
+        content: none !important;
+    }
+
+    .hero-section {
+        filter: none !important;
+    }
+  </style>
 </head>
 <body>
   <!-- TOPBAR -->
   <nav class="topbar" aria-label="Main navigation">
     <div class="topbar-inner">
       <a href="/en/" class="logo-link" title="MyHomesBudget Home">
-        <img src="/homes.png" alt="MyHomesBudget logo" class="logo-image" loading="eager" width="36" height="36">
+        <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="eager" width="36" height="36">
         <span class="logo-text">MyHomesBudget</span>
       </a>
-
+      
+      <!-- MODIFICATION: Topbar and mobile menu structure adapted from profile.html -->
       <button class="mobile-nav-toggle" id="mobile-menu-btn" aria-label="Open menu">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
 
       <div class="topbar-actions" id="topbar-actions">
+        <!-- Links will be injected here or are already present depending on login status -->
         <a class="top-link primary" href="/en/login.html">Log in</a>
         <a class="top-link primary" href="/en/pricing.html">Pricing</a>
         <span class="lang-selector" aria-label="Language selector">
-          <a href="/it/" title="Italiano" lang="it" aria-label="Italiano">🇮🇹</a>
+          <a href="/it/" title="Italian" lang="it" aria-label="Italian">🇮🇹</a>
           <a href="/en/" title="English" lang="en" aria-label="English">🇬🇧</a>
-          <a href="/es/" title="Español" lang="es" aria-label="Español">🇪🇸</a>
+          <a href="/es/" title="Spanish" lang="es" aria-label="Spanish">🇪🇸</a>
         </span>
       </div>
     </div>
@@ -310,27 +1171,19 @@
 
   <!-- STICKY CTA BAR -->
   <div class="sticky-cta-bar" id="sticky-cta-bar" aria-hidden="true">
-    <span class="mini-headline">Manage your budget easily</span>
+    <span class="mini-headline">Manage your budget with ease</span>
     <a href="/en/login.html" class="btn btn-primary" data-ga-label="login">Log in</a>
     <a href="/en/pricing.html" class="btn btn-secondary" data-ga-label="pricing">See plans</a>
   </div>
 
   <main>
     <!-- HERO SECTION -->
-    <section class="hero-section">
+    <section class="hero-section" id="hero-section">
+      <div class="hero-orb" aria-hidden="true"></div>
       <div class="container">
-        <div class="hero-content">
-          <div class="hero-v2">
-            <div class="hero-mockup">
-              <img src="/social.png" alt="MyHomesBudget dashboard preview" loading="lazy" decoding="async" width="800" height="450">
-            </div>
-            <h1>Keep your <span style="-webkit-background-clip:text;background-clip:text;background:var(--grad-primary);color:transparent;">home budget</span> under control</h1>
-            <p>Track income, expenses and savings in one place. Clear charts, custom categories, and goals that keep you on track.</p>
-            <div class="hero-cta-row">
-              <a class="btn btn-primary" href="/en/login.html" onclick="if(typeof gtag==='function') gtag('event','cta_click',{placement:'hero_primary',lang:'en'});">Start free</a>
-              <a class="btn btn-secondary" href="/en/pricing.html" onclick="if(typeof gtag==='function') gtag('event','cta_click',{placement:'hero_secondary',lang:'en'});">Pricing</a>
-            </div>
-          </div>
+        <!-- HERO HEADLINE A|B|C -->
+        <div class="hero-content" id="hero-content">
+          <!-- Content injected by JS based on ?v= param -->
         </div>
       </div>
     </section>
@@ -339,9 +1192,9 @@
     <section class="trust-row reveal">
       <div class="container">
         <div class="trust-pills">
-          <div class="trust-pill">🚫 No ads</div>
-          <div class="trust-pill">🇪🇺 Built in Europe</div>
-          <div class="trust-pill">🔒 Trusted EU providers</div>
+          <div class="trust-pill">🚫 Ad-free</div>
+          <div class="trust-pill">🇮🇹 Built in Italy</div>
+          <div class="trust-pill">🔒 Data on reliable providers</div>
         </div>
       </div>
     </section>
@@ -351,19 +1204,19 @@
       <div class="container">
         <div class="demo-box">
           <h2>See MyHomesBudget in action</h2>
-          <p>A quick preview of the dashboard to manage income, expenses, and goals.</p>
+          <p>A preview of the dashboard for managing income, expenses, and goals.</p>
           <div class="demo-preview" id="demo-preview">
+            <div class="demo-skeleton"></div>
             <img src="/social.png" alt="MyHomesBudget dashboard preview" loading="lazy" decoding="async" width="800" height="450">
           </div>
           <div class="demo-actions">
             <button class="btn btn-demo" id="btn-demo-flow">Try DEMO</button>
-            <a href="/en/login.html" class="btn btn-secondary">Start free</a>
+            <a href="/en/login.html" class="btn btn-secondary">Start for free</a>
           </div>
-
-          <!-- Demo simulator -->
-          <div class="demo-sim" id="demo-sim" aria-live="polite">
+          <!-- Demo simulator form -->
+          <div class="demo-sim" id="demo-sim">
             <button class="demo-close-btn" id="demo-close-btn" aria-label="Close demo" title="Close demo">×</button>
-            <h3>💰 Demo Panel — Expense Management</h3>
+            <h3>💰 Demo Panel - Expense Management</h3>
             <form class="demo-form" id="demo-form">
               <div class="demo-form-group">
                 <label for="demo-kind">Type</label>
@@ -378,7 +1231,7 @@
               </div>
               <div class="demo-form-group full-width">
                 <label for="demo-note">Note</label>
-                <input type="text" id="demo-note" placeholder="e.g. Groceries, Salary..." required>
+                <input type="text" id="demo-note" placeholder="E.g. Groceries, Salary..." required>
               </div>
               <div class="demo-form-group">
                 <label for="demo-category">Category</label>
@@ -408,7 +1261,8 @@
                   <div class="amount" id="demo-total-expense">€0.00</div>
                 </div>
               </div>
-
+              
+              <!-- Donut Chart (shown when both income and expense exist) -->
               <div class="demo-donut-wrapper" id="demo-donut-wrapper">
                 <h4 class="demo-donut-title">💰 Visual Balance</h4>
                 <div class="demo-donut-chart">
@@ -438,20 +1292,20 @@
                 </div>
                 <div class="demo-donut-legend">
                   <div class="demo-donut-legend-item">
-                    <div class="demo-donut-legend-color income" style="width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,#27ae60,#2ecc71);"></div>
+                    <div class="demo-donut-legend-color income"></div>
                     <span class="demo-donut-legend-text">Income</span>
                   </div>
                   <div class="demo-donut-legend-item">
-                    <div class="demo-donut-legend-color expense" style="width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,#e74c3c,#ec7063);"></div>
+                    <div class="demo-donut-legend-color expense"></div>
                     <span class="demo-donut-legend-text">Expenses</span>
                   </div>
                 </div>
               </div>
-
+              
               <h4 style="margin-top:24px;">📈 By Category</h4>
               <div class="demo-categories" id="demo-categories"></div>
 
-              <h4 style="margin-top:24px;">📝 Recent Transactions</h4>
+              <h4 style="margin-top:24px;">📝 Latest Transactions</h4>
               <div class="demo-transactions-list" id="demo-transactions-list"></div>
             </div>
           </div>
@@ -466,18 +1320,18 @@
         <div class="grid">
           <div class="card">
             <span class="card-emoji" role="img" aria-label="Simple">✨</span>
-            <h3>Zero hassle</h3>
-            <p>No spreadsheets. Clear and fast, manage your budget in just a few clicks.</p>
+            <h3>Zero complications</h3>
+            <p>No more spreadsheets. Everything is clear and fast, manage your budget in a few clicks.</p>
           </div>
           <div class="card">
             <span class="card-emoji" role="img" aria-label="Multi-device">📱</span>
             <h3>Always with you</h3>
-            <p>iPhone, Android, and PC. Access anywhere, with your data always in sync.</p>
+            <p>iPhone, Android, and PC. Access it anywhere, your data is always in sync.</p>
           </div>
           <div class="card">
             <span class="card-emoji" role="img" aria-label="Privacy">🔒</span>
-            <h3>EU privacy</h3>
-            <p>Your data is hosted in the EU and under your control, GDPR compliant.</p>
+            <h3>EU Privacy</h3>
+            <p>Your data is in Europe and under your control, in compliance with GDPR.</p>
           </div>
         </div>
       </div>
@@ -491,33 +1345,48 @@
           <div class="card">
             <div class="howto-icon" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
-                <defs><linearGradient id="grad-user" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c5ce7"/><stop offset="1" stop-color="#00cec9"/></linearGradient></defs>
+                <defs>
+                  <linearGradient id="grad-user" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#6c5ce7"/>
+                    <stop offset="1" stop-color="#00cec9"/>
+                  </linearGradient>
+                </defs>
                 <circle cx="32" cy="22" r="10" fill="url(#grad-user)"/>
                 <path d="M10 54c0-10 10-18 22-18s22 8 22 18" fill="none" stroke="url(#grad-user)" stroke-width="4" stroke-linecap="round"/>
               </svg>
             </div>
             <h3>Create your account</h3>
-            <p>Sign up free in 30 seconds with your email or Google account.</p>
+            <p>Sign up for free in 30 seconds with your email or Google account.</p>
           </div>
           <div class="card">
             <div class="howto-icon" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
-                <defs><linearGradient id="grad-plus" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c5ce7"/><stop offset="1" stop-color="#00cec9"/></linearGradient></defs>
+                <defs>
+                  <linearGradient id="grad-plus" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#6c5ce7"/>
+                    <stop offset="1" stop-color="#00cec9"/>
+                  </linearGradient>
+                </defs>
                 <path d="M32 12v40M12 32h40" stroke="url(#grad-plus)" stroke-width="6" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3>Add transactions</h3>
+            <h3>Add your transactions</h3>
             <p>Enter income and expenses with custom categories in just a few clicks.</p>
           </div>
           <div class="card">
             <div class="howto-icon" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
-                <defs><linearGradient id="grad-chart" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c5ce7"/><stop offset="1" stop-color="#00cec9"/></linearGradient></defs>
+                <defs>
+                  <linearGradient id="grad-chart" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#6c5ce7"/>
+                    <stop offset="1" stop-color="#00cec9"/>
+                  </linearGradient>
+                </defs>
                 <path d="M8 50h48M16 50V38M28 50V28M40 50V20M52 50V12" stroke="url(#grad-chart)" stroke-width="5" stroke-linecap="round"/>
               </svg>
             </div>
             <h3>Reach your goals</h3>
-            <p>Monitor progress with intuitive charts and always stay within budget.</p>
+            <p>Monitor your progress with intuitive charts and always stay on budget.</p>
           </div>
         </div>
       </div>
@@ -530,20 +1399,20 @@
         <div class="pricing-grid">
           <!-- Starter -->
           <div class="price-card">
-            <div class="price-card-emoji">🚀</div>
+            <div class="price-card-emoji rocket" role="img" aria-label="Rocket">🚀</div>
             <h4 class="plan-title">
               <span class="plan-name">Starter</span>
               <span class="price-inline">Free <small>/ 30 days</small></span>
             </h4>
             <div class="features">
               <ul>
-                <li>Personal budgets and goals</li>
+                <li>Personal budget and goals</li>
                 <li>Custom categories and subcategories</li>
                 <li>Basic monthly reports</li>
               </ul>
             </div>
-            <a class="btn-secondary" href="/en/signup.html?plan=starter"
-               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'starter',placement:'pricing_grid',lang:'en'});">
+            <a class="btn-secondary" href="signup.html?plan=starter"
+               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'starter',placement:'pricing_grid'});">
               Start trial
             </a>
           </div>
@@ -551,7 +1420,7 @@
           <!-- Plus (Popular) -->
           <div class="price-card popular">
             <div class="badge">Most popular</div>
-            <div class="price-card-emoji">⭐</div>
+            <div class="price-card-emoji stars" role="img" aria-label="Stars">⭐</div>
             <h4 class="plan-title">
               <span class="plan-name">Plus</span>
               <span class="price-inline">€2.99 <small>/ month</small></span>
@@ -564,14 +1433,14 @@
               </ul>
             </div>
             <a class="btn-secondary" href="/en/paywall.html?plan=plus"
-               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'plus',placement:'pricing_grid',lang:'en'});">
+               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'plus',placement:'pricing_grid'});">
               Upgrade to Plus
             </a>
           </div>
 
           <!-- Pro -->
           <div class="price-card">
-            <div class="price-card-emoji">💎</div>
+            <div class="price-card-emoji diamond" role="img" aria-label="Diamond">💎</div>
             <h4 class="plan-title">
               <span class="plan-name">Pro</span>
               <span class="price-inline">€4.99 <small>/ month</small></span>
@@ -584,7 +1453,7 @@
               </ul>
             </div>
             <a class="btn-secondary" href="/en/paywall.html?plan=pro"
-               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'pro',placement:'pricing_grid',lang:'en'});">
+               onclick="if(typeof gtag==='function')gtag('event','select_pricing',{plan:'pro',placement:'pricing_grid'});">
               Upgrade to Pro
             </a>
           </div>
@@ -592,56 +1461,56 @@
       </div>
     </section>
 
-    <!-- TESTIMONIALS -->
+    <!-- TESTIMONIALS / REVIEWS -->
     <section class="testimonials-section reveal">
       <div class="container">
         <h2 class="section-title">What our users say</h2>
         <div class="testimonials-grid">
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">JD</div>
+              <div class="testimonial-avatar">MR</div>
               <div class="testimonial-info">
-                <div class="testimonial-name">James Doe</div>
-                <div class="testimonial-role">Freelancer • London</div>
+                <div class="testimonial-name">Marco Rossi</div>
+                <div class="testimonial-role">Freelancer • Milan</div>
               </div>
             </div>
             <div class="testimonial-stars" aria-label="5 out of 5 stars">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
             </div>
             <p class="testimonial-text">
-              I finally feel in control of my finances! I used to juggle complex spreadsheets—now everything is clear and quick with MyHomesBudget.
+              I finally have control of my finances! I used to use complicated Excel sheets, but now with MyHomesBudget, everything is clear and fast. I recommend it to everyone.
             </p>
           </div>
 
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">AM</div>
+              <div class="testimonial-avatar">SB</div>
               <div class="testimonial-info">
-                <div class="testimonial-name">Alice Morgan</div>
-                <div class="testimonial-role">Teacher • Dublin</div>
+                <div class="testimonial-name">Sara Bianchi</div>
+                <div class="testimonial-role">Teacher • Rome</div>
               </div>
             </div>
             <div class="testimonial-stars" aria-label="5 out of 5 stars">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
             </div>
             <p class="testimonial-text">
-              Perfect app for families! I can track all our expenses and really save money. The interface is intuitive even for non‑experts.
+              Perfect app for family management! I can track all expenses and I'm really saving money. The interface is intuitive even for non-experts.
             </p>
           </div>
 
           <div class="testimonial-card">
             <div class="testimonial-header">
-              <div class="testimonial-avatar">RB</div>
+              <div class="testimonial-avatar">LF</div>
               <div class="testimonial-info">
-                <div class="testimonial-name">Robert Brown</div>
-                <div class="testimonial-role">Employee • Barcelona</div>
+                <div class="testimonial-name">Luca Ferrari</div>
+                <div class="testimonial-role">Employee • Turin</div>
               </div>
             </div>
             <div class="testimonial-stars" aria-label="5 out of 5 stars">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
             </div>
             <p class="testimonial-text">
-              After 3 months I’ve already cut monthly expenses by 20%. Seeing the charts showed me where I was overspending. Fantastic!
+              I've been using MyHomesBudget for 3 months and have already saved 20% on monthly expenses. Seeing the charts made me realize where I was wasting money. Fantastic!
             </p>
           </div>
         </div>
@@ -659,182 +1528,555 @@
     </footer>
   </main>
 
-  <!-- LEAD MAGNET -->
+  <!-- LEAD MAGNET (only for non-logged users) -->
   <aside class="lead-magnet hidden" id="lead-magnet" role="complementary" aria-labelledby="lead-magnet-title">
     <button class="close-lead" aria-label="Close" id="close-lead">&times;</button>
     <h3 id="lead-magnet-title">📥 Free Budget Starter Kit</h3>
-    <p>Get a quick-start PDF guide to manage your family budget.</p>
+    <p>Receive a PDF guide to start managing your family budget.</p>
     <form id="lead-form">
       <input type="email" placeholder="Your email" required aria-label="Email">
       <button type="submit">Send</button>
     </form>
   </aside>
 
-  <!-- EXIT-INTENT MODAL -->
-  <div class="exit-modal-overlay" id="exit-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-modal-title" style="display:none;">
+  <!-- EXIT-INTENT MODAL (desktop only, non-logged) -->
+  <div class="exit-modal-overlay" id="exit-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-modal-title">
     <div class="exit-modal">
-      <button class="close-modal" aria-label="Close modal" id="exit-modal-close">×</button>
-      <h2 id="exit-modal-title">Before you go</h2>
-      <p>Start your free 30‑day trial now and see how easy it is to keep your budget under control.</p>
-      <a class="btn" href="/en/login.html" onclick="if(typeof gtag==='function') gtag('event','cta_click',{placement:'exit_modal',lang:'en'});">Start free</a>
+      <button class="close-modal" aria-label="Close" id="close-exit-modal">&times;</button>
+      <h2 id="exit-modal-title">Wait! 🎯</h2>
+      <p>Don't miss the opportunity to manage your budget easily. Try MyHomesBudget free for 30 days, no credit card required.</p>
+      <a href="/en/login.html" class="btn">Try for free now</a>
     </div>
   </div>
 
-  <!-- SCRIPTS -->
-  <script>
-    // Reveal on scroll
-    const onScrollReveal = () => {
-      document.querySelectorAll('.reveal').forEach(el => {
-        const r = el.getBoundingClientRect();
-        if (r.top < window.innerHeight * 0.9) el.classList.add('visible');
-      });
-    };
-    document.addEventListener('scroll', onScrollReveal, { passive: true });
-    window.addEventListener('load', onScrollReveal);
+  <!-- MAIN SCRIPT -->
+  <script id="mhb-landing-enhance">
+(function(){
+  'use strict';
 
-    // Sticky CTA after 40% scroll
-    const stickyBar = document.getElementById('sticky-cta-bar');
-    document.addEventListener('scroll', () => {
-      const sc = window.scrollY || document.documentElement.scrollTop;
-      const docH = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = docH > 0 ? sc / docH : 0;
-      stickyBar.classList.toggle('visible', pct > 0.4);
-    }, { passive: true });
+  // ====== UTILS ======
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.innerWidth < 900;
+  const isDesktop = !isMobile;
 
-    // Mobile menu
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const topbarActions = document.getElementById('topbar-actions');
-    menuBtn?.addEventListener('click', () => {
-      const open = topbarActions.classList.toggle('is-open');
-      document.body.classList.toggle('mobile-nav-is-open', open);
-      try { if (typeof gtag==='function') gtag('event','mobile_menu_toggle',{ open, lang:'en' }); } catch(e){}
-    });
+  // Perf mobile: avoid background fixed (paint costoso) sotto 900px
+  (function injectMobilePerfCSS(){
+    if (!isMobile) return;
+    const st = document.createElement('style');
+    st.textContent = '@media(max-width:900px){body{background-attachment:scroll!important;background-position:center top!important}}';
+    document.head.appendChild(st);
+  })();
 
-    // Demo flow
-    const demoBtn = document.getElementById('btn-demo-flow');
-    const demoSim = document.getElementById('demo-sim');
-    const demoClose = document.getElementById('demo-close-btn');
-    const demoForm = document.getElementById('demo-form');
-    const demoResults = document.getElementById('demo-results');
-    const demoCat = document.getElementById('demo-category');
-    const demoSub = document.getElementById('demo-subcategory');
-    const demoTxList = document.getElementById('demo-transactions-list');
-    const demoIncome = document.getElementById('demo-total-income');
-    const demoExpense = document.getElementById('demo-total-expense');
-    const donutWrap = document.getElementById('demo-donut-wrapper');
-    const donutIncome = document.getElementById('demo-donut-income');
-    const donutExpense = document.getElementById('demo-donut-expense');
-    const donutBalance = document.getElementById('demo-donut-balance');
-    const demoCategoriesWrap = document.getElementById('demo-categories');
+  function safeGtag(eventName, params) {
+    try{ if (typeof gtag === 'function') gtag('event', eventName, params); }catch(_){}
+  }
 
-    const categories = {
-      income: ['Salary','Bonus','Other'],
-      expense: ['Groceries','Transport','Housing','Utilities','Leisure','Other']
-    };
+  // ====== LOGIN AWARENESS ======
+  function getUser() {
+    try {
+      const mhbUser = localStorage.getItem('mhb_user');
+      if (mhbUser) return JSON.parse(mhbUser);
 
-    function fillCategories(kind) {
-      const opts = categories[kind] || [];
-      demoCat.innerHTML = '<option value="">-- Select --</option>' + opts.map(c => `<option value="${c}">${c}</option>`).join('');
-      demoSub.innerHTML = '<option value="">-- Select --</option>';
-    }
-
-    demoBtn?.addEventListener('click', () => {
-      demoSim.classList.add('active');
-      fillCategories('expense');
-      try { if (typeof gtag==='function') gtag('event','demo_open',{ lang:'en' }); } catch(e){}
-    });
-    demoClose?.addEventListener('click', () => {
-      demoSim.classList.remove('active');
-      try { if (typeof gtag==='function') gtag('event','demo_close',{ lang:'en' }); } catch(e){}
-    });
-    document.getElementById('demo-kind')?.addEventListener('change', (e) => {
-      fillCategories(e.target.value);
-    });
-
-    const tx = [];
-    function render() {
-      demoResults.style.display = tx.length ? 'block' : 'none';
-      let inc = 0, exp = 0;
-      tx.forEach(t => (t.kind==='income' ? inc+=t.amount : exp+=t.amount));
-      demoIncome.textContent = '€' + inc.toFixed(2);
-      demoExpense.textContent = '€' + exp.toFixed(2);
-      const total = inc + exp;
-      const circ = 2 * Math.PI * 90;
-      donutIncome.setAttribute('stroke-dasharray', `${(inc/total||0)*circ} ${circ}`);
-      donutExpense.setAttribute('stroke-dasharray', `${(exp/total||0)*circ} ${circ}`);
-      donutBalance.textContent = '€' + (inc-exp).toFixed(0);
-      donutWrap.classList.toggle('show', inc>0 && exp>0);
-
-      // categories summary
-      const map = {};
-      tx.forEach(t => {
-        const key = (t.kind==='income'?'Income: ':'Expense: ') + (t.category||'Other');
-        map[key] = (map[key]||0) + t.amount;
-      });
-      demoCategoriesWrap.innerHTML = Object.entries(map).map(([k,v]) => `
-        <div class="demo-category-item">
-          <div class="demo-category-header">
-            <div class="demo-category-name">${k}</div>
-            <div class="demo-category-total">€${v.toFixed(2)}</div>
-          </div>
-          <div class="demo-category-bar"><div class="demo-category-bar-fill" style="width:${total? (v/total*100).toFixed(0):0}%"></div></div>
-        </div>
-      `).join('');
-
-      // tx list
-      demoTxList.innerHTML = tx.slice(-8).reverse().map(t => `
-        <div class="demo-transaction-item ${t.kind}">
-          <div class="demo-transaction-info">
-            <div class="demo-transaction-note">${t.note}</div>
-            <div class="demo-transaction-cat">${t.category}${t.subcategory?(' • '+t.subcategory):''}</div>
-          </div>
-          <div class="demo-transaction-amount">${t.kind==='income'?'+':'-'} €${t.amount.toFixed(2)}</div>
-        </div>
-      `).join('');
-    }
-
-    demoForm?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const kind = document.getElementById('demo-kind').value;
-      const amount = parseFloat(document.getElementById('demo-amount').value||'0');
-      const note = document.getElementById('demo-note').value.trim();
-      const category = document.getElementById('demo-category').value || '';
-      const subcategory = document.getElementById('demo-subcategory').value || '';
-      if (!amount || !note || !kind) return;
-      tx.push({ kind, amount, note, category, subcategory, createdAt: Date.now() });
-      render();
-      e.target.reset();
-      fillCategories(kind);
-    });
-
-    // Exit intent (desktop)
-    let exitShown = false;
-    function onMouseOut(e){
-      if (exitShown) return;
-      if (e.clientY <= 0) {
-        document.getElementById('exit-modal-overlay').style.display='flex';
-        exitShown = true;
-        try { if (typeof gtag==='function') gtag('event','exit_modal_show',{ lang:'en' }); } catch(e){}
+      // Fallback: Supabase session
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('supabase.auth')) {
+          try {
+            const data = JSON.parse(localStorage.getItem(key));
+            if (data && (data.user || data.currentSession?.user)) {
+              const u = data.user || data.currentSession.user;
+              return { name: u.user_metadata?.full_name || (u.email?.split('@')[0]) || 'User', email: u.email };
+            }
+          } catch(e){}
+        }
       }
+    } catch(e){}
+    return null;
+  }
+
+  function logout() {
+    try {
+      localStorage.removeItem('mhb_user');
+      // clean supabase keys
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.includes('supabase')) localStorage.removeItem(k);
+      }
+    } catch(e){}
+    window.location.href = '/en/login.html';
+  }
+
+  const user = getUser();
+  const isLoggedIn = !!user;
+
+  // Update topbar (add Dashboard and keep Pricing when logged in)
+  const topbarActions = document.getElementById('topbar-actions');
+  if (topbarActions) {
+    if (isLoggedIn) {
+      // If the user is logged in, show different links.
+      topbarActions.innerHTML = `
+        <a class="top-link" href="/en/dashboard.html">Dashboard</a>
+        <a class="top-link" href="/en/pricing.html">Pricing</a>
+        <span class="user-greeting">Hi, <strong>${user.name}</strong></span>
+        <button class="btn-logout" id="btn-logout">Log out</button>
+      `;
+      document.getElementById('btn-logout').addEventListener('click', logout);
+      // Hide language selector and hamburger menu if logged in
+      const langSelector = document.querySelector('.lang-selector');
+      if(langSelector) langSelector.style.display = 'none';
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      if(mobileMenuBtn) mobileMenuBtn.style.display = 'none';
+
     }
-    document.addEventListener('mouseout', onMouseOut);
-    document.getElementById('exit-modal-close')?.addEventListener('click', () => {
-      document.getElementById('exit-modal-overlay').style.display='none';
+  }
+
+  // ====== HERO A/B VARIANT + HEADLINE ROTATOR ======
+  const urlParams = new URLSearchParams(window.location.search);
+  const variant = urlParams.get('v') === '2' ? 'v2' : 'v1';
+
+  const rotatingParts = [
+    'your home budget',
+    'your income and expenses',
+    'your financial goals'
+  ];
+  let currentHeadlineIndex = 0;
+  let headlineTimer = null;
+
+  function rotateHeadline() {
+    const rotatingEl = document.querySelector('.headline-rotating');
+    if (!rotatingEl || prefersReducedMotion) return;
+    rotatingEl.style.transition = 'opacity 0.5s';
+    rotatingEl.style.opacity = '0';
+    setTimeout(() => {
+      currentHeadlineIndex = (currentHeadlineIndex + 1) % rotatingParts.length;
+      rotatingEl.textContent = rotatingParts[currentHeadlineIndex];
+      rotatingEl.style.opacity = '1';
+    }, 500);
+  }
+  
+  function startHeadlineRotate(){
+    if (prefersReducedMotion || headlineTimer) return;
+    headlineTimer = setInterval(rotateHeadline, 7000);
+  }
+  
+  function stopHeadlineRotate(){
+    if (!headlineTimer) return;
+    clearInterval(headlineTimer);
+    headlineTimer = null;
+  }
+
+  const heroContent = document.getElementById('hero-content');
+  if (heroContent) {
+    const heroHeadlineHTML = `Manage <span class="headline-rotating">${rotatingParts[0]}</span> with ease`;
+
+    if (variant === 'v2') {
+      heroContent.className = 'hero-content hero-v2';
+      heroContent.innerHTML = `
+        <div class="hero-mockup">
+          <img src="/social.png" alt="MyHomesBudget Dashboard" loading="eager" width="700" height="394">
+        </div>
+        <h1>${heroHeadlineHTML}</h1>
+        <p>Enter your expenses and income in just a few clicks and keep everything under control.</p>
+        <div class="hero-cta-row">
+          <a href="/en/login.html" class="btn btn-primary" data-variant="v2">Log in</a>
+          <a href="/en/pricing.html" class="btn btn-secondary" data-variant="v2">See plans</a>
+        </div>
+      `;
+    } else {
+      heroContent.className = 'hero-content hero-v1';
+      heroContent.innerHTML = `
+        <div class="hero-text">
+          <h1>${heroHeadlineHTML}</h1>
+          <p>Enter your expenses and income in just a few clicks and keep everything under control.</p>
+          <div class="hero-cta-row">
+            <a href="/en/login.html" class="btn btn-primary" data-variant="v1">Log in</a>
+            <a href="/en/pricing.html" class="btn btn-secondary" data-variant="v1">See plans</a>
+          </div>
+        </div>
+        <div class="hero-mockup">
+          <img src="/social.png" alt="MyHomesBudget Dashboard" loading="eager" width="600" height="338">
+        </div>
+      `;
+    }
+
+    heroContent.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => safeGtag('cta_hero_click', { label: btn.dataset.variant || 'v1' }));
     });
 
-    // Lead magnet
-    (function(){
-      const lm = document.getElementById('lead-magnet');
-      const closeBtn = document.getElementById('close-lead');
-      setTimeout(() => lm.classList.remove('hidden'), 5000);
-      closeBtn?.addEventListener('click', () => lm.classList.add('hidden'));
-      document.getElementById('lead-form')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        lm.classList.add('hidden');
-        try { if (typeof gtag==='function') gtag('event','lead_submit',{ lang:'en' }); } catch(e){}
-        alert('Thanks! We will email you the starter kit.');
+    if (!prefersReducedMotion) {
+      startHeadlineRotate();
+      heroContent.addEventListener('mouseenter', stopHeadlineRotate);
+      heroContent.addEventListener('mouseleave', startHeadlineRotate);
+    }
+  }
+
+  // ====== PARALLAX (orb) ======
+  if (!prefersReducedMotion && !isMobile) {
+    const heroSection = document.getElementById('hero-section');
+    const heroOrb = document.querySelector('.hero-orb');
+    if (heroSection && heroOrb) {
+      heroSection.addEventListener('mousemove', (e) => {
+        requestAnimationFrame(() => {
+          const rect = heroSection.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          heroOrb.style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+        });
       });
-    })();
-  </script>
+    }
+  }
+
+  // ====== REVEAL ANIMATION ======
+  const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+  document.querySelectorAll('.reveal').forEach(el => {
+    if (!prefersReducedMotion) revealObserver.observe(el); else el.classList.add('visible');
+  });
+
+  // ====== STICKY CTA BAR ======
+  const stickyCta = document.getElementById('sticky-cta-bar');
+  function updateStickyCta() {
+    const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    if (scrollPercent > 40 && scrollPercent < 95) {
+      stickyCta.classList.add('visible');
+      stickyCta.setAttribute('aria-hidden', 'false');
+    } else {
+      stickyCta.classList.remove('visible');
+      stickyCta.setAttribute('aria-hidden', 'true');
+    }
+  }
+  updateStickyCta();
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => { updateStickyCta(); ticking = false; });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  stickyCta.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', () => safeGtag('cta_sticky_click', { label: btn.dataset.gaLabel }));
+  });
+
+  // ====== DEMO-LIGHT ======
+  const demoPreview = document.getElementById('demo-preview');
+  const demoImg = demoPreview?.querySelector('img');
+  if (demoImg) {
+    const onLoad = () => { demoImg.classList.add('loaded'); demoPreview.classList.add('loaded'); };
+    demoImg.addEventListener('load', onLoad);
+    if (demoImg.complete) onLoad();
+  }
+
+  const btnDemo = document.getElementById('btn-demo-flow');
+  const demoSim = document.getElementById('demo-sim');
+  const demoForm = document.getElementById('demo-form');
+  const demoResults = document.getElementById('demo-results');
+  
+  const demoCategories = {
+    expense: [
+      { id: 'home', name: '🏠 Home', subs: ['Rent', 'Bills', 'Maintenance'] },
+      { id: 'groceries', name: '🛒 Groceries', subs: ['Supermarket', 'Restaurants', 'Coffee'] },
+      { id: 'transport', name: '🚗 Transport', subs: ['Gas', 'Public transport', 'Parking'] },
+      { id: 'health', name: '💊 Health', subs: ['Doctor', 'Pharmacy', 'Gym'] },
+      { id: 'leisure', name: '🎬 Leisure', subs: ['Cinema', 'Books', 'Hobby'] }
+    ],
+    income: [
+      { id: 'salary', name: '💼 Salary', subs: [] },
+      { id: 'freelance', name: '💻 Freelance', subs: [] },
+      { id: 'other', name: '💰 Other', subs: [] }
+    ]
+  };
+
+  let demoTransactions = [];
+  let demoCategoryTotals = {};
+
+  function populateDemoCategories(kind) {
+    const catSelect = document.getElementById('demo-category');
+    const subSelect = document.getElementById('demo-subcategory');
+    catSelect.innerHTML = '<option value="">-- Select --</option>';
+    subSelect.innerHTML = '<option value="">-- Select --</option>';
+    
+    const cats = demoCategories[kind] || [];
+    cats.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      opt.dataset.subs = JSON.stringify(cat.subs);
+      catSelect.appendChild(opt);
+    });
+  }
+
+  function updateDemoSubcategories() {
+    const catSelect = document.getElementById('demo-category');
+    const subSelect = document.getElementById('demo-subcategory');
+    const selectedOpt = catSelect.options[catSelect.selectedIndex];
+    
+    subSelect.innerHTML = '<option value="">-- None --</option>';
+    if (selectedOpt && selectedOpt.dataset.subs) {
+      const subs = JSON.parse(selectedOpt.dataset.subs);
+      subs.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = sub;
+        opt.textContent = sub;
+        subSelect.appendChild(opt);
+      });
+    }
+  }
+
+  if (btnDemo) {
+    btnDemo.addEventListener('click', () => {
+      demoSim.classList.add('active');
+      btnDemo.style.display = 'none';
+      populateDemoCategories('expense');
+    });
+  }
+
+  const demoCloseBtn = document.getElementById('demo-close-btn');
+  if (demoCloseBtn) {
+    demoCloseBtn.addEventListener('click', () => {
+      demoSim.classList.remove('active');
+      btnDemo.style.display = '';
+      demoTransactions = [];
+      demoCategoryTotals = {};
+      demoForm.reset();
+      demoResults.style.display = 'none';
+    });
+  }
+
+  if (demoForm) {
+    document.getElementById('demo-kind').addEventListener('change', (e) => {
+      populateDemoCategories(e.target.value);
+    });
+
+    document.getElementById('demo-category').addEventListener('change', updateDemoSubcategories);
+
+    demoForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const kind = document.getElementById('demo-kind').value;
+      const amount = parseFloat(document.getElementById('demo-amount').value) || 0;
+      const note = document.getElementById('demo-note').value;
+      const catId = document.getElementById('demo-category').value;
+      const catText = document.getElementById('demo-category').options[document.getElementById('demo-category').selectedIndex].text;
+      const subText = document.getElementById('demo-subcategory').value || '';
+
+      if (!catId || amount <= 0) return;
+
+      demoTransactions.unshift({
+        kind, amount, note, catId, catText, subText, 
+        date: new Date().toLocaleDateString('en-US')
+      });
+
+      const key = `${kind}-${catId}`;
+      if (!demoCategoryTotals[key]) {
+        demoCategoryTotals[key] = { kind, catId, catText, total: 0 };
+      }
+      demoCategoryTotals[key].total += amount;
+
+      demoForm.reset();
+      document.getElementById('demo-kind').value = kind;
+      populateDemoCategories(kind);
+
+      renderDemoResults();
+    });
+  }
+
+  function renderDemoResults() {
+    demoResults.style.display = 'block';
+
+    let totalIncome = 0, totalExpense = 0;
+    demoTransactions.forEach(t => {
+      if (t.kind === 'income') totalIncome += t.amount;
+      else totalExpense += t.amount;
+    });
+
+    document.getElementById('demo-total-income').textContent = `€${totalIncome.toFixed(2)}`;
+    document.getElementById('demo-total-expense').textContent = `€${totalExpense.toFixed(2)}`;
+
+    const donutWrapper = document.getElementById('demo-donut-wrapper');
+    if (totalIncome > 0 && totalExpense > 0) {
+      const total = totalIncome + totalExpense;
+      const incomePercent = (totalIncome / total) * 100;
+      const circumference = 2 * Math.PI * 90;
+      
+      const incomeArc = (incomePercent / 100) * circumference;
+      const expenseArc = circumference - incomeArc;
+      
+      const incomeCircle = document.getElementById('demo-donut-income');
+      const expenseCircle = document.getElementById('demo-donut-expense');
+      
+      incomeCircle.style.strokeDasharray = `${incomeArc} ${circumference}`;
+      incomeCircle.style.strokeDashoffset = '0';
+      
+      expenseCircle.style.strokeDasharray = `${expenseArc} ${circumference}`;
+      expenseCircle.style.strokeDashoffset = `-${incomeArc}`;
+      
+      const balance = totalIncome - totalExpense;
+      const balanceEl = document.getElementById('demo-donut-balance');
+      balanceEl.textContent = `€${Math.abs(balance).toFixed(2)}`;
+      balanceEl.style.background = balance >= 0 
+        ? 'linear-gradient(135deg,#27ae60,#2ecc71)' 
+        : 'linear-gradient(135deg,#e74c3c,#ec7063)';
+      balanceEl.style.webkitBackgroundClip = 'text';
+      balanceEl.style.backgroundClip = 'text';
+      balanceEl.style.color = 'transparent';
+      
+      donutWrapper.classList.add('show');
+    } else {
+      donutWrapper.classList.remove('show');
+    }
+
+    const categoriesDiv = document.getElementById('demo-categories');
+    categoriesDiv.innerHTML = '';
+
+    const maxTotal = Math.max(...Object.values(demoCategoryTotals).map(c => c.total), 1);
+    
+    Object.values(demoCategoryTotals).forEach(cat => {
+      const percent = (cat.total / maxTotal) * 100;
+      const div = document.createElement('div');
+      div.className = 'demo-category-item';
+      div.innerHTML = `
+        <div class="demo-category-header">
+          <div class="demo-category-name">${cat.catText}</div>
+          <div class="demo-category-total">€${cat.total.toFixed(2)}</div>
+        </div>
+        <div class="demo-category-bar">
+          <div class="demo-category-bar-fill" style="width:${percent}%"></div>
+        </div>
+      `;
+      categoriesDiv.appendChild(div);
+    });
+
+    const transactionsDiv = document.getElementById('demo-transactions-list');
+    transactionsDiv.innerHTML = '';
+    demoTransactions.slice(0, 5).forEach(t => {
+      const div = document.createElement('div');
+      div.className = `demo-transaction-item ${t.kind}`;
+      div.innerHTML = `
+        <div class="demo-transaction-info">
+          <div class="demo-transaction-note">${t.note}</div>
+          <div class="demo-transaction-cat">${t.catText}${t.subText ? ' • ' + t.subText : ''}</div>
+        </div>
+        <div class="demo-transaction-amount">${t.kind === 'income' ? '+' : '-'}€${t.amount.toFixed(2)}</div>
+      `;
+      transactionsDiv.appendChild(div);
+    });
+  }
+
+  // ====== LEAD MAGNET ======
+  if (!isLoggedIn) {
+    const leadMagnet = document.getElementById('lead-magnet');
+    const closeLead = document.getElementById('close-lead');
+    const leadForm = document.getElementById('lead-form');
+
+    try {
+      const leadShown = sessionStorage.getItem('mhb_lead_shown');
+      const leadDismissed = localStorage.getItem('mhb_lead_dismissed');
+      if (!leadShown && !leadDismissed) {
+        setTimeout(() => {
+          leadMagnet.classList.remove('hidden');
+          sessionStorage.setItem('mhb_lead_shown', '1');
+        }, 8000);
+      }
+    } catch(e){}
+
+    if (closeLead) {
+      closeLead.addEventListener('click', () => {
+        leadMagnet.classList.add('hidden');
+        try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
+      });
+    }
+
+    if (leadForm) {
+      leadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = leadForm.querySelector('input[type="email"]').value;
+        safeGtag('lead_submit', { email_domain: (email.split('@')[1] || 'unknown') });
+        leadMagnet.innerHTML = '<p style="text-align:center;padding:40px 20px;color:#fff;">✅ Thanks! Check your email.</p>';
+        setTimeout(() => {
+          leadMagnet.classList.add('hidden');
+          try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
+        }, 3000);
+      });
+    }
+  }
+
+  // ====== EXIT-INTENT MODAL (with focus-trap & restore) ======
+  if (!isLoggedIn && isDesktop) {
+    const exitOverlay = document.getElementById('exit-modal-overlay');
+    const closeExitModal = document.getElementById('close-exit-modal');
+    const dialog = exitOverlay?.querySelector('.exit-modal');
+    let exitShown = false, lastFocused = null;
+
+    try { exitShown = sessionStorage.getItem('mhb_exit_shown') === '1'; } catch(e){}
+
+    const FOCUS_SELECTOR = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
+    function showExitModal() {
+      if (exitShown) return;
+      lastFocused = document.activeElement;
+      exitOverlay.classList.add('active');
+      exitShown = true;
+      try { sessionStorage.setItem('mhb_exit_shown','1'); } catch(e){}
+      safeGtag('exit_intent_open',{});
+
+      const focusable = Array.from(dialog.querySelectorAll(FOCUS_SELECTOR));
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (first) first.focus();
+
+      function onKeydown(e){
+        if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+        if (e.key === 'Tab' && focusable.length) {
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+      exitOverlay.addEventListener('keydown', onKeydown);
+      exitOverlay._trap = onKeydown;
+    }
+
+    function closeModal() {
+      exitOverlay.classList.remove('active');
+      if (exitOverlay._trap) exitOverlay.removeEventListener('keydown', exitOverlay._trap);
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }
+
+    document.addEventListener('mouseleave', (e) => { if (e.clientY < 10 && !exitShown) showExitModal(); });
+    if (closeExitModal) closeExitModal.addEventListener('click', closeModal);
+    exitOverlay.addEventListener('click', (e) => { if (e.target === exitOverlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && exitOverlay.classList.contains('active')) closeModal(); });
+  }
+
+  // MODIFICATION: Logic for mobile menu (from profile.html)
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const topActions = document.querySelector('.topbar-actions');
+
+  if (mobileMenuBtn && topActions) {
+    mobileMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = topActions.classList.toggle('is-open');
+      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', (e) => {
+      if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        topActions.classList.remove('is-open');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+
+  // ====== PAGE VIEW ======
+  safeGtag('view_landing', { lang: 'en', variant });
+
+})();
+</script>
 </body>
 </html>
