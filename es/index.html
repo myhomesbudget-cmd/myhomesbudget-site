@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MyHomesBudget — Presupuesto familiar simple</title>
-  <meta name="description" content="Gestiona ingresos, gastos y ahorros fácilmente. Prueba gratis durante 30 días.">
+  <title>MyHomesBudget — App para tu Presupuesto Familiar</title>
+  <meta name="description" content="Toma el control de tus finanzas familiares. MyHomesBudget te ayuda a registrar ingresos, gestionar gastos y alcanzar tus metas de ahorro. Prueba gratis por 30 días.">
 
   <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
@@ -62,11 +62,11 @@
   <link rel="alternate" href="https://www.myhomesbudget.com/en/" hreflang="en"/>
   <link rel="alternate" href="https://www.myhomesbudget.com/es/" hreflang="es"/>
   <link rel="alternate" href="https://www.myhomesbudget.com/" hreflang="x-default"/>
-  <meta property="og:title" content="MyHomesBudget — Gestiona tu presupuesto del hogar de forma simple e intuitiva"/>
-  <meta property="og:description" content="Registra tus gastos e ingresos con unos pocos clics y mantén todo bajo control. Prueba gratis durante 30 días."/>
+  <meta property="og:title" content="MyHomesBudget — Presupuesto y Control de Gastos Familiar"/>
+  <meta property="og:description" content="Registra gastos, gestiona ingresos y descubre a dónde va tu dinero con nuestra sencilla app de presupuestos. Empieza tu prueba gratuita de 30 días y toma el control."/>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://www.myhomesbudget.com/es/"/>
-  <meta property="og:image" content="https://www.myhomesbudget.com/social.png"/>
+  <meta property="og:image" content="https://www.myhomesbudget.com/social-es.png"/>
   <meta name="twitter:card" content="summary_large_image"/>
 
   <!-- Perf -->
@@ -1207,7 +1207,7 @@
           <p>Una vista previa del panel para gestionar ingresos, gastos y objetivos.</p>
           <div class="demo-preview" id="demo-preview">
             <div class="demo-skeleton"></div>
-            <img src="/social.png" alt="Vista previa del panel de MyHomesBudget" loading="lazy" decoding="async" width="800" height="450">
+            <img src="/social-es.png" alt="Vista previa del panel de MyHomesBudget" loading="lazy" decoding="async" width="800" height="450">
           </div>
           <div class="demo-actions">
             <button class="btn btn-demo" id="btn-demo-flow">Probar DEMO</button>
@@ -1667,19 +1667,19 @@
 
   const heroContent = document.getElementById('hero-content');
   if (heroContent) {
-    const heroHeadlineHTML = `Gestiona <span class="headline-rotating">${rotatingParts[0]}</span> con facilidad`;
+    const heroHeadlineHTML = `Gestiona <span class="headline-rotating">${rotatingParts[0]}</span> sin esfuerzo`;
 
     if (variant === 'v2') {
       heroContent.className = 'hero-content hero-v2';
       heroContent.innerHTML = `
         <div class="hero-mockup">
-          <img src="/social.png" alt="Panel de MyHomesBudget" loading="eager" width="700" height="394">
+          <img src="/social-es.png" alt="Panel de control de MyHomesBudget" loading="eager" width="700" height="394">
         </div>
         <h1>${heroHeadlineHTML}</h1>
-        <p>Registra tus gastos e ingresos con unos pocos clics y mantén todo bajo control.</p>
+        <p>Registra tus gastos, anota tus ingresos y descubre a dónde va cada euro. Todo en unos pocos clics.</p>
         <div class="hero-cta-row">
-          <a href="/es/login.html" class="btn btn-primary" data-variant="v2">Iniciar sesión</a>
-          <a href="/es/pricing.html" class="btn btn-secondary" data-variant="v2">Ver planes</a>
+          <a href="/es/login.html" class="btn btn-primary" data-variant="v2">Empieza Gratis</a>
+          <a href="/es/pricing.html" class="btn btn-secondary" data-variant="v2">Ver Planes</a>
         </div>
       `;
     } else {
@@ -1687,14 +1687,14 @@
       heroContent.innerHTML = `
         <div class="hero-text">
           <h1>${heroHeadlineHTML}</h1>
-          <p>Registra tus gastos e ingresos con unos pocos clics y mantén todo bajo control.</p>
+          <p>Registra tus gastos, anota tus ingresos y descubre a dónde va cada euro. Todo en unos pocos clics.</p>
           <div class="hero-cta-row">
-            <a href="/es/login.html" class="btn btn-primary" data-variant="v1">Iniciar sesión</a>
-            <a href="/es/pricing.html" class="btn btn-secondary" data-variant="v1">Ver planes</a>
+            <a href="/es/login.html" class="btn btn-primary" data-variant="v1">Empieza Gratis</a>
+            <a href="/es/pricing.html" class="btn btn-secondary" data-variant="v1">Ver Planes</a>
           </div>
         </div>
         <div class="hero-mockup">
-          <img src="/social.png" alt="Panel de MyHomesBudget" loading="eager" width="600" height="338">
+          <img src="/social-es.png" alt="Panel de control de MyHomesBudget" loading="eager" width="600" height="338">
         </div>
       `;
     }
@@ -1999,7 +1999,7 @@
         e.preventDefault();
         const email = leadForm.querySelector('input[type="email"]').value;
         safeGtag('lead_submit', { email_domain: (email.split('@')[1] || 'unknown') });
-        leadMagnet.innerHTML = '<p style="text-align:center;padding:40px 20px;color:#fff;">✅ ¡Gracias! Revisa tu correo electrónico.</p>';
+        leadMagnet.innerHTML = '<p style="text-align:center;padding:40px 20px;color:#fff;">✅ ¡Gracias! Revisa tu correo para descargar la guía.</p>';
         setTimeout(() => {
           leadMagnet.classList.add('hidden');
           try { localStorage.setItem('mhb_lead_dismissed','1'); } catch(e){}
