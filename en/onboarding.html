@@ -268,359 +268,370 @@
       }
       throw new Error("[MHB] Supabase client not found");
     }
-    const supabase = await loadSupabase();
 
-    /* ====== Topbar mobile toggle ====== */
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const topActions = document.querySelector('.top-actions');
-    if(mobileMenuBtn && topActions){
-      mobileMenuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); topActions.classList.toggle('is-open'); });
-      document.addEventListener('click', (e)=>{ if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) topActions.classList.remove('is-open'); });
-    }
-
-    /* ====== Onboarding State ====== */
-    const TOTAL_STEPS = 3;
-    const state = {
-      goal_type: null, 
-      goal_name: null, 
-      goal_target_amount: null,
-      goal_target_date: null,
-      contribution_method: null, 
-      contribution_amount: null,
-      categories: []
-    };
-    let currentStep = 1;
-    let user = null;
-
-    const backBtn = document.getElementById('back-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const progressBarInner = document.querySelector('.progress-bar-inner');
-    const stepIndicator = document.getElementById('step-indicator');
-    const errorBox = document.getElementById('error');
-    const steps = document.querySelectorAll('.step');
-
-    const langPrefix = () => (location.pathname.match(/^\/(en|eng)(\/|$)/i) 
-       ? `/${location.pathname.split('/')[1]}/` 
-       : "/en/");
-    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
-
-    /* ====== Suggestion for "Specific Goal" ====== */
-    function monthsBetween(a,b){
-      const A=new Date(a), B=new Date(b); if(isNaN(A)||isNaN(B)) return null;
-      let m=(B.getFullYear()-A.getFullYear())*12+(B.getMonth()-A.getMonth());
-      if(B.getDate()<A.getDate()) m-=1;
-      return Math.max(1,m);
-    }
-    function updateGoalSuggestion(){
-      const typeRadio = document.querySelector('input[name="goal_type"]:checked');
-      const box = document.getElementById('goal-suggestion');
-      if(!box){ return; }
-      if(!typeRadio || typeRadio.value!=='Obiettivo Specifico'){ box.textContent=''; return; }
-      const wrap = typeRadio.closest('div');
-      const amount = parseFloat(wrap.querySelector('input[name="goal_target_amount"]')?.value||'');
-      const date = wrap.querySelector('input[name="goal_target_date"]')?.value||'';
-      if(!amount || !date){ box.textContent=''; return; }
-      const m = monthsBetween(new Date().toISOString(), date);
-      if(!m){ box.textContent=''; return; }
-      const perMonth = Math.ceil((amount / m)*100)/100;
-      box.textContent = `Suggestion: ~€${perMonth}/month to reach the target by ${date}.`;
-    }
-    document.addEventListener('input', (e)=>{
-      const names = ['goal_target_amount','goal_target_date'];
-      if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion();
-    });
-    document.addEventListener('change', (e)=>{
-      if(e.target.name==='goal_type') updateGoalSuggestion();
-    });
-
-    /* ====== Step Rendering ====== */
-    function renderStep(n){
-      steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step,10)===n));
-      const progress = n>1 ? ((n-1)/(TOTAL_STEPS-1))*100 : 0;
-      progressBarInner.style.width = progress + '%';
-      (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
-      stepIndicator.textContent = `Step ${n} of ${TOTAL_STEPS}`;
-      backBtn.style.visibility = (n>1) ? 'visible' : 'hidden';
-      nextBtn.textContent = (n===TOTAL_STEPS) ? 'Finish' : 'Next';
-      showError('');
-      if(n===3) renderReview();
-    }
-
-    /* ====== Categories ====== */
-    function populateCategoriesFromDB(defaultCategories){
-      const incomeContainer = document.getElementById('income-category-options');
-      const expenseContainer = document.getElementById('expense-category-options');
-      if(incomeContainer.childElementCount>0) return;
-
-      defaultCategories.forEach((cat,i)=>{
-        const id='cat-'+i;
-        const w=document.createElement('div');
-        w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'>
-                       <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
-        (cat.kind==='income' ? incomeContainer : expenseContainer).appendChild(w);
-      });
-      updateCategoryCounters();
-    }
-    function updateCategoryCounters(){
-      const all=[...document.querySelectorAll('input[name="category"]')];
-      const sel=all.filter(i=>i.checked).map(i=>JSON.parse(i.value));
-      const inc=sel.filter(c=>c.kind==='income').length;
-      const exp=sel.filter(c=>c.kind!=='income').length;
-      const incEl=document.getElementById('count-income');
-      const expEl=document.getElementById('count-expense');
-      if(incEl) incEl.textContent = `${inc} selected`;
-      if(expEl) expEl.textContent = `${exp} selected`;
-    }
-    document.addEventListener('change',(e)=>{
-      if(e.target && e.target.name==='category'){ updateCategoryCounters(); if(currentStep===3) renderReview(); }
-      if(currentStep===3 && (e.target.name==='goal_type' || e.target.name==='contribution_method')) renderReview();
-    });
-    const catSearch=document.getElementById('cat-search');
-    if(catSearch){
-      catSearch.addEventListener('input',(e)=>{
-        const q=e.target.value.toLowerCase();
-        document.querySelectorAll('#income-category-options > div, #expense-category-options > div')
-          .forEach(w=>{
-            const label=w.textContent.toLowerCase();
-            w.style.display = label.includes(q)?'block':'none';
-          });
-      });
-    }
-    const presetMin=document.getElementById('preset-min');
-    const presetFull=document.getElementById('preset-full');
-    if(presetMin){
-      presetMin.addEventListener('click',()=>{
-        const boxes=[...document.querySelectorAll('input[name="category"]')];
-        boxes.forEach(b=>b.checked=false);
-        const incomes=boxes.filter(b=>JSON.parse(b.value).kind==='income').slice(0,2);
-        const expenses=boxes.filter(b=>JSON.parse(b.value).kind!=='income').slice(0,3);
-        [...incomes,...expenses].forEach(b=>b.checked=true);
-        updateCategoryCounters(); if(currentStep===3) renderReview();
-      });
-    }
-    if(presetFull){
-      presetFull.addEventListener('click',()=>{
-        document.querySelectorAll('input[name="category"]').forEach(b=> b.checked=true);
-        updateCategoryCounters(); if(currentStep===3) renderReview();
-      });
-    }
-
-    /* ====== Pre-select form data ====== */
-    function preselectFormData(profile){
-      if(profile){
-        // Pre-select Goal (step 1)
-        const typeRadio = document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
-        if(typeRadio){
-          typeRadio.checked=true;
-          const parentDiv=typeRadio.closest('div');
-          if(parentDiv.querySelector('input[name="goal_name"]')) parentDiv.querySelector('input[name="goal_name"]').value = profile.goal_name ?? '';
-          if(parentDiv.querySelector('input[name="goal_target_amount"]')) parentDiv.querySelector('input[name="goal_target_amount"]').value = profile.goal_target_amount ?? '';
-          if(parentDiv.querySelector('input[name="goal_target_date"]')) parentDiv.querySelector('input[name="goal_target_date"]').value = profile.goal_target_date ?? '';
-        }
-
-        // Pre-select Contribution Method (step 2)
-        const methodRadio = document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
-        if(methodRadio){
-          methodRadio.checked=true;
-          const parentDiv=methodRadio.closest('div');
-          if(parentDiv.querySelector('input[name="contribution_amount"]')) parentDiv.querySelector('input[name="contribution_amount"]').value = profile.contribution_amount ?? '';
-        }
-
-        // Pre-select Categories (step 3) - Reads from profiles.onboarding_categories
-        if (profile.onboarding_categories && Array.isArray(profile.onboarding_categories)) {
-          const selectedNames = profile.onboarding_categories.map(c => c.name);
-          document.querySelectorAll('input[name="category"]').forEach(checkbox => {
-            try {
-              const catObj = JSON.parse(checkbox.value);
-              if (selectedNames.includes(catObj.name)) {
-                checkbox.checked = true;
-              }
-            } catch(e){}
-          });
-        }
-      }
-      updateCategoryCounters();
-      updateGoalSuggestion();
-    }
-
-    /* ====== Review Summary ====== */
-    function renderReview(){
-      const goalInput = document.querySelector('input[name="goal_type"]:checked');
-      const goalLabelText = goalInput ? goalInput.nextElementSibling?.querySelector('strong')?.innerText || goalInput.value : null;
-      const tDiv=goalInput?.closest('div');
-      const name=tDiv?.querySelector('input[name="goal_name"]')?.value?.trim() || '';
-      const target=parseFloat(tDiv?.querySelector('input[name="goal_target_amount"]')?.value||'') || null;
-      const date=tDiv?.querySelector('input[name="goal_target_date"]')?.value || '';
-      
-      const methodInput = document.querySelector('input[name="contribution_method"]:checked');
-      const methodLabelText = methodInput ? methodInput.nextElementSibling?.querySelector('strong')?.innerText || methodInput.value : null;
-      const methodValue = methodInput?.value || null;
-      const mDiv=methodInput?.closest('div');
-      const amount=parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value||'') || null;
-      
-      const selected=[...document.querySelectorAll('input[name="category"]:checked')].map(i=>JSON.parse(i.value));
-      const inc=selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
-      const exp=selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
-
-      document.getElementById('rev-goal').textContent = goalLabelText || '—';
-      document.getElementById('rev-target').textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — by ${date}`:'') || '—';
-      document.getElementById('rev-method').textContent = methodLabelText || '—';
-      
-      const paramText = (amount!=null && !Number.isNaN(amount))
-        ? (methodValue === 'Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/month`)
-        : '—';
-      document.getElementById('rev-param').textContent = paramText;
-
-      document.getElementById('rev-inc').textContent = inc;
-      document.getElementById('rev-exp').textContent = exp;
-    }
-
-    /* ====== Validation ====== */
-    function validateAndUpdateState(n){
-      showError('');
-      if(n===1){
-        const typeRadio=document.querySelector('input[name="goal_type"]:checked');
-        if(!typeRadio){ showError('Please choose a goal.'); return false; }
-        state.goal_type = typeRadio.value;
-        const parentDiv = typeRadio.closest('div');
-        const nameInput  = parentDiv.querySelector('input[name="goal_name"]');
-        const amountInput= parentDiv.querySelector('input[name="goal_target_amount"]');
-        if(!nameInput || !amountInput){ showError('Internal error, please reload.'); return false; }
-        if(!nameInput.value.trim()){ showError('Please enter a name for your goal.'); return false; }
-        if(amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Please enter a valid amount.'); return false; }
-        state.goal_name = nameInput.value.trim();
-        state.goal_target_amount = parseFloat(amountInput.value);
-        
-        state.goal_target_date = null;
-        if(state.goal_type === 'Obiettivo Specifico'){ // Keep Italian value for logic
-            const dateInput = parentDiv.querySelector('input[name="goal_target_date"]');
-            if(!dateInput || !dateInput.value){
-                showError('Please enter a target date for your goal.');
-                return false;
-            }
-            state.goal_target_date = dateInput.value;
-        }
-
-      } else if(n===2){
-        const methodRadio=document.querySelector('input[name="contribution_method"]:checked');
-        if(!methodRadio){ showError('Please choose a method.'); return false; }
-        state.contribution_method = methodRadio.value;
-        const parentDiv=methodRadio.closest('div');
-        const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
-        if(!amountInput || amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Please enter a valid amount or percentage.'); return false; }
-        state.contribution_amount = parseFloat(amountInput.value);
-      } else if(n===3){
-        const sel=[...document.querySelectorAll('input[name="category"]:checked')].map(e=>JSON.parse(e.value));
-        if(!sel.length){ showError('Please select at least one category.'); return false; }
-        state.categories = sel;
-      }
-      return true;
-    }
-
-    /* ====== Save Data ====== */
-    async function saveOnboardingToSupabase(user) {
-      nextBtn.disabled = true;
-      nextBtn.textContent = 'Saving...';
-
+    async function initializeApp() {
       try {
-        const profileUpdateData = {
-          onboarded: true,
-          goal_type: state.goal_type,
-          goal_name: state.goal_name,
-          goal_target_amount: state.goal_target_amount,
-          goal_target_date: state.goal_target_date,
-          contribution_method: state.contribution_method,
-          contribution_amount: state.contribution_amount,
-          onboarding_categories: state.categories
+        const supabase = await loadSupabase();
+        
+        /* ====== Topbar mobile toggle ====== */
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const topActions = document.querySelector('.top-actions');
+        if(mobileMenuBtn && topActions){
+          mobileMenuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); topActions.classList.toggle('is-open'); });
+          document.addEventListener('click', (e)=>{ if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) topActions.classList.remove('is-open'); });
+        }
+
+        /* ====== Onboarding State ====== */
+        const TOTAL_STEPS = 3;
+        const state = {
+          goal_type: null, 
+          goal_name: null, 
+          goal_target_amount: null,
+          goal_target_date: null,
+          contribution_method: null, 
+          contribution_amount: null,
+          categories: []
         };
+        let currentStep = 1;
+        let user = null;
 
-        const { error } = await supabase
-          .from('profiles')
-          .update(profileUpdateData)
-          .eq('id', user.id);
+        const backBtn = document.getElementById('back-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const progressBarInner = document.querySelector('.progress-bar-inner');
+        const stepIndicator = document.getElementById('step-indicator');
+        const errorBox = document.getElementById('error');
+        const steps = document.querySelectorAll('.step');
 
-        if (error) {
-          console.error("Supabase Error (profiles.update):", error);
-          throw new Error("Error while updating your profile. Check RLS policies on 'profiles'.");
+        const langPrefix = () => (location.pathname.match(/^\/(en|eng)(\/|$)/i) 
+           ? `/${location.pathname.split('/')[1]}/` 
+           : "/en/");
+        const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
+
+        /* ====== Suggestion for "Specific Goal" ====== */
+        function monthsBetween(a,b){
+          const A=new Date(a), B=new Date(b); if(isNaN(A)||isNaN(B)) return null;
+          let m=(B.getFullYear()-A.getFullYear())*12+(B.getMonth()-A.getMonth());
+          if(B.getDate()<A.getDate()) m-=1;
+          return Math.max(1,m);
         }
-        
-        return true;
-
-      } catch (err) {
-        console.error('Save error:', err);
-        showError(err.message || 'A critical error occurred. Please try again.');
-        nextBtn.disabled = false;
-        nextBtn.textContent = 'Finish';
-        return false;
-      }
-    }
-
-
-    /* ====== Initialize Page ====== */
-    async function initializePage(){
-      try{
-        try { localStorage.setItem('mhb_lang','en'); } catch(e){}
-        
-        const { data } = await supabase.auth.getUser();
-        if(!data.user){ location.replace(langPrefix()+'login.html'); return; }
-        user = data.user;
-
-        const [profileRes, defaultCatRes] = await Promise.all([
-          supabase.from('profiles').select('*').eq('id', user.id).single(),
-          supabase.from('default_categories').select('name, icon, kind').order('id'),
-        ]);
-
-        for(const res of [profileRes, defaultCatRes]){
-          if(res.error && res.error.code !== 'PGRST116'){ 
-             console.error('Data loading error:', res.error); 
-             showError('Unable to load data. Please reload the page.'); 
-             return; 
-          }
+        function updateGoalSuggestion(){
+          const typeRadio = document.querySelector('input[name="goal_type"]:checked');
+          const box = document.getElementById('goal-suggestion');
+          if(!box){ return; }
+          if(!typeRadio || typeRadio.value!=='Obiettivo Specifico'){ box.textContent=''; return; }
+          const wrap = typeRadio.closest('div');
+          const amount = parseFloat(wrap.querySelector('input[name="goal_target_amount"]')?.value||'');
+          const date = wrap.querySelector('input[name="goal_target_date"]')?.value||'';
+          if(!amount || !date){ box.textContent=''; return; }
+          const m = monthsBetween(new Date().toISOString(), date);
+          if(!m){ box.textContent=''; return; }
+          const perMonth = Math.ceil((amount / m)*100)/100;
+          box.textContent = `Suggestion: ~€${perMonth}/month to reach the target by ${date}.`;
         }
-        
-        const profile = profileRes.data;
-        const defaultCategories = defaultCatRes.data || [];
-        
-        const params = new URLSearchParams(location.search);
-        const force = params.get('force') === '1' || sessionStorage.getItem('onboarding_force') === '1';
-        const step  = parseInt(params.get('step') || sessionStorage.getItem('onboarding_step') || '1', 10);
-        
-        sessionStorage.removeItem('onboarding_force');
-        sessionStorage.removeItem('onboarding_step');
-
-        if (profile?.onboarded && force) {
-            currentStep = step;
-        } else if (profile?.onboarded && !force) {
-            location.replace(langPrefix() + 'dashboard.html');
-            return;
-        }
-
-        populateCategoriesFromDB(defaultCategories);
-        preselectFormData(profile);
-        renderStep(currentStep);
-
-        nextBtn.addEventListener('click', async ()=>{
-          if(!validateAndUpdateState(currentStep)) return;
-          if(currentStep===TOTAL_STEPS){
-            const success = await saveOnboardingToSupabase(user);
-            if(success) {
-              const returnTo = sessionStorage.getItem('mhb_onboarding_return_to') || (langPrefix() + 'dashboard.html');
-              sessionStorage.removeItem('mhb_onboarding_return_to');
-              location.replace(returnTo);
-            }
-          }else{
-            currentStep++; renderStep(currentStep);
-          }
+        document.addEventListener('input', (e)=>{
+          const names = ['goal_target_amount','goal_target_date'];
+          if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion();
         });
-        backBtn.addEventListener('click', ()=>{ if(currentStep>1){ currentStep--; renderStep(currentStep); } });
-        logoutBtn.addEventListener('click', async (e)=>{ e.preventDefault(); await supabase.auth.signOut(); location.replace(langPrefix()); });
-      }catch(e){
-        console.error('Critical initialization error:', e);
-        showError('An unexpected error occurred. Please reload the page.');
+        document.addEventListener('change', (e)=>{
+          if(e.target.name==='goal_type') updateGoalSuggestion();
+        });
+
+        /* ====== Step Rendering ====== */
+        function renderStep(n){
+          steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step,10)===n));
+          const progress = n>1 ? ((n-1)/(TOTAL_STEPS-1))*100 : 0;
+          progressBarInner.style.width = progress + '%';
+          (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
+          stepIndicator.textContent = `Step ${n} of ${TOTAL_STEPS}`;
+          backBtn.style.visibility = (n>1) ? 'visible' : 'hidden';
+          nextBtn.textContent = (n===TOTAL_STEPS) ? 'Finish' : 'Next';
+          showError('');
+          if(n===3) renderReview();
+        }
+
+        /* ====== Categories ====== */
+        function populateCategoriesFromDB(defaultCategories){
+          const incomeContainer = document.getElementById('income-category-options');
+          const expenseContainer = document.getElementById('expense-category-options');
+          if(incomeContainer.childElementCount>0) return;
+
+          defaultCategories.forEach((cat,i)=>{
+            const id='cat-'+i;
+            const w=document.createElement('div');
+            w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'>
+                           <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
+            (cat.kind==='income' ? incomeContainer : expenseContainer).appendChild(w);
+          });
+          updateCategoryCounters();
+        }
+        function updateCategoryCounters(){
+          const all=[...document.querySelectorAll('input[name="category"]')];
+          const sel=all.filter(i=>i.checked).map(i=>JSON.parse(i.value));
+          const inc=sel.filter(c=>c.kind==='income').length;
+          const exp=sel.filter(c=>c.kind!=='income').length;
+          const incEl=document.getElementById('count-income');
+          const expEl=document.getElementById('count-expense');
+          if(incEl) incEl.textContent = `${inc} selected`;
+          if(expEl) expEl.textContent = `${exp} selected`;
+        }
+        document.addEventListener('change',(e)=>{
+          if(e.target && e.target.name==='category'){ updateCategoryCounters(); if(currentStep===3) renderReview(); }
+          if(currentStep===3 && (e.target.name==='goal_type' || e.target.name==='contribution_method')) renderReview();
+        });
+        const catSearch=document.getElementById('cat-search');
+        if(catSearch){
+          catSearch.addEventListener('input',(e)=>{
+            const q=e.target.value.toLowerCase();
+            document.querySelectorAll('#income-category-options > div, #expense-category-options > div')
+              .forEach(w=>{
+                const label=w.textContent.toLowerCase();
+                w.style.display = label.includes(q)?'block':'none';
+              });
+          });
+        }
+        const presetMin=document.getElementById('preset-min');
+        const presetFull=document.getElementById('preset-full');
+        if(presetMin){
+          presetMin.addEventListener('click',()=>{
+            const boxes=[...document.querySelectorAll('input[name="category"]')];
+            boxes.forEach(b=>b.checked=false);
+            const incomes=boxes.filter(b=>JSON.parse(b.value).kind==='income').slice(0,2);
+            const expenses=boxes.filter(b=>JSON.parse(b.value).kind!=='income').slice(0,3);
+            [...incomes,...expenses].forEach(b=>b.checked=true);
+            updateCategoryCounters(); if(currentStep===3) renderReview();
+          });
+        }
+        if(presetFull){
+          presetFull.addEventListener('click',()=>{
+            document.querySelectorAll('input[name="category"]').forEach(b=> b.checked=true);
+            updateCategoryCounters(); if(currentStep===3) renderReview();
+          });
+        }
+
+        /* ====== Pre-select form data ====== */
+        function preselectFormData(profile){
+          if(profile){
+            // Pre-select Goal (step 1)
+            const typeRadio = document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
+            if(typeRadio){
+              typeRadio.checked=true;
+              const parentDiv=typeRadio.closest('div');
+              if(parentDiv.querySelector('input[name="goal_name"]')) parentDiv.querySelector('input[name="goal_name"]').value = profile.goal_name ?? '';
+              if(parentDiv.querySelector('input[name="goal_target_amount"]')) parentDiv.querySelector('input[name="goal_target_amount"]').value = profile.goal_target_amount ?? '';
+              if(parentDiv.querySelector('input[name="goal_target_date"]')) parentDiv.querySelector('input[name="goal_target_date"]').value = profile.goal_target_date ?? '';
+            }
+
+            // Pre-select Contribution Method (step 2)
+            const methodRadio = document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
+            if(methodRadio){
+              methodRadio.checked=true;
+              const parentDiv=methodRadio.closest('div');
+              if(parentDiv.querySelector('input[name="contribution_amount"]')) parentDiv.querySelector('input[name="contribution_amount"]').value = profile.contribution_amount ?? '';
+            }
+
+            // Pre-select Categories (step 3) - Reads from profiles.onboarding_categories
+            if (profile.onboarding_categories && Array.isArray(profile.onboarding_categories)) {
+              const selectedNames = profile.onboarding_categories.map(c => c.name);
+              document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+                try {
+                  const catObj = JSON.parse(checkbox.value);
+                  if (selectedNames.includes(catObj.name)) {
+                    checkbox.checked = true;
+                  }
+                } catch(e){}
+              });
+            }
+          }
+          updateCategoryCounters();
+          updateGoalSuggestion();
+        }
+
+        /* ====== Review Summary ====== */
+        function renderReview(){
+          const goalInput = document.querySelector('input[name="goal_type"]:checked');
+          const goalLabelText = goalInput ? goalInput.nextElementSibling?.querySelector('strong')?.innerText || goalInput.value : null;
+          const tDiv=goalInput?.closest('div');
+          const name=tDiv?.querySelector('input[name="goal_name"]')?.value?.trim() || '';
+          const target=parseFloat(tDiv?.querySelector('input[name="goal_target_amount"]')?.value||'') || null;
+          const date=tDiv?.querySelector('input[name="goal_target_date"]')?.value || '';
+          
+          const methodInput = document.querySelector('input[name="contribution_method"]:checked');
+          const methodLabelText = methodInput ? methodInput.nextElementSibling?.querySelector('strong')?.innerText || methodInput.value : null;
+          const methodValue = methodInput?.value || null;
+          const mDiv=methodInput?.closest('div');
+          const amount=parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value||'') || null;
+          
+          const selected=[...document.querySelectorAll('input[name="category"]:checked')].map(i=>JSON.parse(i.value));
+          const inc=selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
+          const exp=selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
+
+          document.getElementById('rev-goal').textContent = goalLabelText || '—';
+          document.getElementById('rev-target').textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — by ${date}`:'') || '—';
+          document.getElementById('rev-method').textContent = methodLabelText || '—';
+          
+          const paramText = (amount!=null && !Number.isNaN(amount))
+            ? (methodValue === 'Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/month`)
+            : '—';
+          document.getElementById('rev-param').textContent = paramText;
+
+          document.getElementById('rev-inc').textContent = inc;
+          document.getElementById('rev-exp').textContent = exp;
+        }
+
+        /* ====== Validation ====== */
+        function validateAndUpdateState(n){
+          showError('');
+          if(n===1){
+            const typeRadio=document.querySelector('input[name="goal_type"]:checked');
+            if(!typeRadio){ showError('Please choose a goal.'); return false; }
+            state.goal_type = typeRadio.value;
+            const parentDiv = typeRadio.closest('div');
+            const nameInput  = parentDiv.querySelector('input[name="goal_name"]');
+            const amountInput= parentDiv.querySelector('input[name="goal_target_amount"]');
+            if(!nameInput || !amountInput){ showError('Internal error, please reload.'); return false; }
+            if(!nameInput.value.trim()){ showError('Please enter a name for your goal.'); return false; }
+            if(amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Please enter a valid amount.'); return false; }
+            state.goal_name = nameInput.value.trim();
+            state.goal_target_amount = parseFloat(amountInput.value);
+            
+            state.goal_target_date = null;
+            if(state.goal_type === 'Obiettivo Specifico'){ // Keep Italian value for logic
+                const dateInput = parentDiv.querySelector('input[name="goal_target_date"]');
+                if(!dateInput || !dateInput.value){
+                    showError('Please enter a target date for your goal.');
+                    return false;
+                }
+                state.goal_target_date = dateInput.value;
+            }
+
+          } else if(n===2){
+            const methodRadio=document.querySelector('input[name="contribution_method"]:checked');
+            if(!methodRadio){ showError('Please choose a method.'); return false; }
+            state.contribution_method = methodRadio.value;
+            const parentDiv=methodRadio.closest('div');
+            const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
+            if(!amountInput || amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Please enter a valid amount or percentage.'); return false; }
+            state.contribution_amount = parseFloat(amountInput.value);
+          } else if(n===3){
+            const sel=[...document.querySelectorAll('input[name="category"]:checked')].map(e=>JSON.parse(e.value));
+            if(!sel.length){ showError('Please select at least one category.'); return false; }
+            state.categories = sel;
+          }
+          return true;
+        }
+
+        /* ====== Save Data ====== */
+        async function saveOnboardingToSupabase(user) {
+          nextBtn.disabled = true;
+          nextBtn.textContent = 'Saving...';
+
+          try {
+            const profileUpdateData = {
+              onboarded: true,
+              goal_type: state.goal_type,
+              goal_name: state.goal_name,
+              goal_target_amount: state.goal_target_amount,
+              goal_target_date: state.goal_target_date,
+              contribution_method: state.contribution_method,
+              contribution_amount: state.contribution_amount,
+              onboarding_categories: state.categories
+            };
+
+            const { error } = await supabase
+              .from('profiles')
+              .update(profileUpdateData)
+              .eq('id', user.id);
+
+            if (error) {
+              console.error("Supabase Error (profiles.update):", error);
+              throw new Error("Error while updating your profile. Check RLS policies on 'profiles'.");
+            }
+            
+            return true;
+
+          } catch (err) {
+            console.error('Save error:', err);
+            showError(err.message || 'A critical error occurred. Please try again.');
+            nextBtn.disabled = false;
+            nextBtn.textContent = 'Finish';
+            return false;
+          }
+        }
+
+        /* ====== Initialize Page ====== */
+        async function main() {
+          try {
+            try { localStorage.setItem('mhb_lang','en'); } catch(e){}
+            
+            const { data } = await supabase.auth.getUser();
+            if(!data.user){ location.replace(langPrefix()+'login.html'); return; }
+            user = data.user;
+
+            const [profileRes, defaultCatRes] = await Promise.all([
+              supabase.from('profiles').select('*').eq('id', user.id).single(),
+              supabase.from('default_categories').select('name, icon, kind').order('id'),
+            ]);
+
+            for(const res of [profileRes, defaultCatRes]){
+              if(res.error && res.error.code !== 'PGRST116'){ 
+                 console.error('Data loading error:', res.error); 
+                 showError('Unable to load data. Please reload the page.'); 
+                 return; 
+              }
+            }
+            
+            const profile = profileRes.data;
+            const defaultCategories = defaultCatRes.data || [];
+            
+            const params = new URLSearchParams(location.search);
+            const force = params.get('force') === '1' || sessionStorage.getItem('onboarding_force') === '1';
+            const step  = parseInt(params.get('step') || sessionStorage.getItem('onboarding_step') || '1', 10);
+            
+            sessionStorage.removeItem('onboarding_force');
+            sessionStorage.removeItem('onboarding_step');
+
+            if (profile?.onboarded && force) {
+                currentStep = step;
+            } else if (profile?.onboarded && !force) {
+                location.replace(langPrefix() + 'dashboard.html');
+                return;
+            }
+
+            populateCategoriesFromDB(defaultCategories);
+            preselectFormData(profile);
+            renderStep(currentStep);
+
+            nextBtn.addEventListener('click', async ()=>{
+              if(!validateAndUpdateState(currentStep)) return;
+              if(currentStep===TOTAL_STEPS){
+                const success = await saveOnboardingToSupabase(user);
+                if(success) {
+                  const returnTo = sessionStorage.getItem('mhb_onboarding_return_to') || (langPrefix() + 'dashboard.html');
+                  sessionStorage.removeItem('mhb_onboarding_return_to');
+                  location.replace(returnTo);
+                }
+              }else{
+                currentStep++; renderStep(currentStep);
+              }
+            });
+            backBtn.addEventListener('click', ()=>{ if(currentStep>1){ currentStep--; renderStep(currentStep); } });
+            logoutBtn.addEventListener('click', async (e)=>{ e.preventDefault(); await supabase.auth.signOut(); location.replace(langPrefix()); });
+          } catch(e) {
+            console.error('Critical initialization error:', e);
+            showError('An unexpected error occurred. Please reload the page.');
+          }
+        }
+        
+        main();
+        
+      } catch (e) {
+        console.error("Failed to load Supabase client:", e);
+        showError("Service temporarily unavailable. Please reload the page.");
       }
     }
-    document.addEventListener('DOMContentLoaded', initializePage);
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
