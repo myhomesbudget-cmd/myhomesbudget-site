@@ -143,7 +143,7 @@
 
   <main class="panel">
     <header class="header reveal">
-      <h1>Inicia Sesión</h1>
+      <h1>Iniciar Sesión</h1>
       <p>Accede a tu panel para gestionar tu presupuesto.</p>
     </header>
 
@@ -203,7 +203,28 @@
 
   <!-- Logic (Supabase + GIS) -->
   <script type="module">
-    import { supabase } from "/es/supabase-client.js";
+    async function loadSupabase() {
+      const candidates = [
+        "/es/supabase-client.js",
+        "/supabase-client.js",
+        "/it/supabase-client.js",
+        "/en/supabase-client.js"
+      ];
+      for (const p of candidates) {
+        try {
+          const mod = await import(p);
+          if (mod && mod.supabase) {
+            console.info("[MHB] Supabase client loaded from", p);
+            return mod.supabase;
+          }
+        } catch (e) {
+          // try next
+        }
+      }
+      throw new Error("[MHB] Supabase client not found in any known path");
+    }
+
+    const supabase = await loadSupabase();
 
     try { localStorage.setItem('mhb_lang','es'); } catch(e){}
     const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'es').toLowerCase();
