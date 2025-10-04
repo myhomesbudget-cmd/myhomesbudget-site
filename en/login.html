@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Log in to MyHomesBudget</title>
-  <meta name="description" content="Log in to manage your income, expenses, and savings with ease.">
+  <title>Sign In to MyHomesBudget</title>
+  <meta name="description" content="Sign in to manage your income, expenses, and savings with ease.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
   <script>document.documentElement.classList.add('js');</script>
@@ -131,7 +131,7 @@
 </head>
 <body>
   <nav class="topbar" aria-label="Top bar">
-    <a href="/en/" class="logo-link" title="MyHomesBudget">
+    <a href="/en/" class="logo-link" title="MyHomesBudget Home">
       <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="lazy"><span class="logo-text">MyHomesBudget</span>
     </a>
     <span class="lang-selector" aria-label="Language selector">
@@ -143,8 +143,8 @@
 
   <main class="panel">
     <header class="header reveal">
-      <h1>Log in to MyHomesBudget</h1>
-      <p>Access your dashboard to manage your expenses.</p>
+      <h1>Sign In to MyHomesBudget</h1>
+      <p>Access your dashboard to manage your budget.</p>
     </header>
 
     <!-- Email / Password -->
@@ -159,11 +159,11 @@
       </div>
       <div class="actions">
         <span>
-          No account? <a class="link" href="/en/signup.html">Sign up</a>
+          Don't have an account? <a class="link" href="/en/signup.html">Sign Up</a>
           &nbsp;·&nbsp;
           <a class="link" href="#" id="forgot-link">Forgot password?</a>
         </span>
-        <button type="submit" class="btn">Log in</button>
+        <button type="submit" class="btn">Sign In</button>
       </div>
     </form>
 
@@ -172,11 +172,11 @@
     <!-- Magic Link -->
     <form id="magic-form" class="reveal">
       <div class="field">
-        <label for="ml-email">Or log in with a Magic Link</label>
-        <input type="email" id="ml-email" placeholder="Email for the link" />
+        <label for="ml-email">Or sign in with a Magic Link</label>
+        <input type="email" id="ml-email" placeholder="Enter your email to get a link" />
       </div>
       <div class="actions">
-        <span>You'll receive a login link via email</span>
+        <span>You'll receive a sign-in link via email</span>
         <button type="submit" class="btn">Send Magic Link</button>
       </div>
     </form>
@@ -184,7 +184,7 @@
     <div class="divider" aria-hidden="true"></div>
 
     <!-- Google (GSI) + fallback -->
-    <section class="row-google reveal" aria-label="Log in with Google">
+    <section class="row-google reveal" aria-label="Sign in with your Google account">
       <label>Or continue with Google</label>
       <div id="gsi-btn"></div>
       <!-- Fallback OAuth (visible only if GSI fails) -->
@@ -237,7 +237,7 @@
       const password = document.getElementById('li-pass').value.trim();
       gtag('event','login_submit',{method:'password',lang});
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { alert('Login failed: ' + error.message); return; }
+      if (error) { alert('Sign-in failed: ' + error.message); return; }
       postAuthRedirect();
     });
 
@@ -245,14 +245,14 @@
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
-      if (!email) { alert("Please enter your email."); return; }
+      if (!email) { alert("Please enter your email address."); return; }
       gtag('event','magiclink_submit',{lang});
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${ORIGIN}${langPrefix}auth/callback.html` }
       });
       if (error) { alert('Failed to send link: ' + error.message); return; }
-      alert('We have sent you a login link.');
+      alert('We have sent a sign-in link to your email.');
     });
 
     // Forgot Password
@@ -268,7 +268,7 @@
           redirectTo: `${ORIGIN}${langPrefix}reset-password.html`
         });
         if (error) throw error;
-        alert("If this address is registered, you will receive an email with a link to reset your password. Please also check your Spam folder.");
+        alert("If an account exists for this address, you will receive an email with a password reset link. Please check your spam folder as well.");
       } catch (err) {
         alert("Error sending reset link: " + (err?.message || err));
       }
@@ -289,7 +289,7 @@
             options: { redirectTo: `${ORIGIN}${langPrefix}auth/callback.html` }
           });
         } catch (e) {
-          alert('Could not initiate Google login: ' + (e?.message || e));
+          alert('Could not initiate Google sign-in: ' + (e?.message || e));
         }
       };
       fallbackWrap.style.display = 'grid';
@@ -311,7 +311,7 @@
           gsiContainer.dataset.mounted = "1";
         }
       } catch (e) {
-        console.warn('GIS init error:', e);
+        console.warn('GSI init error:', e);
         showFallback();
       }
     }
@@ -334,7 +334,7 @@
           provider: "google",
           token: idToken
         });
-        if (error) { alert("Google login failed: " + error.message); return; }
+        if (error) { alert("Google sign-in failed: " + error.message); return; }
         gtag('event','oauth_success',{provider:'google',lang,mode:'idtoken'});
         postAuthRedirect();
       } catch (err) {
