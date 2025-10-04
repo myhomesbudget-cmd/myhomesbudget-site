@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inicia sesión en MyHomesBudget</title>
+  <title>Iniciar Sesión en MyHomesBudget</title>
   <meta name="description" content="Inicia sesión para gestionar tus ingresos, gastos y ahorros de forma sencilla.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
@@ -131,7 +131,7 @@
 </head>
 <body>
   <nav class="topbar" aria-label="Barra superior">
-    <a href="/es/" class="logo-link" title="MyHomesBudget">
+    <a href="/es/" class="logo-link" title="MyHomesBudget Inicio">
       <img src="/homes.png" alt="Logo de MyHomesBudget" class="logo-image" loading="lazy"><span class="logo-text">MyHomesBudget</span>
     </a>
     <span class="lang-selector" aria-label="Selector de idioma">
@@ -143,8 +143,8 @@
 
   <main class="panel">
     <header class="header reveal">
-      <h1>Inicia sesión en MyHomesBudget</h1>
-      <p>Accede a tu panel de control para gestionar tus gastos.</p>
+      <h1>Inicia Sesión</h1>
+      <p>Accede a tu panel para gestionar tu presupuesto.</p>
     </header>
 
     <!-- Email / Password -->
@@ -161,9 +161,9 @@
         <span>
           ¿No tienes cuenta? <a class="link" href="/es/signup.html">Regístrate</a>
           &nbsp;·&nbsp;
-          <a class="link" href="#" id="forgot-link">¿Olvidaste la contraseña?</a>
+          <a class="link" href="#" id="forgot-link">¿Has olvidado tu contraseña?</a>
         </span>
-        <button type="submit" class="btn">Iniciar sesión</button>
+        <button type="submit" class="btn">Iniciar Sesión</button>
       </div>
     </form>
 
@@ -172,19 +172,19 @@
     <!-- Magic Link -->
     <form id="magic-form" class="reveal">
       <div class="field">
-        <label for="ml-email">O inicia sesión con un Magic Link</label>
-        <input type="email" id="ml-email" placeholder="Email para recibir el enlace" />
+        <label for="ml-email">O inicia sesión con un enlace mágico</label>
+        <input type="email" id="ml-email" placeholder="Introduce tu email para recibir el enlace" />
       </div>
       <div class="actions">
         <span>Recibirás un enlace de acceso en tu email</span>
-        <button type="submit" class="btn">Enviar Magic Link</button>
+        <button type="submit" class="btn">Enviar Enlace Mágico</button>
       </div>
     </form>
 
     <div class="divider" aria-hidden="true"></div>
 
     <!-- Google (GSI) + fallback -->
-    <section class="row-google reveal" aria-label="Iniciar sesión con Google">
+    <section class="row-google reveal" aria-label="Iniciar sesión con tu cuenta de Google">
       <label>O continúa con Google</label>
       <div id="gsi-btn"></div>
       <!-- Fallback OAuth (visible solo si GSI no parte) -->
@@ -245,14 +245,14 @@
     document.getElementById('magic-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('ml-email').value.trim();
-      if (!email) { alert("Por favor, introduce tu email."); return; }
+      if (!email) { alert("Por favor, introduce tu dirección de email."); return; }
       gtag('event','magiclink_submit',{lang});
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${ORIGIN}${langPrefix}auth/callback.html` }
       });
-      if (error) { alert('Error al enviar el enlace: ' + error.message); return; }
-      alert('Te hemos enviado un enlace de acceso a tu correo.');
+      if (error) { alert('No se pudo enviar el enlace: ' + error.message); return; }
+      alert('Hemos enviado un enlace de acceso a tu correo electrónico.');
     });
 
     // Forgot Password
@@ -260,7 +260,7 @@
       e.preventDefault();
       const email = document.getElementById('li-email').value.trim();
       if (!email) {
-        alert("Por favor, introduce tu email en el campo de arriba y vuelve a intentarlo.");
+        alert("Por favor, introduce tu email en el campo superior y vuelve a intentarlo.");
         return;
       }
       try {
@@ -268,9 +268,9 @@
           redirectTo: `${ORIGIN}${langPrefix}reset-password.html`
         });
         if (error) throw error;
-        alert("Si esta dirección está registrada, recibirás un email con un enlace para restablecer tu contraseña. Por favor, revisa también tu carpeta de Spam.");
+        alert("Si existe una cuenta con este email, recibirás un correo con un enlace para restablecer tu contraseña. Por favor, revisa también tu carpeta de spam.");
       } catch (err) {
-        alert("Error al enviar el enlace de restablecimiento: " + (err?.message || err));
+        alert("Error al enviar el enlace de recuperación: " + (err?.message || err));
       }
     });
 
@@ -311,7 +311,7 @@
           gsiContainer.dataset.mounted = "1";
         }
       } catch (e) {
-        console.warn('Error al inicializar GIS:', e);
+        console.warn('Error al inicializar GSI:', e);
         showFallback();
       }
     }
