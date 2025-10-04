@@ -203,7 +203,27 @@
 
   <!-- Logic (Supabase + GIS) -->
   <script type="module">
-    import { supabase } from "/en/supabase-client.js";
+    async function loadSupabase() {
+      const candidates = [
+        "/en/supabase-client.js",
+        "/supabase-client.js",
+        "/it/supabase-client.js"
+      ];
+      for (const p of candidates) {
+        try {
+          const mod = await import(p);
+          if (mod && mod.supabase) {
+            console.info("[MHB] Supabase client loaded from", p);
+            return mod.supabase;
+          }
+        } catch (e) {
+          // continue trying next candidate
+        }
+      }
+      throw new Error("[MHB] Supabase client not found in any known path");
+    }
+
+    const supabase = await loadSupabase();
 
     try { localStorage.setItem('mhb_lang','en'); } catch(e){}
     const lang = (location.pathname.match(/^\/(it|en|es)(\/|$)/i)?.[1] || 'en').toLowerCase();
