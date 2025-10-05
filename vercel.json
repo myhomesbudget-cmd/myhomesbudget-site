@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "https://myhomesbudget.com/(.*)",
+      "destination": "https://www.myhomesbudget.com/$1",
+      "permanent": true
+    }
+  ]
+}
