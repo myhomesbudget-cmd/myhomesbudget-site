@@ -1,22 +1,24 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const host = url.hostname;
-  const canonical = 'www.myhomesbudget.com'; // ✅ imposta qui il dominio canonico
+export function middleware(req: NextRequest) {
+  const url = req.nextUrl.clone();
+  const host = req.headers.get('host') || '';
 
-  // Redirect da HTTP a HTTPS
-  if (url.protocol === 'http:') {
-    url.protocol = 'https:';
+  if (host === 'myhomesbudget.com') {
+    url.hostname = 'www.myhomesbudget.com';
+    url.protocol = 'https';
     return NextResponse.redirect(url, 308);
   }
 
-  // Redirect da dominio senza www → con www
-  if (host === 'myhomesbudget.com') {
-    url.hostname = canonical;
-    return NextResponse.redirect(url, 301);
+  if (host === 'www.myhomesbudget.com' && url.protocol === 'http:') {
+    url.protocol = 'https';
+    return NextResponse.redirect(url, 308);
   }
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
+};
