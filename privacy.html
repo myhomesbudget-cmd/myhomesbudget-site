@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy · Redirect</title>
+  <!-- Non indicizzare questa pagina di redirect -->
+  <meta name="robots" content="noindex">
+  <!-- CSP minima compatibile con inline script -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self' 'unsafe-inline'; base-uri 'self' style-src-elem https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';img-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';connect-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';child-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';frame-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';">
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=TDrzMSoa8t3dyCvjW_R6ArfglYM1pXFlKZ7YIrXRF6XJmRAdQjgH4czVL8ensnNY1FhKWZvC4DAB-m-M7IW4hHfL3w_MjQvHzFEGExs1RnTLIEC1KtA13oMlz06s7rTNwb0HCBUQUnPn-SOf2dLhNVheqTq5JZVpNbqT0GgkjfRbLNhAgwcYdSQe2hhisroFeGrQdO354ddYyFbnRhOnpnSvqd1fq9E7W7JX-DMvYrEZ8JdiiUDG4E6c9BAvu39N" charset="UTF-8"></script><style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;display:grid;place-items:center;height:100dvh}
+    .box{max-width:640px;padding:24px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <p>Reindirizzamento alla pagina privacy…</p>
+    <noscript>
+      <p>JavaScript disabilitato. Apri: <a href="/it/privacy.html">/it/privacy.html</a></p>
+    </noscript>
+  </div>
+  <script>
+    (function(){
+      // Rileva la lingua del browser e reindirizza alla pagina privacy corretta.
+      var lang = (navigator.language || 'it').toLowerCase();
+      var to = '/it/privacy.html';
+      if(lang.startsWith('en')) to = '/en/privacy.html';
+      else if(lang.startsWith('es')) to = '/es/privacy.html';
+      location.replace(to);
+    })();
+  </script>
+</body>
+</html>
