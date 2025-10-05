@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Termini · Redirect</title>
+  <!-- Non indicizzare questa pagina di redirect -->
+  <meta name="robots" content="noindex">
+  <!-- CSP minima compatibile con inline script -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self' 'unsafe-inline'; base-uri 'self' style-src-elem https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';img-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';connect-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';child-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';frame-src https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com 'self';">
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=AXJmxW3Tqgb3K-WY0NVQ-Pa0dueAY0CM0nj0FRjbk_lKAq6mKF3oKkLInNrxbTMsiVXra3-bPdf-1ngu0rw5GhkJXXdDovN3BmV0S9VovYywJQaqySck8gLzcSEcmzzqEyZM-2d0Q5ob2YifqnjcR-WTwX61DZEHfyGF0v0er5nJv5q7tiRVQaRpU16j6spoKeyYSgtmVuS-2menmGqp05_TyOsRkn1dMAlLP1u3VTrLdc2yLNOeMwLXsqHj3QTb" charset="UTF-8"></script><style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;display:grid;place-items:center;height:100dvh}
+    .box{max-width:640px;padding:24px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <p>Reindirizzamento alla pagina termini di servizio…</p>
+    <noscript>
+      <p>JavaScript disabilitato. Apri: <a href="/it/terms.html">/it/terms.html</a></p>
+    </noscript>
+  </div>
+  <script>
+    (function(){
+      // Rileva la lingua del browser e reindirizza alla pagina termini corretta.
+      var lang = (navigator.language || 'it').toLowerCase();
+      var to = '/it/terms.html';
+      if(lang.startsWith('en')) to = '/en/terms.html';
+      else if(lang.startsWith('es')) to = '/es/terms.html';
+      location.replace(to);
+    })();
+  </script>
+</body>
+</html>
