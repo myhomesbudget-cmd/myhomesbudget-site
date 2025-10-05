@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home -->
   <url><loc>https://www.myhomesbudget.com/</loc></url>
   <url><loc>https://www.myhomesbudget.com/it/</loc></url>
   <url><loc>https://www.myhomesbudget.com/en/</loc></url>
   <url><loc>https://www.myhomesbudget.com/es/</loc></url>
+
+  <!-- Pricing (EN verrà aggiunta quando pronta) -->
+  <url><loc>https://www.myhomesbudget.com/it/pricing.html</loc></url>
+  <url><loc>https://www.myhomesbudget.com/es/pricing.html</loc></url>
+
+  <!-- Privacy -->
+  <url><loc>https://www.myhomesbudget.com/it/privacy.html</loc></url>
+  <url><loc>https://www.myhomesbudget.com/en/privacy.html</loc></url>
+  <url><loc>https://www.myhomesbudget.com/es/privacy.html</loc></url>
+
+  <!-- Terms -->
+  <url><loc>https://www.myhomesbudget.com/it/terms.html</loc></url>
+  <url><loc>https://www.myhomesbudget.com/en/terms.html</loc></url>
+  <url><loc>https://www.myhomesbudget.com/es/terms.html</loc></url>
+
 </urlset>
-<url>
-  <loc>https://www.myhomesbudget.com/it/privacy.html</loc>
-  <changefreq>yearly</changefreq>
-  <priority>0.3</priority>
-</url>
-<url>
-  <loc>https://www.myhomesbudget.com/it/terms.html</loc>
-  <changefreq>yearly</changefreq>
-  <priority>0.3</priority>
-</url>
