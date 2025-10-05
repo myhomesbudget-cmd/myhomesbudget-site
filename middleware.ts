@@ -1,18 +1,19 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export function middleware(req: NextRequest) {
-  const url = req.nextUrl.clone();
-  const host = req.headers.get('host') || '';
+export function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone()
 
-  // Solo http→https sul www (l'apex→www lo fa Vercel)
-  if (host === 'www.myhomesbudget.com' && url.protocol === 'http:') {
-    url.protocol = 'https';
-    return NextResponse.redirect(url, 308);
+  // forza sempre https://myhomesbudget.com come dominio unico
+  if (url.hostname === 'www.myhomesbudget.com') {
+    url.hostname = 'myhomesbudget.com'
+    return NextResponse.redirect(url, 301)
   }
-  return NextResponse.next();
-}
 
-export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
-};
+  if (url.protocol === 'http:') {
+    url.protocol = 'https:'
+    return NextResponse.redirect(url, 301)
+  }
+
+  return NextResponse.next()
+}
