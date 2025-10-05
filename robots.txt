@@ -1,16 +1,22 @@
-# myhomesbudget.com - robots.txt "pro"
+# myhomesbudget.com - robots.txt (pulito)
 
 User-agent: *
-# Evita di indicizzare aree senza valore SEO
-Disallow: /login
-Disallow: /signup
-Disallow: /dashboard
-Disallow: /account
-Disallow: /api/
-Disallow: /_next/
-Disallow: /search
-Disallow: /*?*          # evita duplicati con querystring, se non necessari
+# Mantieni indicizzabile tutto il sito pubblico
 Allow: /
+
+# Evita l'indicizzazione delle aree riservate in tutte le lingue
+Disallow: /*/login.html
+Disallow: /*/signup.html
+Disallow: /*/reset-password.html
+Disallow: /*/dashboard.html
+Disallow: /*/profile.html
+Disallow: /*/paywall.html
+Disallow: /*/auth/
+Disallow: /*/diag.html
+
+# Evita duplicati dovuti a querystring (Google lo supporta)
+# (Se hai pagine con parametri utili alla SEO, rimuovi questa riga)
+Disallow: /*?*
 
 # Sitemap principale
 Sitemap: https://www.myhomesbudget.com/sitemap.xml
