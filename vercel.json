@@ -1,7 +1,17 @@
 {
   "redirects": [
     {
+      "source": "http://myhomesbudget.com/(.*)",
+      "destination": "https://www.myhomesbudget.com/$1",
+      "permanent": true
+    },
+    {
       "source": "https://myhomesbudget.com/(.*)",
+      "destination": "https://www.myhomesbudget.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "http://www.myhomesbudget.com/(.*)",
       "destination": "https://www.myhomesbudget.com/$1",
       "permanent": true
     }
