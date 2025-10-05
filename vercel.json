@@ -8,9 +8,32 @@
     },
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.myhomesbudget.com" }],
+      "has": [
+        { "type": "host", "value": "www.myhomesbudget.com" },
+        { "type": "header", "key": "x-forwarded-proto", "value": "http" }
+      ],
       "destination": "https://www.myhomesbudget.com/:path*",
       "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(login|signup|dashboard)(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     }
   ]
 }
