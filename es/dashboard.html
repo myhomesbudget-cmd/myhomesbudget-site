@@ -845,22 +845,22 @@
       width: 36px; height: 36px; border: 3px solid rgba(0,0,0,0.15);
       border-top-color: #6c5ce7; border-radius: 50%;
       animation: spin 1s linear infinite;"></div>
-    <div id="boot-loader-text" style="font-weight:700;color:#333;">Caricamento…</div>
-    <button id="boot-retry-btn" class="btn btn-primary" style="display:none;">Riprova</button>
+    <div id="boot-loader-text" style="font-weight:700;color:#333;">Cargando…</div>
+    <button id="boot-retry-btn" class="btn btn-primary" style="display:none;">Reintentar</button>
   </div>
   <!-- Topbar -->
   <nav class="topbar">
-    <a href="/it/" class="logo-link">
+    <a href="/es/" class="logo-link">
       <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <div class="top-center">
-        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
+        <a href="/es/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
     </div>
     <div class="top-nav-right">
-      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Abrir menú">
         <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        <span class="visually-hidden">Menu</span>
+        <span class="visually-hidden">Menú</span>
       </button>
       <div class="top-actions">
         <div class="date-selectors">
@@ -868,44 +868,44 @@
           <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
         </div>
         <a
-          href="/it/onboarding.html?from=dashboard&force=1&step=1"
+          href="/es/onboarding.html?from=dashboard&force=1&step=1"
           id="edit-goal-top"
           class="top-link"
-        >🎯 Obiettivo</a>
-        <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
-        <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
+        >🎯 Objetivo</a>
+        <button id="scheduler-btn" class="top-btn" aria-label="Abrir vencimientos">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell" aria-label="Abrir notificaciones">
           <span>🔔</span>
           <span id="notification-badge" class="notification-badge"></span>
         </button>
-        <a href="#" id="logout-btn" class="top-link">Esci</a>
+        <a href="#" id="logout-btn" class="top-link">Cerrar sesión</a>
       </div>
     </div>
   </nav>
 
   <main class="container">
     <nav id="dash-nav" class="dash-nav">
-      <button id="dash-nav-toggle" class="dash-nav-toggle">☰ Sezioni</button>
+      <button id="dash-nav-toggle" class="dash-nav-toggle">☰ Secciones</button>
       <div class="dash-nav-menu">
-        <a href="/it/profile.html">Profilo</a>
-        <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
-        <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
-        <button id="list-movements-btn">Lista Movimenti</button>
+        <a href="/es/profile.html">Perfil</a>
+        <a href="/es/dashboard.html" class="is-active" aria-current="page">Operaciones</a>
+        <a href="/es/dashboard-riepilogo.html">Resumen</a>
+        <button id="list-movements-btn">Lista de Movimientos</button>
       </div>
     </nav>
 
     <!-- Scadenze -->
     <details id="deadlines-section" class="dash-card content-section" style="margin-top:12px;display:none;" open>
       <summary class="dash-card__header">
-        <span class="dash-card__title">🔔 Scadenze & Incassi (30gg)</span>
+        <span class="dash-card__title">🔔 Vencimientos y Cobros (30 días)</span>
       </summary>
       <div class="dash-card__content">
-        <h2 style="font-size: 1.5rem; margin: 0 0 16px; display:none;" class="deadlines-desktop-title">🔔 Scadenze & Incassi (30gg)</h2>
+        <h2 style="font-size: 1.5rem; margin: 0 0 16px; display:none;" class="deadlines-desktop-title">🔔 Vencimientos y Cobros (30 días)</h2>
         <div id="deadlines-filter" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-          <label for="deadlines-kind" style="font-weight:600;">Filtra:</label>
+          <label for="deadlines-kind" style="font-weight:600;">Filtrar:</label>
           <select id="deadlines-kind" style="padding:6px 10px;border-radius:8px;border:1px solid #ccc;background:#fff;">
-            <option value="expense" selected>Solo Spese</option>
-            <option value="income">Solo Entrate</option>
-            <option value="all">Tutte</option>
+            <option value="expense" selected>Solo Gastos</option>
+            <option value="income">Solo Ingresos</option>
+            <option value="all">Todas</option>
           </select>
         </div>
         <div id="deadlines-list" class="transaction-list"></div>
@@ -915,7 +915,7 @@
     <!-- Sezione Form -->
     <details class="dash-card content-section form-section" open>
       <summary class="dash-card__header">
-        <span id="form-title" class="dash-card__title">✍🏼 Nuova Operazione</span>
+        <span id="form-title" class="dash-card__title">✍🏼 Nueva Operación</span>
       </summary>
       <div class="dash-card__content">
       <form id="transaction-form" class="transaction-form">
@@ -923,60 +923,60 @@
         <div class="form-group kind">
           <label for="kind">Tipo</label>
           <select id="kind" name="kind" required>
-            <option value="expense">Uscita</option>
-            <option value="income">Entrata</option>
+            <option value="expense">Gasto</option>
+            <option value="income">Ingreso</option>
           </select>
         </div>
         <div class="form-group note">
           <label for="note">Nota</label>
-          <input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required>
+          <input type="text" id="note" name="note" placeholder="Ej. Salario, Cuota de hipoteca..." required>
         </div>
         <div class="form-group amount">
-          <label for="amount">Importo (€)</label>
+          <label for="amount">Importe (€)</label>
           <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required inputmode="decimal">
         </div>
         <div class="form-group date">
-          <label for="occurred_at">Data</label>
+          <label for="occurred_at">Fecha</label>
           <input type="date" id="occurred_at" name="occurred_at" required>
         </div>
         <div class="form-group category">
-          <label for="category_id">Categoria</label>
+          <label for="category_id">Categoría</label>
           <select id="category_id" name="category_id" required></select>
         </div>
         <div class="form-group subcategory">
-          <label for="subcategory_id">Sottocategoria</label>
+          <label for="subcategory_id">Subcategoría</label>
           <select id="subcategory_id" name="subcategory_id"></select>
         </div>
 
         <div id="advanced-options-wrapper">
           <div class="advanced-options-controls">
-            <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
-            <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
-            <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+            <label><input type="radio" name="transaction_type" value="single" checked> Operación Única</label>
+            <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Recurrente</label>
+            <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Programar Vencimiento</label>
           </div>
           <div id="recurring-options" class="advanced-options-fields">
             <div class="form-group">
-              <label for="recurring_frequency">Frequenza</label>
+              <label for="recurring_frequency">Frecuencia</label>
               <select id="recurring_frequency" name="recurring_frequency">
-                <option value="monthly">Mensile</option>
+                <option value="monthly">Mensual</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="recurring_end_date">Termina il</label>
+              <label for="recurring_end_date">Termina el</label>
               <input type="date" id="recurring_end_date" name="recurring_end_date">
             </div>
           </div>
           <div id="due-date-options" class="advanced-options-fields">
             <div class="form-group full-width">
-              <label for="due_date">Data di Scadenza/Incasso</label>
+              <label for="due_date">Fecha de Vencimiento/Cobro</label>
               <input type="date" id="due_date" name="due_date">
             </div>
           </div>
         </div>
 
         <div id="form-buttons-container" class="form-buttons">
-          <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;">Aggiungi</button>
-          <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display:none;">Annulla</button>
+          <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;">Añadir</button>
+          <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display:none;">Cancelar</button>
         </div>
 
         <div id="status-message" class="status-message" aria-live="polite"></div>
@@ -987,9 +987,9 @@
     <!-- 🎯 Sezione Obiettivi (Layout v2) -->
     <details id="goals-section" class="dash-card content-section goals-v2" style="margin-top:12px;">
       <summary class="dash-card__header">
-        <span class="dash-card__title">🎯 I Tuoi Obiettivi</span>
+        <span class="dash-card__title">🎯 Tus Objetivos</span>
         <div class="dash-card__actions">
-          <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
+          <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Añadir</button>
         </div>
       </summary>
       <div class="dash-card__content">
@@ -1002,17 +1002,17 @@
     <!-- Dati principali -->
     <details class="dash-card dashboard-panel" style="margin-top:12px;" open>
       <summary class="dash-card__header">
-        <span class="dash-card__title">📊 Riepilogo Mensile</span>
+        <span class="dash-card__title">📊 Resumen Mensual</span>
       </summary>
       <div class="dash-card__content">
         <div class="dashboard-grid">
           <div class="flow-column income">
-            <h2>💰​ Entrate Recenti</h2>
+            <h2>💰​ Ingresos Recientes</h2>
             <div id="income-summary" class="summary-card"></div>
             <div id="income-list" class="content-section transaction-list"></div>
           </div>
           <div class="flow-column expense">
-            <h2>💸​ Uscite Recenti</h2>
+            <h2>💸​ Gastos Recientes</h2>
             <div id="expense-summary" class="summary-card"></div>
             <div id="expense-list" class="content-section transaction-list"></div>
           </div>
@@ -1026,14 +1026,14 @@
     <div class="modal-content modal-content-enhanced">
         <div class="modal-header modal-header-enhanced">
             <h3 id="scheduler-modal-title" class="modal-title modal-title-enhanced"></h3>
-            <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+            <button class="modal-close" aria-label="Cerrar modal">&times;</button>
         </div>
         <div id="scheduler-modal-body" class="modal-body-enhanced"></div>
     </div>
   </div>
-  <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
-  <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
-  <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
+  <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Cerrar modal">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
+  <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animación dinero"/> <div class="animation-elements-container"></div> </div> </div>
+  <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista de Movimientos</h3> <button class="modal-close" aria-label="Cerrar modal">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
 
   <script type="module">
     import { supabase } from "/it/supabase-client.js";
@@ -1168,8 +1168,8 @@
     });
 
     function resetFormToCreateMode(){
-      formTitle.textContent = "✍🏼 Nuova Operazione";
-      submitBtn.textContent = "Aggiungi";
+      formTitle.textContent = "✍🏼 Nueva Operación";
+      submitBtn.textContent = "Añadir";
       submitBtn.style.width = '100%';
       transactionIdInput.value = "";
       cancelEditBtn.style.display = 'none';
@@ -1238,8 +1238,8 @@
         }
 
       } catch (error){
-        console.error("Errore nel caricamento dei dati iniziali:", error);
-        showModal('Errore', `<p>Impossibile caricare le categorie dal tuo profilo. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
+        console.error("Error al cargar los datos iniciales:", error);
+        showModal('Error', `<p>No se pudieron cargar las categorías de tu perfil. Inténtalo de nuevo más tarde.</p>`, [{ text:'Cerrar' }]);
       }
     }
 
@@ -1247,14 +1247,14 @@
     function updateCategoryDropdown(){
       const selectedKind = kindSelect.value;
       const filtered = allCategories.filter(cat => cat.kind === selectedKind);
-      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      categorySelect.innerHTML = '<option value="">Elige una categoría...</option>';
       filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon || ''} ${cat.name}`, cat.id)));
       updateSubcategories();
     }
 
     function updateSubcategories(selectedSubcategoryId=null){
       const categoryId = categorySelect.value;
-      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+      subcategorySelect.innerHTML = '<option value="">Ninguna</option>';
       subcategorySelect.disabled = true;
       if (!categoryId) return;
       const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
@@ -1272,7 +1272,7 @@
       const totalAmount = items.reduce((sum, tx)=> sum + safeToNumber(tx.amount), 0);
       const categoriesToRender = Object.values(categoryMap).filter(cat => cat.total > 0).sort((a,b)=> b.total - a.total).slice(0,5);
       container.style.display = 'block';
-      const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
+      const summaryTitle = kind === 'income' ? '🏆 Top 5 Ingresos' : '🏆 Top 5 Gastos';
       let barsHTML = categoriesToRender.map(cat=>{ const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0; return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${escapeHTML(cat.icon)}</span><span>${escapeHTML(cat.name)}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width:${percentage}%"></div></div></div>`; }).join('');
       const placeholdersNeeded = 5 - categoriesToRender.length;
       if (placeholdersNeeded > 0){ const placeholderHTML = `<div class="category-bar-item" aria-hidden="true"><div class="category-bar-info" style="visibility:hidden;"><span class="category-bar-label"><span class="icon">&nbsp;</span><span>-</span></span><span class="category-bar-amount">&nbsp;</span></div><div class="progress-bar-bg" style="visibility:hidden;"><div class="progress-bar-fg" style="width:0%;"></div></div></div>`; barsHTML += placeholderHTML.repeat(placeholdersNeeded); }
@@ -1282,12 +1282,12 @@
     function renderList(items, container, kind){
       container.innerHTML = '';
       const totalAmount = items.reduce((sum, tx)=> sum + safeToNumber(tx.amount), 0);
-      const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
+      const titleText = kind === 'income' ? 'Movimientos de Ingreso' : 'Movimientos de Gasto';
       const titleEl = document.createElement('div');
       titleEl.className = 'list-title';
       titleEl.innerHTML = `<span>${escapeHTML(titleText)}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
       container.appendChild(titleEl);
-      if (!items.length){ container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`); return; }
+      if (!items.length){ container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Ningún movimiento aquí.</p></div>`); return; }
       items.forEach(tx=>{
         const cat = tx.categories;
         const sub = tx.subcategories;
@@ -1295,7 +1295,7 @@
         const categoryText = `${escapeHTML(cat?.name || 'N/A')}${(sub ? ` / ${escapeHTML(sub.name)}` : '')}`;
         const amountNum = safeToNumber(tx.amount);
         const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
-        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}"> Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
+        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}">Editar</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Eliminar ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
       });
     }
 
@@ -1314,7 +1314,7 @@
         if (error) throw error;
         return data || [];
       } catch (error){
-        console.error("Errore caricamento scadenze:", error);
+        console.error("Error al cargar vencimientos:", error);
         return [];
       }
     }
@@ -1326,13 +1326,13 @@
       else if (filter === 'income') txs = txs.filter(t => t.kind === 'income');
 
       if (txs.length === 0){
-        container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
+        container.innerHTML = '<div class="empty-state"><p>Ningún vencimiento en este período.</p></div>';
         return;
       }
 
       container.innerHTML = '';
       const today = new Date(); today.setHours(0,0,0,0);
-      const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
+      const monthFormatter = new Intl.DateTimeFormat('es-ES', { month: 'short' });
 
       const isModal = container.closest('.modal-overlay');
 
@@ -1341,11 +1341,11 @@
           const dueDate = toLocalMidnight(String(tx.due_date));
           const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
           const diffDays = Math.ceil(diffTime / dayMs);
-          const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+          const daysLeftText = diffDays < 0 ? 'Vencida' : (diffDays === 0 ? 'Hoy' : `${diffDays} días`);
           const amountClass = isIncome ? 'income' : 'expense';
           const amountSign = isIncome ? '+' : '-';
           const buttonClass = isIncome ? 'receive' : 'pay';
-          const buttonText = isIncome ? 'Incassa' : 'Paga';
+          const buttonText = isIncome ? 'Cobrar' : 'Pagar';
           const sub = tx.subcategories;
           const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
           const noteSafe = escapeHTML(tx.note || '');
@@ -1376,9 +1376,9 @@
                           <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
                       </div>
                       <div class="actions">
-                          <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼 Modifica</button>
+                          <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Editar ${noteSafe}">✍🏼 Editar</button>
                           <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                          <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                          <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Eliminar ${noteSafe}">🗑️</button>
                       </div>
                   </div>
               `;
@@ -1398,8 +1398,8 @@
                           <span class="expense-due-date">${daysLeftText}</span>
                           <div class="item-actions">
                                <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
-                               <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
-                               <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                               <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Editar ${noteSafe}">✍🏼</button>
+                               <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Eliminar ${noteSafe}">🗑️</button>
                           </div>
                       </div>
                   </div>
@@ -1415,14 +1415,14 @@
       const modalTitle = document.getElementById('movements-modal-title');
       const selectedMonthName = months[monthSelector.value];
       const selectedYear = yearSelector.value;
-      modalTitle.textContent = `Estratto Conto - ${selectedMonthName} ${selectedYear}`;
-      if (!transactions || transactions.length === 0){ modalBody.innerHTML = '<div class="empty-state"><p>Nessun movimento per il periodo selezionato.</p></div>'; modalFooter.innerHTML = ''; return; }
+      modalTitle.textContent = `Extracto de Cuenta - ${selectedMonthName} ${selectedYear}`;
+      if (!transactions || transactions.length === 0){ modalBody.innerHTML = '<div class="empty-state"><p>Ningún movimiento para el período seleccionado.</p></div>'; modalFooter.innerHTML = ''; return; }
       const sortedTx = [...transactions].sort((a,b)=> new Date(a.occurred_at) - new Date(b.occurred_at));
       let totalIncome = 0, totalExpense = 0;
-      const rows = sortedTx.map(tx=>{ const amount = safeToNumber(tx.amount); if (tx.kind === 'income') totalIncome += amount; else totalExpense += amount; const date = new Date(tx.occurred_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}); const type = tx.kind === 'income' ? 'Entrata' : 'Uscita'; const note = escapeHTML(tx.note || '-'); const category = escapeHTML(tx.categories?.name || 'N/A'); const subcategory = escapeHTML(tx.subcategories?.name || '-'); const amountFormatted = `${tx.kind==='income'?'+':'-'} ${amount.toFixed(2)} €`; return `<tr class="${tx.kind}"><td>${date}</td><td>${type}</td><td>${note}</td><td class="amount-col">${amountFormatted}</td><td>${category}</td><td>${subcategory}</td></tr>`; }).join('');
-      modalBody.innerHTML = `<table class="movements-table"><thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Nota</th><th scope="col" class="amount-col">Importo</th><th scope="col">Categoria</th><th scope="col">Sottocategoria</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const rows = sortedTx.map(tx=>{ const amount = safeToNumber(tx.amount); if (tx.kind === 'income') totalIncome += amount; else totalExpense += amount; const date = new Date(tx.occurred_at).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}); const type = tx.kind === 'income' ? 'Ingreso' : 'Gasto'; const note = escapeHTML(tx.note || '-'); const category = escapeHTML(tx.categories?.name || 'N/A'); const subcategory = escapeHTML(tx.subcategories?.name || '-'); const amountFormatted = `${tx.kind==='income'?'+':'-'} ${amount.toFixed(2)} €`; return `<tr class="${tx.kind}"><td>${date}</td><td>${type}</td><td>${note}</td><td class="amount-col">${amountFormatted}</td><td>${category}</td><td>${subcategory}</td></tr>`; }).join('');
+      modalBody.innerHTML = `<table class="movements-table"><thead><tr><th scope="col">Fecha</th><th scope="col">Tipo</th><th scope="col">Nota</th><th scope="col" class="amount-col">Importe</th><th scope="col">Categoría</th><th scope="col">Subcategoría</th></tr></thead><tbody>${rows}</tbody></table>`;
       const balance = totalIncome - totalExpense;
-      modalFooter.innerHTML = `<div class="summary-item"><div class="summary-label">Totale Entrate</div><div class="summary-value total-income">+ ${totalIncome.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Totale Uscite</div><div class="summary-value total-expense">- ${totalExpense.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Saldo</div><div class="summary-value balance">${balance.toFixed(2)} €</div></div>`;
+      modalFooter.innerHTML = `<div class="summary-item"><div class="summary-label">Total Ingresos</div><div class="summary-value total-income">+ ${totalIncome.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Total Gastos</div><div class="summary-value total-expense">- ${totalExpense.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Saldo</div><div class="summary-value balance">${balance.toFixed(2)} €</div></div>`;
     }
 
     async function updateNotifications(){
@@ -1457,8 +1457,8 @@
         allTransactions = data || [];
         renderDashboard(allTransactions);
       } catch (error){
-        console.error("Errore transazioni:", error);
-        showModal('Errore', `<p>Impossibile caricare le transazioni. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
+        console.error("Error en transacciones:", error);
+        showModal('Error', `<p>No se pudieron cargar las transacciones. Inténtalo de nuevo más tarde.</p>`, [{ text:'Cerrar' }]);
       } finally {
         monthSelector.disabled = false;
         yearSelector.disabled = false;
@@ -1468,12 +1468,12 @@
     function handleEdit(id){
       const tx = allTransactions.find(t => String(t.id) === String(id)) || {};
       if (!tx.id){
-        supabase.from('transactions').select('*').eq('id', id).single().then(({data, error})=>{ if (error || !data){ showModal('Errore', `<p>Impossibile trovare la transazione da modificare.</p>`, [{ text:'Chiudi' }]); return; } populateAndShowEditForm(data); });
+        supabase.from('transactions').select('*').eq('id', id).single().then(({data, error})=>{ if (error || !data){ showModal('Error', `<p>No se pudo encontrar la transacción para editar.</p>`, [{ text:'Cerrar' }]); return; } populateAndShowEditForm(data); });
       } else { populateAndShowEditForm(tx); }
       function populateAndShowEditForm(tx){
-        if (tx.is_recurring_parent){ showModal('Azione non permessa', `<p>La modifica delle operazioni ricorrenti non è ancora supportata. Elimina la serie e creane una nuova.</p>`, [{ text:'Ho capito' }]); return; }
-        formTitle.textContent = "✍️ Modifica Operazione";
-        submitBtn.textContent = "Aggiorna";
+        if (tx.is_recurring_parent){ showModal('Acción no permitida', `<p>La edición de operaciones recurrentes aún no está soportada. Elimina la serie y crea una nueva.</p>`, [{ text:'Entendido' }]); return; }
+        formTitle.textContent = "✍️ Editar Operación";
+        submitBtn.textContent = "Actualizar";
         submitBtn.style.width = 'auto';
         cancelEditBtn.style.display = 'inline-block';
         formButtonsContainer.classList.add('is-editing');
@@ -1505,11 +1505,11 @@
 
     async function handleDelete(id){
       const { data: txToDelete, error: fetchError } = await supabase.from('transactions').select('is_recurring_parent').eq('id', id).single();
-      if (fetchError && fetchError.code !== 'PGRST116'){ console.error("Errore recupero transazione da eliminare:", fetchError); showModal('Errore', 'Impossibile trovare l\'operazione da eliminare.', [{ text:'Chiudi' }]); return; }
+      if (fetchError && fetchError.code !== 'PGRST116'){ console.error("Error al recuperar la transacción a eliminar:", fetchError); showModal('Error', 'No se pudo encontrar la operación a eliminar.', [{ text:'Cerrar' }]); return; }
       if (!txToDelete) return;
-      let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
-      if (txToDelete.is_recurring_parent){ message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong>.</p><p>Vuoi procedere?</p>"; }
-      showModal("Conferma eliminazione", message, [ { text:'Annulla', class:'btn-secondary' }, { text:'🗑️ Elimina', class:'delete', action: async ()=>{ try{ const { error } = await supabase.rpc('delete_transaction_and_children', { transaction_id_to_delete: id }); if (error) throw error; showStatusMessage('Operazione eliminata con successo!', 'success'); loadAllDataForMonth(); } catch (error){ console.error("Errore durante l'eliminazione via RPC:", error); let userMessage = "Impossibile completare l'eliminazione. Riprova."; if (error.message?.includes('permission denied')){ userMessage = "Errore: Permessi non sufficienti. Verifica le RLS sulla funzione e sulla tabella `transactions`."; } showModal('Errore', `<p>${userMessage}</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text:'Chiudi' }]); } } } ]);
+      let message = "<p>¿Estás seguro de que quieres eliminar esta operación?</p>";
+      if (txToDelete.is_recurring_parent){ message = "<p>Esta es una operación recurrente. Al eliminarla, <strong>también se eliminarán todas las futuras ocurrencias</strong>.</p><p>¿Quieres continuar?</p>"; }
+      showModal("Confirmar eliminación", message, [ { text:'Cancelar', class:'btn-secondary' }, { text:'🗑️ Eliminar', class:'delete', action: async ()=>{ try{ const { error } = await supabase.rpc('delete_transaction_and_children', { transaction_id_to_delete: id }); if (error) throw error; showStatusMessage('¡Operación eliminada con éxito!', 'success'); loadAllDataForMonth(); } catch (error){ console.error("Error durante la eliminación vía RPC:", error); let userMessage = "No se pudo completar la eliminación. Inténtalo de nuevo."; if (error.message?.includes('permission denied')){ userMessage = "Error: Permisos insuficientes. Verifica las RLS en la función y en la tabla `transactions`."; } showModal('Error', `<p>${userMessage}</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text:'Cerrar' }]); } } } ]);
     }
 
     async function handleFormSubmit(e){
@@ -1517,7 +1517,8 @@
       const formData = new FormData(transactionForm);
       const id = formData.get('transaction-id');
       const kind = formData.get('kind');
-      if (id){ const kindText = kind === 'income' ? 'entrata' : 'spesa'; showModal(`Conferma Aggiornamento`, `<p>Sei sicuro di voler aggiornare questa ${kindText}?</p>`, [ { text:'Annulla', class:'btn-secondary' }, { text:'Aggiorna', class:'btn-primary', action:()=>saveTransaction(formData) } ]); } else { saveTransaction(formData); }
+      const kindText = kind === 'income' ? 'ingreso' : 'gasto';
+      if (id){ showModal(`Confirmar Actualización`, `<p>¿Estás seguro de que quieres actualizar este ${kindText}?</p>`, [ { text:'Cancelar', class:'btn-secondary' }, { text:'Actualizar', class:'btn-primary', action:()=>saveTransaction(formData) } ]); } else { saveTransaction(formData); }
     }
 
     async function saveTransaction(formData){
@@ -1528,7 +1529,7 @@
       const parsedAmount = parseFloat(amt);
 
       if (!Number.isFinite(parsedAmount)) {
-        showModal('Importo non valido', `<p>Controlla l'importo. Puoi usare sia "12.34" che "12,34".</p>`, [{ text:'Chiudi' }]);
+        showModal('Importe no válido', `<p>Revisa el importe. Puedes usar tanto "12.34" como "12,34".</p>`, [{ text:'Cerrar' }]);
         return;
       }
 
@@ -1547,7 +1548,7 @@
       if (transactionType === 'scheduled'){
         const dueDate = formData.get('due_date') || formData.get('occurred_at');
         if (!dueDate){
-          showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text:'Chiudi' }]);
+          showModal('Datos faltantes', `<p>Selecciona una fecha de vencimiento/cobro válida.</p>`, [{ text:'Cerrar' }]);
           return;
         }
         payload.due_date = dueDate;
@@ -1558,7 +1559,7 @@
         let error;
         if (transactionType === 'recurring' && !id){
           const endDateStr = formData.get('recurring_end_date');
-          if (!endDateStr){ showModal('Dati mancanti', `<p>Seleziona una data di fine valida per l'operazione ricorrente.</p>`, [{ text:'Chiudi' }]); return; }
+          if (!endDateStr){ showModal('Datos faltantes', `<p>Selecciona una fecha de finalización válida para la operación recurrente.</p>`, [{ text:'Cerrar' }]); return; }
           payload.is_recurring_parent = true;
           const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
           if (parentError) throw parentError;
@@ -1583,17 +1584,17 @@
           error = singleError;
         }
         if (error) throw error;
-        showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
+        showStatusMessage(id ? '¡Operación actualizada!' : '¡Operación añadida!', 'success');
         resetFormToCreateMode();
         loadAllDataForMonth();
       } catch (error){
-        console.error("Errore nel salvataggio:", error);
-        showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
+        console.error("Error al Guardar:", error);
+        showModal('Error al Guardar', `<p>No se pudo guardar la operación. Revisa los datos e inténtalo de nuevo.</p><p><small>${error.message}</small></p>`, [{ text:'Cerrar' }]);
       }
     }
 
     async function handleConfirmDeadline(id){
-      showModal( 'Conferma Operazione', '<p>Vuoi registrare questa operazione con la data di oggi?</p>', [ { text: 'Annulla', class: 'btn-secondary' }, { text: 'Conferma', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: ymdLocal(new Date()) }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Errore nell'aggiornamento dell'operazione:", error); showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]); } } } ]);
+      showModal( 'Confirmar Operación', '<p>¿Quieres registrar esta operación con la fecha de hoy?</p>', [ { text: 'Cancelar', class: 'btn-secondary' }, { text: 'Confirmar', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: ymdLocal(new Date()) }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Error al actualizar la operación:", error); showModal('Error', `<p>No se pudo actualizar la operación. Inténtalo de nuevo.</p>`, [{ text: 'Cerrar' }]); } } } ]);
     }
 
     function renderSubscriptionStatus(profile) {
@@ -1611,14 +1612,14 @@
                   const diffTime = endDate - today;
                   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                   if (diffDays >= 0) {
-                      if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
-                      else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
-                      else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
-                      link = '/it/pricing.html';
-                  } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; }
+                      if (diffDays > 10) text = `✨ ¡Desbloquéalo todo! Quedan ${diffDays} días`;
+                      else if (diffDays > 3) text = `⏰ ¡La oferta termina! Quedan ${diffDays} días`;
+                      else text = diffDays > 1 ? `🔥 ¡Date prisa! Solo ${diffDays} días` : `🔥 ¡Último día! Actualiza ahora`;
+                      link = '/es/pricing.html';
+                  } else { text = '😭 Prueba Caducada. ¡Actualiza ahora!'; link = '/es/pricing.html'; }
               } break;
-          case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break;
-          case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break;
+          case 'plus': text = 'MyHomesBudget PLUS'; link = '/es/account.html'; break;
+          case 'pro': text = 'MyHomesBudget PRO'; link = '/es/account.html'; break;
       }
       if (text) {
           subscriptionStatusBtn.textContent = text;
@@ -1648,10 +1649,10 @@
     }
 
     function mapInternalToContributionMethod(internal) {
-        if (internal === 'fixed') return 'Cifra fissa';
-        if (internal === 'percent_income') return 'Percentuale sulle entrate';
-        if (internal === 'variable') return 'Importo variabile';
-        return 'Cifra fissa';
+        if (internal === 'fixed') return 'Cantidad fija';
+        if (internal === 'percent_income') return 'Porcentaje de ingresos';
+        if (internal === 'variable') return 'Importe variable';
+        return 'Cantidad fija';
     }
     
     async function loadAndRenderGoals() {
@@ -1685,8 +1686,8 @@
             renderGoalsUI(allGoals, profile);
 
         } catch (err) {
-            console.error('[Goals] Errore caricamento:', err);
-            goalsList.innerHTML = `<div class="goal-card"><p class="error">Impossibile caricare gli obiettivi.</p></div>`;
+            console.error('[Goals] Error al cargar:', err);
+            goalsList.innerHTML = `<div class="goal-card"><p class="error">No se pudieron cargar los objetivos.</p></div>`;
         }
     }
 
@@ -1708,10 +1709,10 @@
         if (goals.length === 0) {
              goalsList.innerHTML = `
       <div class="goal-card">
-        <div class="goal-title">🎯 <span>Obiettivo non impostato</span></div>
-        <p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p>
+        <div class="goal-title">🎯 <span>Objetivo no establecido</span></div>
+        <p class="goal-subtitle">Aún no has configurado un objetivo. ¡Hazlo ahora para empezar!</p>
         <div class="goal-confirm" style="text-align:left;">
-          <a class="btn btn-primary" href="/it/onboarding.html?from=dashboard&force=1&step=1">Configura Obiettivo</a>
+          <a class="btn btn-primary" href="/es/onboarding.html?from=dashboard&force=1&step=1">Configurar Objetivo</a>
         </div>
       </div>`;
         } else {
@@ -1731,17 +1732,17 @@
                 const renameBtn = document.querySelector(`#goal-card-${goal.id} .edit-goal-name-btn`);
                 if (renameBtn) {
                   renameBtn.addEventListener('click', () => {
-                    const body = `<div class="form-group"><label>Nuovo nome</label><input id="new-goal-name" type="text" value="${escapeHTML(goal.nome_obiettivo || '')}" required></div>`;
-                    showModal('Rinomina obiettivo', body, [
-                      { text:'Annulla', class:'btn-secondary' },
-                      { text:'Salva', class:'btn-primary', action: async () => {
+                    const body = `<div class="form-group"><label>Nuevo nombre</label><input id="new-goal-name" type="text" value="${escapeHTML(goal.nome_obiettivo || '')}" required></div>`;
+                    showModal('Renombrar objetivo', body, [
+                      { text:'Cancelar', class:'btn-secondary' },
+                      { text:'Guardar', class:'btn-primary', action: async () => {
                           const newName = document.getElementById('new-goal-name').value.trim();
                           if (!newName) return;
                           const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
                           const payload = goal.is_onboarding ? { goal_name: newName } : { nome_obiettivo: newName };
                           const { error } = await supabase.from(table).update(payload).eq('id', goal.is_onboarding ? user.id : goal.id);
-                          if (error) { showModal('Errore', `Impossibile rinominare: ${error.message}`, [{text:'Chiudi'}]); return; }
-                          showStatusMessage('Obiettivo aggiornato!', 'success');
+                          if (error) { showModal('Error', `No se pudo renombrar: ${error.message}`, [{text:'Cerrar'}]); return; }
+                          showStatusMessage('¡Objetivo actualizado!', 'success');
                           loadAndRenderGoals();
                       }}]);
                   });
@@ -1760,30 +1761,30 @@
                 <div class="goal-card-header">
                     <h4>${titleSafe}</h4>
                     <div style="display:flex; gap:8px;">
-                        <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">MODIFICA OBIETTIVO</button>
-                        ${canDelete ? `<button class="btn delete delete-goal-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">ELIMINA</button>` : ``}
+                        <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">EDITAR OBJETIVO</button>
+                        ${canDelete ? `<button class="btn delete delete-goal-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">ELIMINAR</button>` : ``}
                     </div>
                 </div>
                 <div class="goal-editor">
                     <div class="editor-group method-selector">
-                        <h5>SELEZIONE METODO</h5>
+                        <h5>SELECCIÓN DE MÉTODO</h5>
                         <div class="method-chips">
                             <div class="method-btn-wrapper">
-                                <button type="button" class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CANTIDAD FIJA</button>
                                 <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button type="button" class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CANTIDAD VARIABLE</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly inputmode="decimal">
                                 </div>
                             </div>
                             <div class="method-btn-wrapper">
-                                <button type="button" class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
+                                <button type="button" class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% INGRESOS</button>
                                  <div class="method-input">
                                     <div class="arrow-down"></div>
                                     <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly inputmode="decimal">
@@ -1792,12 +1793,12 @@
                         </div>
                     </div>
                     <div class="editor-group quota-editor">
-                        <h5>QUOTA OBIETTIVO</h5>
+                        <h5>CUOTA OBJETIVO</h5>
                         <div class="quota-display">
                             <div class="quota-value">0,00€</div>
                             <div class="quota-actions">
-                                <button class="btn btn-secondary edit-btn">MODIFICA</button>
-                                <button class="btn btn-primary save-btn" style="display:none;">SALVA</button>
+                                <button class="btn btn-secondary edit-btn">EDITAR</button>
+                                <button class="btn btn-primary save-btn" style="display:none;">GUARDAR</button>
                             </div>
                         </div>
                     </div>
@@ -1805,7 +1806,7 @@
                 <div class="goal-card-footer">
                     <div class="goal-progress-bar-container">
                         <div class="progress-info">
-                            <span>Progresso</span>
+                            <span>Progreso</span>
                             <span id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
                         </div>
                         <div class="progress-bar-bg">
@@ -1813,8 +1814,8 @@
                         </div>
                     </div>
                     <div class="goal-main-actions">
-                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">MODIFICA RISPARMI</button>
-                        <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">REGISTRA RISPARMIO</button>
+                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">EDITAR AHORROS</button>
+                        <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">REGISTRAR AHORRO</button>
                     </div>
                 </div>
             </div>`;
@@ -1917,10 +1918,10 @@
                 .eq('id', goal.is_onboarding ? user.id : goal.id);
 
             if (error) {
-                showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
+                showModal('Error', `No se pudieron guardar los cambios. Detalle: ${error.message}`, [{text:'Cerrar'}]);
                 isEditing = true;
             } else {
-                showStatusMessage('Obiettivo aggiornato!', 'success');
+                showStatusMessage('¡Objetivo actualizado!', 'success');
                 const idx = goalsData.findIndex(g => String(g.id) === String(id));
                 if(idx > -1) {
                     const currentGoal = goalsData[idx];
@@ -1944,7 +1945,7 @@
             query = query.eq('obiettivo_id', goalId);
         }
         const { data, error } = await query;
-        if(error) { console.error('Errore nel calcolare il progresso', error); return; }
+        if(error) { console.error('Error al calcular el progreso', error); return; }
         const totalSaved = (data || []).reduce((sum, record) => sum + safeToNumber(record.importo), 0);
 
         let targetAmount = 0;
@@ -1981,9 +1982,9 @@
             amountToSave = (percentage / 100) * totalIncomes;
         }
 
-        showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amountToSave)}€</strong> per questo obiettivo.</p>`, [
-            { text: 'Annulla', class: 'btn-secondary' },
-            { text: 'Conferma', class: 'btn-primary', action: async () => {
+        showModal('Confirmar Ahorro', `<p>Estás a punto de registrar un ahorro de <strong>${fmt(amountToSave)}€</strong> para este objetivo.</p>`, [
+            { text: 'Cancelar', class: 'btn-secondary' },
+            { text: 'Confirmar', class: 'btn-primary', action: async () => {
                 const table = goal.is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
                 const base = { user_id: user.id, importo: amountToSave, data_registrazione: ymdLocal(new Date()) };
                 let payload = base;
@@ -1995,22 +1996,22 @@
                 }
                 const { error } = await supabase.from(table).insert(payload);
                 if (error) {
-                    showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                    showModal('Error', `No se pudo registrar el ahorro. Detalle: ${error.message}`, [{ text: 'Cerrar' }]);
                     return;
                 }
-                showStatusMessage('Risparmio registrato!', 'success');
+                showStatusMessage('¡Ahorro registrado!', 'success');
                 loadAndRenderGoals();
             }}
         ]);
     }
     
     function handleDeleteGoal(goalId) {
-        showModal('Elimina Obiettivo', `<p>Sei sicuro di voler eliminare questo obiettivo? Tutti i risparmi collegati verranno conservati ma non saranno più associati.</p>`, [
-            { text: 'Annulla', class: 'btn-secondary' },
-            { text: 'Elimina', class: 'delete', action: async () => {
+        showModal('Eliminar Objetivo', `<p>¿Estás seguro de que quieres eliminar este objetivo? Todos los ahorros asociados se conservarán pero ya no estarán vinculados.</p>`, [
+            { text: 'Cancelar', class: 'btn-secondary' },
+            { text: 'Eliminar', class: 'delete', action: async () => {
                 const { error } = await supabase.from('obiettivi').delete().eq('id', goalId);
-                if(error) { showModal('Errore', 'Impossibile eliminare l\'obiettivo.', [{ text: 'Chiudi' }]); return; }
-                showStatusMessage('Obiettivo eliminato.', 'success');
+                if(error) { showModal('Error', 'No se pudo eliminar el objetivo.', [{ text: 'Cerrar' }]); return; }
+                showStatusMessage('Objetivo eliminado.', 'success');
                 loadAndRenderGoals();
             }}
         ]);
@@ -2027,11 +2028,11 @@
 
       const { data, error } = await q.order('data_registrazione', { ascending:false }).limit(500);
       if (error) {
-        showModal('Errore', `<p>Impossibile recuperare i risparmi.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
+        showModal('Error', `<p>No se pudieron recuperar los ahorros.</p><p><small>${error.message}</small></p>`, [{ text:'Cerrar' }]);
         return;
       }
       const items = data || [];
-      if (!items.length) { showModal('Risparmi Registrati', '<p>Nessun risparmio registrato.</p>', [{ text:'Chiudi' }]); return; }
+      if (!items.length) { showModal('Ahorros Registrados', '<p>Ningún ahorro registrado.</p>', [{ text:'Cerrar' }]); return; }
 
       const rows = items.map(r=>{
         const date = r.data_registrazione || (r.created_at||'').toString().split('T')[0] || '';
@@ -2045,7 +2046,7 @@
           </li>`;
       }).join('');
 
-      showModal('Modifica Risparmi', `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`, [{ text:'Chiudi' }]);
+      showModal('Editar Ahorros', `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`, [{ text:'Cerrar' }]);
 
       // --- FIX: Inizio della correzione per i bottoni del modale ---
       let modalBody = document.getElementById('generic-modal-body');
@@ -2063,15 +2064,15 @@
         const id = btn.dataset.id, tbl = btn.dataset.table;
 
         if (btn.classList.contains('saving-delete-btn')) {
-          showModal('Conferma Eliminazione',
-            '<p>Eliminare questo risparmio?</p>',
+          showModal('Confirmar Eliminación',
+            '<p>¿Eliminar este ahorro?</p>',
             [
-              { text:'Annulla', class:'btn-secondary' },
-              { text:'Elimina', class:'delete', keepOpen:true, action: async ()=>{
+              { text:'Cancelar', class:'btn-secondary' },
+              { text:'Eliminar', class:'delete', keepOpen:true, action: async ()=>{
                   const { error } = await supabase.from(tbl).delete().eq('id', id);
-                  if (error) { showModal('Errore', `<p>Impossibile eliminare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  if (error) { showModal('Error', `<p>No se pudo eliminar.</p><p><small>${error.message}</small></p>`, [{text:'Cerrar'}]); return; }
                   closeModal(document.getElementById('generic-modal'));
-                  showStatusMessage('Risparmio eliminato.', 'success');
+                  showStatusMessage('Ahorro eliminado.', 'success');
                   updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
                   showSavingsModal(goal); // Ricarica il modale
               } }
@@ -2081,22 +2082,22 @@
         if (btn.classList.contains('saving-edit-btn')) {
           const item = items.find(x => String(x.id) === String(id));
           const dateVal = (item?.data_registrazione || (item?.created_at||'').toString().split('T')[0] || '');
-          showModal('Modifica Risparmio', `
-            <div class="form-group"><label>Importo (€)</label>
+          showModal('Editar Ahorro', `
+            <div class="form-group"><label>Importe (€)</label>
               <input id="edit-saving-amount" type="number" step="0.01" value="${fmt(item.importo)}" inputmode="decimal"></div>
-            <div class="form-group" style="margin-top:8px"><label>Data</label>
+            <div class="form-group" style="margin-top:8px"><label>Fecha</label>
               <input id="edit-saving-date" type="date" value="${escapeHTML(dateVal)}"></div>`,
             [
-              { text:'Annulla', class:'btn-secondary' },
-              { text:'Salva', class:'btn-primary', action: async ()=>{
+              { text:'Cancelar', class:'btn-secondary' },
+              { text:'Guardar', class:'btn-primary', action: async ()=>{
                   const amt = safeToNumber(String(document.getElementById('edit-saving-amount').value).replace(',','.'));
                   const date = document.getElementById('edit-saving-date').value || null;
                   const payload = { importo: amt };
                   if (date) payload.data_registrazione = date;
                   const { error } = await supabase.from(tbl).update(payload).eq('id', id);
-                  if (error) { showModal('Errore', `<p>Impossibile aggiornare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  if (error) { showModal('Error', `<p>No se pudo actualizar.</p><p><small>${error.message}</small></p>`, [{text:'Cerrar'}]); return; }
                   closeModal(document.getElementById('generic-modal'));
-                  showStatusMessage('Risparmio aggiornato.', 'success');
+                  showStatusMessage('Ahorro actualizado.', 'success');
                   updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
                   showSavingsModal(goal); // Ricarica il modale
               } }
@@ -2109,21 +2110,21 @@
 
     function handleAddGoal() {
         const bodyHtml = `<form id="add-goal-form">
-            <div class="form-group"><label for="goal-name">Nome Obiettivo</label><input type="text" id="goal-name" required placeholder="Es. Vacanze estive"></div>
-            <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importo mensile (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00" inputmode="decimal"></div>
-            <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Obiettivo finale (opzionale)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00" inputmode="decimal"></div>
+            <div class="form-group"><label for="goal-name">Nombre del Objetivo</label><input type="text" id="goal-name" required placeholder="Ej. Vacaciones de verano"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importe mensual (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Meta final (opcional)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00" inputmode="decimal"></div>
             <div class="form-group" style="margin-top:12px">
-              <label>Metodo di contribuzione</label>
+              <label>Método de contribución</label>
               <div style="display:flex; gap:8px;">
-                <label><input type="radio" name="method-add" value="Cifra fissa" checked> Cifra fissa</label>
-                <label><input type="radio" name="method-add" value="Importo variabile"> Importo variabile</label>
-                <label><input type="radio" name="method-add" value="Percentuale sulle entrate"> Percentuale</label>
+                <label><input type="radio" name="method-add" value="Cifra fissa" checked> Cantidad fija</label>
+                <label><input type="radio" name="method-add" value="Importo variabile"> Importe variable</label>
+                <label><input type="radio" name="method-add" value="Percentuale sulle entrate"> Porcentaje</label>
               </div>
             </div>
         </form>`;
-        showModal('Nuovo Obiettivo', bodyHtml, [
-            { text: 'Annulla', class: 'btn-secondary' },
-            { text: 'Salva', class: 'btn-primary', action: async () => {
+        showModal('Nuevo Objetivo', bodyHtml, [
+            { text: 'Cancelar', class: 'btn-secondary' },
+            { text: 'Guardar', class: 'btn-primary', action: async () => {
                 const nome = document.getElementById('goal-name').value.trim();
                 const importoMensileRaw = String(document.getElementById('goal-monthly-amount').value || '').replace(',', '.');
                 const importoTargetRaw  = String(document.getElementById('goal-target-amount').value || '').replace(',', '.');
@@ -2133,7 +2134,7 @@
                 const importoTarget  = importoTargetRaw ? parseFloat(importoTargetRaw) : null;
 
                 if (!nome || !Number.isFinite(importoMensile)) {
-                  showModal('Dati mancanti', '<p>Inserisci un nome valido e un importo mensile corretto (es. 150,00).</p>', [{ text:'Chiudi' }]);
+                  showModal('Datos faltantes', '<p>Introduce un nombre válido y un importe mensual correcto (ej. 150,00).</p>', [{ text:'Cerrar' }]);
                   return;
                 }
 
@@ -2146,10 +2147,10 @@
                 });
 
                 if (error) {
-                  showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                  showModal('Error', `No se pudo crear el objetivo. Detalle: ${error.message}`, [{ text: 'Cerrar' }]);
                   return;
                 }
-                showStatusMessage('Obiettivo creato!', 'success');
+                showStatusMessage('¡Objetivo creado!', 'success');
                 loadAndRenderGoals();
             }}
         ]);
@@ -2173,7 +2174,7 @@
     let __ready = false;
     let __eventsBound = false;
     let __watchdogTimer = null;
-    function showLoader(message = 'Caricamento…', showRetry = false){
+    function showLoader(message = 'Cargando…', showRetry = false){
       const wrap = document.getElementById('boot-loader');
       if (!wrap) return;
       document.getElementById('boot-loader-text').textContent = message;
@@ -2189,7 +2190,7 @@
       clearTimeout(__watchdogTimer);
       __watchdogTimer = setTimeout(()=>{
         if (!__ready){
-          showLoader('Connessione lenta o timeout. Riprova?', true);
+          showLoader('Conexión lenta o tiempo de espera agotado. ¿Reintentar?', true);
         }
       }, 8000);
     }
@@ -2198,7 +2199,7 @@
       const retryBtn = document.getElementById('boot-retry-btn');
       if (!retryBtn) return;
       retryBtn.onclick = async ()=>{
-        showLoader('Riprovo…', false);
+        showLoader('Reintentando…', false);
         __booted = false;
         __ready  = false;
         await bootDashboard();
@@ -2210,13 +2211,13 @@
       if (__booted) return;
       __booted = true;
 
-      showLoader('Caricamento…', false);
+      showLoader('Cargando…', false);
       startWatchdog();
 
       try {
         // 1) Prendi la sessione
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { location.replace("/it/login.html"); return; }
+        if (!session) { location.replace("/es/login.html"); return; }
         user = session.user;
 
         // 2) Ora puoi usare user.id
@@ -2227,7 +2228,7 @@
           .single();
         if (pErr) throw pErr;
 
-        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
+        if (profile && !profile.onboarded) { location.replace("/es/onboarding.html"); return; }
         userProfile = profile;
         renderSubscriptionStatus(profile);
             
@@ -2236,7 +2237,7 @@
                 window.addEventListener('resize', positionSubscriptionButton);
 
                 const now = new Date();
-                const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                const months = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
                 if(monthSelector.options.length === 0) {
                     months.forEach((month, index) => monthSelector.add(new Option(month, index)));
                 }
@@ -2287,16 +2288,16 @@
                 categorySelect.addEventListener('change', () => updateSubcategories());
                 transactionForm.addEventListener('submit', handleFormSubmit);
                 cancelEditBtn.addEventListener('click', resetFormToCreateMode);
-                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/es/") });
                 
                 const goalsLinkTop = document.getElementById('edit-goal-top');
                 if (goalsLinkTop) {
                   goalsLinkTop.addEventListener('click', (e) => {
                     e.preventDefault();
                     // Opzionale: memorizzo da dove arrivo, utile per "torna indietro"
-                    sessionStorage.setItem('mhb_onboarding_return_to', '/it/dashboard.html');
+                    sessionStorage.setItem('mhb_onboarding_return_to', '/es/dashboard.html');
 
-                    const url = new URL('/it/onboarding.html', location.origin);
+                    const url = new URL('/es/onboarding.html', location.origin);
                     url.searchParams.set('from', 'dashboard');
                     url.searchParams.set('force', '1');
                     url.searchParams.set('step', '1');
@@ -2308,7 +2309,7 @@
 
                 monthSelector.addEventListener('change', loadAllDataForMonth);
                 yearSelector.addEventListener('change', loadAllDataForMonth);
-                const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                const nowMonths = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
                 listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); renderMovementsListModal(allTransactions, nowMonths); openModal(movementsModal);});
                 document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
                   radio.addEventListener('change', (e)=>{
@@ -2325,7 +2326,7 @@
                   const futureDate = new Date();
                   futureDate.setDate(today.getDate() + 30);
                   const scheduled = await getScheduledTransactions(today, futureDate);
-                  document.getElementById('scheduler-modal-title').innerHTML = `🗓️ Scadenziario (Prossimi 30 giorni)`;
+                  document.getElementById('scheduler-modal-title').innerHTML = `🗓️ Vencimientos (Próximos 30 días)`;
                   const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
                   renderDeadlinesList(document.getElementById('scheduler-modal-body'), scheduled, currentFilter);
                   openModal(schedulerModal);
@@ -2336,7 +2337,7 @@
                   const t = new Date();
                   const f = new Date(); f.setDate(t.getDate()+7);
                   const u = await getScheduledTransactions(t, f);
-                  document.getElementById('scheduler-modal-title').innerHTML = `🔔 Notifiche (Prossimi 7 giorni)`;
+                  document.getElementById('scheduler-modal-title').innerHTML = `🔔 Notificaciones (Próximos 7 días)`;
                   const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
                   renderDeadlinesList(document.getElementById('scheduler-modal-body'), u, currentFilter);
                   openModal(schedulerModal);
@@ -2391,9 +2392,9 @@
 
 
         } catch (err){
-            console.error("Errore critico durante l'inizializzazione:", err);
+            console.error("Error crítico durante la inicialización:", err);
             stopWatchdog();
-            showLoader(`Errore di inizializzazione. Riprova?`, true);
+            showLoader(`Error de inicialización. ¿Reintentar?`, true);
             __booted = false;
         }
     }
