@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="es" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuración Inicial — MyHomesBudget</title>
+  <meta name="description" content="Configura tu perfil en pocos pasos para empezar a gestionar tu presupuesto familiar.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root{
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,.6);
+      --card-border:rgba(0,0,0,.08);--shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --grad-danger: linear-gradient(135deg, #d32f2f, #ff7675);
+    }
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    body{margin:0;color:var(--fg);background:url("/bg.webp") no-repeat center/cover fixed;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg, rgba(108,92,231,.05), rgba(0,206,201,.05));z-index:-1}
+
+    /* ====== TOPBAR (uguale alla Dashboard) ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--card-border);z-index:100}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link{
+      color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;
+      font-weight:600;background: var(--grad);border: none;box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;}
+    .top-link:hover {transform: translateY(-2px);filter: brightness(1.08);box-shadow: 0 6px 16px rgba(0,0,0,.20);}
+    .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:101;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .mobile-menu-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+    @media (max-width: 768px){
+      .mobile-menu-toggle{display:block}
+      .top-actions{
+        position:absolute;top:70px;right:16px;background:rgba(255,255,255,0.8);
+        backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);
+        box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;
+        transform:translateY(-20px) scale(0.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:100;border:1px solid var(--card-border)}
+      .top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+      .top-actions .top-link{width:100%;text-align:center}
+    }
+
+    /* ====== Contenuto (coerente con Dashboard) ====== */
+    main.container{padding:84px 24px 24px;max-width:1280px;margin:0 auto;width:100%}
+    .content-card{
+      background:rgba(255,255,255,.85);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)
+    }
+
+    /* ====== Testo / Step ====== */
+    .panel-header{background:rgba(255,255,255,.75);border-radius:12px;padding:14px;border:1px solid var(--card-border)}
+    .progress-bar{width:100%;height:8px;background:rgba(0,0,0,.1);border-radius:999px;overflow:hidden}
+    .progress-bar-inner{width:0%;height:100%;background:var(--primary-color);transition:width .4s ease}
+    .step-indicator{font-size:.9rem;font-weight:700;color:#555;margin-top:8px;text-align:right}
+    .step{display:none}
+    .step.is-active{display:block;animation:fadeIn .45s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .step-title{text-align:center;margin:6px 0 8px;font-size:clamp(1.6rem,4vw,1.9rem);color:#111}
+    .step-description{text-align:center;color:#333;margin:0 auto 16px;max-width:560px}
+
+    /* ====== Opzioni ====== */
+    .options-grid{display:grid;gap:12px}
+
+    .option-label{display:block;padding:14px;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,.9);transition:.18s ease;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .option-label:hover{background:#fff;transform:translateY(-1px)}
+    input[type="radio"],input[type="checkbox"]{position:absolute;opacity:0;width:1px;height:1px}
+    input[type="radio"]:checked + .option-label,
+    input[type="checkbox"]:checked + .option-label{border-color:var(--primary-color);background:#fff}
+    .option-label strong{display:block;font-size:1.05rem}
+    .option-label span{font-size:.92rem;color:#444}
+    
+    .option-details{display:none;grid-template-columns:1fr;gap:10px;padding:10px 14px 0}
+    input[type="radio"]:checked ~ .option-details{display:grid}
+    
+    .input-field{width:100%;border:1px solid #ccc;background:#fff;padding:10px;border-radius:10px;font-size:1rem}
+    .input-field::placeholder{color:#999}
+    .hint{font-size:.9rem;color:#555}
+
+    /* ====== Colonne Categorie ====== */
+    .category-columns{display:grid;gap:24px}
+    @media(min-width:768px){.category-columns{grid-template-columns:1fr 1fr}}
+    .column h3{text-align:center;margin:0 0 8px}
+    .category-columns .column:first-child h3{ color: var(--success-color); }
+    .category-columns .column:last-child  h3{ color: var(--danger-color); }
+
+    .error-message{color:#842029;background:#f8d7da;border:1px solid #f5c2c7;border-radius:10px;padding:10px 12px;font-weight:700;text-align:center;display:none}
+    .error-message.show{display:block}
+
+    /* ====== Footer ====== */
+    .panel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+    .btn-primary{background:var(--grad);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+    .btn-primary:hover{box-shadow:0 14px 28px rgba(0,0,0,.22)}
+    .btn-secondary{background:#fff;color:#111;border:1px solid rgba(0,0,0,.12)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+
+    /* ====== Toolbar categorie ====== */
+    #cats-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 10px;flex-wrap:nowrap}
+    #cats-toolbar .cats-counts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    #cats-toolbar .cats-actions{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+    #cats-toolbar .cats-actions .input-field{max-width:220px;min-width:180px}
+    #cats-toolbar .btn.btn-primary{white-space:nowrap;padding:10px 14px}
+    @media (max-width: 420px){
+      #cats-toolbar{flex-wrap:wrap}
+      #cats-toolbar .cats-actions{flex-wrap:wrap}
+    }
+  </style>
+</head>
+<body>
+  <!-- Topbar uguale alla Dashboard -->
+  <nav class="topbar">
+    <a href="/es/" class="logo-link">
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-nav-right">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Abrir menú">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+      <div class="top-actions">
+        <a href="/es/dashboard.html" class="top-link">↩️ Volver al Panel</a>
+        <a href="#" id="logout-btn" class="top-link">Cerrar sesión</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="content-card">
+      <div class="panel-header">
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar-inner"></div>
+        </div>
+        <div id="step-indicator" class="step-indicator"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <section id="step-1" class="step" data-step="1">
+        <h2 class="step-title">¿Cuál es tu objetivo principal?</h2>
+        <p class="step-description">Elegir un objetivo nos ayuda a personalizar tu experiencia y a seguir tu progreso.</p>
+        <fieldset class="options-grid">
+          <div>
+            <input type="radio" id="goal-saving" name="goal_type" value="Risparmio">
+            <label for="goal-saving" class="option-label"><strong>💰 Ahorro general</strong><span>Reserva una cantidad específica cada mes.</span></label>
+            <div class="option-details">
+              <input type="text" class="input-field" name="goal_name" value="Ahorro ANUAL" readonly>
+              <input type="number" class="input-field" name="goal_target_amount" placeholder="5.000,00" step="100">
+            </div>
+          </div>
+          <div>
+            <input type="radio" id="goal-debts" name="goal_type" value="Riduzione Debiti">
+            <label for="goal-debts" class="option-label"><strong>📉 Reducción de deudas</strong><span>Monitoriza y reduce tus deudas de forma eficaz.</span></label>
+            <div class="option-details">
+              <input type="text" class="input-field" name="goal_name" placeholder="Ej: Cancelar hipoteca">
+              <input type="number" class="input-field" name="goal_target_amount" placeholder="70.000,00" step="1000">
+            </div>
+          </div>
+          <div>
+            <input type="radio" id="goal-objective" name="goal_type" value="Obiettivo Specifico">
+            <label for="goal-objective" class="option-label"><strong>🎯 Alcanzar un objetivo</strong><span>Viajes, compras importantes, proyectos personales.</span></label>
+            <div class="option-details">
+              <input type="text" class="input-field" name="goal_name" placeholder="Ej: Vacaciones en Nueva York">
+              <input type="number" class="input-field" name="goal_target_amount" placeholder="1.500,00" step="50">
+              <input type="date" class="input-field" name="goal_target_date" placeholder="Fecha objetivo">
+              <div id="goal-suggestion" class="hint"></div>
+            </div>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- STEP 2 -->
+      <section id="step-2" class="step" data-step="2">
+        <h2 class="step-title">¿Cómo quieres alcanzar tu objetivo?</h2>
+        <p class="step-description">Define tu contribución mensual. Esta será la base de tu presupuesto de ahorro.</p>
+        <fieldset class="options-grid">
+          <div>
+            <input type="radio" id="method-fixed" name="contribution_method" value="Cifra fissa">
+            <label for="method-fixed" class="option-label"><strong>🗓️ Cantidad fija mensual</strong><span>Destina un importe preestablecido cada mes.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
+          </div>
+          <div>
+            <input type="radio" id="method-variable" name="contribution_method" value="Importo variabile">
+            <label for="method-variable" class="option-label"><strong>🎛️ Importe variable</strong><span>Decide cuánto reservar según tus gastos.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="250,00" step="10"></div>
+          </div>
+          <div>
+            <input type="radio" id="method-percentage" name="contribution_method" value="Percentuale sulle entrate">
+            <label for="method-percentage" class="option-label"><strong>📊 Porcentaje sobre los ingresos</strong><span>Establece un porcentaje fijo de tus ingresos.</span></label>
+            <div class="option-details"><input type="number" class="input-field" name="contribution_amount" placeholder="10" step="1"></div>
+          </div>
+        </fieldset>
+      </section>
+
+      <!-- STEP 3 -->
+      <section id="step-3" class="step" data-step="3">
+        <h2 class="step-title">Elige tus categorías</h2>
+        <p class="step-description">Selecciona las partidas de ingresos y gastos que usas con más frecuencia. Siempre podrás modificarlas más tarde.</p>
+
+        <div id="cats-toolbar">
+          <div class="cats-counts">
+            <strong>Ingresos:</strong> <span id="count-income">0 seleccionadas</span>
+            <span style="width:1px;height:16px;background:rgba(0,0,0,.15);display:inline-block;margin:0 6px"></span>
+            <strong>Gastos:</strong> <span id="count-expense">0 seleccionadas</span>
+          </div>
+          <div class="cats-actions">
+            <input id="cat-search" class="input-field" placeholder="Buscar categorías..." />
+            <button type="button" id="preset-min" class="btn btn-primary">Preajuste: Mínimo</button>
+            <button type="button" id="preset-full" class="btn btn-primary">Preajuste: Completo</button>
+          </div>
+        </div>
+
+        <fieldset>
+          <div class="category-columns">
+            <div class="column">
+              <h3>Ingresos</h3>
+              <div id="income-category-options" class="options-grid"></div>
+            </div>
+            <div class="column">
+              <h3>Gastos</h3>
+              <div id="expense-category-options" class="options-grid"></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Riepilogo -->
+        <div id="review-card" class="panel-header" style="margin-top:12px;">
+          <div style="font-weight:800;margin-bottom:8px;">Resumen</div>
+          <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;font-size:.95rem;">
+            <div><b>Objetivo</b></div><div id="rev-goal">—</div>
+            <div><b>Meta</b></div><div id="rev-target">—</div>
+            <div><b>Método</b></div><div id="rev-method">—</div>
+            <div><b>Parámetro</b></div><div id="rev-param">—</div>
+            <div><b>Ingresos</b></div><div id="rev-inc">—</div>
+            <div><b>Gastos</b></div><div id="rev-exp">—</div>
+          </div>
+        </div>
+      </section>
+
+      <div id="error" class="error-message"></div>
+      <div class="panel-footer">
+        <button id="back-btn" class="btn btn-secondary">Atrás</button>
+        <button id="next-btn" class="btn btn-primary">Siguiente</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    /* ====== Topbar mobile toggle ====== */
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const topActions = document.querySelector('.top-actions');
+    if(mobileMenuBtn && topActions){
+      mobileMenuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); topActions.classList.toggle('is-open'); });
+      document.addEventListener('click', (e)=>{ if(!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) topActions.classList.remove('is-open'); });
+    }
+
+    /* ====== Stato Onboarding ====== */
+    const TOTAL_STEPS = 3;
+    const state = {
+      goal_type: null, 
+      goal_name: null, 
+      goal_target_amount: null,
+      goal_target_date: null,
+      contribution_method: null, 
+      contribution_amount: null,
+      categories: []
+    };
+    let currentStep = 1;
+    let user = null;
+
+    const backBtn = document.getElementById('back-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const progressBarInner = document.querySelector('.progress-bar-inner');
+    const stepIndicator = document.getElementById('step-indicator');
+    const errorBox = document.getElementById('error');
+    const steps = document.querySelectorAll('.step');
+
+    const getLangPrefix = () => { const match = location.pathname.match(/^\/(it|ita|es|en)(\/|$)/i); return match ? `/${match[1]}/` : '/it/'; };
+    const showError = (msg) => { errorBox.textContent = msg || ''; errorBox.classList.toggle('show', !!msg); };
+
+    /* ====== Suggerimento quota per “Obiettivo specifico” ====== */
+    function monthsBetween(a,b){
+      const A=new Date(a), B=new Date(b); if(isNaN(A)||isNaN(B)) return null;
+      let m=(B.getFullYear()-A.getFullYear())*12+(B.getMonth()-A.getMonth());
+      if(B.getDate()<A.getDate()) m-=1;
+      return Math.max(1,m);
+    }
+    function updateGoalSuggestion(){
+      const typeRadio = document.querySelector('input[name="goal_type"]:checked');
+      const box = document.getElementById('goal-suggestion');
+      if(!box){ return; }
+      if(!typeRadio || typeRadio.value!=='Obiettivo Specifico'){ box.textContent=''; return; }
+      const wrap = typeRadio.closest('div');
+      const amount = parseFloat(wrap.querySelector('input[name="goal_target_amount"]')?.value||'');
+      const date = wrap.querySelector('input[name="goal_target_date"]')?.value||'';
+      if(!amount || !date){ box.textContent=''; return; }
+      const m = monthsBetween(new Date().toISOString(), date);
+      if(!m){ box.textContent=''; return; }
+      const perMonth = Math.ceil((amount / m)*100)/100;
+      box.textContent = `Sugerencia: ~€${perMonth}/mes para alcanzar la meta antes de ${date}.`;
+    }
+    document.addEventListener('input', (e)=>{
+      const names = ['goal_target_amount','goal_target_date'];
+      if(names.includes(e.target.getAttribute('name'))) updateGoalSuggestion();
+    });
+    document.addEventListener('change', (e)=>{
+      if(e.target.name==='goal_type') updateGoalSuggestion();
+    });
+
+    /* ====== Rendering step ====== */
+    function renderStep(n){
+      steps.forEach(s => s.classList.toggle('is-active', parseInt(s.dataset.step,10)===n));
+      const progress = n>1 ? ((n-1)/(TOTAL_STEPS-1))*100 : 0;
+      progressBarInner.style.width = progress + '%';
+      (progressBarInner.parentElement).setAttribute('aria-valuenow', String(progress));
+      stepIndicator.textContent = `Paso ${n} de ${TOTAL_STEPS}`;
+      backBtn.style.visibility = (n>1) ? 'visible' : 'hidden';
+      nextBtn.textContent = (n===TOTAL_STEPS) ? 'Finalizar' : 'Siguiente';
+      showError('');
+      if(n===3) renderReview();
+    }
+
+    /* ====== Categorie ====== */
+    function populateCategoriesFromDB(defaultCategories){
+      const incomeContainer = document.getElementById('income-category-options');
+      const expenseContainer = document.getElementById('expense-category-options');
+      if(incomeContainer.childElementCount>0) return;
+
+      defaultCategories.forEach((cat,i)=>{
+        const id='cat-'+i;
+        const w=document.createElement('div');
+        w.innerHTML = `<input type="checkbox" id="${id}" name="category" value='${JSON.stringify(cat)}'>
+                       <label for="${id}" class="option-label"><strong>${cat.icon} ${cat.name}</strong></label>`;
+        (cat.kind==='income' ? incomeContainer : expenseContainer).appendChild(w);
+      });
+      updateCategoryCounters();
+    }
+    function updateCategoryCounters(){
+      const all=[...document.querySelectorAll('input[name="category"]')];
+      const sel=all.filter(i=>i.checked).map(i=>JSON.parse(i.value));
+      const inc=sel.filter(c=>c.kind==='income').length;
+      const exp=sel.filter(c=>c.kind!=='income').length;
+      const incEl=document.getElementById('count-income');
+      const expEl=document.getElementById('count-expense');
+      if(incEl) incEl.textContent = `${inc} seleccionadas`;
+      if(expEl) expEl.textContent = `${exp} seleccionadas`;
+    }
+    document.addEventListener('change',(e)=>{
+      if(e.target && e.target.name==='category'){ updateCategoryCounters(); if(currentStep===3) renderReview(); }
+      if(currentStep===3 && (e.target.name==='goal_type' || e.target.name==='contribution_method')) renderReview();
+    });
+    const catSearch=document.getElementById('cat-search');
+    if(catSearch){
+      catSearch.addEventListener('input',(e)=>{
+        const q=e.target.value.toLowerCase();
+        document.querySelectorAll('#income-category-options > div, #expense-category-options > div')
+          .forEach(w=>{
+            const label=w.textContent.toLowerCase();
+            w.style.display = label.includes(q)?'block':'none';
+          });
+      });
+    }
+    const presetMin=document.getElementById('preset-min');
+    const presetFull=document.getElementById('preset-full');
+    if(presetMin){
+      presetMin.addEventListener('click',()=>{
+        const boxes=[...document.querySelectorAll('input[name="category"]')];
+        boxes.forEach(b=>b.checked=false);
+        const incomes=boxes.filter(b=>JSON.parse(b.value).kind==='income').slice(0,2);
+        const expenses=boxes.filter(b=>JSON.parse(b.value).kind!=='income').slice(0,3);
+        [...incomes,...expenses].forEach(b=>b.checked=true);
+        updateCategoryCounters(); if(currentStep===3) renderReview();
+      });
+    }
+    if(presetFull){
+      presetFull.addEventListener('click',()=>{
+        document.querySelectorAll('input[name="category"]').forEach(b=> b.checked=true);
+        updateCategoryCounters(); if(currentStep===3) renderReview();
+      });
+    }
+
+    /* ====== MODIFICA CHIRURGICA: Preselezione dati ====== */
+    function preselectFormData(profile){
+      if(profile){
+        // Preselezione Goal (passo 1)
+        const typeRadio = document.querySelector(`input[name="goal_type"][value="${profile.goal_type}"]`);
+        if(typeRadio){
+          typeRadio.checked=true;
+          const parentDiv=typeRadio.closest('div');
+          if(parentDiv.querySelector('input[name="goal_name"]')) parentDiv.querySelector('input[name="goal_name"]').value = profile.goal_name ?? '';
+          if(parentDiv.querySelector('input[name="goal_target_amount"]')) parentDiv.querySelector('input[name="goal_target_amount"]').value = profile.goal_target_amount ?? '';
+          if(parentDiv.querySelector('input[name="goal_target_date"]')) parentDiv.querySelector('input[name="goal_target_date"]').value = profile.goal_target_date ?? '';
+        }
+
+        // Preselezione Metodo Contribuzione (passo 2)
+        const methodRadio = document.querySelector(`input[name="contribution_method"][value="${profile.contribution_method}"]`);
+        if(methodRadio){
+          methodRadio.checked=true;
+          const parentDiv=methodRadio.closest('div');
+          if(parentDiv.querySelector('input[name="contribution_amount"]')) parentDiv.querySelector('input[name="contribution_amount"]').value = profile.contribution_amount ?? '';
+        }
+
+        // Preselezione Categorie (passo 3) - LEGGE DA PROFILES.ONBOARDING_CATEGORIES
+        if (profile.onboarding_categories && Array.isArray(profile.onboarding_categories)) {
+          const selectedNames = profile.onboarding_categories.map(c => c.name);
+          document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+            try {
+              const catObj = JSON.parse(checkbox.value);
+              if (selectedNames.includes(catObj.name)) {
+                checkbox.checked = true;
+              }
+            } catch(e){}
+          });
+        }
+      }
+      updateCategoryCounters();
+      updateGoalSuggestion();
+    }
+
+    /* ====== Riepilogo ====== */
+    function renderReview(){
+      const type=document.querySelector('input[name="goal_type"]:checked')?.value || null;
+      const tDiv=document.querySelector('input[name="goal_type"]:checked')?.closest('div');
+      const name=tDiv?.querySelector('input[name="goal_name"]')?.value?.trim() || '';
+      const target=parseFloat(tDiv?.querySelector('input[name="goal_target_amount"]')?.value||'') || null;
+      const date=tDiv?.querySelector('input[name="goal_target_date"]')?.value || '';
+      const method=document.querySelector('input[name="contribution_method"]:checked')?.value || null;
+      const mDiv=document.querySelector('input[name="contribution_method"]:checked')?.closest('div');
+      const amount=parseFloat(mDiv?.querySelector('input[name="contribution_amount"]')?.value||'') || null;
+      const selected=[...document.querySelectorAll('input[name="category"]:checked')].map(i=>JSON.parse(i.value));
+      const inc=selected.filter(c=>c.kind==='income').map(c=>c.name).join(', ') || '—';
+      const exp=selected.filter(c=>c.kind!=='income').map(c=>c.name).join(', ') || '—';
+
+      document.getElementById('rev-goal').textContent = type || '—';
+      document.getElementById('rev-target').textContent = (name? `${name} — `:'') + (target? `€${target.toFixed(2)}`:'') + (date? ` — ${date}`:'') || '—';
+      document.getElementById('rev-method').textContent = method || '—';
+      document.getElementById('rev-param').textContent = (amount!=null && !Number.isNaN(amount)) ? (method==='Percentuale sulle entrate' ? `${amount}%` : `€${amount.toFixed(2)}/mes`) : '—';
+      document.getElementById('rev-inc').textContent = inc;
+      document.getElementById('rev-exp').textContent = exp;
+    }
+
+    /* ====== Validazione ====== */
+    function validateAndUpdateState(n){
+      showError('');
+      if(n===1){
+        const typeRadio=document.querySelector('input[name="goal_type"]:checked');
+        if(!typeRadio){ showError('Por favor, elige un objetivo.'); return false; }
+        state.goal_type = typeRadio.value;
+        const parentDiv = typeRadio.closest('div');
+        const nameInput  = parentDiv.querySelector('input[name="goal_name"]');
+        const amountInput= parentDiv.querySelector('input[name="goal_target_amount"]');
+        if(!nameInput || !amountInput){ showError('Error interno, recarga la página.'); return false; }
+        if(!nameInput.value.trim()){ showError('Por favor, introduce un nombre para tu objetivo.'); return false; }
+        if(amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Por favor, introduce un importe válido.'); return false; }
+        state.goal_name = nameInput.value.trim();
+        state.goal_target_amount = parseFloat(amountInput.value);
+        
+        state.goal_target_date = null;
+        if(state.goal_type === 'Obiettivo Specifico'){
+            const dateInput = parentDiv.querySelector('input[name="goal_target_date"]');
+            if(!dateInput || !dateInput.value){
+                showError('Por favor, introduce una fecha límite para tu objetivo.');
+                return false;
+            }
+            state.goal_target_date = dateInput.value;
+        }
+
+      } else if(n===2){
+        const methodRadio=document.querySelector('input[name="contribution_method"]:checked');
+        if(!methodRadio){ showError('Por favor, elige un método.'); return false; }
+        state.contribution_method = methodRadio.value;
+        const parentDiv=methodRadio.closest('div');
+        const amountInput=parentDiv.querySelector('input[name="contribution_amount"]');
+        if(!amountInput || amountInput.value==='' || parseFloat(amountInput.value)<=0){ showError('Por favor, introduce un importe o porcentaje válido.'); return false; }
+        state.contribution_amount = parseFloat(amountInput.value);
+      } else if(n===3){
+        const sel=[...document.querySelectorAll('input[name="category"]:checked')].map(e=>JSON.parse(e.value));
+        if(!sel.length){ showError('Por favor, selecciona al menos una categoría.'); return false; }
+        state.categories = sel;
+      }
+      return true;
+    }
+
+    /* ====== MODIFICA CHIRURGICA: Salvataggio ====== */
+    async function saveOnboardingToSupabase(user) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Guardando...';
+
+      try {
+        // Prepara tutti i dati da salvare nella tabella 'profiles'
+        const profileUpdateData = {
+          onboarded: true,
+          goal_type: state.goal_type,
+          goal_name: state.goal_name,
+          goal_target_amount: state.goal_target_amount,
+          goal_target_date: state.goal_target_date,
+          contribution_method: state.contribution_method,
+          contribution_amount: state.contribution_amount,
+          onboarding_categories: state.categories // Salva l'array JSON delle categorie scelte
+        };
+
+        // Esegui un singolo aggiornamento sulla tabella 'profiles'
+        const { error } = await supabase
+          .from('profiles')
+          .update(profileUpdateData)
+          .eq('id', user.id);
+
+        if (error) {
+          console.error("Error Supabase (profiles.update):", error);
+          throw new Error("Error al actualizar el perfil. Verifica las políticas RLS en la tabla 'profiles'.");
+        }
+        
+        // L'operazione è andata a buon fine
+        return true;
+
+      } catch (err) {
+        console.error('Error al guardar:', err);
+        showError(err.message || 'Ha ocurrido un error crítico. Inténtalo de nuevo.');
+        nextBtn.disabled = false;
+        nextBtn.textContent = 'Finalizar';
+        return false;
+      }
+    }
+
+
+    /* ====== MODIFICA CHIRURGICA: Init ====== */
+    async function initializePage(){
+      try{
+        const { data } = await supabase.auth.getUser();
+        if(!data.user){ location.replace(getLangPrefix()+'login.html'); return; }
+        user = data.user;
+
+        const [profileRes, defaultCatRes] = await Promise.all([
+          supabase.from('profiles').select('*').eq('id', user.id).single(),
+          supabase.from('default_categories').select('name, icon, kind').order('id'),
+        ]);
+
+        for(const res of [profileRes, defaultCatRes]){
+          if(res.error && res.error.code !== 'PGRST116'){ 
+             console.error('Error al cargar datos:', res.error); 
+             showError('No se pudieron cargar los datos. Recarga la página.'); 
+             return; 
+          }
+        }
+        
+        const profile = profileRes.data;
+        const defaultCategories = defaultCatRes.data || [];
+        
+        const params = new URLSearchParams(location.search);
+        const force = params.get('force') === '1' || sessionStorage.getItem('onboarding_force') === '1';
+        const step  = parseInt(params.get('step') || sessionStorage.getItem('onboarding_step') || '1', 10);
+        
+        sessionStorage.removeItem('onboarding_force');
+        sessionStorage.removeItem('onboarding_step');
+
+        if (profile?.onboarded && force) {
+            currentStep = step;
+        } else if (profile?.onboarded && !force) {
+            location.replace(getLangPrefix() + 'dashboard.html');
+            return;
+        }
+
+        populateCategoriesFromDB(defaultCategories);
+        preselectFormData(profile);
+        renderStep(currentStep);
+
+        nextBtn.addEventListener('click', async ()=>{
+          if(!validateAndUpdateState(currentStep)) return;
+          if(currentStep===TOTAL_STEPS){
+            const success = await saveOnboardingToSupabase(user);
+            if(success) {
+              const returnTo = sessionStorage.getItem('mhb_onboarding_return_to') || (getLangPrefix() + 'dashboard.html');
+              sessionStorage.removeItem('mhb_onboarding_return_to');
+              location.replace(returnTo);
+            }
+          }else{
+            currentStep++; renderStep(currentStep);
+          }
+        });
+        backBtn.addEventListener('click', ()=>{ if(currentStep>1){ currentStep--; renderStep(currentStep); } });
+        logoutBtn.addEventListener('click', async (e)=>{ e.preventDefault(); await supabase.auth.signOut(); location.replace(getLangPrefix()); });
+      }catch(e){
+        console.error('Error crítico de inicialización:', e);
+        showError('Ha ocurrido un error inesperado. Recarga la página.');
+      }
+    }
+    document.addEventListener('DOMContentLoaded', initializePage);
+  </script>
+</body>
+</html>
