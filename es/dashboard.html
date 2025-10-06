@@ -1,0 +1,2464 @@
+<!doctype html>
+<html lang="es" data-app="myhomesbudget">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel — MyHomesBudget</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/homes.png" type="image/png" sizes="32x32">
+
+  <style>
+    :root{
+      --fg:#111;--bg:#f4f7fa;--glass:rgba(255,255,255,0.6);
+      --card-border:rgba(0,0,0,0.08);--shadow:0 10px 30px rgba(0,0,0,0.08);
+      --radius-lg:16px;--primary-color:#6c5ce7;--danger-color:#d32f2f;--success-color:#2e7d32;
+      --warning-color:#f39c12;
+      --font-sans:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+      --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
+      --grad-danger:linear-gradient(135deg,#d32f2f,#ff7675);
+      --grad-warning: linear-gradient(135deg,#f39c12,#fdd835);
+    }
+    *{box-sizing:border-box}
+    html{font-family:var(--font-sans);background-color:var(--bg)}
+    html, body { position: relative; }
+    body{
+      margin:0;
+      color:var(--fg);
+      min-height:100svh;
+      -webkit-overflow-scrolling:touch;
+    }
+    
+    /* Background layer fisso in alta qualità */
+    #bg{position:fixed;inset:0;z-index:-1;pointer-events:none}
+    #bg img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center;
+      image-rendering:auto; /* niente pixel art */
+      transform:translateZ(0);will-change:transform; /* evita banding/artefatti */
+      filter:none;
+    }
+    /* Mantieni il lieve velo colorato sopra lo sfondo */
+    body::before{
+      content:"";
+      position:fixed; /* era absolute: lo rendiamo fisso */
+      inset:0;
+      background:linear-gradient(135deg,rgba(108,92,231,0.05),rgba(0,206,201,0.05));
+      z-index:0;
+      pointer-events:none;
+    }
+
+    /* DASHBOARD MOBILE ACCORDION - 25/09/2025 */
+    
+    /* Mobile Accordion Cards */
+    .dash-card {
+      border-radius: 12px;
+      padding: 0;
+      margin-block: 10px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
+    }
+    
+    .dash-card__header {
+      min-height: 44px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 1.2rem; /* Aumentato per dare più importanza */
+      font-weight: 700;   /* Aumentato per dare più importanza */
+      cursor: pointer;
+      background: rgba(255,255,255,0.9);
+      border-bottom: 1px solid var(--card-border);
+      list-style: none;
+    }
+    
+    .dash-card__header::after {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .dash-card[open] .dash-card__header::after {
+      transform: rotate(45deg);
+    }
+    
+    .dash-card__title {
+      flex: 1;
+      color: var(--fg);
+    }
+    
+    .dash-card__actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .dash-card__content {
+      padding: 12px 14px;
+    }
+    
+    /* Mobile Typography & Layout */
+    @media (max-width: 480px) {
+      main.container {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 72px; 
+        padding-bottom: 12px;
+      }
+      
+      .dash-card {
+        margin-block: 12px;
+        order: 0;
+      }
+      
+      .dash-card__content {
+        gap: 10px;
+      }
+      
+      /* Typography */
+      h1 { 
+        font-size: clamp(1.2rem, 5.6vw, 1.6rem);
+        margin: 8px 0;
+      }
+      
+      h2 { 
+        font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+        margin: 6px 0;
+      }
+      
+      /* Form Optimization */
+      .transaction-form {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        min-height: 44px;
+        font-size: 16px;
+      }
+      
+      .btn {
+        min-height: 44px;
+        width: 100%;
+        max-width: none;
+      }
+      
+      .advanced-options-fields {
+        grid-template-columns: 1fr;
+      }
+      
+      /* Table Responsiveness */
+      .deadlines-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        table-layout: fixed;
+      }
+      
+      .deadlines-table td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+      
+      /* Card Ordering */
+      main.container {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #deadlines-section {
+        order: 1;
+      }
+      
+      .form-section {
+        order: 2;
+      }
+      
+      #goals-section {
+        order: 3;
+      }
+      
+      .dashboard-panel {
+        order: 4;
+      }
+      
+      .dash-nav {
+        order: 0;
+      }
+    }
+    
+    @media (min-width: 481px) and (max-width: 1024px) {
+      .dash-card {
+        margin-block: 14px;
+      }
+      
+      .dash-card__header {
+        padding: 12px 16px;
+        /* Rimosso font-size per ereditare quello base più grande */
+      }
+      
+      .dash-card__content {
+        padding: 16px;
+      }
+    }
+    
+    /* Desktop - Hide accordion behavior */
+    @media (min-width: 1025px) {
+      .dash-card { margin-block:24px; }
+      .dash-card__header { display:flex; }   /* visibile anche su desktop */
+      .dash-card__content { padding:24px; }
+    }
+    
+    /* END DASHBOARD MOBILE ACCORDION - 25/09/2025 */
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Fix per iOS/Safari su background-attachment: fixed */
+    @media (pointer: coarse) {
+      body { background-attachment: scroll !important; }
+    }
+
+    /* ====== TOPBAR ====== */
+    .topbar{position:fixed;top:0;left:0;right:0;height:60px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--card-border); z-index: 1200;}
+    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
+    .logo-text{font-weight:600;color:#fff;font-size:1.1rem;text-shadow:0 1px 2px rgba(0,0,0,0.35)}
+    .top-center{ position: absolute; left: 50%; transform: translateX(-50%); }
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .top-link, .top-btn{display:flex;align-items:center;justify-content:center;height:34px;color:#fff;text-decoration:none;padding:6px 12px;border-radius:10px;font-size:.9rem;font-weight:600;background:var(--grad);border:none;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;cursor:pointer; white-space: nowrap;}
+    .top-link:hover, .top-btn:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
+
+    .date-selectors{display:flex;gap:8px}
+    .select-wrapper{position:relative;display:flex;align-items:center;height:34px;border-radius:10px;background:var(--grad);box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .select-wrapper:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.20)}
+    .select-wrapper::after{content:'▼';font-size:10px;color:rgba(255,255,255,0.8);position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none}
+    .topbar-select{appearance:none;background:transparent;color:#fff;border:none;padding:6px 28px 6px 12px;font-size:.9rem;font-weight:600;cursor:pointer}
+    .topbar-select option{background:#fff;color:#000}
+    .topbar-select:disabled{opacity:0.7}
+
+    .notification-bell{position:relative}
+    #scheduler-btn,#notifications-btn{width:38px;padding:0}
+    .notification-badge{position:absolute;top:-5px;right:-5px;background:var(--danger-color);color:#fff;border-radius:50%;width:20px;height:20px;font-size:12px;font-weight:bold;display:none;align-items:center;justify-content:center;border:2px solid #fff}
+    .notification-badge.is-visible{display:flex}
+
+    .mobile-menu-toggle{display:none;background:var(--grad);border:none;border-radius:10px;width:40px;height:38px;cursor:pointer;padding:0;z-index:1230;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+    .mobile-menu-toggle svg{width:24px;height:24px;stroke:#fff;stroke-width:2.5;stroke-linecap:round}
+    .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+
+    @media (max-width: 1200px) { .top-center { display: none; } }
+    @media (max-width:960px){
+      .mobile-menu-toggle{display:block}
+      .top-actions{position:fixed;top:70px;right:16px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:16px;flex-direction:column;gap:16px;align-items:stretch;width:220px;transform:translateY(-20px) scale(.95);opacity:0;pointer-events:none;transition:transform .2s ease-out,opacity .2s ease-out;z-index:1220;border:1px solid var(--card-border)}
+      .top-actions.is-open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+      .top-actions .top-link,.top-actions .top-btn,.top-actions .select-wrapper,.top-actions .date-selectors{width:100%;text-align:center;flex-direction:column}
+      #scheduler-btn,#notifications-btn{width:100%}
+    }
+
+    /* ====== Contenuto Principale ====== */
+    main.container{padding: 72px 24px 24px;max-width:1280px;margin:0 auto;width:100%; position: relative; z-index: 1;}
+    .dash-nav a, .dash-nav button{text-decoration:none;padding:8px 16px;border-radius:10px;font-weight:600;transition:all .2s ease;background:var(--grad);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);border:none;font-family:var(--font-sans);font-size:1rem;cursor:pointer}
+    .dash-nav a:hover, .dash-nav button:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 6px 16px rgba(0,0,0,0.15)}
+    .dash-nav a.is-active, .dash-nav button.is-active{filter:brightness(1.15);box-shadow:0 6px 16px rgba(0,0,0,0.20),inset 0 1px 2px rgba(255,255,255,0.2)}
+    
+    .content-section{
+      background:rgba(255,255,255,0.55);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+      border-radius:var(--radius-lg);
+      padding:16px;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow)
+    }
+
+    /* Desktop */
+    @media (min-width:961px){
+      .dash-nav{display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px;margin-bottom:24px}
+      .dash-nav-toggle{display:none}
+      .dash-nav-menu{display:flex;gap:8px;align-items:center}
+    }
+    /* Mobile */
+    @media (max-width:960px){
+      .dash-nav{display:block;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:12px;margin-bottom:16px}
+      .dash-nav-toggle{
+        display:block;width:100%;text-align:center;
+        padding:10px 12px;border-radius:10px;font-weight:800;
+        background:var(--grad);color:#fff;border:none;box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      }
+      .dash-nav-menu{ display:none; flex-direction:column; gap:8px; margin-top:8px; }
+      .dash-nav-menu.is-open{ display:flex; }
+    }
+    
+    .dashboard-panel{background:rgba(255,255,255,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--card-border);box-shadow:var(--shadow)}
+    .dashboard-panel .content-section,.dashboard-panel .summary-card{box-shadow:none;border:none}
+    .dashboard-panel .content-section{background:rgba(255,255,255,0.7)}
+
+    .dash-select{
+      appearance:none;
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,0.15);
+      background:#fff;
+      font-weight:600;
+    }
+
+    /* ====== Layout ====== */
+    .dashboard-grid{display:grid;grid-template-columns:1fr;gap:24px}
+    @media(min-width:1024px){.dashboard-grid{grid-template-columns:repeat(2,1fr)}}
+    .flow-column h2{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:1.5rem;margin:0 0 16px;padding:0 8px}
+    .flow-column.income h2{color:var(--success-color)}
+    .flow-column.expense h2{color:var(--danger-color)}
+
+    /* ====== Summary Bars ====== */
+    .summary-card{background:#fff;padding:16px;border-radius:var(--radius-lg);margin-bottom:16px}
+    .summary-card h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:1rem;color:#555}
+    .summary-total-amount{font-weight:800;font-size:1.2rem}
+    .income .summary-total-amount{color:var(--success-color)}
+    .expense .summary-total-amount{color:var(--danger-color)}
+    .category-summary-bars{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+    .category-bar-item{display:flex;flex-direction:column;gap:6px}
+    .category-bar-info{display:flex;justify-content:space-between;align-items:center;font-size:.95rem}
+    .category-bar-label{display:flex;align-items:center;gap:8px;font-weight:600}
+    .category-bar-label .icon{font-size:1.1rem}
+    .category-bar-amount{font-weight:700}
+    .progress-bar-bg{width:100%;height:10px;background-color:rgba(0,0,0,0.08);border-radius:999px;overflow:hidden}
+    .progress-bar-fg{height:100%;border-radius:999px;transition:width .5s ease-out}
+    .income .progress-bar-fg{background:linear-gradient(90deg,#00cec9,#81ecec)}
+    .expense .progress-bar-fg{background:linear-gradient(90deg,#6c5ce7,#fd79a8)}
+
+    /* ====== Form ====== */
+    .btn{cursor:pointer;border:none;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;transition:transform .2s ease,filter .2s ease,box-shadow .2s ease}
+    .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn-primary{background:var(--grad);box-shadow:0 10px 24px rgba(0,0,0,0.18)}
+    .btn-primary:hover:not(:disabled){box-shadow:0 14px 28px rgba(0,0,0,0.22)}
+    .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
+    .btn-secondary:hover:not(:disabled){background:#e5e5e5;border-color:#ccc;color:#333}
+
+    .top-link:focus-visible, .top-btn:focus-visible, .dash-card__header:focus-visible, button:focus-visible {
+      outline: 3px solid rgba(108,92,231,0.6);
+      outline-offset: 2px;
+    }
+
+    /* Delete sempre rosso gradiente */
+    .btn.delete,.goal-card .btn.delete,.modal-footer .btn.delete{
+      background: var(--grad-danger);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(211,47,47,0.25);
+      border: none;
+    }
+    .btn.delete:hover{
+      filter: brightness(1.08);
+      box-shadow: 0 12px 24px rgba(211,47,47,0.30);
+      transform: translateY(-2px);
+    }
+
+    #deadlines-section.content-section{
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(243,156,18,0.25);
+    }
+    #deadlines-section .dash-card__header{
+      background: var(--grad-warning);
+      color: #fff;
+      border-bottom: none;
+    }
+    #deadlines-section .dash-card__title{ color: #fff; }
+    #deadlines-list .expense-due-date{
+      background-color:#fff3cd;
+      border:1px solid #ffe58f;
+      color:#8a6d3b;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+
+    .transaction-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end}
+    .form-group{display:flex;flex-direction:column}
+    .form-group label{font-weight:600;font-size:.9rem;margin-bottom:6px}
+    .form-group input,.form-group select{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;background:#fff;font-size:16px}
+    .form-group.full-width{grid-column:1 / -1}
+    .form-buttons{grid-column:1 / -1;margin-top:10px}
+    .form-buttons.is-editing{display:flex;gap:12px}
+    .form-buttons.is-editing #submit-btn{flex-grow:1}
+
+    @media(min-width:1024px){
+      .transaction-form{grid-template-columns:repeat(6,1fr);gap:16px}
+      .form-group.kind{grid-column:span 1}
+      .form-group.note{grid-column:span 3}
+      .form-group.amount{grid-column:span 2}
+      .form-group.date{grid-column:span 2}
+      .form-group.category{grid-column:span 2}
+      .form-group.subcategory{grid-column:span 2}
+    }
+
+    /* AVANZATE: wrapper sempre visibile */
+    #advanced-options-wrapper{display:block;grid-column:1 / -1;background:rgba(0,0,0,0.03);padding:12px;border-radius:10px;margin-top:8px}
+    .advanced-options-controls{display:flex;flex-wrap:wrap;gap:20px;align-items:center;margin-bottom:12px}
+    .advanced-options-controls label{display:flex;align-items:center;gap:8px;font-weight:600;cursor:pointer}
+    .advanced-options-fields{display:none;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+
+    /* ====== Liste ====== */
+    .list-title{margin:-16px -16px 16px;padding:12px 16px;font-size:1.1rem;font-weight:700;color:#333;border-bottom:1px solid rgba(0,0,0,0.08);background:rgba(255,255,255,0.4);display:flex;justify-content:space-between;align-items:center}
+    .list-total-amount{font-weight:800;font-size:1.2rem}
+    .income .list-total-amount{color:var(--success-color)}
+    .expense .list-total-amount{color:var(--danger-color)}
+
+    .transaction-list .item{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid rgba(0,0,0,0.05)}
+    .item:last-child{border-bottom:none}
+    .item-icon{font-size:1.5rem;flex-shrink:0}
+    .item-details{display:flex;flex-direction:column;min-width:0}
+    .item-details .note{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-details .category{font-size:.9rem;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .item-amount{text-align:right;white-space:nowrap;flex-shrink:0}
+    .item-amount.expense{color:var(--danger-color);font-weight:700}
+    .item-amount.income{color:var(--success-color);font-weight:700}
+    .item-actions{display:flex;gap:4px;flex-shrink:0}
+    .action-btn{background:var(--grad);color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:.85rem;font-weight:600;cursor:pointer;transition:filter .2s ease,transform .2s ease}
+    .action-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+    .action-btn.delete{background:var(--grad-danger)}
+    .empty-state{text-align:center;padding:40px 20px;color:#777;background:rgba(0,0,0,0.02);border-radius:12px}
+
+    /* --- NUOVI STILI PER LA LISTA SCADENZE --- */
+    #deadlines-list .expense-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 4px;
+        gap: 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+     #deadlines-list .expense-item:last-child {
+        border-bottom: none;
+    }
+
+    #deadlines-list .expense-details {
+        flex-grow: 1;
+        min-width: 0; /* Previene problemi di overflow con flexbox */
+    }
+    
+    #deadlines-list .expense-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    #deadlines-list .expense-details p:first-child {
+        font-weight: 600;
+        color: #333;
+    }
+
+    #deadlines-list .expense-amount {
+        font-weight: 700;
+        white-space: nowrap;
+    }
+     #deadlines-list .expense-amount.expense { color: var(--danger-color); }
+     #deadlines-list .expense-amount.income { color: var(--success-color); }
+    
+    #deadlines-list .expense-right-section {
+        display: flex;
+        align-items: center;
+        gap: 16px; 
+        text-align: right;
+        flex-shrink: 0; /* Evita che la sezione si restringa */
+    }
+
+    #deadlines-list .expense-due-date {
+        background-color: #fff8e1;
+        color: #f39c12;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid #fdeec9;
+        white-space: nowrap; 
+    }
+
+    #deadlines-list .expense-actual-date {
+        background-color: #f1f5f9;
+        color: #334155;
+        border-radius: 10px;
+        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        line-height: 1.1;
+    }
+
+    #deadlines-list .date-day {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    #deadlines-list .date-month {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+    /* --- FINE NUOVI STILI --- */
+
+    .btn-action-deadline{padding:8px 12px;font-size:.9rem}
+    .btn-action-deadline.pay{background:var(--warning-color)}
+    .btn-action-deadline.receive{background:var(--success-color)}
+
+    /* --- NUOVI STILI MODAL EMOZIONANTE --- */
+    .modal-overlay.is-visible .modal-content-enhanced {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    .modal-content-enhanced {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        padding: 0;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow);
+        transform: translateY(-30px) scale(0.98);
+        opacity: 0;
+        transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .3s ease;
+    }
+    .modal-header-enhanced {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: var(--grad);
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        flex-shrink: 0;
+    }
+    .modal-title-enhanced {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .modal-body-enhanced {
+        padding: 8px 24px 24px;
+        overflow-y: auto;
+        flex-grow: 1;
+    }
+
+    .deadline-item-modal {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "date details right" "actions actions actions";
+        gap: 12px 16px;
+        align-items: center;
+        background: rgba(255,255,255,0.7);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+        margin-top: 12px;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .deadline-item-modal:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    .deadline-item-modal .date-box { grid-area: date; background-color: #f1f5f9; color: #334155; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; font-weight: 700; line-height: 1.1; }
+    .deadline-item-modal .date-box .day { font-size: 1.1rem; }
+    .deadline-item-modal .date-box .month { font-size: 0.75rem; text-transform: uppercase; }
+    .deadline-item-modal .details { grid-area: details; min-width: 0; }
+    .deadline-item-modal .details .note { font-weight: 600; font-size: 1rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .deadline-item-modal .details .category { font-size: 0.85rem; color: #555; }
+    .deadline-item-modal .right-section { grid-area: right; text-align: right; }
+    .deadline-item-modal .amount { font-size: 1.1rem; font-weight: 800; display: block; margin-bottom: 4px; }
+    .deadline-item-modal .amount.expense { color: var(--danger-color); }
+    .deadline-item-modal .amount.income { color: var(--success-color); }
+    .deadline-item-modal .days-left-badge { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; color: #fff; }
+    .deadline-item-modal .days-left-badge.due-soon { background-color: var(--danger-color); }
+    .deadline-item-modal .days-left-badge.far-off { background-color: var(--warning-color); }
+    .deadline-item-modal .days-left-badge.very-far { background-color: var(--success-color); }
+    .deadline-item-modal .actions { grid-area: actions; display: flex; gap: 12px; justify-content: flex-end; padding-top: 12px; margin-top: 12px; border-top: 1px solid rgba(0,0,0,0.08); }
+
+
+    /* Modal base */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;          /* prima era più basso */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .modal-overlay.is-visible{
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content{background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:90%;max-width:800px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow);transform:scale(.95);transition:transform .3s ease}
+    .modal-overlay.is-visible .modal-content{transform:scale(1)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--card-border);padding-bottom:12px;margin-bottom:16px}
+    .modal-title{margin:0;font-size:1.3rem}
+    .modal-close{background:none;border:none;font-size:2rem;cursor:pointer;color:#888;line-height:1;padding:0}
+    .modal-body ul{list-style:none;padding:0;margin:0}
+    .modal-body li{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--card-border)}
+    .modal-body li:last-child{border-bottom:none}
+    .modal-footer{margin-top:20px;display:flex;justify-content:flex-end;gap:12px}
+    .modal-footer .btn.delete{background:var(--grad-danger);box-shadow:0 8px 20px rgba(211,47,47,0.25)}
+    .modal-footer .btn.delete:hover{box-shadow:0 12px 24px rgba(211,47,47,0.3)}
+    .modal-footer .btn-secondary{background:#f0f0f0;color:#555;border:1px solid #ddd;box-shadow:0 4px 8px rgba(0,0,0,0.05)}
+    .modal-footer .btn-secondary:hover{background:#e5e5e5;border-color:#ccc;color:#333}
+
+    .collapse-btn{
+      background:#f0f0f0; color:#333; border:1px solid #ddd;
+      padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer;
+    }
+    .collapse-btn:hover{ filter:brightness(1.03); transform:translateY(-1px); }
+
+    /* ====== Modal Lista Movimenti ====== */
+    .modal-content-large{max-width:90vw;width:1000px}
+    .movements-table-container{max-height:60vh;overflow-y:auto}
+    .movements-table{width:100%;border-collapse:collapse}
+    .movements-table th, .movements-table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--card-border);white-space:nowrap}
+    .movements-table th{font-weight:700;background-color:rgba(0,0,0,0.05);font-size:.9rem;position:sticky;top:0}
+    .movements-table td{font-size:.95rem}
+    .movements-table .amount-col{text-align:right;font-weight:700}
+    .movements-table .income .amount-col{color:var(--success-color)}
+    .movements-table .expense .amount-col{color:var(--danger-color)}
+    .movements-summary{margin-top:20px;padding-top:16px;border-top:2px solid var(--card-border);display:flex;justify-content:space-around;font-weight:700}
+    .summary-item{text-align:center}
+    .summary-label{font-size:.9rem;color:#555}
+    .summary-value{font-size:1.2rem}
+    .summary-value.total-income{color:var(--success-color)}
+    .summary-value.total-expense{color:var(--danger-color)}
+    .summary-value.balance{color:var(--fg)}
+
+    /* ====== Modal Animazione ====== */
+    .animation-modal-overlay{position:fixed;inset:0;background:rgba(10,25,47,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s ease;overflow:hidden}
+    .animation-modal-overlay.is-visible{display:flex;opacity:1;pointer-events:auto}
+    .animation-container{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
+    .animation-bg-image{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 20px rgba(0,0,0,0.4))}
+    .animation-elements-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+    .money-element.income{top:-60px;left:50%;transform:translateX(-50%);opacity:0;animation:drop-money-fall 1.8s ease-in forwards}
+    @keyframes drop-money-fall{0%{transform:translateY(-100px) translateX(-50%) rotate(-20deg);opacity:0}25%{opacity:1}100%{transform:translateY(120px) translateX(-50%) rotate(20deg);opacity:0}}
+    .money-element.expense{top:50%;left:50%;transform:translate(-50%,-50%);opacity:1;animation:dematerialize-money 2s forwards}
+    @keyframes dematerialize-money{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-200%) scale(.3);opacity:0;filter:blur(10px)}}
+
+    /* Messaggi stato */
+    .status-message{padding:12px 16px;border-radius:10px;margin-top:16px;text-align:center;font-weight:600;opacity:0;transition:opacity .3s ease;grid-column:1 / -1}
+    .status-message.is-visible{opacity:1}
+    .status-message.success{background-color:var(--success-color);color:#fff}
+    .status-message.error{background-color:var(--danger-color);color:#fff}
+    
+    /* ====== GOALS (Layout v2 da Screenshot) ====== */
+    #goals-section.goals-v2 .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    #goals-section.goals-v2 .header h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.2rem;
+    }
+    #goals-section.goals-v2 .goal-card {
+        background: rgba(255,255,255,0.8);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        margin-bottom: 24px;
+    }
+    #goals-section.goals-v2 .goal-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    #goals-section.goals-v2 .goal-card-header h4 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #333;
+    }
+    #goals-section.goals-v2 .goal-editor {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 24px;
+      align-items: flex-end;
+    }
+    #goals-section.goals-v2 .editor-group { grid-column: span 12; }
+    @media (min-width: 992px) {
+      #goals-section.goals-v2 .editor-group.method-selector { grid-column: span 7; }
+      #goals-section.goals-v2 .editor-group.quota-editor   { grid-column: span 5; }
+    }
+
+    #goals-section.goals-v2 h5 {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #555;
+        margin: 0 0 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    #goals-section.goals-v2 .method-chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    #goals-section.goals-v2 .method-btn-wrapper {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        position: relative;
+    }
+    #goals-section.goals-v2 .chip.method-btn {
+        width: 100%;
+        justify-content: center;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border: 1px solid rgba(0,0,0,0.1);
+        background: #f0f2f5;
+    }
+    #goals-section.goals-v2 .chip.method-btn.is-active {
+        background: var(--grad);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: transparent;
+    }
+    #goals-section.goals-v2 .method-input {
+        margin-top: 8px;
+        position: relative;
+        display: none;
+    }
+    #goals-section.goals-v2 .chip.method-btn.is-active + .method-input {
+        display: block;
+    }
+    #goals-section.goals-v2 .method-input input {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: #fff;
+        font-weight: 600;
+        text-align: center;
+        font-size: 16px; /* iOS zoom fix */
+    }
+    #goals-section.goals-v2 .method-input .arrow-down {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #ccc;
+    }
+
+    #goals-section.goals-v2 .quota-display {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    #goals-section.goals-v2 .quota-value {
+        flex-grow: 1;
+        padding: 11px 12px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-align: right;
+        color: #333;
+    }
+    #goals-section.goals-v2 .quota-actions .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    #goals-section.goals-v2 .goal-card.is-locked .quota-actions .save-btn { display: none; }
+    #goals-section.goals-v2 .goal-card:not(.is-locked) .quota-actions .edit-btn { display: none; }
+
+    #goals-section.goals-v2 .goal-card-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--card-border);
+    }
+    #goals-section.goals-v2 .goal-progress-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    #goals-section.goals-v2 .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    #goals-section.goals-v2 .goal-main-actions {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--card-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    #goals-section.goals-v2 .goal-card.is-locked .chip:not(.is-active) {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+     #goals-section.goals-v2 .goal-card.is-locked input {
+        pointer-events: none;
+        background-color: #f0f2f5 !important;
+        color: #999;
+        border-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div id="bg" aria-hidden="true"><img src="/bg.webp" alt=""></div>
+  <div id="boot-loader" style="
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(244,247,250,0.9); z-index: 2000; flex-direction: column; gap: 12px;">
+    <div class="spinner" style="
+      width: 36px; height: 36px; border: 3px solid rgba(0,0,0,0.15);
+      border-top-color: #6c5ce7; border-radius: 50%;
+      animation: spin 1s linear infinite;"></div>
+    <div id="boot-loader-text" style="font-weight:700;color:#333;">Caricamento…</div>
+    <button id="boot-retry-btn" class="btn btn-primary" style="display:none;">Riprova</button>
+  </div>
+  <!-- Topbar -->
+  <nav class="topbar">
+    <a href="/it/" class="logo-link">
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px">
+      <span class="logo-text">MyHomesBudget</span>
+    </a>
+    <div class="top-center">
+        <a href="/it/pricing.html" id="subscription-status-btn" class="top-link" style="display: none;"></a>
+    </div>
+    <div class="top-nav-right">
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" aria-label="Apri menu">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        <span class="visually-hidden">Menu</span>
+      </button>
+      <div class="top-actions">
+        <div class="date-selectors">
+          <div class="select-wrapper"><select id="month-selector" class="topbar-select"></select></div>
+          <div class="select-wrapper"><select id="year-selector" class="topbar-select"></select></div>
+        </div>
+        <a
+          href="/it/onboarding.html?from=dashboard&force=1&step=1"
+          id="edit-goal-top"
+          class="top-link"
+        >🎯 Obiettivo</a>
+        <button id="scheduler-btn" class="top-btn" aria-label="Apri scadenziario">🗓️</button>
+        <button id="notifications-btn" class="top-btn notification-bell" aria-label="Apri notifiche">
+          <span>🔔</span>
+          <span id="notification-badge" class="notification-badge"></span>
+        </button>
+        <a href="#" id="logout-btn" class="top-link">Esci</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <nav id="dash-nav" class="dash-nav">
+      <button id="dash-nav-toggle" class="dash-nav-toggle">☰ Sezioni</button>
+      <div class="dash-nav-menu">
+        <a href="/it/profile.html">Profilo</a>
+        <a href="/it/dashboard.html" class="is-active" aria-current="page">Operazioni</a>
+        <a href="/it/dashboard-riepilogo.html">Riepilogo</a>
+        <button id="list-movements-btn">Lista Movimenti</button>
+      </div>
+    </nav>
+
+    <!-- Scadenze -->
+    <details id="deadlines-section" class="dash-card content-section" style="margin-top:12px;display:none;" open>
+      <summary class="dash-card__header">
+        <span class="dash-card__title">🔔 Scadenze & Incassi (30gg)</span>
+      </summary>
+      <div class="dash-card__content">
+        <h2 style="font-size: 1.5rem; margin: 0 0 16px; display:none;" class="deadlines-desktop-title">🔔 Scadenze & Incassi (30gg)</h2>
+        <div id="deadlines-filter" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <label for="deadlines-kind" style="font-weight:600;">Filtra:</label>
+          <select id="deadlines-kind" style="padding:6px 10px;border-radius:8px;border:1px solid #ccc;background:#fff;">
+            <option value="expense" selected>Solo Spese</option>
+            <option value="income">Solo Entrate</option>
+            <option value="all">Tutte</option>
+          </select>
+        </div>
+        <div id="deadlines-list" class="transaction-list"></div>
+      </div>
+    </details>
+
+    <!-- Sezione Form -->
+    <details class="dash-card content-section form-section" open>
+      <summary class="dash-card__header">
+        <span id="form-title" class="dash-card__title">✍🏼 Nuova Operazione</span>
+      </summary>
+      <div class="dash-card__content">
+      <form id="transaction-form" class="transaction-form">
+        <input type="hidden" id="transaction-id" name="transaction-id">
+        <div class="form-group kind">
+          <label for="kind">Tipo</label>
+          <select id="kind" name="kind" required>
+            <option value="expense">Uscita</option>
+            <option value="income">Entrata</option>
+          </select>
+        </div>
+        <div class="form-group note">
+          <label for="note">Nota</label>
+          <input type="text" id="note" name="note" placeholder="Es. Stipendio, Rata Mutuo..." required>
+        </div>
+        <div class="form-group amount">
+          <label for="amount">Importo (€)</label>
+          <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required inputmode="decimal">
+        </div>
+        <div class="form-group date">
+          <label for="occurred_at">Data</label>
+          <input type="date" id="occurred_at" name="occurred_at" required>
+        </div>
+        <div class="form-group category">
+          <label for="category_id">Categoria</label>
+          <select id="category_id" name="category_id" required></select>
+        </div>
+        <div class="form-group subcategory">
+          <label for="subcategory_id">Sottocategoria</label>
+          <select id="subcategory_id" name="subcategory_id"></select>
+        </div>
+
+        <div id="advanced-options-wrapper">
+          <div class="advanced-options-controls">
+            <label><input type="radio" name="transaction_type" value="single" checked> Operazione Singola</label>
+            <label><input type="radio" name="transaction_type" value="recurring"> 🔄 Ricorrente</label>
+            <label><input type="radio" name="transaction_type" value="scheduled"> 🗓️ Imposta Scadenza</label>
+          </div>
+          <div id="recurring-options" class="advanced-options-fields">
+            <div class="form-group">
+              <label for="recurring_frequency">Frequenza</label>
+              <select id="recurring_frequency" name="recurring_frequency">
+                <option value="monthly">Mensile</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="recurring_end_date">Termina il</label>
+              <input type="date" id="recurring_end_date" name="recurring_end_date">
+            </div>
+          </div>
+          <div id="due-date-options" class="advanced-options-fields">
+            <div class="form-group full-width">
+              <label for="due_date">Data di Scadenza/Incasso</label>
+              <input type="date" id="due_date" name="due_date">
+            </div>
+          </div>
+        </div>
+
+        <div id="form-buttons-container" class="form-buttons">
+          <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;">Aggiungi</button>
+          <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display:none;">Annulla</button>
+        </div>
+
+        <div id="status-message" class="status-message" aria-live="polite"></div>
+      </form>
+      </div>
+    </details>
+
+    <!-- 🎯 Sezione Obiettivi (Layout v2) -->
+    <details id="goals-section" class="dash-card content-section goals-v2" style="margin-top:12px;">
+      <summary class="dash-card__header">
+        <span class="dash-card__title">🎯 I Tuoi Obiettivi</span>
+        <div class="dash-card__actions">
+          <button id="add-goal-btn" class="btn btn-primary" style="display: none; padding: 6px 12px; font-size: 0.9rem;">+ Aggiungi</button>
+        </div>
+      </summary>
+      <div class="dash-card__content">
+        <div id="goals-list">
+          <!-- Le card degli obiettivi verranno inserite qui dal JS -->
+        </div>
+      </div>
+    </details>
+    
+    <!-- Dati principali -->
+    <details class="dash-card dashboard-panel" style="margin-top:12px;" open>
+      <summary class="dash-card__header">
+        <span class="dash-card__title">📊 Riepilogo Mensile</span>
+      </summary>
+      <div class="dash-card__content">
+        <div class="dashboard-grid">
+          <div class="flow-column income">
+            <h2>💰​ Entrate Recenti</h2>
+            <div id="income-summary" class="summary-card"></div>
+            <div id="income-list" class="content-section transaction-list"></div>
+          </div>
+          <div class="flow-column expense">
+            <h2>💸​ Uscite Recenti</h2>
+            <div id="expense-summary" class="summary-card"></div>
+            <div id="expense-list" class="content-section transaction-list"></div>
+          </div>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <!-- Modals -->
+  <div id="scheduler-modal" class="modal-overlay">
+    <div class="modal-content modal-content-enhanced">
+        <div class="modal-header modal-header-enhanced">
+            <h3 id="scheduler-modal-title" class="modal-title modal-title-enhanced"></h3>
+            <button class="modal-close" aria-label="Chiudi modale">&times;</button>
+        </div>
+        <div id="scheduler-modal-body" class="modal-body-enhanced"></div>
+    </div>
+  </div>
+  <div id="generic-modal" class="modal-overlay"> <div class="modal-content"> <div class="modal-header"> <h3 id="generic-modal-title" class="modal-title"></h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="generic-modal-body" class="modal-body"></div> <div id="generic-modal-footer" class="modal-footer"></div> </div> </div>
+  <div id="animation-modal" class="animation-modal-overlay"> <div class="animation-container"> <img id="animation-bg-image" class="animation-bg-image" src="" alt="Animazione soldi"/> <div class="animation-elements-container"></div> </div> </div>
+  <div id="movements-modal" class="modal-overlay"> <div class="modal-content modal-content-large"> <div class="modal-header"> <h3 id="movements-modal-title" class="modal-title">Lista Movimenti</h3> <button class="modal-close" aria-label="Chiudi modale">&times;</button> </div> <div id="movements-modal-body" class="modal-body"> <div class="movements-table-container"></div> </div> <div id="movements-modal-footer" class="movements-summary"></div> </div> </div>
+
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+    window.supabase = supabase;
+
+    // --- STATE ---
+    let user = null;
+    let allCategories = [];
+    let allSubcategories = [];
+    let allTransactions = [];
+    let userProfile = null;
+    let goalsData = []; 
+
+    // --- DOM (originali) ---
+    const transactionForm = document.getElementById('transaction-form');
+    const kindSelect = document.getElementById('kind');
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+    const transactionIdInput = document.getElementById('transaction-id');
+    const formTitle = document.getElementById('form-title');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const formButtonsContainer = document.getElementById('form-buttons-container');
+    const logoutBtn = document.getElementById('logout-btn');
+    const incomeList = document.getElementById('income-list');
+    const expenseList = document.getElementById('expense-list');
+    const incomeSummary = document.getElementById('income-summary');
+    const expenseSummary = document.getElementById('expense-summary');
+    const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
+    const advancedOptionsWrapper = document.getElementById('advanced-options-wrapper');
+    const recurringOptions = document.getElementById('recurring-options');
+    const dueDateOptions = document.getElementById('due-date-options');
+    const deadlinesSection = document.getElementById('deadlines-section');
+    const deadlinesList = document.getElementById('deadlines-list');
+    const schedulerBtn = document.getElementById('scheduler-btn');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationBadge = document.getElementById('notification-badge');
+    const schedulerModal = document.getElementById('scheduler-modal');
+    const movementsModal = document.getElementById('movements-modal');
+    const listMovementsBtn = document.getElementById('list-movements-btn');
+    const statusMessage = document.getElementById('status-message');
+    const subscriptionStatusBtn = document.getElementById('subscription-status-btn');
+
+    // --- DOM (per obiettivi) ---
+    const goalsSection = document.getElementById('goals-section');
+    const goalsList = document.getElementById('goals-list');
+    
+    // --- UTILS ---
+    function escapeHTML(s){
+      return String(s ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+    function ymdLocal(d = new Date()){
+      return [
+        d.getFullYear(),
+        String(d.getMonth()+1).padStart(2,'0'),
+        String(d.getDate()).padStart(2,'0')
+      ].join('-');
+    }
+    function addOneMonthSafeUTC(d){
+      const y = d.getUTCFullYear(), m = d.getUTCMonth(), day = d.getUTCDate();
+      const lastOfNext=new Date(Date.UTC(y, m+2, 0));
+      const targetDay=Math.min(day, lastOfNext.getUTCDate());
+      return new Date(Date.UTC(y, m+1, targetDay));
+    }
+    function safeToNumber(v){ const n = (typeof v === 'number') ? v : parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; }
+    const fmt = (n) => Number(n || 0).toFixed(2);
+    const dayMs = 86400000;
+
+    function showStatusMessage(message, type='success', duration=3000){
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message ${type} is-visible`;
+      setTimeout(()=>statusMessage.classList.remove('is-visible'), duration);
+    }
+
+    function showModal(title, bodyHtml, buttons=[]){
+      const modal = document.getElementById('generic-modal');
+      document.getElementById('generic-modal-title').textContent = title;
+      document.getElementById('generic-modal-body').innerHTML = bodyHtml;
+      const footer = document.getElementById('generic-modal-footer');
+      footer.innerHTML = '';
+      buttons.forEach(btnInfo=>{
+        const button = document.createElement('button');
+        button.innerHTML = btnInfo.text;
+        button.className = `btn ${btnInfo.class || 'btn-secondary'}`;
+        button.onclick = ()=>{
+          if(btnInfo.action) btnInfo.action();
+          if(!btnInfo.keepOpen) closeModal(modal);
+        };
+        footer.appendChild(button);
+      });
+      openModal(modal);
+    }
+
+    function openModal(el){
+      if(!el) return;
+      // annulla eventuali stili inline rimasti
+      el.style.removeProperty('display');
+      el.style.removeProperty('opacity');
+      el.style.removeProperty('pointer-events');
+      el.classList.add('is-visible');
+      document.body.style.overflow = 'hidden';
+
+      const timeout = setTimeout(() => {
+        // se per qualunque motivo non è visibile, sblocca lo scroll
+        if(!el.classList.contains('is-visible')) {
+          document.body.style.overflow = '';
+        }
+      }, 400);
+
+      // chiudi con ESC
+      const onKey = (e) => { if(e.key === 'Escape') closeModal(el); };
+      el.dataset.esc = '1';
+      document.addEventListener('keydown', onKey, { once:true });
+    }
+    
+    function closeModal(el){
+      if(!el) return;
+      el.classList.remove('is-visible');
+      document.body.style.overflow = '';
+      // non mettere display:none inline: lascia fare al CSS
+    }
+    
+    document.body.addEventListener('click', (e)=>{
+      const overlay = e.target.closest('.modal-overlay');
+      if(overlay && e.target === overlay){ closeModal(overlay); }
+    });
+
+    function resetFormToCreateMode(){
+      formTitle.textContent = "✍🏼 Nuova Operazione";
+      submitBtn.textContent = "Aggiungi";
+      submitBtn.style.width = '100%';
+      transactionIdInput.value = "";
+      cancelEditBtn.style.display = 'none';
+      formButtonsContainer.classList.remove('is-editing');
+      transactionForm.reset();
+      document.getElementById('occurred_at').valueAsDate = new Date();
+      document.querySelector('input[name="transaction_type"][value="single"]').checked = true;
+      advancedOptionsWrapper.style.display = 'block';
+      recurringOptions.style.display = 'none';
+      dueDateOptions.style.display = 'none';
+      updateCategoryDropdown();
+    }
+    
+    function toLocalMidnight(yyyyMmDd){
+      if (!yyyyMmDd) return null;
+      const [y,m,d] = yyyyMmDd.split('-').map(n=>parseInt(n,10));
+      const dt = new Date();
+      dt.setFullYear(y, m-1, d);
+      dt.setHours(0,0,0,0);
+      return dt;
+    }
+
+    async function loadInitialData(){
+      try {
+        // 1) Leggi profilo
+        const { data: profile, error: pError } = await supabase
+          .from('profiles')
+          .select('selected_category_ids, onboarding_categories')
+          .eq('id', user.id)
+          .single();
+        if (pError) throw pError;
+
+        const selectedIds = Array.isArray(profile?.selected_category_ids) ? profile.selected_category_ids : [];
+        const selectedNames = Array.isArray(profile?.onboarding_categories)
+  ? profile.onboarding_categories.map(c => typeof c === 'string' ? c : c.name)
+  : [];
+
+        // 2) Recupera tutte le categorie dell’utente
+        let { data: allUserCategories, error: cError } = await supabase
+          .from('categories')
+          .select('*')
+          .or(`created_by.eq.${user.id},created_by.is.null`);
+        if (cError) throw cError;
+
+        // 3) Filtro: preferisco gli ID, se ci sono
+        let filtered;
+        if (selectedIds.length > 0) {
+          filtered = (allUserCategories || []).filter(cat => selectedIds.includes(cat.id));
+        } else {
+          filtered = (allUserCategories || []).filter(cat => selectedNames.includes(cat.name));
+        }
+
+        allCategories = filtered;
+
+        // 4) Recupero le sottocategorie
+        if (allCategories.length > 0) {
+          const ids = allCategories.map(c => c.id);
+          const { data: subs, error: sError } = await supabase
+            .from('subcategories')
+            .select('*')
+            .in('category_id', ids);
+          if (sError) throw sError;
+          allSubcategories = subs || [];
+        } else {
+          allSubcategories = [];
+        }
+
+      } catch (error){
+        console.error("Errore nel caricamento dei dati iniziali:", error);
+        showModal('Errore', `<p>Impossibile caricare le categorie dal tuo profilo. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
+      }
+    }
+
+
+    function updateCategoryDropdown(){
+      const selectedKind = kindSelect.value;
+      const filtered = allCategories.filter(cat => cat.kind === selectedKind);
+      categorySelect.innerHTML = '<option value="">Scegli categoria...</option>';
+      filtered.forEach(cat => categorySelect.add(new Option(`${cat.icon || ''} ${cat.name}`, cat.id)));
+      updateSubcategories();
+    }
+
+    function updateSubcategories(selectedSubcategoryId=null){
+      const categoryId = categorySelect.value;
+      subcategorySelect.innerHTML = '<option value="">Nessuna</option>';
+      subcategorySelect.disabled = true;
+      if (!categoryId) return;
+      const relevant = allSubcategories.filter(sub => String(sub.category_id) === String(categoryId));
+      if (relevant.length){
+        subcategorySelect.disabled = false;
+        relevant.forEach(sub => subcategorySelect.add(new Option(`${sub.icon || ''} ${sub.name}`, sub.id)));
+        if (selectedSubcategoryId) subcategorySelect.value = selectedSubcategoryId;
+      }
+    }
+
+    function renderSummary(items, container, kind){
+      container.innerHTML = '';
+      const categoryMap = allCategories.filter(cat => cat.kind === kind).reduce((acc, cat)=>({ ...acc, [cat.id]: { name:cat.name, icon:cat.icon || (kind==='income'?'💰':'💸'), total:0 } }),{});
+      items.forEach(tx => { if (tx.category_id && categoryMap[tx.category_id]) categoryMap[tx.category_id].total += safeToNumber(tx.amount); });
+      const totalAmount = items.reduce((sum, tx)=> sum + safeToNumber(tx.amount), 0);
+      const categoriesToRender = Object.values(categoryMap).filter(cat => cat.total > 0).sort((a,b)=> b.total - a.total).slice(0,5);
+      container.style.display = 'block';
+      const summaryTitle = kind === 'income' ? '🏆 Top 5 Entrate' : '🏆 Top 5 Uscite';
+      let barsHTML = categoriesToRender.map(cat=>{ const percentage = totalAmount > 0 ? (cat.total / totalAmount) * 100 : 0; return `<div class="category-bar-item"><div class="category-bar-info"><span class="category-bar-label"><span class="icon">${escapeHTML(cat.icon)}</span><span>${escapeHTML(cat.name)}</span></span><span class="category-bar-amount">${cat.total.toFixed(2)}€</span></div><div class="progress-bar-bg"><div class="progress-bar-fg" style="width:${percentage}%"></div></div></div>`; }).join('');
+      const placeholdersNeeded = 5 - categoriesToRender.length;
+      if (placeholdersNeeded > 0){ const placeholderHTML = `<div class="category-bar-item" aria-hidden="true"><div class="category-bar-info" style="visibility:hidden;"><span class="category-bar-label"><span class="icon">&nbsp;</span><span>-</span></span><span class="category-bar-amount">&nbsp;</span></div><div class="progress-bar-bg" style="visibility:hidden;"><div class="progress-bar-fg" style="width:0%;"></div></div></div>`; barsHTML += placeholderHTML.repeat(placeholdersNeeded); }
+      container.innerHTML = `<h3><span>${summaryTitle}</span><span class="summary-total-amount">${totalAmount.toFixed(2)}€</span></h3><div class="category-summary-bars">${barsHTML}</div>`;
+    }
+
+    function renderList(items, container, kind){
+      container.innerHTML = '';
+      const totalAmount = items.reduce((sum, tx)=> sum + safeToNumber(tx.amount), 0);
+      const titleText = kind === 'income' ? 'Movimenti in Entrata' : 'Movimenti in Uscita';
+      const titleEl = document.createElement('div');
+      titleEl.className = 'list-title';
+      titleEl.innerHTML = `<span>${escapeHTML(titleText)}</span><span class="list-total-amount ${kind}">${totalAmount.toFixed(2)}€</span>`;
+      container.appendChild(titleEl);
+      if (!items.length){ container.insertAdjacentHTML('beforeend', `<div class="empty-state"><p>Nessun movimento qui.</p></div>`); return; }
+      items.forEach(tx=>{
+        const cat = tx.categories;
+        const sub = tx.subcategories;
+        const icon = sub?.icon || cat?.icon || '💸';
+        const categoryText = `${escapeHTML(cat?.name || 'N/A')}${(sub ? ` / ${escapeHTML(sub.name)}` : '')}`;
+        const amountNum = safeToNumber(tx.amount);
+        const recurringIcon = tx.is_recurring_parent ? ' 🔄' : '';
+        container.insertAdjacentHTML('beforeend', `<div class="item"><div class="item-icon">${escapeHTML(icon)}</div><div class="item-details"><span class="note">${escapeHTML(tx.note ?? '')}${recurringIcon}</span><span class="category">${categoryText}</span></div><div class="item-amount ${tx.kind}">${tx.kind === 'expense' ? '-' : '+'}${amountNum.toFixed(2)} €</div><div class="item-actions"><button class="action-btn edit-btn" data-id="${tx.id}"> Modifica</button><button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${escapeHTML(tx.note)}">🗑️</button></div></div>`);
+      });
+    }
+
+    async function getScheduledTransactions(startDate, endDate){
+      try{
+        const startStr = ymdLocal(startDate);
+        const endStr   = ymdLocal(endDate);
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*, categories(*), subcategories(*)')
+          .eq('created_by', user.id)
+          .eq('is_paid', false)
+          .gte('due_date', startStr)
+          .lte('due_date', endStr)
+          .order('due_date', { ascending:true });
+        if (error) throw error;
+        return data || [];
+      } catch (error){
+        console.error("Errore caricamento scadenze:", error);
+        return [];
+      }
+    }
+
+    function renderDeadlinesList(container, transactions, filter='expense'){
+      // filtro per tipo
+      let txs = transactions || [];
+      if (filter === 'expense') txs = txs.filter(t => t.kind === 'expense');
+      else if (filter === 'income') txs = txs.filter(t => t.kind === 'income');
+
+      if (txs.length === 0){
+        container.innerHTML = '<div class="empty-state"><p>Nessuna scadenza in questo periodo.</p></div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      const today = new Date(); today.setHours(0,0,0,0);
+      const monthFormatter = new Intl.DateTimeFormat('it-IT', { month: 'short' });
+
+      const isModal = container.closest('.modal-overlay');
+
+      txs.forEach(tx=>{
+          const isIncome = tx.kind === 'income';
+          const dueDate = toLocalMidnight(String(tx.due_date));
+          const diffTime = (dueDate ? dueDate.getTime() : 0) - today.getTime();
+          const diffDays = Math.ceil(diffTime / dayMs);
+          const daysLeftText = diffDays < 0 ? 'Scaduta' : (diffDays === 0 ? 'Oggi' : `${diffDays} giorni`);
+          const amountClass = isIncome ? 'income' : 'expense';
+          const amountSign = isIncome ? '+' : '-';
+          const buttonClass = isIncome ? 'receive' : 'pay';
+          const buttonText = isIncome ? 'Incassa' : 'Paga';
+          const sub = tx.subcategories;
+          const categoryText = `${escapeHTML(tx.categories?.name || 'N/A')}${sub ? ` / ${escapeHTML(sub.name)}` : ''}`;
+          const noteSafe = escapeHTML(tx.note || '');
+          const day = dueDate ? String(dueDate.getDate()).padStart(2, '0') : '--';
+          const month = dueDate ? monthFormatter.format(dueDate).replace('.', '') : '---';
+
+          let rowHTML = '';
+
+          if (isModal) {
+              let daysLeftClass = '';
+              if (diffDays < 0) daysLeftClass = 'due-soon';
+              else if (diffDays <= 7) daysLeftClass = 'due-soon';
+              else if (diffDays <= 15) daysLeftClass = 'far-off';
+              else daysLeftClass = 'very-far';
+
+              rowHTML = `
+                  <div class="deadline-item-modal">
+                      <div class="date-box">
+                          <span class="day">${day}</span>
+                          <span class="month">${month}</span>
+                      </div>
+                      <div class="details">
+                          <p class="note">${noteSafe}</p>
+                          <p class="category">${categoryText}</p>
+                      </div>
+                      <div class="right-section">
+                          <span class="amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                          <span class="days-left-badge ${daysLeftClass}">${daysLeftText}</span>
+                      </div>
+                      <div class="actions">
+                          <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼 Modifica</button>
+                          <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                          <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                      </div>
+                  </div>
+              `;
+          } else {
+               rowHTML = `
+                  <div class="expense-item">
+                      <div class="expense-actual-date">
+                          <span class="date-day">${day}</span>
+                          <span class="date-month">${month}</span>
+                      </div>
+                      <div class="expense-details">
+                          <p>${noteSafe}</p>
+                          <p>${categoryText}</p>
+                      </div>
+                      <div class="expense-right-section">
+                          <span class="expense-amount ${amountClass}">${amountSign}${safeToNumber(tx.amount).toFixed(2)}€</span>
+                          <span class="expense-due-date">${daysLeftText}</span>
+                          <div class="item-actions">
+                               <button class="btn btn-action-deadline ${buttonClass}" data-id="${tx.id}">${buttonText}</button>
+                               <button class="action-btn edit-btn" data-id="${tx.id}" aria-label="Modifica ${noteSafe}">✍🏼</button>
+                               <button class="action-btn delete-btn delete" data-id="${tx.id}" aria-label="Elimina ${noteSafe}">🗑️</button>
+                          </div>
+                      </div>
+                  </div>
+              `;
+          }
+          container.insertAdjacentHTML('beforeend', rowHTML);
+      });
+    }
+
+    function renderMovementsListModal(transactions, months){
+      const modalBody = document.getElementById('movements-modal-body').querySelector('.movements-table-container');
+      const modalFooter = document.getElementById('movements-modal-footer');
+      const modalTitle = document.getElementById('movements-modal-title');
+      const selectedMonthName = months[monthSelector.value];
+      const selectedYear = yearSelector.value;
+      modalTitle.textContent = `Estratto Conto - ${selectedMonthName} ${selectedYear}`;
+      if (!transactions || transactions.length === 0){ modalBody.innerHTML = '<div class="empty-state"><p>Nessun movimento per il periodo selezionato.</p></div>'; modalFooter.innerHTML = ''; return; }
+      const sortedTx = [...transactions].sort((a,b)=> new Date(a.occurred_at) - new Date(b.occurred_at));
+      let totalIncome = 0, totalExpense = 0;
+      const rows = sortedTx.map(tx=>{ const amount = safeToNumber(tx.amount); if (tx.kind === 'income') totalIncome += amount; else totalExpense += amount; const date = new Date(tx.occurred_at).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}); const type = tx.kind === 'income' ? 'Entrata' : 'Uscita'; const note = escapeHTML(tx.note || '-'); const category = escapeHTML(tx.categories?.name || 'N/A'); const subcategory = escapeHTML(tx.subcategories?.name || '-'); const amountFormatted = `${tx.kind==='income'?'+':'-'} ${amount.toFixed(2)} €`; return `<tr class="${tx.kind}"><td>${date}</td><td>${type}</td><td>${note}</td><td class="amount-col">${amountFormatted}</td><td>${category}</td><td>${subcategory}</td></tr>`; }).join('');
+      modalBody.innerHTML = `<table class="movements-table"><thead><tr><th scope="col">Data</th><th scope="col">Tipo</th><th scope="col">Nota</th><th scope="col" class="amount-col">Importo</th><th scope="col">Categoria</th><th scope="col">Sottocategoria</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const balance = totalIncome - totalExpense;
+      modalFooter.innerHTML = `<div class="summary-item"><div class="summary-label">Totale Entrate</div><div class="summary-value total-income">+ ${totalIncome.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Totale Uscite</div><div class="summary-value total-expense">- ${totalExpense.toFixed(2)} €</div></div><div class="summary-item"><div class="summary-label">Saldo</div><div class="summary-value balance">${balance.toFixed(2)} €</div></div>`;
+    }
+
+    async function updateNotifications(){
+      const today = new Date();
+      const futureDate = new Date(); futureDate.setDate(today.getDate()+7);
+      const upcoming = await getScheduledTransactions(today, futureDate);
+      if (upcoming.length > 0){ notificationBadge.textContent = upcoming.length; notificationBadge.classList.add('is-visible'); } else { notificationBadge.textContent = ''; notificationBadge.classList.remove('is-visible'); }
+    }
+
+    async function loadAllDataForMonth(){
+      await loadTransactions();
+      const today = new Date();
+      const futureDate = new Date(); futureDate.setDate(today.getDate()+30);
+      const imminentDeadlines = await getScheduledTransactions(today, futureDate);
+      if (imminentDeadlines.length > 0){ deadlinesSection.style.display = 'block'; renderDeadlinesList(deadlinesList, imminentDeadlines); } else { deadlinesSection.style.display = 'none'; }
+      updateNotifications();
+    }
+
+    async function loadTransactions(){
+      monthSelector.disabled = true;
+      yearSelector.disabled = true;
+      renderDashboard([]);
+      try{
+        const m = parseInt(monthSelector.value,10);
+        const y = parseInt(yearSelector.value,10);
+        const monthStart = new Date(Date.UTC(y, m, 1));
+        const nextMonthStart = new Date(Date.UTC(y, m+1, 1));
+        const startStr = monthStart.toISOString().split('T')[0];
+        const nextStartStr = nextMonthStart.toISOString().split('T')[0];
+        const { data, error } = await supabase.from('transactions').select('*, categories(*), subcategories(*)').eq('created_by', user.id).gte('occurred_at', startStr).lt('occurred_at', nextStartStr).order('occurred_at', { ascending:false });
+        if (error) throw error;
+        allTransactions = data || [];
+        renderDashboard(allTransactions);
+      } catch (error){
+        console.error("Errore transazioni:", error);
+        showModal('Errore', `<p>Impossibile caricare le transazioni. Riprova più tardi.</p>`, [{ text:'Chiudi' }]);
+      } finally {
+        monthSelector.disabled = false;
+        yearSelector.disabled = false;
+      }
+    }
+
+    function handleEdit(id){
+      const tx = allTransactions.find(t => String(t.id) === String(id)) || {};
+      if (!tx.id){
+        supabase.from('transactions').select('*').eq('id', id).single().then(({data, error})=>{ if (error || !data){ showModal('Errore', `<p>Impossibile trovare la transazione da modificare.</p>`, [{ text:'Chiudi' }]); return; } populateAndShowEditForm(data); });
+      } else { populateAndShowEditForm(tx); }
+      function populateAndShowEditForm(tx){
+        if (tx.is_recurring_parent){ showModal('Azione non permessa', `<p>La modifica delle operazioni ricorrenti non è ancora supportata. Elimina la serie e creane una nuova.</p>`, [{ text:'Ho capito' }]); return; }
+        formTitle.textContent = "✍️ Modifica Operazione";
+        submitBtn.textContent = "Aggiorna";
+        submitBtn.style.width = 'auto';
+        cancelEditBtn.style.display = 'inline-block';
+        formButtonsContainer.classList.add('is-editing');
+        transactionIdInput.value = tx.id;
+        document.getElementById('kind').value = tx.kind;
+        document.getElementById('note').value = tx.note ?? '';
+        document.getElementById('amount').value = safeToNumber(tx.amount);
+        const dateToUse = tx.is_paid === false ? tx.due_date : tx.occurred_at;
+        document.getElementById('occurred_at').value = (dateToUse || '').toString().split('T')[0] || '';
+        const type = tx.is_paid === false ? 'scheduled' : 'single';
+        document.querySelector(`input[name="transaction_type"][value="${type}"]`).checked = true;
+        if (type === 'scheduled'){
+          advancedOptionsWrapper.style.display = 'block';
+          document.getElementById('due-date-options').style.display = 'grid';
+          const dd = (tx.due_date || '').toString();
+          document.getElementById('due_date').value = dd.includes('T') ? dd.split('T')[0] : dd;
+          recurringOptions.style.display = 'none';
+        } else {
+          document.getElementById('due-date-options').style.display = 'none';
+          recurringOptions.style.display = 'none';
+          advancedOptionsWrapper.style.display = 'block';
+        }
+        updateCategoryDropdown();
+        categorySelect.value = tx.category_id ?? '';
+        updateSubcategories(tx.subcategory_id ?? null);
+        window.scrollTo({ top:0, behavior:'smooth' });
+      }
+    }
+
+    async function handleDelete(id){
+      const { data: txToDelete, error: fetchError } = await supabase.from('transactions').select('is_recurring_parent').eq('id', id).single();
+      if (fetchError && fetchError.code !== 'PGRST116'){ console.error("Errore recupero transazione da eliminare:", fetchError); showModal('Errore', 'Impossibile trovare l\'operazione da eliminare.', [{ text:'Chiudi' }]); return; }
+      if (!txToDelete) return;
+      let message = "<p>Sei sicuro di voler eliminare questa operazione?</p>";
+      if (txToDelete.is_recurring_parent){ message = "<p>Questa è un'operazione ricorrente. Eliminando questa, <strong>verranno rimosse anche tutte le occorrenze future</strong>.</p><p>Vuoi procedere?</p>"; }
+      showModal("Conferma eliminazione", message, [ { text:'Annulla', class:'btn-secondary' }, { text:'🗑️ Elimina', class:'delete', action: async ()=>{ try{ const { error } = await supabase.rpc('delete_transaction_and_children', { transaction_id_to_delete: id }); if (error) throw error; showStatusMessage('Operazione eliminata con successo!', 'success'); loadAllDataForMonth(); } catch (error){ console.error("Errore durante l'eliminazione via RPC:", error); let userMessage = "Impossibile completare l'eliminazione. Riprova."; if (error.message?.includes('permission denied')){ userMessage = "Errore: Permessi non sufficienti. Verifica le RLS sulla funzione e sulla tabella `transactions`."; } showModal('Errore', `<p>${userMessage}</p><p><small>Dettaglio: ${error.message}</small></p>`, [{ text:'Chiudi' }]); } } } ]);
+    }
+
+    async function handleFormSubmit(e){
+      e.preventDefault();
+      const formData = new FormData(transactionForm);
+      const id = formData.get('transaction-id');
+      const kind = formData.get('kind');
+      if (id){ const kindText = kind === 'income' ? 'entrata' : 'spesa'; showModal(`Conferma Aggiornamento`, `<p>Sei sicuro di voler aggiornare questa ${kindText}?</p>`, [ { text:'Annulla', class:'btn-secondary' }, { text:'Aggiorna', class:'btn-primary', action:()=>saveTransaction(formData) } ]); } else { saveTransaction(formData); }
+    }
+
+    async function saveTransaction(formData){
+      const id = formData.get('transaction-id');
+      const transactionType = formData.get('transaction_type');
+      
+      const amt = String(formData.get('amount') || '').replace(',', '.');
+      const parsedAmount = parseFloat(amt);
+
+      if (!Number.isFinite(parsedAmount)) {
+        showModal('Importo non valido', `<p>Controlla l'importo. Puoi usare sia "12.34" che "12,34".</p>`, [{ text:'Chiudi' }]);
+        return;
+      }
+
+      const payload = {
+        kind: formData.get('kind'),
+        note: formData.get('note'),
+        amount: parsedAmount,
+        occurred_at: formData.get('occurred_at'),
+        category_id: formData.get('category_id'),
+        subcategory_id: formData.get('subcategory_id') || null,
+        created_by: user.id,
+        is_paid: true,
+        due_date: null
+      };
+
+      if (transactionType === 'scheduled'){
+        const dueDate = formData.get('due_date') || formData.get('occurred_at');
+        if (!dueDate){
+          showModal('Dati mancanti', `<p>Seleziona una data di scadenza/incasso valida.</p>`, [{ text:'Chiudi' }]);
+          return;
+        }
+        payload.due_date = dueDate;
+        payload.is_paid = false;
+        payload.occurred_at = dueDate;
+      }
+      try{
+        let error;
+        if (transactionType === 'recurring' && !id){
+          const endDateStr = formData.get('recurring_end_date');
+          if (!endDateStr){ showModal('Dati mancanti', `<p>Seleziona una data di fine valida per l'operazione ricorrente.</p>`, [{ text:'Chiudi' }]); return; }
+          payload.is_recurring_parent = true;
+          const { data: parentData, error: parentError } = await supabase.from('transactions').insert(payload).select().single();
+          if (parentError) throw parentError;
+          const [y0,m0,d0] = payload.occurred_at.split('-').map(n=>parseInt(n,10));
+          const endParts = endDateStr.split('-').map(n=>parseInt(n,10));
+          const endDate = new Date(Date.UTC(endParts[0], endParts[1]-1, endParts[2]));
+          let current = new Date(Date.UTC(y0, m0-1, d0));
+          const children = [];
+          while (true){
+            current = addOneMonthSafeUTC(current);
+            if (current > endDate) break;
+            const yyyy = current.getUTCFullYear();
+            const mm = String(current.getUTCMonth()+1).padStart(2,'0');
+            const dd = String(current.getUTCDate()).padStart(2,'0');
+            const iso = `${yyyy}-${mm}-${dd}`;
+            children.push({ ...payload, is_recurring_parent: false, parent_transaction_id: parentData.id, occurred_at: iso, due_date: iso, is_paid: false });
+          }
+          if (children.length){ const { error: chErr } = await supabase.from('transactions').insert(children); if (chErr) error = chErr; }
+        } else {
+          const query = id ? supabase.from('transactions').update(payload).eq('id', id) : supabase.from('transactions').insert(payload);
+          const { error: singleError } = await query;
+          error = singleError;
+        }
+        if (error) throw error;
+        showStatusMessage(id ? 'Operazione aggiornata!' : 'Operazione aggiunta!', 'success');
+        resetFormToCreateMode();
+        loadAllDataForMonth();
+      } catch (error){
+        console.error("Errore nel salvataggio:", error);
+        showModal('Errore di Salvataggio', `<p>Non è stato possibile salvare l'operazione. Controlla i dati e riprova.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
+      }
+    }
+
+    async function handleConfirmDeadline(id){
+      showModal( 'Conferma Operazione', '<p>Vuoi registrare questa operazione con la data di oggi?</p>', [ { text: 'Annulla', class: 'btn-secondary' }, { text: 'Conferma', class: 'btn-primary', action: async () => { try { const { error } = await supabase.from('transactions').update({ is_paid: true, occurred_at: ymdLocal(new Date()) }).eq('id', id); if (error) throw error; loadAllDataForMonth(); } catch (error) { console.error("Errore nell'aggiornamento dell'operazione:", error); showModal('Errore', `<p>Impossibile aggiornare l'operazione. Riprova.</p>`, [{ text: 'Chiudi' }]); } } } ]);
+    }
+
+    function renderSubscriptionStatus(profile) {
+      if (!profile || !profile.plan_type) {
+          subscriptionStatusBtn.style.display = 'none';
+          return;
+      }
+      let text = '';
+      let link = '#';
+      switch(profile.plan_type) {
+          case 'starter': case 'trial':
+              if (profile.trial_end) {
+                  const endDate = new Date(profile.trial_end);
+                  const today = new Date(); today.setHours(0,0,0,0);
+                  const diffTime = endDate - today;
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                  if (diffDays >= 0) {
+                      if (diffDays > 10) text = `✨ Sblocca tutto! ${diffDays} giorni rimasti`;
+                      else if (diffDays > 3) text = `⏰ L'offerta scade! ${diffDays} giorni rimasti`;
+                      else text = diffDays > 1 ? `🔥 Affrettati! Solo ${diffDays} giorni` : `🔥 Ultimo giorno! Aggiorna ora`;
+                      link = '/it/pricing.html';
+                  } else { text = '😭 Prova Scaduta. Aggiorna ora!'; link = '/it/pricing.html'; }
+              } break;
+          case 'plus': text = 'MyHomesBudget PLUS'; link = '/it/account.html'; break;
+          case 'pro': text = 'MyHomesBudget PRO'; link = '/it/account.html'; break;
+      }
+      if (text) {
+          subscriptionStatusBtn.textContent = text;
+          subscriptionStatusBtn.href = link;
+          subscriptionStatusBtn.style.display = 'flex';
+      } else {
+          subscriptionStatusBtn.style.display = 'none';
+      }
+    }
+    function positionSubscriptionButton() {
+      const topCenter = document.querySelector('.top-center');
+      const topActions = document.querySelector('.top-actions');
+      if (!topCenter || !topActions || !subscriptionStatusBtn) return;
+      if (window.innerWidth <= 1200) {
+          if (subscriptionStatusBtn.parentElement !== topActions) topActions.prepend(subscriptionStatusBtn);
+      } else {
+          if (subscriptionStatusBtn.parentElement !== topCenter) topCenter.appendChild(subscriptionStatusBtn);
+      }
+    }
+
+    // --- NUOVA LOGICA OBIETTIVI ---
+    function mapContributionMethodToInternal(method) {
+        if (method === 'Cifra fissa') return 'fixed';
+        if (method === 'Percentuale sulle entrate') return 'percent_income';
+        if (method === 'Importo variabile') return 'variable';
+        return 'fixed';
+    }
+
+    function mapInternalToContributionMethod(internal) {
+        if (internal === 'fixed') return 'Cifra fissa';
+        if (internal === 'percent_income') return 'Percentuale sulle entrate';
+        if (internal === 'variable') return 'Importo variabile';
+        return 'Cifra fissa';
+    }
+    
+    async function loadAndRenderGoals() {
+        try {
+            const { data: profile, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if (profileError) throw profileError;
+            userProfile = profile;
+            
+            const allGoals = [];
+            
+            if (profile.goal_name) {
+                allGoals.push({
+                    id: 'onboarding-goal',
+                    nome_obiettivo: profile.goal_name,
+                    importo_target: profile.goal_target_amount,
+                    metodo_contribuzione: profile.contribution_method,
+                    importo_mensile: profile.contribution_amount,
+                    is_onboarding: true
+                });
+            }
+
+            if (profile.plan_type === 'pro') {
+                const { data: additionalGoals, error: goalsError } = await supabase.from('obiettivi').select('*').eq('user_id', user.id);
+                if (goalsError) throw goalsError;
+                if (additionalGoals) {
+                    allGoals.push(...additionalGoals.map(g => ({ ...g, is_onboarding: false })));
+                }
+            }
+
+            goalsData = allGoals;
+            renderGoalsUI(allGoals, profile);
+
+        } catch (err) {
+            console.error('[Goals] Errore caricamento:', err);
+            goalsList.innerHTML = `<div class="goal-card"><p class="error">Impossibile caricare gli obiettivi.</p></div>`;
+        }
+    }
+
+    function renderGoalsUI(goals, profile) {
+        goalsList.innerHTML = '';
+        const isPro = profile && profile.plan_type === 'pro';
+        const isPlanLimited = profile && (profile.plan_type === 'starter' || profile.plan_type === 'plus');
+
+        const addBtn = document.getElementById('add-goal-btn');
+
+        if (isPro) {
+            addBtn.style.display = 'block';
+            addBtn.onclick = handleAddGoal;
+        } else {
+            addBtn.style.display = 'none';
+            addBtn.onclick = null;
+        }
+
+        if (goals.length === 0) {
+             goalsList.innerHTML = `
+      <div class="goal-card">
+        <div class="goal-title">🎯 <span>Obiettivo non impostato</span></div>
+        <p class="goal-subtitle">Non hai ancora configurato un obiettivo. Fallo ora per iniziare!</p>
+        <div class="goal-confirm" style="text-align:left;">
+          <a class="btn btn-primary" href="/it/onboarding.html?from=dashboard&force=1&step=1">Configura Obiettivo</a>
+        </div>
+      </div>`;
+        } else {
+            goals.forEach(goal => {
+                const canDelete = !goal.is_onboarding;
+                goalsList.insertAdjacentHTML('beforeend', createGoalCardHTML(goal, canDelete, isPlanLimited));
+                bindGoalEditor(goal);
+                updateGoalProgress(goal.id, goal.is_onboarding); 
+                
+                // Aggiungi listener per eliminazione
+                const delBtn = document.querySelector(`#goal-card-${goal.id} .delete-goal-btn`);
+                if (delBtn) {
+                  delBtn.addEventListener('click', () => handleDeleteGoal(goal.id));
+                }
+                
+                // Aggiungi listener per modifica nome
+                const renameBtn = document.querySelector(`#goal-card-${goal.id} .edit-goal-name-btn`);
+                if (renameBtn) {
+                  renameBtn.addEventListener('click', () => {
+                    const body = `<div class="form-group"><label>Nuovo nome</label><input id="new-goal-name" type="text" value="${escapeHTML(goal.nome_obiettivo || '')}" required></div>`;
+                    showModal('Rinomina obiettivo', body, [
+                      { text:'Annulla', class:'btn-secondary' },
+                      { text:'Salva', class:'btn-primary', action: async () => {
+                          const newName = document.getElementById('new-goal-name').value.trim();
+                          if (!newName) return;
+                          const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
+                          const payload = goal.is_onboarding ? { goal_name: newName } : { nome_obiettivo: newName };
+                          const { error } = await supabase.from(table).update(payload).eq('id', goal.is_onboarding ? user.id : goal.id);
+                          if (error) { showModal('Errore', `Impossibile rinominare: ${error.message}`, [{text:'Chiudi'}]); return; }
+                          showStatusMessage('Obiettivo aggiornato!', 'success');
+                          loadAndRenderGoals();
+                      }}]);
+                  });
+                }
+            });
+        }
+    }
+
+    function createGoalCardHTML(goal, canDelete, isPlanLimited) {
+        const id = goal.id;
+        const targetAmountHTML = goal.importo_target ? ` / <strong>${fmt(goal.importo_target)}€</strong>` : '';
+        const titleSafe = escapeHTML(goal.nome_obiettivo);
+
+        return `
+            <div id="goal-card-${id}" class="goal-card is-locked">
+                <div class="goal-card-header">
+                    <h4>${titleSafe}</h4>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-secondary edit-goal-name-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">MODIFICA OBIETTIVO</button>
+                        ${canDelete ? `<button class="btn delete delete-goal-btn" data-id="${id}" style="padding:6px 12px;font-size:.9rem;">ELIMINA</button>` : ``}
+                    </div>
+                </div>
+                <div class="goal-editor">
+                    <div class="editor-group method-selector">
+                        <h5>SELEZIONE METODO</h5>
+                        <div class="method-chips">
+                            <div class="method-btn-wrapper">
+                                <button type="button" class="chip method-btn" role="button" data-method="fixed" aria-pressed="false">CIFRA FISSA</button>
+                                <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="fixed" readonly inputmode="decimal">
+                                </div>
+                            </div>
+                            <div class="method-btn-wrapper">
+                                <button type="button" class="chip method-btn" role="button" data-method="variable" aria-pressed="false">CIFRA VARIABILE</button>
+                                 <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.01" class="goal-amount-input" data-method="variable" readonly inputmode="decimal">
+                                </div>
+                            </div>
+                            <div class="method-btn-wrapper">
+                                <button type="button" class="chip method-btn" role="button" data-method="percent_income" aria-pressed="false">% ENTRATE</button>
+                                 <div class="method-input">
+                                    <div class="arrow-down"></div>
+                                    <input type="number" step="0.1" class="goal-percentage-input" data-method="percent_income" readonly inputmode="decimal">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="editor-group quota-editor">
+                        <h5>QUOTA OBIETTIVO</h5>
+                        <div class="quota-display">
+                            <div class="quota-value">0,00€</div>
+                            <div class="quota-actions">
+                                <button class="btn btn-secondary edit-btn">MODIFICA</button>
+                                <button class="btn btn-primary save-btn" style="display:none;">SALVA</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="goal-card-footer">
+                    <div class="goal-progress-bar-container">
+                        <div class="progress-info">
+                            <span>Progresso</span>
+                            <span id="progress-amount-${id}">0.00€${targetAmountHTML}</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fg" id="progress-bar-${id}" style="width:0%; background: var(--grad);"></div>
+                        </div>
+                    </div>
+                    <div class="goal-main-actions">
+                        <button class="btn btn-secondary view-savings-btn" data-id="${id}">MODIFICA RISPARMI</button>
+                        <button class="btn btn-primary record-saving-btn" data-id="${id}" data-amount="${goal.importo_mensile}">REGISTRA RISPARMIO</button>
+                    </div>
+                </div>
+            </div>`;
+    }
+    
+    function bindGoalEditor(goal) {
+        const id = goal.id;
+        const card = document.getElementById(`goal-card-${id}`);
+        if (!card) return;
+
+        const methodChips = card.querySelectorAll('.method-btn');
+        const amountInputs = card.querySelectorAll('.goal-amount-input, .goal-percentage-input');
+        const quotaValueEl = card.querySelector('.quota-value');
+        const editBtn = card.querySelector('.edit-btn');
+        const saveBtn = card.querySelector('.save-btn');
+        const recordBtn = card.querySelector('.record-saving-btn');
+        
+        let currentMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
+        let isEditing = false;
+
+        function computeQuota(method, amountOrPercent){
+          const totalIncomes = allTransactions
+            .filter(tx => tx.kind === 'income' && tx.is_paid !== false)
+            .reduce((s, tx) => s + safeToNumber(tx.amount), 0);
+          if (method === 'percent_income') {
+            return (safeToNumber(amountOrPercent) / 100) * totalIncomes;
+          }
+          return safeToNumber(amountOrPercent);
+        }
+
+        function refreshQuotaPreview(){
+          const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
+          const raw = activeInput?.value ?? goal.importo_mensile;
+          const numeric = safeToNumber(String(raw).replace(',', '.'));
+          const q = computeQuota(currentMethod, numeric);
+          quotaValueEl.textContent = `${fmt(q)}€`;
+          recordBtn.dataset.amount = q;
+        }
+
+        const updateUI = () => {
+            card.classList.toggle('is-locked', !isEditing);
+            
+            methodChips.forEach(chip => {
+                const method = chip.dataset.method;
+                const isActive = method === currentMethod;
+                chip.classList.toggle('is-active', isActive);
+                chip.setAttribute('aria-pressed', String(isActive));
+                chip.setAttribute('aria-disabled', String(!isEditing && !isActive));
+            });
+
+            amountInputs.forEach(input => {
+                input.readOnly = !isEditing;
+                const inputMethod = input.dataset.method;
+                if(inputMethod === currentMethod) {
+                   input.value = goal.importo_mensile || '';
+                }
+            });
+
+            editBtn.style.display = isEditing ? 'none' : 'block';
+            saveBtn.style.display = isEditing ? 'block' : 'none';
+            refreshQuotaPreview();
+        };
+
+        methodChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                if (isEditing) {
+                    currentMethod = chip.dataset.method;
+                    updateUI();
+                }
+            });
+        });
+        
+        amountInputs.forEach(inp=>{
+          inp.addEventListener('input', ()=>{
+            if(!isEditing) return;
+            refreshQuotaPreview();
+          });
+        });
+
+        editBtn.addEventListener('click', () => {
+            isEditing = true;
+            updateUI();
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            isEditing = false;
+
+            const activeInput = Array.from(amountInputs).find(i => i.dataset.method === currentMethod);
+            const newAmount = safeToNumber(String(activeInput?.value ?? goal.importo_mensile).replace(',', '.'));
+
+            const payload = {
+                [goal.is_onboarding ? 'contribution_method' : 'metodo_contribuzione']: mapInternalToContributionMethod(currentMethod),
+                [goal.is_onboarding ? 'contribution_amount' : 'importo_mensile']: newAmount,
+            };
+
+            const table = goal.is_onboarding ? 'profiles' : 'obiettivi';
+            const { error } = await supabase
+                .from(table)
+                .update(payload)
+                .eq('id', goal.is_onboarding ? user.id : goal.id);
+
+            if (error) {
+                showModal('Errore', `Impossibile salvare le modifiche. Dettaglio: ${error.message}`, [{text:'Chiudi'}]);
+                isEditing = true;
+            } else {
+                showStatusMessage('Obiettivo aggiornato!', 'success');
+                const idx = goalsData.findIndex(g => String(g.id) === String(id));
+                if(idx > -1) {
+                    const currentGoal = goalsData[idx];
+                    currentGoal.metodo_contribuzione = payload.metodo_contribuzione || payload.contribution_method;
+                    currentGoal.importo_mensile = payload.importo_mensile || payload.contribution_amount;
+                    goal.metodo_contribuzione = currentGoal.metodo_contribuzione;
+                    goal.importo_mensile = currentGoal.importo_mensile;
+                }
+            }
+            updateUI();
+            refreshQuotaPreview();
+        });
+        
+        updateUI();
+    }
+
+    async function updateGoalProgress(goalId, is_onboarding) {
+        const table = is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+        let query = supabase.from(table).select('importo').eq('user_id', user.id);
+        if (!is_onboarding) {
+            query = query.eq('obiettivo_id', goalId);
+        }
+        const { data, error } = await query;
+        if(error) { console.error('Errore nel calcolare il progresso', error); return; }
+        const totalSaved = (data || []).reduce((sum, record) => sum + safeToNumber(record.importo), 0);
+
+        let targetAmount = 0;
+        let goalData;
+        if (is_onboarding) {
+             const { data: pData } = await supabase.from('profiles').select('goal_target_amount').eq('id', user.id).single();
+             goalData = { importo_target: pData?.goal_target_amount };
+        } else {
+             const { data: gData } = await supabase.from('obiettivi').select('importo_target').eq('id', goalId).single();
+             goalData = gData;
+        }
+
+        targetAmount = goalData ? safeToNumber(goalData.importo_target) : 0;
+        
+        const progressAmountEl = document.getElementById(`progress-amount-${goalId}`);
+        const progressBarEl = document.getElementById(`progress-bar-${goalId}`);
+        if(progressAmountEl && progressBarEl) {
+            const targetHTML = targetAmount > 0 ? ` / <strong>${fmt(targetAmount)}€</strong>` : '';
+            progressAmountEl.innerHTML = `${fmt(totalSaved)}€${targetHTML}`;
+            const percentage = targetAmount > 0 ? (totalSaved / targetAmount) * 100 : 0;
+            progressBarEl.style.width = `${Math.min(percentage, 100)}%`;
+        }
+    }
+
+    function handleRecordSaving(goal, recordBtn) {
+        let amountToSave = safeToNumber(recordBtn.dataset.amount);
+        const internalMethod = mapContributionMethodToInternal(goal.metodo_contribuzione);
+
+        if (internalMethod === 'percent_income') {
+            const totalIncomes = allTransactions
+                .filter(tx => tx.kind === 'income' && tx.is_paid !== false)
+                .reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            const percentage = safeToNumber(goal.importo_mensile);
+            amountToSave = (percentage / 100) * totalIncomes;
+        }
+
+        showModal('Conferma Risparmio', `<p>Stai per registrare un risparmio di <strong>${fmt(amountToSave)}€</strong> per questo obiettivo.</p>`, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { text: 'Conferma', class: 'btn-primary', action: async () => {
+                const table = goal.is_onboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+                const base = { user_id: user.id, importo: amountToSave, data_registrazione: ymdLocal(new Date()) };
+                let payload = base;
+                if (goal.is_onboarding) {
+                    const { data: p } = await supabase.from('profiles').select('goal_name, goal_target_amount, contribution_method, contribution_amount').eq('id', user.id).single();
+                    payload = { ...base, goal_name: p?.goal_name || null, goal_target_amount: p?.goal_target_amount || null, contribution_method: p?.contribution_method || null, contribution_amount: p?.contribution_amount || null };
+                } else {
+                    payload = { ...base, obiettivo_id: goal.id };
+                }
+                const { error } = await supabase.from(table).insert(payload);
+                if (error) {
+                    showModal('Errore', `Impossibile registrare il risparmio. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                    return;
+                }
+                showStatusMessage('Risparmio registrato!', 'success');
+                loadAndRenderGoals();
+            }}
+        ]);
+    }
+    
+    function handleDeleteGoal(goalId) {
+        showModal('Elimina Obiettivo', `<p>Sei sicuro di voler eliminare questo obiettivo? Tutti i risparmi collegati verranno conservati ma non saranno più associati.</p>`, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { text: 'Elimina', class: 'delete', action: async () => {
+                const { error } = await supabase.from('obiettivi').delete().eq('id', goalId);
+                if(error) { showModal('Errore', 'Impossibile eliminare l\'obiettivo.', [{ text: 'Chiudi' }]); return; }
+                showStatusMessage('Obiettivo eliminato.', 'success');
+                loadAndRenderGoals();
+            }}
+        ]);
+    }
+
+    async function showSavingsModal(goal) {
+      const isOnboarding = goal.is_onboarding;
+      const table = isOnboarding ? 'risparmio_obbiettivo_default' : 'risparmi';
+
+      let q = supabase.from(table)
+        .select('id, importo, data_registrazione, created_at')
+        .eq('user_id', user.id);
+      if (!isOnboarding) q = q.eq('obiettivo_id', goal.id);
+
+      const { data, error } = await q.order('data_registrazione', { ascending:false }).limit(500);
+      if (error) {
+        showModal('Errore', `<p>Impossibile recuperare i risparmi.</p><p><small>${error.message}</small></p>`, [{ text:'Chiudi' }]);
+        return;
+      }
+      const items = data || [];
+      if (!items.length) { showModal('Risparmi Registrati', '<p>Nessun risparmio registrato.</p>', [{ text:'Chiudi' }]); return; }
+
+      const rows = items.map(r=>{
+        const date = r.data_registrazione || (r.created_at||'').toString().split('T')[0] || '';
+        return `
+          <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--card-border);">
+            <span><strong>${fmt(r.importo)}€</strong> — ${escapeHTML(date)}</span>
+            <span class="item-actions" style="display:flex;gap:6px;">
+              <button class="action-btn saving-edit-btn" data-id="${r.id}" data-table="${table}">✍🏼</button>
+              <button class="action-btn delete saving-delete-btn" data-id="${r.id}" data-table="${table}">🗑️</button>
+            </span>
+          </li>`;
+      }).join('');
+
+      showModal('Modifica Risparmi', `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`, [{ text:'Chiudi' }]);
+
+      // --- FIX: Inizio della correzione per i bottoni del modale ---
+      let modalBody = document.getElementById('generic-modal-body');
+      // Pulisce i vecchi "event listener" clonando il nodo e rimpiazzandolo.
+      // Questo previene che i click vengano registrati più volte.
+      const newModalBody = modalBody.cloneNode(true);
+      modalBody.parentNode.replaceChild(newModalBody, modalBody);
+      modalBody = newModalBody;
+      // --- FIX: Fine della correzione ---
+
+      modalBody.addEventListener('click', onSavingsClick);
+
+      function onSavingsClick(e){
+        const btn = e.target.closest('button'); if(!btn) return;
+        const id = btn.dataset.id, tbl = btn.dataset.table;
+
+        if (btn.classList.contains('saving-delete-btn')) {
+          showModal('Conferma Eliminazione',
+            '<p>Eliminare questo risparmio?</p>',
+            [
+              { text:'Annulla', class:'btn-secondary' },
+              { text:'Elimina', class:'delete', keepOpen:true, action: async ()=>{
+                  const { error } = await supabase.from(tbl).delete().eq('id', id);
+                  if (error) { showModal('Errore', `<p>Impossibile eliminare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  closeModal(document.getElementById('generic-modal'));
+                  showStatusMessage('Risparmio eliminato.', 'success');
+                  updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
+                  showSavingsModal(goal); // Ricarica il modale
+              } }
+            ]);
+        }
+
+        if (btn.classList.contains('saving-edit-btn')) {
+          const item = items.find(x => String(x.id) === String(id));
+          const dateVal = (item?.data_registrazione || (item?.created_at||'').toString().split('T')[0] || '');
+          showModal('Modifica Risparmio', `
+            <div class="form-group"><label>Importo (€)</label>
+              <input id="edit-saving-amount" type="number" step="0.01" value="${fmt(item.importo)}" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:8px"><label>Data</label>
+              <input id="edit-saving-date" type="date" value="${escapeHTML(dateVal)}"></div>`,
+            [
+              { text:'Annulla', class:'btn-secondary' },
+              { text:'Salva', class:'btn-primary', action: async ()=>{
+                  const amt = safeToNumber(String(document.getElementById('edit-saving-amount').value).replace(',','.'));
+                  const date = document.getElementById('edit-saving-date').value || null;
+                  const payload = { importo: amt };
+                  if (date) payload.data_registrazione = date;
+                  const { error } = await supabase.from(tbl).update(payload).eq('id', id);
+                  if (error) { showModal('Errore', `<p>Impossibile aggiornare.</p><p><small>${error.message}</small></p>`, [{text:'Chiudi'}]); return; }
+                  closeModal(document.getElementById('generic-modal'));
+                  showStatusMessage('Risparmio aggiornato.', 'success');
+                  updateGoalProgress(goal.id, goal.is_onboarding); // Aggiorna la barra di progresso
+                  showSavingsModal(goal); // Ricarica il modale
+              } }
+            ]
+          );
+        }
+      }
+    }
+
+
+    function handleAddGoal() {
+        const bodyHtml = `<form id="add-goal-form">
+            <div class="form-group"><label for="goal-name">Nome Obiettivo</label><input type="text" id="goal-name" required placeholder="Es. Vacanze estive"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-monthly-amount">Importo mensile (€)</label><input type="number" id="goal-monthly-amount" step="0.01" required placeholder="150.00" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:12px"><label for="goal-target-amount">Obiettivo finale (opzionale)</label><input type="number" id="goal-target-amount" step="0.01" placeholder="2000.00" inputmode="decimal"></div>
+            <div class="form-group" style="margin-top:12px">
+              <label>Metodo di contribuzione</label>
+              <div style="display:flex; gap:8px;">
+                <label><input type="radio" name="method-add" value="Cifra fissa" checked> Cifra fissa</label>
+                <label><input type="radio" name="method-add" value="Importo variabile"> Importo variabile</label>
+                <label><input type="radio" name="method-add" value="Percentuale sulle entrate"> Percentuale</label>
+              </div>
+            </div>
+        </form>`;
+        showModal('Nuovo Obiettivo', bodyHtml, [
+            { text: 'Annulla', class: 'btn-secondary' },
+            { text: 'Salva', class: 'btn-primary', action: async () => {
+                const nome = document.getElementById('goal-name').value.trim();
+                const importoMensileRaw = String(document.getElementById('goal-monthly-amount').value || '').replace(',', '.');
+                const importoTargetRaw  = String(document.getElementById('goal-target-amount').value || '').replace(',', '.');
+                const metodo = document.querySelector('input[name="method-add"]:checked').value;
+
+                const importoMensile = parseFloat(importoMensileRaw);
+                const importoTarget  = importoTargetRaw ? parseFloat(importoTargetRaw) : null;
+
+                if (!nome || !Number.isFinite(importoMensile)) {
+                  showModal('Dati mancanti', '<p>Inserisci un nome valido e un importo mensile corretto (es. 150,00).</p>', [{ text:'Chiudi' }]);
+                  return;
+                }
+
+                const { error } = await supabase.from('obiettivi').insert({
+                  user_id: user.id,
+                  nome_obiettivo: nome,
+                  importo_mensile: importoMensile,
+                  importo_target: importoTarget,
+                  metodo_contribuzione: metodo
+                });
+
+                if (error) {
+                  showModal('Errore', `Impossibile creare l'obiettivo. Dettaglio: ${error.message}`, [{ text: 'Chiudi' }]);
+                  return;
+                }
+                showStatusMessage('Obiettivo creato!', 'success');
+                loadAndRenderGoals();
+            }}
+        ]);
+    }
+
+    function renderDashboard(transactions){
+        const incomes = transactions.filter(tx => tx.kind === 'income' && tx.is_paid !== false);
+        const expenses = transactions.filter(tx => tx.kind === 'expense' && tx.is_paid !== false);
+        renderSummary(incomes, incomeSummary, 'income');
+        renderList(incomes, incomeList, 'income');
+        renderSummary(expenses, expenseSummary, 'expense');
+        renderList(expenses, expenseList, 'expense');
+        
+        document.querySelectorAll('.total-income-placeholder').forEach(el => {
+            const totalIncomes = incomes.reduce((sum, tx) => sum + safeToNumber(tx.amount), 0);
+            el.textContent = fmt(totalIncomes);
+        });
+    }
+
+    let __booted = false;
+    let __ready = false;
+    let __eventsBound = false;
+    let __watchdogTimer = null;
+    function showLoader(message = 'Caricamento…', showRetry = false){
+      const wrap = document.getElementById('boot-loader');
+      if (!wrap) return;
+      document.getElementById('boot-loader-text').textContent = message;
+      const retryBtn = document.getElementById('boot-retry-btn');
+      retryBtn.style.display = showRetry ? 'inline-flex' : 'none';
+      wrap.style.display = 'flex';
+    }
+    function hideLoader(){
+      const wrap = document.getElementById('boot-loader');
+      if (wrap) wrap.style.display = 'none';
+    }
+    function startWatchdog(){
+      clearTimeout(__watchdogTimer);
+      __watchdogTimer = setTimeout(()=>{
+        if (!__ready){
+          showLoader('Connessione lenta o timeout. Riprova?', true);
+        }
+      }, 8000);
+    }
+    function stopWatchdog(){ clearTimeout(__watchdogTimer); __watchdogTimer = null; }
+    function attachRetry(){
+      const retryBtn = document.getElementById('boot-retry-btn');
+      if (!retryBtn) return;
+      retryBtn.onclick = async ()=>{
+        showLoader('Riprovo…', false);
+        __booted = false;
+        __ready  = false;
+        await bootDashboard();
+      };
+    }
+    attachRetry();
+
+    async function bootDashboard() {
+      if (__booted) return;
+      __booted = true;
+
+      showLoader('Caricamento…', false);
+      startWatchdog();
+
+      try {
+        // 1) Prendi la sessione
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { location.replace("/it/login.html"); return; }
+        user = session.user;
+
+        // 2) Ora puoi usare user.id
+        const { data: profile, error: pErr } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (pErr) throw pErr;
+
+        if (profile && !profile.onboarded) { location.replace("/it/onboarding.html"); return; }
+        userProfile = profile;
+        renderSubscriptionStatus(profile);
+            
+            if(!__eventsBound) {
+                positionSubscriptionButton();
+                window.addEventListener('resize', positionSubscriptionButton);
+
+                const now = new Date();
+                const months = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                if(monthSelector.options.length === 0) {
+                    months.forEach((month, index) => monthSelector.add(new Option(month, index)));
+                }
+                if(yearSelector.options.length === 0) {
+                    for (let i = now.getFullYear() - 2; i <= now.getFullYear() + 5; i++) { yearSelector.add(new Option(i, i)); }
+                }
+                monthSelector.value = now.getMonth();
+                yearSelector.value = now.getFullYear();
+                document.getElementById('occurred_at').valueAsDate = new Date();
+            }
+
+            await loadInitialData();
+            updateCategoryDropdown();
+            
+            await loadAndRenderGoals();
+            await loadAllDataForMonth();
+
+            if(!__eventsBound) {
+                const mainContainer = document.querySelector('main.container');
+                function handleActionClicks(e){
+                  const target = e.target.closest('button[data-id]');
+                  if (!target) return;
+                  const id = target.dataset.id;
+                  const isModal = target.closest('.modal-overlay');
+                  if (target.classList.contains('edit-btn')){ handleEdit(id); if (isModal) closeModal(isModal); } 
+                  else if (target.classList.contains('delete-btn') && !target.classList.contains('delete-goal-btn')){ handleDelete(id); } 
+                  else if (target.classList.contains('btn-action-deadline')){ handleConfirmDeadline(id); if (isModal) closeModal(isModal); }
+                }
+                mainContainer.addEventListener('click', handleActionClicks);
+                schedulerModal.addEventListener('click', handleActionClicks);
+
+                mainContainer.addEventListener('click', (e)=>{
+                  const btn = e.target.closest('button');
+                  if(!btn) return;
+                  if(btn.classList.contains('record-saving-btn')){
+                    const id = btn.dataset.id;
+                    const g = goalsData.find(x => String(x.id) === String(id));
+                    if (g) handleRecordSaving(g, btn);
+                  }
+                  if(btn.classList.contains('view-savings-btn')){
+                    const id = btn.dataset.id;
+                    const g = goalsData.find(x => String(x.id) === String(id));
+                    if (g) showSavingsModal(g);
+                  }
+                });
+
+                kindSelect.addEventListener('change', updateCategoryDropdown);
+                categorySelect.addEventListener('change', () => updateSubcategories());
+                transactionForm.addEventListener('submit', handleFormSubmit);
+                cancelEditBtn.addEventListener('click', resetFormToCreateMode);
+                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await supabase.auth.signOut(); location.replace("/it/") });
+                
+                const goalsLinkTop = document.getElementById('edit-goal-top');
+                if (goalsLinkTop) {
+                  goalsLinkTop.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Opzionale: memorizzo da dove arrivo, utile per "torna indietro"
+                    sessionStorage.setItem('mhb_onboarding_return_to', '/it/dashboard.html');
+
+                    const url = new URL('/it/onboarding.html', location.origin);
+                    url.searchParams.set('from', 'dashboard');
+                    url.searchParams.set('force', '1');
+                    url.searchParams.set('step', '1');
+
+                    // nav "secca" come fa il Profilo
+                    location.assign(url.toString());
+                  });
+                }
+
+                monthSelector.addEventListener('change', loadAllDataForMonth);
+                yearSelector.addEventListener('change', loadAllDataForMonth);
+                const nowMonths = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+                listMovementsBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); renderMovementsListModal(allTransactions, nowMonths); openModal(movementsModal);});
+                document.querySelectorAll('input[name="transaction_type"]').forEach(radio=>{
+                  radio.addEventListener('change', (e)=>{
+                    const v = e.target.value;
+                    advancedOptionsWrapper.style.display = 'block';
+                    recurringOptions.style.display = (v === 'recurring') ? 'grid' : 'none';
+                    dueDateOptions.style.display = (v === 'scheduled') ? 'grid' : 'none';
+                  });
+                });
+                
+                schedulerBtn.addEventListener('click', async (e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  const today = new Date();
+                  const futureDate = new Date();
+                  futureDate.setDate(today.getDate() + 30);
+                  const scheduled = await getScheduledTransactions(today, futureDate);
+                  document.getElementById('scheduler-modal-title').innerHTML = `🗓️ Scadenziario (Prossimi 30 giorni)`;
+                  const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), scheduled, currentFilter);
+                  openModal(schedulerModal);
+                });
+
+                notificationsBtn.addEventListener('click', async (e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  const t = new Date();
+                  const f = new Date(); f.setDate(t.getDate()+7);
+                  const u = await getScheduledTransactions(t, f);
+                  document.getElementById('scheduler-modal-title').innerHTML = `🔔 Notifiche (Prossimi 7 giorni)`;
+                  const currentFilter = document.getElementById('deadlines-kind')?.value || 'expense';
+                  renderDeadlinesList(document.getElementById('scheduler-modal-body'), u, currentFilter);
+                  openModal(schedulerModal);
+                });
+
+                const deadlinesKindSelect = document.getElementById('deadlines-kind');
+                if (deadlinesKindSelect){
+                  deadlinesKindSelect.addEventListener('change', async () => {
+                    const today = new Date();
+                    const futureDate = new Date(); futureDate.setDate(today.getDate()+30);
+                    const imminentDeadlines = await getScheduledTransactions(today, futureDate);
+                    renderDeadlinesList(deadlinesList, imminentDeadlines, deadlinesKindSelect.value);
+                  });
+                }
+
+
+                document.body.addEventListener('click', (e)=>{
+                  const m = e.target.closest('.modal-overlay');
+                  if (m && (e.target.classList.contains('modal-overlay') || e.target.closest('.modal-close'))){
+                    closeModal(m);
+                  }
+                });
+
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const topActions = document.querySelector('.top-actions');
+                if (mobileMenuBtn && topActions) {
+                  mobileMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const open = topActions.classList.toggle('is-open');
+                    mobileMenuBtn.setAttribute('aria-expanded', String(open));
+                  });
+                  document.addEventListener('click', (e) => {
+                    if (!topActions.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                      topActions.classList.remove('is-open');
+                      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    }
+                  });
+                }
+                                
+                __eventsBound = true;
+            }
+
+            __ready = true;
+            stopWatchdog();
+            hideLoader();
+            
+            document.querySelectorAll('.modal-overlay').forEach(el => {
+              el.classList.remove('is-visible');
+              el.style.removeProperty('display');
+              el.style.removeProperty('opacity');
+            });
+
+
+        } catch (err){
+            console.error("Errore critico durante l'inizializzazione:", err);
+            stopWatchdog();
+            showLoader(`Errore di inizializzazione. Riprova?`, true);
+            __booted = false;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => bootDashboard(), { once: true });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) bootDashboard(); });
+
+    /* DASHBOARD MOBILE ACCORDION - 25/09/2025 */
+    // Responsive accordion state management
+    (function() {
+      function setResponsiveAccordionState() {
+        const width = window.innerWidth;
+        const cards = Array.from(document.querySelectorAll('.dash-card'))
+          .filter(c => getComputedStyle(c).display !== 'none'); // solo visibili
+
+        const openCount = width <= 480 ? 1 : (width <= 1024 ? 2 : cards.length);
+
+        // richiudi tutto
+        document.querySelectorAll('.dash-card').forEach(c => c.removeAttribute('open'));
+        // apri le prime N visibili
+        cards.slice(0, openCount).forEach(c => c.setAttribute('open',''));
+      }
+      
+      // Set initial state
+      setResponsiveAccordionState();
+      
+      // Update on resize with debounce
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setResponsiveAccordionState, 150);
+      });
+
+      // Ricalcola anche quando mostri/nascondi scadenze dopo i dati
+      const deadlines = document.getElementById('deadlines-section');
+      const observer = new MutationObserver(setResponsiveAccordionState);
+      observer.observe(deadlines, { attributes: true, attributeFilter: ['style'] });
+    })();
+    /* END DASHBOARD MOBILE ACCORDION - 25/09/2025 */
+
+    const openSelect = document.getElementById('section-open');
+    if (openSelect) {
+      const map = {
+        deadlines: '#deadlines-section',
+        form: '.form-section',
+        goals: '#goals-section',
+        summary: '.dashboard-panel'
+      };
+      openSelect.addEventListener('change', e => {
+        const sel = map[e.target.value];
+        document.querySelectorAll('.dash-card').forEach(el => el.removeAttribute('open'));
+        const target = document.querySelector(sel);
+        if (target) {
+          target.setAttribute('open','');
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+    
+    const dashNavToggle = document.getElementById('dash-nav-toggle');
+    const dashNavMenu = document.querySelector('#dash-nav .dash-nav-menu');
+    if (dashNavToggle && dashNavMenu) {
+      dashNavToggle.addEventListener('click', ()=> dashNavMenu.classList.toggle('is-open'));
+    }
+
+  </script>
+</body>
+</html>
