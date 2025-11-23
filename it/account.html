@@ -6,12 +6,13 @@
   <title>Il Mio Account — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
   
-  <!-- Three.js: Usiamo una versione stabile e compatibile -->
+  <!-- Three.js (Versione stabile per compatibilità) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <style>
+    /* === VARIABILI DI STILE === */
     :root {
       --fg: #111;
       --bg: #f4f7fa;
@@ -59,7 +60,7 @@
     }
     .top-link:hover { transform: translateY(-2px); }
 
-    /* ====== CONTAINER ====== */
+    /* ====== LAYOUT ====== */
     main.container {
       padding: 100px 24px 40px; 
       max-width: 1000px; 
@@ -73,7 +74,7 @@
     /* AREA 3D */
     .character-stage {
       width: 100%;
-      height: 450px;
+      height: 500px;
       position: relative;
       display: flex;
       align-items: center;
@@ -86,57 +87,75 @@
       display: block;
     }
 
-    /* BUBBLE MESSAGGIO */
+    /* MESSAGGIO FLUTTUANTE */
     .message-bubble {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(8px);
-      padding: 20px 30px;
+      padding: 24px 40px;
       border-radius: 30px;
       font-weight: 800;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: #333;
       box-shadow: 0 15px 40px rgba(0,0,0,0.1);
       border: 1px solid rgba(255,255,255,0.5);
       text-align: center;
-      margin-top: -50px; 
+      margin-top: -60px; 
       z-index: 10;
       opacity: 0;
       transform: translateY(20px) scale(0.9);
       transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 600px;
     }
     .message-bubble.visible { opacity: 1; transform: translateY(0) scale(1); }
     .message-bubble strong { color: var(--primary-color); }
 
-    /* SIMULATORE */
+    .cta-upgrade {
+      margin-top: 15px;
+      display: inline-block;
+      padding: 10px 20px;
+      background: #333;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+    .cta-upgrade:hover { transform: scale(1.05); }
+
+    /* SIMULATORE (Per debug/demo) */
     .plan-simulator {
-      margin-top: 40px;
-      background: #fff;
-      padding: 20px;
+      margin-top: 50px;
+      background: rgba(255,255,255,0.5);
+      padding: 15px;
       border-radius: 16px;
-      box-shadow: var(--shadow);
-      text-align: center;
       border: 1px solid var(--card-border);
     }
-    .tier-switcher { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .tier-switcher { display: flex; gap: 10px; justify-content: center; margin-top: 5px; }
     .tier-btn {
-      padding: 8px 16px; border: 1px solid #ddd; background: #f9f9f9;
+      padding: 6px 12px; border: 1px solid #ddd; background: #fff;
       border-radius: 8px; cursor: pointer; font-weight: 600; color: #666;
+      font-size: 0.8rem;
     }
-    .tier-btn.active { 
-      background: var(--primary-color); color: #fff; border-color: var(--primary-color);
-    }
+    .tier-btn:hover { background: #eee; }
 
+    /* Loading Overlay */
+    #loader-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(244,247,250,0.8); z-index: 20;
+      font-weight: 700; color: #666;
+    }
   </style>
 </head>
 <body>
 
   <nav class="topbar">
     <a href="index.html" class="logo-link">
-      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px; background:#eee;"> 
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px;"> 
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <div class="top-nav-right">
-      <!-- Tasto Dashboard corretto -->
+      <!-- Link corretto alla dashboard -->
       <a href="dashboard.html" class="top-link">
         <i class="ph ph-arrow-left" style="margin-right:8px"></i> Dashboard
       </a>
@@ -146,64 +165,74 @@
   <main class="container">
     
     <div class="character-stage">
+      <div id="loader-overlay">Caricamento personaggio...</div>
       <div id="canvas-container"></div>
     </div>
 
     <div id="status-message" class="message-bubble">
-      Caricamento profilo...
+      <!-- Il contenuto viene iniettato via JS -->
     </div>
 
+    <!-- Simulatore per testare le animazioni (puoi rimuoverlo in produzione) -->
     <div class="plan-simulator">
-      <p style="font-size:0.85rem; text-transform:uppercase; color:#999; font-weight:700; margin:0;">Simulazione Stato Profilo:</p>
+      <p style="font-size:0.75rem; text-transform:uppercase; color:#999; font-weight:700; margin:0 0 5px 0;">Test Animazioni:</p>
       <div class="tier-switcher">
-        <button class="tier-btn active" onclick="updateProfileTier('STARTER')">STARTER</button>
-        <button class="tier-btn" onclick="updateProfileTier('PLUS')">PLUS</button>
-        <button class="tier-btn" onclick="updateProfileTier('PRO')">PRO</button>
+        <button class="tier-btn" onclick="setTierAnimation('starter')">Starter (Triste)</button>
+        <button class="tier-btn" onclick="setTierAnimation('plus')">Plus (Ride)</button>
+        <button class="tier-btn" onclick="setTierAnimation('pro')">Pro (Eccitato)</button>
       </div>
     </div>
 
   </main>
 
-  <script>
-    // --- 1. SETUP SCENA 3D ---
+  <script type="module">
+    import { supabase } from "/it/supabase-client.js";
+
+    // --- 1. SCENA 3D ---
     const container = document.getElementById('canvas-container');
+    const loader = document.getElementById('loader-overlay');
     const scene = new THREE.Scene();
     
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 0.5, 5);
+    camera.position.set(0, 0.5, 5.5);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
     // Luci
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(2, 5, 5);
+    dirLight.position.set(3, 5, 5);
+    dirLight.castShadow = true;
     scene.add(dirLight);
-
-    // --- 2. COSTRUZIONE ROBOT (Geometrie Sicure) ---
+    
+    // --- 2. ROBOT (Geometrie Semplici) ---
     const botGroup = new THREE.Group();
     scene.add(botGroup);
 
     // Materiali
-    const mainMat = new THREE.MeshPhongMaterial({ color: 0xecf0f1, flatShading: false });
-    const accentMat = new THREE.MeshPhongMaterial({ color: 0xbdc3c7 }); // Cambierà colore
-    const darkMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 });
+    const mainMat = new THREE.MeshStandardMaterial({ color: 0xecf0f1, roughness: 0.3, metalness: 0.1 });
+    const accentMat = new THREE.MeshStandardMaterial({ color: 0xbdc3c7, roughness: 0.2 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50 });
 
     // Corpo
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), mainMat);
     body.scale.set(1, 0.85, 1);
+    body.castShadow = true;
     botGroup.add(body);
 
-    // Testa
+    // Testa (Gruppo separato per muoverla)
     const headGroup = new THREE.Group();
     headGroup.position.y = 0.75;
     botGroup.add(headGroup);
 
     const head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 32, 32), mainMat);
+    head.castShadow = true;
     headGroup.add(head);
 
     // Visiera
@@ -212,7 +241,7 @@
     visor.position.y = 0.14;
     headGroup.add(visor);
 
-    // Occhi (Sfere schiacciate invece di Capsule per compatibilità)
+    // Occhi
     const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), darkMat);
     leftEye.scale.set(1, 1.5, 0.5);
     leftEye.position.set(-0.22, 0.15, 0.52);
@@ -228,131 +257,229 @@
     // Braccia
     const armGeo = new THREE.SphereGeometry(0.22, 16, 16);
     
-    const armRightGroup = new THREE.Group(); // Perno spalla DX
-    armRightGroup.position.set(0.9, 0, 0);
+    const armRightGroup = new THREE.Group(); 
+    armRightGroup.position.set(0.9, 0.1, 0);
     botGroup.add(armRightGroup);
     const armRight = new THREE.Mesh(armGeo, mainMat);
-    armRight.scale.set(1, 1.5, 1);
+    armRight.scale.set(1, 1.8, 1);
     armRightGroup.add(armRight);
-
-    // Pollice (inizialmente nascosto o piccolo)
-    const thumb = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.25), mainMat);
-    thumb.position.set(0, 0.25, 0.1);
-    thumb.rotation.x = 0.5;
+    
+    // Pollice DX (Visibile solo in PRO)
+    const thumbGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 8);
+    const thumb = new THREE.Mesh(thumbGeo, mainMat);
+    thumb.position.set(0, 0.3, 0.1);
+    thumb.rotation.x = 0.4;
     armRight.add(thumb);
     thumb.visible = false;
 
-    const armLeftGroup = new THREE.Group(); // Perno spalla SX
-    armLeftGroup.position.set(-0.9, 0, 0);
+    const armLeftGroup = new THREE.Group(); 
+    armLeftGroup.position.set(-0.9, 0.1, 0);
     botGroup.add(armLeftGroup);
     const armLeft = new THREE.Mesh(armGeo, mainMat);
-    armLeft.scale.set(1, 1.5, 1);
+    armLeft.scale.set(1, 1.8, 1);
     armLeftGroup.add(armLeft);
 
+    // Ombra
+    const shadowPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.5, 2.5), 
+        new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 })
+    );
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -1.1;
+    
+    // Texture sfumata per ombra (generata via canvas)
+    const canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grd.addColorStop(0, 'rgba(0,0,0,1)');
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,64,64);
+    const shadowTex = new THREE.CanvasTexture(canvas);
+    shadowPlane.material.map = shadowTex;
+    shadowPlane.material.alphaMap = shadowTex;
+    
+    botGroup.add(shadowPlane);
 
-    // --- 3. LOGICA E ANIMAZIONE ---
-    let currentTier = 'LOADING';
+    // --- 3. LOGICA ANIMAZIONE ---
+    let currentPlan = 'loading'; 
     let time = 0;
 
     function animate() {
       requestAnimationFrame(animate);
       time += 0.05;
 
-      if (currentTier === 'STARTER') {
+      if (currentPlan === 'starter') {
          // --- TRISTE ---
-         // Testa bassa
+         // Testa bassa e ciondolante
          headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0.5, 0.05);
-         // Scuote la testa lentamente (no no)
-         headGroup.rotation.y = Math.sin(time * 0.5) * 0.1;
+         headGroup.rotation.y = Math.sin(time * 0.5) * 0.1; 
          
-         // Corpo fermo e basso
-         botGroup.position.y = Math.sin(time) * 0.02 - 0.2;
+         // Corpo basso e fermo
+         botGroup.position.y = THREE.MathUtils.lerp(botGroup.position.y, -0.3 + Math.sin(time)*0.02, 0.1);
          
-         // Braccia giù
+         // Braccia penzoloni
          armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0, 0.1);
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, -0.2, 0.1);
+         
          armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, 0, 0.1);
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, -0.2, 0.1);
+
          thumb.visible = false;
 
-      } else if (currentTier === 'PLUS') {
-         // --- RIDE / FELICE ---
-         // Testa su
+      } else if (currentPlan === 'plus') {
+         // --- FELICE ---
+         // Testa alta
          headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, -0.2, 0.05);
-         // Ride (vibra un po')
-         headGroup.position.y = 0.75 + Math.abs(Math.sin(time * 10)) * 0.02; 
+         // Ride (vibra veloce verticalmente)
+         headGroup.position.y = 0.75 + Math.abs(Math.sin(time * 15)) * 0.02; 
          
          // Corpo saltella piano
-         botGroup.position.y = Math.sin(time * 3) * 0.05;
+         botGroup.position.y = Math.sin(time * 3) * 0.1;
 
-         // Braccia aperte
+         // Braccia aperte (Accoglienza)
          armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0.5, 0.1);
          armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -0.5, 0.1);
+         
+         // Reset posizioni
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.1, 0.1);
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.1, 0.1);
+
          thumb.visible = false;
 
-      } else if (currentTier === 'PRO') {
+      } else if (currentPlan === 'pro') {
          // --- ECCITATO ---
-         // Testa guarda ovunque
-         headGroup.rotation.x = Math.sin(time * 2) * 0.1 - 0.1;
+         // Testa energica
+         headGroup.rotation.x = Math.sin(time * 3) * 0.1 - 0.1;
          headGroup.rotation.y = Math.sin(time) * 0.2;
+         headGroup.position.y = 0.75; 
+
+         // Salto alto (JUMP!)
+         const jump = Math.abs(Math.sin(time * 5));
+         botGroup.position.y = (jump * 0.5) - 0.2;
+         botGroup.rotation.y = Math.sin(time) * 0.2; // Twist corpo
+
+         // Braccia in alto!
+         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 2.8, 0.1);
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.5, 0.1);
          
-         // Salto alto (Jump!)
-         botGroup.position.y = Math.abs(Math.sin(time * 4)) * 0.5 - 0.2;
-         
-         // Braccia in alto
-         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 2.5, 0.1); // Su in alto
-         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -2.5, 0.1); // Su in alto
+         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -2.8, 0.1);
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.5, 0.1);
          
          thumb.visible = true;
       }
 
+      // Ombra dinamica
+      shadowPlane.material.opacity = 0.2 - (botGroup.position.y + 0.3) * 0.2;
+      
       renderer.render(scene, camera);
     }
     animate();
 
-    // --- 4. GESTIONE STATI ---
-    window.updateProfileTier = function(tier) {
-      currentTier = tier;
-      
-      // Aggiorna bottoni UI
-      document.querySelectorAll('.tier-btn').forEach(b => {
-        b.classList.toggle('active', b.innerText === tier);
-      });
+    // --- 4. LOGICA DI BUSINESS ---
+    
+    // Funzione globale per il simulatore
+    window.setTierAnimation = function(tier) {
+      currentPlan = tier.toLowerCase();
+      updateUI(tier.toLowerCase());
+    }
 
+    function updateUI(plan) {
       const bubble = document.getElementById('status-message');
+      let msg = "";
+      let color = 0xbdc3c7;
+      let emissive = 0x000000;
+
+      if (plan === 'starter' || plan === 'trial') {
+        // TRISTE
+        msg = `
+          <div>😔</div>
+          <div style="margin:10px 0; font-size:1.1rem;">Il tuo piano è <strong>Starter</strong>.</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Ti stai perdendo report avanzati e obiettivi multipli.</div>
+          <a href="pricing.html" class="cta-upgrade" style="background: #f39c12;">Passa a PLUS ➔</a>
+        `;
+        color = 0x7f8c8d; // Grigio spento
+        currentPlan = 'starter'; // Forza stato animazione
+
+      } else if (plan === 'plus') {
+        // FELICE
+        msg = `
+          <div>😄</div>
+          <div style="margin:10px 0; font-size:1.1rem;">Grande! Sei un utente <strong>PLUS</strong>.</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Hai sbloccato molto, ma il vero potere è nel Pro.</div>
+          <a href="pricing.html" class="cta-upgrade" style="background: #8e44ad;">Passa a PRO ➔</a>
+        `;
+        color = 0xf1c40f; // Oro
+        emissive = 0x333300;
+        currentPlan = 'plus';
+
+      } else if (plan === 'pro') {
+        // ECCITATO
+        msg = `
+          <div>🚀</div>
+          <div style="margin:10px 0; font-size:1.1rem;">WOW! Sei un utente <strong>PRO</strong>!</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Hai il massimo della potenza. Grazie per il supporto!</div>
+        `;
+        color = 0x9b59b6; // Viola
+        emissive = 0x220022;
+        currentPlan = 'pro';
+      }
+
+      // Aggiorna colore robot
+      accentMat.color.setHex(color);
+      accentMat.emissive.setHex(emissive);
+
+      // Aggiorna testo con animazione
       bubble.classList.remove('visible');
-
       setTimeout(() => {
-        let msg = "";
-        let color = 0xcccccc;
-
-        if(tier === 'STARTER') {
-           // Triste
-           msg = "Che tristezza... sei ancora <strong>Starter</strong>.<br>Passa a PLUS per iniziare a sorridere!";
-           color = 0x34495e; // Blu scuro spento
-        } else if(tier === 'PLUS') {
-           // Ride
-           msg = "Ahah! Grande! Sei <strong>Plus</strong>.<br>Ma se passi a PRO è ancora meglio!";
-           color = 0xf1c40f; // Oro
-        } else if(tier === 'PRO') {
-           // Eccitato
-           msg = "WOW! Sei <strong>PRO</strong>!<br>Stai andando alla grande!";
-           color = 0x9b59b6; // Viola
-        }
-
-        accentMat.color.setHex(color);
         bubble.innerHTML = msg;
         bubble.classList.add('visible');
-      }, 200);
-    };
+      }, 300);
+    }
 
-    // Init (simulazione caricamento da DB)
-    setTimeout(() => updateProfileTier('STARTER'), 500);
+    async function init() {
+      try {
+        // 1. Ottieni utente
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+           // Se non loggato, manda a login (o mostra starter per demo)
+           window.location.href = 'login.html';
+           return;
+        }
+        
+        // 2. Leggi Profilo dal DB
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('plan_type')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (error) throw error;
 
-    // Resize
+        loader.style.display = 'none';
+        
+        // 3. Aggiorna Scena
+        const plan = profile?.plan_type || 'starter';
+        console.log("Piano utente:", plan);
+        updateUI(plan);
+
+      } catch (err) {
+        console.error("Errore caricamento:", err);
+        loader.textContent = "Errore caricamento profilo.";
+        // Fallback visuale
+        updateUI('starter');
+      }
+    }
+
+    // Gestione resize
     window.addEventListener('resize', () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
     });
+
+    // Avvio
+    init();
 
   </script>
 </body>
