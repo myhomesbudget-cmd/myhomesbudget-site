@@ -6,13 +6,12 @@
   <title>Il Mio Account — MyHomesBudget</title>
   <meta name="robots" content="noindex, nofollow" />
   
-  <!-- Three.js: Usiamo unpkg per massima affidabilità -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <!-- Three.js: Usiamo una versione stabile e compatibile -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <style>
-    /* === VARIABILI TEMA CHIARO === */
     :root {
       --fg: #111;
       --bg: #f4f7fa;
@@ -21,28 +20,16 @@
       --shadow: 0 10px 30px rgba(0,0,0,.08);
       --radius-lg: 16px;
       --primary-color: #6c5ce7;
-      
-      --font-sans: -apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
       --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
-      
-      /* Colori Emozioni */
-      --color-sad: #636e72;   /* Grigio bluastro */
-      --color-happy: #f1c40f; /* Oro */
-      --color-excited: #8e44ad; /* Viola */
     }
 
     * { box-sizing: border-box; }
-    html { font-family: var(--font-sans); background-color: var(--bg); }
+    html { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); }
     
     body {
       margin: 0;
       color: var(--fg);
-      background: var(--bg);
-      background-image: url("/bg.webp");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: cover;
-      background-attachment: fixed;
+      background: url("/bg.webp") no-repeat center/cover fixed;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -57,7 +44,7 @@
     .topbar {
       position: fixed; top: 0; left: 0; right: 0; height: 60px; padding: 0 24px;
       display: flex; align-items: center; justify-content: space-between;
-      background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      background: var(--glass); backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--card-border); z-index: 100;
     }
     .logo-link { display: flex; align-items: center; gap: 8px; text-decoration: none; }
@@ -68,11 +55,11 @@
       color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 10px;
       font-size: .9rem; font-weight: 600; background: var(--grad);
       border: none; box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      transition: transform 0.2s ease, filter 0.2s ease; cursor: pointer;
+      cursor: pointer; transition: transform 0.2s;
     }
-    .top-link:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .top-link:hover { transform: translateY(-2px); }
 
-    /* ====== LAYOUT CENTRALE ====== */
+    /* ====== CONTAINER ====== */
     main.container {
       padding: 100px 24px 40px; 
       max-width: 1000px; 
@@ -83,10 +70,10 @@
       min-height: 85vh;
     }
 
-    /* AREA 3D CENTRALE */
+    /* AREA 3D */
     .character-stage {
       width: 100%;
-      height: 450px; /* Altezza fissa sicura */
+      height: 450px;
       position: relative;
       display: flex;
       align-items: center;
@@ -96,60 +83,47 @@
     
     #canvas-container {
       width: 100%; height: 100%;
-      display: block; /* Evita spazi bianchi */
+      display: block;
     }
 
-    /* MESSAGGIO FLUTTUANTE */
+    /* BUBBLE MESSAGGIO */
     .message-bubble {
       background: rgba(255,255,255,0.95);
       backdrop-filter: blur(8px);
-      padding: 20px 40px;
-      border-radius: 50px;
+      padding: 20px 30px;
+      border-radius: 30px;
       font-weight: 800;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       color: #333;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
       border: 1px solid rgba(255,255,255,0.5);
       text-align: center;
-      margin-top: -60px; /* Sovrapposto leggermente al 3D */
+      margin-top: -50px; 
       z-index: 10;
-      position: relative;
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Effetto rimbalzo */
       opacity: 0;
-      transform: translateY(30px) scale(0.8);
+      transform: translateY(20px) scale(0.9);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .message-bubble.visible { opacity: 1; transform: translateY(0) scale(1); }
-    
     .message-bubble strong { color: var(--primary-color); }
 
-    /* SIMULATORE PIANI */
+    /* SIMULATORE */
     .plan-simulator {
-      margin-top: 50px;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(10px);
-      padding: 25px;
-      border-radius: 24px;
+      margin-top: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
       box-shadow: var(--shadow);
       text-align: center;
       border: 1px solid var(--card-border);
-      max-width: 450px;
-      width: 100%;
     }
-    
-    .tier-switcher {
-      display: flex; gap: 10px; justify-content: center; margin-top: 15px;
-    }
+    .tier-switcher { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
     .tier-btn {
-      padding: 10px 20px; border: 1px solid #ddd; background: #fff;
-      border-radius: 12px; cursor: pointer; font-weight: 700; color: #666;
-      transition: all 0.2s; flex: 1;
+      padding: 8px 16px; border: 1px solid #ddd; background: #f9f9f9;
+      border-radius: 8px; cursor: pointer; font-weight: 600; color: #666;
     }
-    .tier-btn:hover { background: #f4f7fa; transform: translateY(-2px); }
     .tier-btn.active { 
-      background: var(--primary-color); 
-      color: #fff; 
-      border-color: var(--primary-color);
-      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.25);
+      background: var(--primary-color); color: #fff; border-color: var(--primary-color);
     }
 
   </style>
@@ -158,10 +132,11 @@
 
   <nav class="topbar">
     <a href="index.html" class="logo-link">
-      <i class="ph-fill ph-house-line" style="font-size: 32px; color: var(--primary-color);"></i>
+      <img src="/homes.png" alt="Logo" style="height:32px;border-radius:6px; background:#eee;"> 
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <div class="top-nav-right">
+      <!-- Tasto Dashboard corretto -->
       <a href="dashboard.html" class="top-link">
         <i class="ph ph-arrow-left" style="margin-right:8px"></i> Dashboard
       </a>
@@ -170,21 +145,18 @@
 
   <main class="container">
     
-    <!-- Scena 3D -->
     <div class="character-stage">
       <div id="canvas-container"></div>
     </div>
 
-    <!-- Messaggio Dinamico -->
     <div id="status-message" class="message-bubble">
       Caricamento profilo...
     </div>
 
-    <!-- Simulatore -->
     <div class="plan-simulator">
-      <p style="font-size:0.85rem; text-transform:uppercase; color:#888; font-weight:800; letter-spacing:1px; margin:0;">Stato attuale (Database):</p>
+      <p style="font-size:0.85rem; text-transform:uppercase; color:#999; font-weight:700; margin:0;">Simulazione Stato Profilo:</p>
       <div class="tier-switcher">
-        <button class="tier-btn" onclick="updateProfileTier('STARTER')">STARTER</button>
+        <button class="tier-btn active" onclick="updateProfileTier('STARTER')">STARTER</button>
         <button class="tier-btn" onclick="updateProfileTier('PLUS')">PLUS</button>
         <button class="tier-btn" onclick="updateProfileTier('PRO')">PRO</button>
       </div>
@@ -193,283 +165,187 @@
   </main>
 
   <script>
-    // --- 1. CONFIGURAZIONE THREE.JS ---
+    // --- 1. SETUP SCENA 3D ---
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     
-    // Camera
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 0.5, 5); // Camera frontale
+    camera.position.set(0, 0.5, 5);
 
-    // Renderer (Sfondo trasparente)
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
     // Luci
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
-    
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(3, 8, 5);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(2, 5, 5);
     scene.add(dirLight);
 
-    const rimLight = new THREE.SpotLight(0x6c5ce7, 0.5);
-    rimLight.position.set(-5, 5, -2);
-    scene.add(rimLight);
-
-    // --- 2. COSTRUZIONE ROBOT (Universal Compatible) ---
+    // --- 2. COSTRUZIONE ROBOT (Geometrie Sicure) ---
     const botGroup = new THREE.Group();
     scene.add(botGroup);
 
-    // Materiali Pixar-style
-    const mainMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0xecf0f1, roughness: 0.2, metalness: 0.1, clearcoat: 1.0, clearcoatRoughness: 0.1
-    });
-    // Materiale colorato (Viso/Dettagli)
-    const accentMat = new THREE.MeshPhysicalMaterial({ 
-      color: 0xbdc3c7, roughness: 0.2, emissive: 0x000000, emissiveIntensity: 0.2
-    });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50 });
+    // Materiali
+    const mainMat = new THREE.MeshPhongMaterial({ color: 0xecf0f1, flatShading: false });
+    const accentMat = new THREE.MeshPhongMaterial({ color: 0xbdc3c7 }); // Cambierà colore
+    const darkMat = new THREE.MeshPhongMaterial({ color: 0x2c3e50 });
 
-    // Corpo (Sfera leggermente schiacciata)
-    const bodyGeo = new THREE.SphereGeometry(0.9, 32, 32);
-    const body = new THREE.Mesh(bodyGeo, mainMat);
-    body.castShadow = true; body.receiveShadow = true;
+    // Corpo
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), mainMat);
     body.scale.set(1, 0.85, 1);
     botGroup.add(body);
 
-    // Testa (Gruppo)
+    // Testa
     const headGroup = new THREE.Group();
     headGroup.position.y = 0.75;
     botGroup.add(headGroup);
 
-    const headGeo = new THREE.SphereGeometry(0.65, 32, 32);
-    const head = new THREE.Mesh(headGeo, mainMat);
-    head.castShadow = true;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 32, 32), mainMat);
     headGroup.add(head);
 
-    // Visiera (Sfera tagliata e ruotata)
-    const visorGeo = new THREE.SphereGeometry(0.56, 32, 32, 0, Math.PI * 2, 0, Math.PI * 0.35);
-    const visor = new THREE.Mesh(visorGeo, accentMat);
+    // Visiera
+    const visor = new THREE.Mesh(new THREE.SphereGeometry(0.56, 32, 32, 0, 6.3, 0, 1.1), accentMat);
     visor.rotation.x = -Math.PI / 2;
     visor.position.y = 0.14;
     headGroup.add(visor);
 
-    // Occhi (Sostituito CapsuleGeometry con SphereGeometry scalata per compatibilità 100%)
-    const eyeGeo = new THREE.SphereGeometry(0.12, 16, 16);
-    
-    const leftEye = new THREE.Mesh(eyeGeo, darkMat);
-    leftEye.scale.set(1, 1.8, 0.5); // Schiacciato per sembrare capsula
-    leftEye.position.set(-0.22, 0.1, 0.52);
+    // Occhi (Sfere schiacciate invece di Capsule per compatibilità)
+    const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), darkMat);
+    leftEye.scale.set(1, 1.5, 0.5);
+    leftEye.position.set(-0.22, 0.15, 0.52);
     leftEye.rotation.x = -0.2;
     visor.add(leftEye);
 
-    const rightEye = new THREE.Mesh(eyeGeo, darkMat);
-    rightEye.scale.set(1, 1.8, 0.5);
-    rightEye.position.set(0.22, 0.1, 0.52);
+    const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), darkMat);
+    rightEye.scale.set(1, 1.5, 0.5);
+    rightEye.position.set(0.22, 0.15, 0.52);
     rightEye.rotation.x = -0.2;
     visor.add(rightEye);
 
     // Braccia
-    const armGeo = new THREE.SphereGeometry(0.22, 24, 24);
+    const armGeo = new THREE.SphereGeometry(0.22, 16, 16);
     
-    // Braccio DX
-    const armRightGroup = new THREE.Group();
-    armRightGroup.position.set(1, 0.1, 0);
+    const armRightGroup = new THREE.Group(); // Perno spalla DX
+    armRightGroup.position.set(0.9, 0, 0);
     botGroup.add(armRightGroup);
     const armRight = new THREE.Mesh(armGeo, mainMat);
     armRight.scale.set(1, 1.5, 1);
     armRightGroup.add(armRight);
-    
-    // Pollice DX
-    const thumbGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.25, 12);
-    const thumb = new THREE.Mesh(thumbGeo, mainMat);
+
+    // Pollice (inizialmente nascosto o piccolo)
+    const thumb = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.25), mainMat);
     thumb.position.set(0, 0.25, 0.1);
     thumb.rotation.x = 0.5;
     armRight.add(thumb);
-    thumb.visible = false; // Nascosto default
+    thumb.visible = false;
 
-    // Braccio SX
-    const armLeftGroup = new THREE.Group();
-    armLeftGroup.position.set(-1, 0.1, 0);
+    const armLeftGroup = new THREE.Group(); // Perno spalla SX
+    armLeftGroup.position.set(-0.9, 0, 0);
     botGroup.add(armLeftGroup);
     const armLeft = new THREE.Mesh(armGeo, mainMat);
     armLeft.scale.set(1, 1.5, 1);
     armLeftGroup.add(armLeft);
 
-    // Ombra a terra (Fake Shadow per performance e look)
-    const shadowGeo = new THREE.PlaneGeometry(2.5, 2.5);
-    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 });
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = 64; canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    const grd = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grd.addColorStop(0, 'rgba(0,0,0,0.6)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grd; ctx.fillRect(0,0,64,64);
-    const shadowTex = new THREE.CanvasTexture(canvas);
-    shadowMat.map = shadowTex; shadowMat.alphaMap = shadowTex;
-    
-    const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
-    shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -1;
-    botGroup.add(shadowPlane);
 
-
-    // --- 3. LOGICA DI BUSINESS & ANIMAZIONE ---
-    let currentTier = 'LOADING'; // Stato iniziale per evitare freeze
+    // --- 3. LOGICA E ANIMAZIONE ---
+    let currentTier = 'LOADING';
     let time = 0;
-    
-    // Funzione robusta per "leggere il profilo"
-    async function loadUserProfile() {
-       try {
-           // Simuliamo ritardo
-           await new Promise(r => setTimeout(r, 800));
-           
-           // Lettura Safe da LocalStorage
-           let savedTier = 'STARTER';
-           try {
-               savedTier = localStorage.getItem('my_budget_tier') || 'STARTER';
-           } catch(e) {
-               console.log("LocalStorage non disponibile, uso default");
-           }
-           updateProfileTier(savedTier);
-       } catch (err) {
-           console.error("Errore caricamento profilo", err);
-           updateProfileTier('STARTER'); // Fallback sicuro
-       }
-    }
 
     function animate() {
       requestAnimationFrame(animate);
-      time += 0.03; // Velocità animazione
+      time += 0.05;
 
-      // Animazione Respiro Base (sempre attiva)
-      const breath = Math.sin(time);
-
-      if (currentTier === 'LOADING') {
-         // FLUTTUAZIONE DI ATTESA
-         botGroup.position.y = Math.sin(time * 3) * 0.1;
-         headGroup.rotation.y += 0.05; // Gira la testa mentre cerca
-         
-      } else if (currentTier === 'STARTER') {
+      if (currentTier === 'STARTER') {
          // --- TRISTE ---
-         // Testa bassa e lenta
+         // Testa bassa
          headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0.5, 0.05);
-         headGroup.rotation.y = THREE.MathUtils.lerp(headGroup.rotation.y, Math.sin(time * 0.5) * 0.2, 0.05);
+         // Scuote la testa lentamente (no no)
+         headGroup.rotation.y = Math.sin(time * 0.5) * 0.1;
          
-         // Corpo basso
-         botGroup.position.y = THREE.MathUtils.lerp(botGroup.position.y, -0.2 + Math.sin(time)*0.02, 0.05);
+         // Corpo fermo e basso
+         botGroup.position.y = Math.sin(time) * 0.02 - 0.2;
          
-         // Braccia giù e pesanti
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, -0.3, 0.05);
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, -0.3, 0.05);
-         
+         // Braccia giù
+         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0, 0.1);
+         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, 0, 0.1);
          thumb.visible = false;
 
       } else if (currentTier === 'PLUS') {
-         // --- FELICE ---
-         // Testa alta
-         headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, -0.1, 0.05);
-         headGroup.rotation.y = THREE.MathUtils.lerp(headGroup.rotation.y, Math.sin(time * 2) * 0.15, 0.05);
+         // --- RIDE / FELICE ---
+         // Testa su
+         headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, -0.2, 0.05);
+         // Ride (vibra un po')
+         headGroup.position.y = 0.75 + Math.abs(Math.sin(time * 10)) * 0.02; 
          
-         // Saltello ritmico
-         botGroup.position.y = Math.sin(time * 5) * 0.1;
-         
-         // Braccia rilassate ma attive
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.1 + Math.sin(time*5)*0.05, 0.05);
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.1 + Math.sin(time*5)*0.05, 0.05);
-         
+         // Corpo saltella piano
+         botGroup.position.y = Math.sin(time * 3) * 0.05;
+
+         // Braccia aperte
+         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0.5, 0.1);
+         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -0.5, 0.1);
          thumb.visible = false;
 
       } else if (currentTier === 'PRO') {
          // --- ECCITATO ---
-         // Testa energica
-         headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, -0.3, 0.1);
-         headGroup.rotation.y = THREE.MathUtils.lerp(headGroup.rotation.y, Math.sin(time * 3) * 0.3, 0.1);
-
-         // Salto alto e veloce (Jump!)
-         const jump = Math.abs(Math.sin(time * 6));
-         botGroup.position.y = jump * 0.5 - 0.1;
-         botGroup.rotation.y = Math.sin(time) * 0.2;
-
-         // Braccia in alto!
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.7, 0.1);
-         armRightGroup.position.x = THREE.MathUtils.lerp(armRightGroup.position.x, 1.3, 0.1);
+         // Testa guarda ovunque
+         headGroup.rotation.x = Math.sin(time * 2) * 0.1 - 0.1;
+         headGroup.rotation.y = Math.sin(time) * 0.2;
          
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.7, 0.1);
-         armLeftGroup.position.x = THREE.MathUtils.lerp(armLeftGroup.position.x, -1.3, 0.1);
+         // Salto alto (Jump!)
+         botGroup.position.y = Math.abs(Math.sin(time * 4)) * 0.5 - 0.2;
+         
+         // Braccia in alto
+         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 2.5, 0.1); // Su in alto
+         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -2.5, 0.1); // Su in alto
          
          thumb.visible = true;
       }
 
-      // Ombra dinamica (più il robot è alto, più l'ombra è chiara e piccola)
-      const shadowScale = 1 - (botGroup.position.y + 0.5) * 0.3;
-      shadowPlane.scale.setScalar(Math.max(0.5, shadowScale));
-      shadowPlane.material.opacity = Math.max(0.05, 0.3 * shadowScale);
-
       renderer.render(scene, camera);
     }
-    
-    // Avvia loop
     animate();
-    
-    // Avvia caricamento dati
-    loadUserProfile();
 
-
-    // --- 4. FUNZIONE AGGIORNAMENTO STATO ---
+    // --- 4. GESTIONE STATI ---
     window.updateProfileTier = function(tier) {
       currentTier = tier;
       
-      try { localStorage.setItem('my_budget_tier', tier); } catch(e){}
-
-      const bubble = document.getElementById('status-message');
-      
-      // Update pulsanti UI
+      // Aggiorna bottoni UI
       document.querySelectorAll('.tier-btn').forEach(b => {
         b.classList.toggle('active', b.innerText === tier);
       });
 
-      // Update Messaggio e Colori
-      let msg = "";
-      let colorHex = 0xbdc3c7;
-      let emissiveInt = 0;
-
+      const bubble = document.getElementById('status-message');
       bubble.classList.remove('visible');
-      
-      // Ritardo per effetto transizione testo
+
       setTimeout(() => {
+        let msg = "";
+        let color = 0xcccccc;
+
         if(tier === 'STARTER') {
-           msg = "Mmm... sei ancora Starter. 😔<br>Passa a <strong>PLUS</strong> per sbloccare gli obiettivi!";
-           colorHex = 0x7f8c8d; // Grigio Spento
-           emissiveInt = 0;
+           // Triste
+           msg = "Che tristezza... sei ancora <strong>Starter</strong>.<br>Passa a PLUS per iniziare a sorridere!";
+           color = 0x34495e; // Blu scuro spento
         } else if(tier === 'PLUS') {
-           msg = "Bene, sei Plus! 🙂<br>Ma perché non avere tutto? Passa a <strong>PRO</strong>!";
-           colorHex = 0xf1c40f; // Oro
-           emissiveInt = 0.3;
+           // Ride
+           msg = "Ahah! Grande! Sei <strong>Plus</strong>.<br>Ma se passi a PRO è ancora meglio!";
+           color = 0xf1c40f; // Oro
         } else if(tier === 'PRO') {
-           msg = "SEI UN PRO! 🚀<br>Hai il massimo della potenza!";
-           colorHex = 0x9b59b6; // Viola MyHomesBudget
-           emissiveInt = 0.6;
+           // Eccitato
+           msg = "WOW! Sei <strong>PRO</strong>!<br>Stai andando alla grande!";
+           color = 0x9b59b6; // Viola
         }
-        
+
+        accentMat.color.setHex(color);
         bubble.innerHTML = msg;
         bubble.classList.add('visible');
-        
-        accentMat.color.setHex(colorHex);
-        accentMat.emissive.setHex(colorHex);
-        accentMat.emissiveIntensity = emissiveInt;
-        
       }, 200);
     };
+
+    // Init (simulazione caricamento da DB)
+    setTimeout(() => updateProfileTier('STARTER'), 500);
 
     // Resize
     window.addEventListener('resize', () => {
