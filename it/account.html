@@ -165,7 +165,7 @@
   <main class="container">
     
     <div class="character-stage">
-      <div id="loader-overlay">Caricamento personaggio...</div>
+      <div id="loader-overlay">Caricamento mascotte...</div>
       <div id="canvas-container"></div>
     </div>
 
@@ -173,12 +173,12 @@
       <!-- Il contenuto viene iniettato via JS -->
     </div>
 
-    <!-- Simulatore per testare le animazioni (puoi rimuoverlo in produzione) -->
+    <!-- Simulatore per testare le animazioni -->
     <div class="plan-simulator">
       <p style="font-size:0.75rem; text-transform:uppercase; color:#999; font-weight:700; margin:0 0 5px 0;">Test Animazioni:</p>
       <div class="tier-switcher">
         <button class="tier-btn" onclick="setTierAnimation('starter')">Starter (Triste)</button>
-        <button class="tier-btn" onclick="setTierAnimation('plus')">Plus (Ride)</button>
+        <button class="tier-btn" onclick="setTierAnimation('plus')">Plus (Felice)</button>
         <button class="tier-btn" onclick="setTierAnimation('pro')">Pro (Eccitato)</button>
       </div>
     </div>
@@ -203,91 +203,127 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Luci
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // Luci (Set "Studio")
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
     dirLight.position.set(3, 5, 5);
     dirLight.castShadow = true;
     scene.add(dirLight);
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight.position.set(-3, 2, 5);
+    scene.add(fillLight);
     
-    // --- 2. ROBOT (Geometrie Semplici) ---
+    // --- 2. COSTRUZIONE MASCOTTE "CUTIE" ---
     const botGroup = new THREE.Group();
     scene.add(botGroup);
 
     // Materiali
-    const mainMat = new THREE.MeshStandardMaterial({ color: 0xecf0f1, roughness: 0.3, metalness: 0.1 });
-    const accentMat = new THREE.MeshStandardMaterial({ color: 0xbdc3c7, roughness: 0.2 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x2c3e50 });
+    // Il materiale del corpo (skin) cambierà colore in base al piano
+    const skinMat = new THREE.MeshStandardMaterial({ 
+      color: 0xbdc3c7, 
+      roughness: 0.4, 
+      metalness: 0.1 
+    });
+    
+    const eyeMat = new THREE.MeshStandardMaterial({ 
+      color: 0x111111, 
+      roughness: 0.0, 
+      metalness: 0.0 
+    });
+    
+    const blushMat = new THREE.MeshStandardMaterial({ 
+      color: 0xffa5a5, 
+      roughness: 0.5, 
+      opacity: 0.6, 
+      transparent: true 
+    });
 
-    // Corpo
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), mainMat);
-    body.scale.set(1, 0.85, 1);
+    const shineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    // CORPO (Sfera morbida)
+    const bodyGeo = new THREE.SphereGeometry(1, 32, 32);
+    const body = new THREE.Mesh(bodyGeo, skinMat);
+    body.scale.set(1, 0.9, 1); // Un po' schiacciato per essere carino
     body.castShadow = true;
     botGroup.add(body);
 
-    // Testa (Gruppo separato per muoverla)
-    const headGroup = new THREE.Group();
-    headGroup.position.y = 0.75;
-    botGroup.add(headGroup);
+    // GRUPPO FACCIA (Per animare lo sguardo)
+    const faceGroup = new THREE.Group();
+    faceGroup.position.z = 0.85;
+    faceGroup.position.y = 0.1;
+    botGroup.add(faceGroup);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 32, 32), mainMat);
-    head.castShadow = true;
-    headGroup.add(head);
-
-    // Visiera
-    const visor = new THREE.Mesh(new THREE.SphereGeometry(0.56, 32, 32, 0, 6.3, 0, 1.1), accentMat);
-    visor.rotation.x = -Math.PI / 2;
-    visor.position.y = 0.14;
-    headGroup.add(visor);
-
-    // Occhi
-    const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), darkMat);
-    leftEye.scale.set(1, 1.5, 0.5);
-    leftEye.position.set(-0.22, 0.15, 0.52);
-    leftEye.rotation.x = -0.2;
-    visor.add(leftEye);
-
-    const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), darkMat);
-    rightEye.scale.set(1, 1.5, 0.5);
-    rightEye.position.set(0.22, 0.15, 0.52);
-    rightEye.rotation.x = -0.2;
-    visor.add(rightEye);
-
-    // Braccia
-    const armGeo = new THREE.SphereGeometry(0.22, 16, 16);
+    // OCCHI
+    const eyeGeo = new THREE.SphereGeometry(0.18, 32, 32);
     
-    const armRightGroup = new THREE.Group(); 
-    armRightGroup.position.set(0.9, 0.1, 0);
+    const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+    leftEye.position.set(-0.35, 0.1, 0);
+    leftEye.scale.z = 0.3; // Piatti
+    faceGroup.add(leftEye);
+
+    const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+    rightEye.position.set(0.35, 0.1, 0);
+    rightEye.scale.z = 0.3;
+    faceGroup.add(rightEye);
+    
+    // Riflessi negli occhi (Luccichio)
+    const shineGeo = new THREE.SphereGeometry(0.06, 16, 16);
+    
+    const leftShine = new THREE.Mesh(shineGeo, shineMat);
+    leftShine.position.set(-0.08, 0.08, 0.15);
+    leftEye.add(leftShine);
+    
+    const rightShine = new THREE.Mesh(shineGeo, shineMat);
+    rightShine.position.set(-0.08, 0.08, 0.15);
+    rightEye.add(rightShine);
+
+    // GUANCE (Arrossite)
+    const cheekGeo = new THREE.SphereGeometry(0.15, 16, 16);
+    
+    const leftCheek = new THREE.Mesh(cheekGeo, blushMat);
+    leftCheek.position.set(-0.45, -0.15, -0.05);
+    leftCheek.scale.z = 0.2;
+    faceGroup.add(leftCheek);
+
+    const rightCheek = new THREE.Mesh(cheekGeo, blushMat);
+    rightCheek.position.set(0.45, -0.15, -0.05);
+    rightCheek.scale.z = 0.2;
+    faceGroup.add(rightCheek);
+
+    // BRACCIA (Piccole e tonde)
+    const handGeo = new THREE.SphereGeometry(0.25, 32, 32);
+    
+    const armRightGroup = new THREE.Group();
+    armRightGroup.position.set(1.1, -0.2, 0);
     botGroup.add(armRightGroup);
-    const armRight = new THREE.Mesh(armGeo, mainMat);
-    armRight.scale.set(1, 1.8, 1);
-    armRightGroup.add(armRight);
-    
-    // Pollice DX (Visibile solo in PRO)
-    const thumbGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 8);
-    const thumb = new THREE.Mesh(thumbGeo, mainMat);
-    thumb.position.set(0, 0.3, 0.1);
-    thumb.rotation.x = 0.4;
-    armRight.add(thumb);
-    thumb.visible = false;
+    const rightHand = new THREE.Mesh(handGeo, skinMat);
+    armRightGroup.add(rightHand);
 
-    const armLeftGroup = new THREE.Group(); 
-    armLeftGroup.position.set(-0.9, 0.1, 0);
+    const armLeftGroup = new THREE.Group();
+    armLeftGroup.position.set(-1.1, -0.2, 0);
     botGroup.add(armLeftGroup);
-    const armLeft = new THREE.Mesh(armGeo, mainMat);
-    armLeft.scale.set(1, 1.8, 1);
-    armLeftGroup.add(armLeft);
+    const leftHand = new THREE.Mesh(handGeo, skinMat);
+    armLeftGroup.add(leftHand);
 
-    // Ombra
+    // ANTENNA (Dettaglio carino)
+    const antStem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4), skinMat);
+    antStem.position.y = 0.9;
+    botGroup.add(antStem);
+
+    const antBulb = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffeb3b, emissive: 0x444400 }));
+    antBulb.position.y = 1.1;
+    botGroup.add(antBulb);
+
+    // OMBRA
     const shadowPlane = new THREE.Mesh(
         new THREE.PlaneGeometry(2.5, 2.5), 
         new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.15 })
     );
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.y = -1.1;
+    shadowPlane.position.y = -1.0;
     
-    // Texture sfumata per ombra (generata via canvas)
+    // Texture sfumata per ombra
     const canvas = document.createElement('canvas');
     canvas.width = 64; canvas.height = 64;
     const ctx = canvas.getContext('2d');
@@ -301,6 +337,7 @@
     
     botGroup.add(shadowPlane);
 
+
     // --- 3. LOGICA ANIMAZIONE ---
     let currentPlan = 'loading'; 
     let time = 0;
@@ -310,67 +347,74 @@
       time += 0.05;
 
       if (currentPlan === 'starter') {
-         // --- TRISTE ---
-         // Testa bassa e ciondolante
-         headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0.5, 0.05);
-         headGroup.rotation.y = Math.sin(time * 0.5) * 0.1; 
+         // --- TRISTE / ANNOIATO ---
+         // Colore: Grigio/Blu spento (gestito in updateUI)
          
-         // Corpo basso e fermo
-         botGroup.position.y = THREE.MathUtils.lerp(botGroup.position.y, -0.3 + Math.sin(time)*0.02, 0.1);
+         // Corpo "sgonfio"
+         body.scale.y = THREE.MathUtils.lerp(body.scale.y, 0.8, 0.1);
+         body.scale.x = THREE.MathUtils.lerp(body.scale.x, 1.1, 0.1); // Si allarga
          
-         // Braccia penzoloni
-         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0, 0.1);
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, -0.2, 0.1);
+         // Testa bassa
+         faceGroup.position.y = THREE.MathUtils.lerp(faceGroup.position.y, -0.2, 0.1);
          
-         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, 0, 0.1);
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, -0.2, 0.1);
+         // Dondola piano
+         botGroup.rotation.z = Math.sin(time * 0.5) * 0.05;
+         botGroup.position.y = -0.2;
 
-         thumb.visible = false;
+         // Braccia giù
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, -0.4, 0.1);
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, -0.4, 0.1);
+         
+         // Antenna moscia
+         antBulb.position.x = Math.sin(time) * 0.05;
 
       } else if (currentPlan === 'plus') {
-         // --- FELICE ---
-         // Testa alta
-         headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, -0.2, 0.05);
-         // Ride (vibra veloce verticalmente)
-         headGroup.position.y = 0.75 + Math.abs(Math.sin(time * 15)) * 0.02; 
+         // --- FELICE / CURIOSO ---
+         // Colore: Oro/Giallo
          
-         // Corpo saltella piano
-         botGroup.position.y = Math.sin(time * 3) * 0.1;
-
-         // Braccia aperte (Accoglienza)
-         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 0.5, 0.1);
-         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -0.5, 0.1);
+         // Corpo normale pulsante
+         body.scale.y = 0.9 + Math.sin(time * 5) * 0.02;
+         body.scale.x = 1 - Math.sin(time * 5) * 0.02;
          
-         // Reset posizioni
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.1, 0.1);
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.1, 0.1);
-
-         thumb.visible = false;
+         // Faccia su
+         faceGroup.position.y = THREE.MathUtils.lerp(faceGroup.position.y, 0.1, 0.1);
+         
+         // Saltello leggero
+         botGroup.position.y = Math.abs(Math.sin(time * 3)) * 0.2;
+         
+         // Braccia che salutano
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0, 0.1);
+         armRightGroup.position.x = 1.2;
+         
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0, 0.1);
+         armLeftGroup.position.x = -1.2;
 
       } else if (currentPlan === 'pro') {
-         // --- ECCITATO ---
-         // Testa energica
-         headGroup.rotation.x = Math.sin(time * 3) * 0.1 - 0.1;
-         headGroup.rotation.y = Math.sin(time) * 0.2;
-         headGroup.position.y = 0.75; 
-
-         // Salto alto (JUMP!)
-         const jump = Math.abs(Math.sin(time * 5));
-         botGroup.position.y = (jump * 0.5) - 0.2;
-         botGroup.rotation.y = Math.sin(time) * 0.2; // Twist corpo
+         // --- ECCITATO / PARTY ---
+         // Colore: Viola vibrante
+         
+         // Corpo elastico (Squash & Stretch)
+         const jump = Math.abs(Math.sin(time * 6));
+         body.scale.y = 0.8 + jump * 0.4;
+         body.scale.x = 1.2 - jump * 0.3;
+         
+         // Salto alto
+         botGroup.position.y = jump * 0.6 - 0.1;
+         
+         // Rotazione gioiosa
+         botGroup.rotation.y = Math.sin(time * 2) * 0.3;
 
          // Braccia in alto!
-         armRightGroup.rotation.z = THREE.MathUtils.lerp(armRightGroup.rotation.z, 2.8, 0.1);
-         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.5, 0.1);
+         armRightGroup.position.y = THREE.MathUtils.lerp(armRightGroup.position.y, 0.5, 0.2);
+         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.5, 0.2);
          
-         armLeftGroup.rotation.z = THREE.MathUtils.lerp(armLeftGroup.rotation.z, -2.8, 0.1);
-         armLeftGroup.position.y = THREE.MathUtils.lerp(armLeftGroup.position.y, 0.5, 0.1);
-         
-         thumb.visible = true;
+         // Antenna impazzita
+         antBulb.scale.setScalar(1 + Math.sin(time * 10) * 0.2);
       }
 
       // Ombra dinamica
-      shadowPlane.material.opacity = 0.2 - (botGroup.position.y + 0.3) * 0.2;
+      shadowPlane.scale.setScalar(1 - (botGroup.position.y * 0.3));
+      shadowPlane.material.opacity = 0.2 - (botGroup.position.y * 0.15);
       
       renderer.render(scene, camera);
     }
@@ -387,49 +431,48 @@
     function updateUI(plan) {
       const bubble = document.getElementById('status-message');
       let msg = "";
-      let color = 0xbdc3c7;
-      let emissive = 0x000000;
+      let colorHex = 0xbdc3c7;
+      let emissiveHex = 0x000000;
 
       if (plan === 'starter' || plan === 'trial') {
         // TRISTE
         msg = `
-          <div>😔</div>
-          <div style="margin:10px 0; font-size:1.1rem;">Il tuo piano è <strong>Starter</strong>.</div>
-          <div style="font-weight:400; font-size:0.95rem; color:#666;">Ti stai perdendo report avanzati e obiettivi multipli.</div>
+          <div style="font-size:3rem;">😔</div>
+          <div style="margin:10px 0; font-size:1.2rem;">Oh no... sei ancora <strong>Starter</strong>.</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Mi sento un po' limitato. Passa a PLUS per sbloccare il mio potenziale!</div>
           <a href="pricing.html" class="cta-upgrade" style="background: #f39c12;">Passa a PLUS ➔</a>
         `;
-        color = 0x7f8c8d; // Grigio spento
-        currentPlan = 'starter'; // Forza stato animazione
+        colorHex = 0x95a5a6; // Grigio
+        currentPlan = 'starter';
 
       } else if (plan === 'plus') {
         // FELICE
         msg = `
-          <div>😄</div>
-          <div style="margin:10px 0; font-size:1.1rem;">Grande! Sei un utente <strong>PLUS</strong>.</div>
-          <div style="font-weight:400; font-size:0.95rem; color:#666;">Hai sbloccato molto, ma il vero potere è nel Pro.</div>
+          <div style="font-size:3rem;">😄</div>
+          <div style="margin:10px 0; font-size:1.2rem;">Evvai! Sei un utente <strong>PLUS</strong>.</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Mi sento bene! Ma con il piano PRO potrei volare!</div>
           <a href="pricing.html" class="cta-upgrade" style="background: #8e44ad;">Passa a PRO ➔</a>
         `;
-        color = 0xf1c40f; // Oro
-        emissive = 0x333300;
+        colorHex = 0xf1c40f; // Oro
         currentPlan = 'plus';
 
       } else if (plan === 'pro') {
         // ECCITATO
         msg = `
-          <div>🚀</div>
-          <div style="margin:10px 0; font-size:1.1rem;">WOW! Sei un utente <strong>PRO</strong>!</div>
-          <div style="font-weight:400; font-size:0.95rem; color:#666;">Hai il massimo della potenza. Grazie per il supporto!</div>
+          <div style="font-size:3rem;">🤩</div>
+          <div style="margin:10px 0; font-size:1.2rem;">WOW! Sei <strong>PRO</strong>!</div>
+          <div style="font-weight:400; font-size:0.95rem; color:#666;">Ho i superpoteri! Grazie per il supporto massimo!</div>
         `;
-        color = 0x9b59b6; // Viola
-        emissive = 0x220022;
+        colorHex = 0x9b59b6; // Viola
+        emissiveHex = 0x220022;
         currentPlan = 'pro';
       }
 
-      // Aggiorna colore robot
-      accentMat.color.setHex(color);
-      accentMat.emissive.setHex(emissive);
+      // Animazione colore
+      skinMat.color.setHex(colorHex);
+      skinMat.emissive.setHex(emissiveHex);
 
-      // Aggiorna testo con animazione
+      // Aggiorna testo
       bubble.classList.remove('visible');
       setTimeout(() => {
         bubble.innerHTML = msg;
