@@ -1,10 +1,12 @@
 <!doctype html>
 <html lang="it">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Piani e Prezzi · MyHomesBudget</title>
-  <meta name="description" content="Scegli il piano più adatto a te. Controlla spese, budget e obiettivi in pochi minuti al giorno.">
+  <meta name="description"
+    content="Scegli il piano più adatto a te. Controlla spese, budget e obiettivi in pochi minuti al giorno.">
   <meta name="robots" content="index,follow">
   <meta name="color-scheme" content="light dark">
   <script>document.documentElement.classList.add('js');</script>
@@ -26,7 +28,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -35,118 +37,362 @@
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
-    :root{
-      --fg:#111; --glass:rgba(255,255,255,.62);
-      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
-      --muted:#2a2a2a;
-      --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
-    }
-    *{box-sizing:border-box}
-    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-
-    body{
-      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
-      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
-    }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
-
-    .topbar{
-      position:fixed;top:16px;left:50%;transform:translateX(-50%);
-      width:min(1100px,calc(100% - 40px));z-index:20;pointer-events:none;
-      display:flex;align-items:center;justify-content:space-between;
-    }
-    .logo-link,.lang-selector{pointer-events:auto}
-    .logo-link{display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-    .lang-selector{font-size:22px;display:flex;gap:8px}
-    .lang-selector a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px}
-    .lang-selector a:hover{background:rgba(255,255,255,.12)}
-    .lang-selector a[aria-current="page"]{background:rgba(255,255,255,.18);font-weight:700}
-
-    .wrap{
-      width:min(1100px,calc(100% - 40px));
-      margin:110px auto 64px auto;
+    :root {
+      --fg: #111;
+      --glass: rgba(255, 255, 255, .62);
+      --card-border: rgba(0, 0, 0, .06);
+      --shadow: 0 10px 30px rgba(0, 0, 0, .10);
+      --radius-lg: 16px;
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --muted: #2a2a2a;
+      --ok: #0ea5e9;
+      --okbg: rgba(14, 165, 233, .12);
     }
 
-    .hero{
-      text-align:center;margin-bottom:18px;
-      background:var(--glass); color:#111; border-radius:var(--radius-lg);
-      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
-    }
-    .hero h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
-    .hero p{margin:6px auto 0;color:#222;max-width:760px}
-
-    .billing{
-      display:flex;gap:10px;align-items:center;justify-content:center;margin:16px 0 8px 0;
-      color:#111;
-    }
-    .switch{
-      --w:52px; --h:30px; --dot:22px;
-      position:relative;width:var(--w);height:var(--h);border-radius:999px;
-      background:#ddd; cursor:pointer; transition:filter .15s ease; box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
-    }
-    .switch input{display:none}
-    .knob{
-      position:absolute;top:50%;left:4px;transform:translateY(-50%);
-      width:var(--dot);height:var(--dot);border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.15);
-      transition:left .18s cubic-bezier(.22,1,.36,1);
-    }
-    .switch:has(input:checked) .knob{ left:calc(var(--w) - var(--dot) - 4px); }
-    .save{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--okbg);color:#064e66;font-weight:600}
-
-    .grid{
-      display:grid; gap:16px; margin-top:14px;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-    }
-    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
-
-    .card{
-      background:var(--glass); color:#111; border-radius:var(--radius-lg);
-      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
-      display:flex; flex-direction:column; min-height:100%;
-    }
-    .card.popular{ outline:3px solid #6c5ce7; position:relative; }
-    .badge{
-      position:absolute; top:14px; right:14px; font-size:.85rem;
-      background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
-      box-shadow:0 6px 18px rgba(108,92,231,.35);
+    * {
+      box-sizing: border-box
     }
 
-    .title{font-weight:800;font-size:1.2rem;margin:0 0 6px 0}
-    .subtitle{margin:0 0 10px 0;color:#333}
-    .price{display:flex;align-items:baseline;gap:6px;margin:6px 0 10px 0}
-    .price .num{font-weight:900;font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .per{color:#333}
-
-    .feat{margin:10px 0 14px 0;padding:0;list-style:none;color:#111}
-    .feat li{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
-    .tick{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--okbg);color:#0c4a6e;font-weight:700}
-
-    .cta{margin-top:auto}
-    .btn{
-      cursor:pointer;border:none;border-radius:12px;padding:12px 16px;
-      background:var(--grad);color:#fff;font-weight:800;font-size:1rem;
-      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease, filter .15s ease;
-      width:100%;
+    html,
+    body {
+      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif
     }
-    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
-    .small{margin-top:10px;color:#333;font-size:.95rem}
 
-    .faq{
-      margin-top:18px;background:var(--glass);color:#111;border-radius:var(--radius-lg);
-      padding:18px;box-shadow:var(--shadow);
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #00cec9;
+      outline-offset: 2px;
+      border-radius: 8px
     }
-    details{border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.84);margin:8px 0}
-    summary{cursor:pointer;font-weight:700;color:#111}
-    details p{margin:8px 0 0 0;color:#2b2b2b}
 
-    .footnotes{color:#222;text-align:center;margin-top:10px}
-    .footnotes small{display:block;margin:4px 0}
+    body {
+      margin: 0;
+      color: #fff;
+      background: url("/bg.webp") no-repeat center/cover fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .10);
+      z-index: -1
+    }
+
+    .topbar {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(1100px, calc(100% - 40px));
+      z-index: 20;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-link,
+    .lang-selector {
+      pointer-events: auto
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none
+    }
+
+    .logo-image {
+      height: 32px
+    }
+
+    .logo-text {
+      font-weight: 600;
+      color: #fff;
+      font-size: 1.05rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .35)
+    }
+
+    .lang-selector {
+      font-size: 22px;
+      display: flex;
+      gap: 8px
+    }
+
+    .lang-selector a {
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 8px
+    }
+
+    .lang-selector a:hover {
+      background: rgba(255, 255, 255, .12)
+    }
+
+    .lang-selector a[aria-current="page"] {
+      background: rgba(255, 255, 255, .18);
+      font-weight: 700
+    }
+
+    .wrap {
+      width: min(1100px, calc(100% - 40px));
+      margin: 110px auto 64px auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 18px;
+      background: var(--glass);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: clamp(18px, 4vw, 26px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0 0 6px 0;
+      color: #111;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .35)
+    }
+
+    .hero p {
+      margin: 6px auto 0;
+      color: #222;
+      max-width: 760px
+    }
+
+    .billing {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0 8px 0;
+      color: #111;
+    }
+
+    .switch {
+      --w: 52px;
+      --h: 30px;
+      --dot: 22px;
+      position: relative;
+      width: var(--w);
+      height: var(--h);
+      border-radius: 999px;
+      background: #ddd;
+      cursor: pointer;
+      transition: filter .15s ease;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .12);
+    }
+
+    .switch input {
+      display: none
+    }
+
+    .knob {
+      position: absolute;
+      top: 50%;
+      left: 4px;
+      transform: translateY(-50%);
+      width: var(--dot);
+      height: var(--dot);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+      transition: left .18s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .switch:has(input:checked) .knob {
+      left: calc(var(--w) - var(--dot) - 4px);
+    }
+
+    .save {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--okbg);
+      color: #064e66;
+      font-weight: 600
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (max-width:900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--glass);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .card.popular {
+      outline: 3px solid #6c5ce7;
+      position: relative;
+    }
+
+    .badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: .85rem;
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(108, 92, 231, .35);
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin: 0 0 6px 0
+    }
+
+    .subtitle {
+      margin: 0 0 10px 0;
+      color: #333
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 6px 0 10px 0
+    }
+
+    .price .num {
+      font-weight: 900;
+      font-size: 2rem;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .per {
+      color: #333
+    }
+
+    .feat {
+      margin: 10px 0 14px 0;
+      padding: 0;
+      list-style: none;
+      color: #111
+    }
+
+    .feat li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 8px 0
+    }
+
+    .tick {
+      display: inline-grid;
+      place-items: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--okbg);
+      color: #0c4a6e;
+      font-weight: 700
+    }
+
+    .cta {
+      margin-top: auto
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: var(--grad);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+      transition: transform .15s ease, filter .15s ease;
+      width: 100%;
+    }
+
+    .btn:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px)
+    }
+
+    .small {
+      margin-top: 10px;
+      color: #333;
+      font-size: .95rem
+    }
+
+    .faq {
+      margin-top: 18px;
+      background: var(--glass);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    details {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .84);
+      margin: 8px 0
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #111
+    }
+
+    details p {
+      margin: 8px 0 0 0;
+      color: #2b2b2b
+    }
+
+    .footnotes {
+      color: #222;
+      text-align: center;
+      margin-top: 10px
+    }
+
+    .footnotes small {
+      display: block;
+      margin: 4px 0
+    }
   </style>
 </head>
+
 <body>
   <nav class="topbar" aria-label="Barra superiore">
     <a href="/it/" class="logo-link" title="MyHomesBudget">
@@ -163,7 +409,8 @@
   <main class="wrap">
     <section class="hero">
       <h1>Tieni sotto controllo il budget in pochi minuti al giorno</h1>
-      <p>Strumenti semplici per gestire spese, budget e obiettivi di risparmio. Scegli il piano e parti subito — puoi cambiare idea quando vuoi.</p>
+      <p>Strumenti semplici per gestire spese, budget e obiettivi di risparmio. Scegli il piano e parti subito — puoi
+        cambiare idea quando vuoi.</p>
 
       <div class="billing" role="group" aria-label="Seleziona fatturazione">
         <span>Mensile</span>
@@ -211,7 +458,7 @@
           <li><span class="tick">✓</span> Supporto prioritario via email</li>
         </ul>
         <div class="cta">
-          <a class="btn" href="/it/signup.html?plan=plus" data-plan="plus">Passa a Plus</a>
+          <a class="btn" href="#" data-plan="plus">Passa a Plus</a>
           <p class="small">Disdici quando vuoi</p>
         </div>
       </article>
@@ -230,7 +477,7 @@
           <li><span class="tick">✓</span> Accesso multi-dispositivo senza limiti</li>
         </ul>
         <div class="cta">
-          <a class="btn" href="/it/signup.html?plan=pro" data-plan="pro">Attiva Pro</a>
+          <a class="btn" href="#" data-plan="pro">Attiva Pro</a>
           <p class="small">Fatturazione flessibile</p>
         </div>
       </article>
@@ -263,7 +510,7 @@
 
   <script>
     // GA4
-    gtag('event','pricing_viewed',{lang:'it'});
+    gtag('event', 'pricing_viewed', { lang: 'it' });
 
     // Toggle fatturazione
     const toggle = document.getElementById('billToggle');
@@ -271,37 +518,58 @@
     const priceEls = document.querySelectorAll('.price .num');
     const perEls = document.querySelectorAll('.price .per');
 
-    function applyBillingMode(){
+    const LINKS = {
+      plus: {
+        monthly: "https://buy.stripe.com/cNi4gzf0D5jO1aQ20JcbC00",
+        yearly: "https://buy.stripe.com/4gMfZh4lZ5jO6va48RcbC01"
+      },
+      pro: {
+        monthly: "https://buy.stripe.com/28E3cv3hVeUo06M9tbcbC02",
+        yearly: "https://buy.stripe.com/dRm28r7ybcMg7ze8p7cbC03"
+      }
+    };
+
+    function applyBillingMode() {
       const annual = toggle.checked;
-      priceEls.forEach(el=>{
+      priceEls.forEach(el => {
         const val = annual ? el.dataset.year : el.dataset.month;
         el.textContent = val || '';
       });
-      perEls.forEach(el=> el.textContent = annual ? '/ anno' : '/ mese');
+      perEls.forEach(el => el.textContent = annual ? '/ anno' : '/ mese');
       // badge risparmio (se definito sul piano)
       const anySave = [...priceEls].some(el => (el.dataset.save && toggle.checked));
       saveBadge.style.display = anySave ? 'inline-block' : 'none';
       if (anySave) saveBadge.textContent = priceEls[1]?.dataset.save || 'Risparmia';
-      gtag('event','pricing_toggle',{mode: annual ? 'annual' : 'monthly', lang:'it'});
+
+      // Aggiorna link
+      document.querySelectorAll('.btn[data-plan]').forEach(btn => {
+        const plan = btn.dataset.plan;
+        if (LINKS[plan]) {
+          btn.href = annual ? LINKS[plan].yearly : LINKS[plan].monthly;
+        }
+      });
+
+      gtag('event', 'pricing_toggle', { mode: annual ? 'annual' : 'monthly', lang: 'it' });
     }
     toggle.addEventListener('change', applyBillingMode);
     applyBillingMode();
 
     // Tracciamento click CTA
-    document.querySelectorAll('.btn[data-plan]').forEach(btn=>{
-      btn.addEventListener('click', e=>{
+    document.querySelectorAll('.btn[data-plan]').forEach(btn => {
+      btn.addEventListener('click', e => {
         const plan = btn.dataset.plan;
         const mode = toggle.checked ? 'annual' : 'monthly';
-        gtag('event','pricing_cta_click',{plan, mode, lang:'it'});
+        gtag('event', 'pricing_cta_click', { plan, mode, lang: 'it' });
       });
     });
 
     // Tracciamento FAQ
-    document.querySelectorAll('.faq details').forEach(d=>{
-      d.addEventListener('toggle', ()=>{
-        gtag('event','faq_toggle',{q: d.querySelector('summary')?.textContent?.trim(), open: d.open, lang:'it'});
+    document.querySelectorAll('.faq details').forEach(d => {
+      d.addEventListener('toggle', () => {
+        gtag('event', 'faq_toggle', { q: d.querySelector('summary')?.textContent?.trim(), open: d.open, lang: 'it' });
       });
     });
   </script>
 </body>
+
 </html>

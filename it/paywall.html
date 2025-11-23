@@ -1,16 +1,17 @@
 <!doctype html>
 <html lang="it">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Scegli il tuo piano — MyHomesBudget</title>
-  <meta name="description" content="Il tuo periodo di prova è terminato. Scegli un piano per continuare a usare MyHomesBudget senza limiti.">
+  <meta name="description"
+    content="Il tuo periodo di prova è terminato. Scegli un piano per continuare a usare MyHomesBudget senza limiti.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
 
   <!-- CSP (incluso dominio Edge Functions) -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
                  img-src 'self' https: data:;
                  style-src 'self' 'unsafe-inline';
                  script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com;
@@ -24,7 +25,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LSD3V9G957"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-LSD3V9G957', { anonymize_ip: true });
   </script>
@@ -33,103 +34,297 @@
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
-    :root{
-      --fg:#111; --glass:rgba(255,255,255,.62);
-      --card-border:rgba(0,0,0,.06); --shadow:0 10px 30px rgba(0,0,0,.10);
-      --radius-lg:16px; --grad:linear-gradient(135deg,#6c5ce7,#00cec9);
-      --muted:#2a2a2a;
-      --ok:#0ea5e9; --okbg:rgba(14,165,233,.12);
-    }
-    *{box-sizing:border-box}
-    html,body{font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
-    a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #00cec9; outline-offset:2px; border-radius:8px}
-
-    body{
-      margin:0;color:#fff;background:url("/bg.webp") no-repeat center/cover fixed;
-      min-height:100vh;display:flex;align-items:flex-start;justify-content:center;
-    }
-    body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.10);z-index:-1}
-
-    .topbar{
-      position:fixed;top:16px;left:50%;transform:translateX(-50%);
-      width:min(960px,calc(100% - 40px));z-index:20;pointer-events:none;
-      display:flex;align-items:center;justify-content:flex-start;
-    }
-    .logo-link{pointer-events:auto; display:flex;align-items:center;gap:8px;text-decoration:none}
-    .logo-image{height:32px}
-    .logo-text{font-weight:600;color:#fff;font-size:1.05rem;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-
-    .wrap{
-      width:min(960px,calc(100% - 40px));
-      margin:110px auto 64px auto;
+    :root {
+      --fg: #111;
+      --glass: rgba(255, 255, 255, .62);
+      --card-border: rgba(0, 0, 0, .06);
+      --shadow: 0 10px 30px rgba(0, 0, 0, .10);
+      --radius-lg: 16px;
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --muted: #2a2a2a;
+      --ok: #0ea5e9;
+      --okbg: rgba(14, 165, 233, .12);
     }
 
-    .panel{
-      text-align:center;
-      background:var(--glass); color:#111; border-radius:var(--radius-lg);
-      padding:clamp(18px,4vw,26px); box-shadow:var(--shadow);
-    }
-    .panel h1{margin:0 0 6px 0;color:#111;font-size:clamp(1.8rem,4vw,2.2rem);text-shadow:0 1px 3px rgba(0,0,0,.35)}
-    .panel > p{margin:6px auto 16px;color:#222;max-width:760px; font-weight: 500;}
-
-    .billing{
-      display:flex;gap:10px;align-items:center;justify-content:center;margin:16px 0 8px 0;
-      color:#111;
-    }
-    .switch{
-      --w:52px; --h:30px; --dot:22px;
-      position:relative;width:var(--w);height:var(--h);border-radius:999px;
-      background:#ddd; cursor:pointer; transition:filter .15s ease; box-shadow:inset 0 2px 6px rgba(0,0,0,.12);
-    }
-    .switch input{display:none}
-    .knob{
-      position:absolute;top:50%;left:4px;transform:translateY(-50%);
-      width:var(--dot);height:var(--dot);border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.15);
-      transition:left .18s cubic-bezier(.22,1,.36,1);
-    }
-    .switch:has(input:checked) .knob{ left:calc(var(--w) - var(--dot) - 4px); }
-    .save{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:999px;background:var(--okbg);color:#064e66;font-weight:600}
-
-    .grid{
-      display:grid; gap:16px; margin-top:14px;
-      grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-    @media (max-width:680px){ .grid{ grid-template-columns:1fr; } }
-
-    .card{
-      background:rgba(255,255,255,.8); color:#111; border-radius:var(--radius-lg);
-      padding:22px; box-shadow:var(--shadow); border:1px solid var(--card-border);
-      display:flex; flex-direction:column; text-align:left;
-    }
-    .card.popular{ outline:3px solid #6c5ce7; position:relative; }
-    .badge{
-      position:absolute; top:14px; right:14px; font-size:.85rem;
-      background:#6c5ce7; color:#fff; border-radius:999px; padding:4px 10px; font-weight:700;
-      box-shadow:0 6px 18px rgba(108,92,231,.35);
+    * {
+      box-sizing: border-box
     }
 
-    .title{font-weight:800;font-size:1.2rem;margin:0 0 6px 0}
-    .subtitle{margin:0 0 10px 0;color:#333}
-    .price{display:flex;align-items:baseline;gap:6px;margin:6px 0 10px 0}
-    .price .num{font-weight:900;font-size:2rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .per{color:#333}
-
-    .feat{margin:10px 0 14px 0;padding:0;list-style:none;color:#111}
-    .feat li{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
-    .tick{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:var(--okbg);color:#0c4a6e;font-weight:700}
-
-    .cta-group{margin-top:auto; display:flex; flex-direction:column; gap:8px;}
-    .btn{
-      cursor:pointer;border:none;border-radius:12px;padding:12px 16px;
-      background:var(--grad);color:#fff;font-weight:800;font-size:1rem;
-      box-shadow:0 8px 22px rgba(0,0,0,.14);transition:transform .15s ease, filter .15s ease;
-      width:100%; text-decoration: none; text-align: center;
+    html,
+    body {
+      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif
     }
-    .btn:hover{filter:brightness(1.07);transform:translateY(-1px)}
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid #00cec9;
+      outline-offset: 2px;
+      border-radius: 8px
+    }
+
+    body {
+      margin: 0;
+      color: #fff;
+      background: url("/bg.webp") no-repeat center/cover fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .10);
+      z-index: -1
+    }
+
+    .topbar {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(960px, calc(100% - 40px));
+      z-index: 20;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .logo-link {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none
+    }
+
+    .logo-image {
+      height: 32px
+    }
+
+    .logo-text {
+      font-weight: 600;
+      color: #fff;
+      font-size: 1.05rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .35)
+    }
+
+    .wrap {
+      width: min(960px, calc(100% - 40px));
+      margin: 110px auto 64px auto;
+    }
+
+    .panel {
+      text-align: center;
+      background: var(--glass);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: clamp(18px, 4vw, 26px);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h1 {
+      margin: 0 0 6px 0;
+      color: #111;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .35)
+    }
+
+    .panel>p {
+      margin: 6px auto 16px;
+      color: #222;
+      max-width: 760px;
+      font-weight: 500;
+    }
+
+    .billing {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0 8px 0;
+      color: #111;
+    }
+
+    .switch {
+      --w: 52px;
+      --h: 30px;
+      --dot: 22px;
+      position: relative;
+      width: var(--w);
+      height: var(--h);
+      border-radius: 999px;
+      background: #ddd;
+      cursor: pointer;
+      transition: filter .15s ease;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .12);
+    }
+
+    .switch input {
+      display: none
+    }
+
+    .knob {
+      position: absolute;
+      top: 50%;
+      left: 4px;
+      transform: translateY(-50%);
+      width: var(--dot);
+      height: var(--dot);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+      transition: left .18s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .switch:has(input:checked) .knob {
+      left: calc(var(--w) - var(--dot) - 4px);
+    }
+
+    .save {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--okbg);
+      color: #064e66;
+      font-weight: 600
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width:680px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .8);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .card.popular {
+      outline: 3px solid #6c5ce7;
+      position: relative;
+    }
+
+    .badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-size: .85rem;
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(108, 92, 231, .35);
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 1.2rem;
+      margin: 0 0 6px 0
+    }
+
+    .subtitle {
+      margin: 0 0 10px 0;
+      color: #333
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 6px 0 10px 0
+    }
+
+    .price .num {
+      font-weight: 900;
+      font-size: 2rem;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .per {
+      color: #333
+    }
+
+    .feat {
+      margin: 10px 0 14px 0;
+      padding: 0;
+      list-style: none;
+      color: #111
+    }
+
+    .feat li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 8px 0
+    }
+
+    .tick {
+      display: inline-grid;
+      place-items: center;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--okbg);
+      color: #0c4a6e;
+      font-weight: 700
+    }
+
+    .cta-group {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: var(--grad);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+      transition: transform .15s ease, filter .15s ease;
+      width: 100%;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px)
+    }
 
     .guarantee-box {
       margin-top: 24px;
-      background: rgba(255,255,255,.84);
+      background: rgba(255, 255, 255, .84);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 14px;
@@ -140,55 +335,142 @@
       font-weight: 600;
       color: #111;
     }
-    .guarantee-box svg { color: #6c5ce7; }
 
-    .secure{
-      margin-top:12px; display:flex; align-items:center; justify-content:center; gap:8px;
-      color:#111; font-weight:600;
+    .guarantee-box svg {
+      color: #6c5ce7;
     }
-    .secure svg{flex:0 0 16px; color:#6c5ce7; opacity:.95}
+
+    .secure {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #111;
+      font-weight: 600;
+    }
+
+    .secure svg {
+      flex: 0 0 16px;
+      color: #6c5ce7;
+      opacity: .95
+    }
 
     .testimonials-section {
       margin-top: 28px;
       padding-top: 24px;
-      border-top: 1px solid rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
+
     .testimonials-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
       margin-top: 16px;
     }
+
     .testimonial-card {
-      background: rgba(255,255,255,.84);
+      background: rgba(255, 255, 255, .84);
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 16px;
       text-align: left;
     }
-    .stars { color: #f59e0b; font-size: 1.1rem; margin-bottom: 8px; }
-    .quote { font-style: italic; color: #2b2b2b; }
-    .author { margin-top: 10px; font-weight: 700; color: #111; }
-    @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
 
-
-    .faq{
-      margin-top:18px; text-align:left;
+    .stars {
+      color: #f59e0b;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
     }
-    .faq h2{text-align:center;}
-    details{border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.84);margin:8px 0}
-    summary{cursor:pointer;font-weight:700;color:#111}
-    details p{margin:8px 0 0 0;color:#2b2b2b}
 
-    .login{margin-top:24px; text-align:center; color:#111}
-    .login a{font-weight:700; text-decoration:none; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
-    .login a:hover{text-decoration:underline}
+    .quote {
+      font-style: italic;
+      color: #2b2b2b;
+    }
 
-    .reveal{opacity:0; transform:translateY(16px); transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1)}
-    .reveal.in{opacity:1; transform:none}
-    @media (prefers-reduced-motion:reduce){ .reveal,.reveal.in{transition:none; opacity:1; transform:none} }
+    .author {
+      margin-top: 10px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    @media (max-width: 900px) {
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    .faq {
+      margin-top: 18px;
+      text-align: left;
+    }
+
+    .faq h2 {
+      text-align: center;
+    }
+
+    details {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .84);
+      margin: 8px 0
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #111
+    }
+
+    details p {
+      margin: 8px 0 0 0;
+      color: #2b2b2b
+    }
+
+    .login {
+      margin-top: 24px;
+      text-align: center;
+      color: #111
+    }
+
+    .login a {
+      font-weight: 700;
+      text-decoration: none;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .login a:hover {
+      text-decoration: underline
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .8s ease, transform .8s cubic-bezier(.22, 1, .36, 1)
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: none
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+
+      .reveal,
+      .reveal.in {
+        transition: none;
+        opacity: 1;
+        transform: none
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <nav class="topbar" aria-label="Logo">
@@ -201,7 +483,8 @@
   <main class="wrap">
     <section class="panel">
       <h1 class="reveal">Il tuo periodo di prova è terminato</h1>
-      <p class="reveal">Non perdere il controllo delle tue finanze. Fai il passo successivo per raggiungere i tuoi obiettivi.</p>
+      <p class="reveal">Non perdere il controllo delle tue finanze. Fai il passo successivo per raggiungere i tuoi
+        obiettivi.</p>
 
       <div class="billing reveal" role="group" aria-label="Seleziona fatturazione">
         <span>Mensile</span>
@@ -229,11 +512,10 @@
             <li><span class="tick">✓</span> Supporto prioritario via email</li>
           </ul>
           <div class="cta-group">
-            <a class="btn" href="#" data-plan="plus" data-method="stripe">Paga con Stripe</a>
-            <a class="btn" href="/checkout/paypal?plan=plus_monthly" data-plan="plus" data-method="paypal">Paga con PayPal</a>
+            <a class="btn" href="#" data-plan="plus" data-period="monthly">Paga con Stripe</a>
           </div>
         </article>
-  
+
         <!-- Pro -->
         <article class="card reveal">
           <h2 class="title">Pro</h2>
@@ -248,20 +530,26 @@
             <li><span class="tick">✓</span> Accesso multi-dispositivo senza limiti</li>
           </ul>
           <div class="cta-group">
-            <a class="btn" href="#" data-plan="pro" data-method="stripe">Paga con Stripe</a>
-            <a class="btn" href="/checkout/paypal?plan=pro_monthly" data-plan="pro" data-method="paypal">Paga con PayPal</a>
+            <a class="btn" href="#" data-plan="pro" data-period="monthly">Paga con Stripe</a>
           </div>
         </article>
       </div>
 
       <div class="guarantee-box reveal">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
         La tua privacy è la nostra priorità. I dati restano protetti e al sicuro.
       </div>
 
       <div class="secure reveal" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z"/></svg>
-        Pagamenti sicuri con Stripe e PayPal
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true">
+          <path
+            d="M12 1a5 5 0 0 1 5 5v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5Zm3 8V6a3 3 0 0 0-6 0v3h6Z" />
+        </svg>
+        Pagamenti sicuri con Stripe
       </div>
 
       <section class="testimonials-section reveal">
@@ -293,7 +581,7 @@
         </details>
         <details>
           <summary>Quali metodi di pagamento accettate?</summary>
-          <p>Carta tramite Stripe e pagamenti sicuri con conto PayPal.</p>
+          <p>Carta tramite Stripe.</p>
         </details>
         <details>
           <summary>Posso cancellare il piano quando voglio?</summary>
@@ -308,16 +596,16 @@
 
   <script>
     // GA4
-    gtag('event','paywall_viewed', {new_design: true, with_social_proof: true});
+    gtag('event', 'paywall_viewed', { new_design: true, with_social_proof: true });
 
     // Reveal animation
-    (function(){
-      const els=document.querySelectorAll('.reveal');
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches){ els.forEach(e=>e.classList.add('in')); return; }
-      const ordered=[...els].map(el=>({el,r:el.getBoundingClientRect()}))
-        .sort((a,b)=>(a.r.top-b.r.top)||(a.r.left-b.r.left)).map(x=>x.el);
-      ordered.forEach((el,i)=> el.style.transitionDelay=(i*0.10)+'s');
-      requestAnimationFrame(()=> ordered.forEach(el=> el.classList.add('in')));
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { els.forEach(e => e.classList.add('in')); return; }
+      const ordered = [...els].map(el => ({ el, r: el.getBoundingClientRect() }))
+        .sort((a, b) => (a.r.top - b.r.top) || (a.r.left - b.r.left)).map(x => x.el);
+      ordered.forEach((el, i) => el.style.transitionDelay = (i * 0.10) + 's');
+      requestAnimationFrame(() => ordered.forEach(el => el.classList.add('in')));
     })();
 
     // Toggle fatturazione e aggiornamento link
@@ -325,99 +613,44 @@
     const saveBadge = document.getElementById('saveBadge');
     const cards = document.querySelectorAll('.card');
 
-    function applyBillingMode(){
+    const LINKS = {
+      plus: {
+        monthly: "https://buy.stripe.com/cNi4gzf0D5jO1aQ20JcbC00", // Incolla qui link Plus Mensile
+        yearly: "https://buy.stripe.com/4gMfZh4lZ5jO6va48RcbC01"  // Incolla qui link Plus Annuale
+      },
+      pro: {
+        monthly: "https://buy.stripe.com/28E3cv3hVeUo06M9tbcbC02", // Incolla qui link Pro Mensile
+        yearly: "https://buy.stripe.com/dRm28r7ybcMg7ze8p7cbC03"  // Incolla qui link Pro Annuale
+      }
+    };
+
+    function applyBillingMode() {
       const isAnnual = toggle.checked;
       cards.forEach(card => {
         const priceEl = card.querySelector('.price .num');
         const perEl = card.querySelector('.price .per');
-        const paypalLink = card.querySelector('a[data-method="paypal"]');
-        
-        if (!priceEl || !perEl || !paypalLink) return;
+        const btn = card.querySelector('.btn'); // Seleziona il bottone Stripe
 
-        const plan = paypalLink.dataset.plan;
+        if (!priceEl || !perEl || !btn) return;
+
+        const plan = btn.dataset.plan;
         const val = isAnnual ? priceEl.dataset.year : priceEl.dataset.month;
         priceEl.textContent = val || '';
         perEl.textContent = isAnnual ? '/ anno' : '/ mese';
 
-        // Aggiorna link PayPal
-        paypalLink.href = `/checkout/paypal?plan=${plan}_${isAnnual ? 'yearly' : 'monthly'}`;
+        // Aggiorna link Stripe
+        const period = isAnnual ? 'yearly' : 'monthly';
+        btn.href = LINKS[plan]?.[period] || '#';
+        btn.dataset.period = period;
       });
-      
+
       saveBadge.style.display = isAnnual ? 'inline-block' : 'none';
-      gtag('event','paywall_toggle',{mode: isAnnual ? 'annual' : 'monthly', lang:'it'});
+      if (typeof gtag === 'function') gtag('event', 'paywall_toggle', { mode: isAnnual ? 'annual' : 'monthly', lang: 'it' });
     }
     toggle.addEventListener('change', applyBillingMode);
     applyBillingMode(); // Init
   </script>
 
-  <!-- Logica di pagamento Stripe con Supabase Edge Function -->
-  <script type="module">
-    const ENDPOINT = "https://upcusjlumfeadgbhziwq.supabase.co/functions/v1/create-checkout-session";
-    // ⛳️ INCOLLA QUI LA TUA ANON KEY (Settings → API → anon public)
-    const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
-
-    // ⛳️ INCOLLA QUI I TUOI PRICE ID DI STRIPE
-    const PRICES = {
-      plus: {
-        monthly: { priceId: "price_...plus_monthly", mode: "subscription" },
-        yearly:  { priceId: "price_...plus_yearly", mode: "subscription" }
-      },
-      pro: {
-        monthly: { priceId: "price_...pro_monthly", mode: "subscription" },
-        yearly:  { priceId: "price_...pro_yearly", mode: "subscription" }
-      }
-    };
-
-    document.querySelectorAll('a[data-method="stripe"][data-plan]').forEach(link => {
-      link.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        
-        const plan = link.dataset.plan;
-        const isAnnual = document.getElementById('billToggle').checked;
-        const period = isAnnual ? 'yearly' : 'monthly';
-        const cfg = PRICES[plan]?.[period];
-
-        if (!cfg || !cfg.priceId.startsWith('price_')) {
-            alert("Configurazione del piano di pagamento non valida. Per favore, contatta il supporto.");
-            return;
-        }
-
-        gtag('event','checkout_started',{
-          plan: `${plan}_${period}`, payment_method: 'stripe', source:'paywall'
-        });
-
-        try {
-          // Aggiungi un feedback visivo (es. loader)
-          link.textContent = 'Caricamento...';
-          link.style.pointerEvents = 'none';
-
-          const res = await fetch(ENDPOINT, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': SUPABASE_ANON_KEY,
-              // Il token JWT dovrebbe essere ottenuto dinamicamente dopo il login dell'utente
-              'Authorization': `Bearer ${"PASTE_USER_JWT_TOKEN_HERE"}`,
-            },
-            body: JSON.stringify({ priceId: cfg.priceId, mode: cfg.mode })
-          });
-
-          const { url, error } = await res.json();
-
-          if (error || !url) {
-            throw new Error(error || "URL di checkout mancante");
-          }
-          window.location.href = url;
-
-        } catch (e) {
-          console.error("Errore durante la creazione della sessione di checkout:", e);
-          alert("Impossibile avviare il pagamento. Riprova o contatta il supporto se il problema persiste.");
-          link.textContent = 'Paga con Stripe'; // Ripristina il testo del bottone
-          link.style.pointerEvents = 'auto';
-        }
-      });
-    });
-  </script>
-
 </body>
+
 </html>
