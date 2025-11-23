@@ -551,192 +551,81 @@
 </head>
 
 <body>
-  <div class="wrap">
-    <!-- NAV -->
-    <nav class="nav" aria-label="Navegación principal">
-      <a href="/es/" title="myHomesBudget" class="logo-link">
-        <img src="/homes.png" alt="Logo myhomesbudget" class="logo-image" loading="lazy">
-        <span class="logo-text">MyHomesBudget</span>
-      </a>
-      <div class="right-bar">
-        <a class="login-link" href="/es/login.html" aria-label="Acceder">Acceder</a>
-        <a class="nav-link" href="/es/pricing.html">Precios</a>
-        <span class="lang-selector" aria-label="Selector de idioma">
-          <a href="/it/pricing.html" title="Italiano" lang="it">🇮🇹</a>
-          <a href="/en/pricing.html" title="English" lang="en">🇬🇧</a>
-          <a href="/es/pricing.html" title="Español" lang="es">🇪🇸</a>
-        </span>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Controla tu presupuesto en pocos minutos al día</h1>
+      <p>Herramientas sencillas para gestionar gastos, presupuestos y objetivos de ahorro. Elige un plan y empieza de
+        inmediato — puedes cambiar de opinión cuando quieras.</p>
+
+      <div class="billing" role="group" aria-label="Seleccionar facturación">
+        <span>Mensual</span>
+        <label class="switch" title="Activar facturación anual (ahorra dinero)">
+          <input id="billToggle" type="checkbox" aria-label="Facturación anual">
+          <span class="knob"></span>
+        </label>
+        <span>Anual</span>
+        <span class="save" id="saveBadge" style="display:none">2 meses gratis</span>
       </div>
-    </nav>
-
-    <main class="content-grid">
-      <!-- HERO -->
-      <section class="hero" aria-labelledby="page-title">
-        <h1 id="page-title">Un precio simple y transparente.</h1>
-        <p>Elige el plan perfecto y empieza a gestionar tus finanzas sin estrés.</p>
-      </section>
-
-      <!-- PRECIOS -->
-      <section class="panel" aria-labelledby="pricing-title">
-        <h2 id="pricing-title" class="panel-title reveal">Elige tu plan</h2>
-        <div class="pricing-grid">
-          <div class="price-card reveal">
-            <h3 class="plan-title">
-              <span class="plan-name">Mensual</span>
-              <span class="sep">—</span>
-              <span class="price-inline">2,99€ <small>/ mes</small></span>
-            </h3>
-            <div class="features">Acceso completo, actualizaciones continuas y prioridad en nuevas funciones.</div>
-            <a class="btn-secondary" href="https://buy.stripe.com/cNi4gzf0D5jO1aQ20JcbC00" data-plan="monthly"
-              aria-label="Elegir plan mensual 2,99 euros al mes">Elegir mensual</a>
-          </div>
-          <div class="price-card reveal">
-            <h3 class="plan-title">
-              <span class="plan-name">Plan Pro</span>
-              <span class="sep">—</span>
-              <span class="price-inline">19,99€ <small>/ mes</small></span>
-            </h3>
-            <div class="features">Uso ilimitado y acceso a funciones principales.</div>
-            <a class="btn-secondary" href="https://buy.stripe.com/28E3cv3hVeUo06M9tbcbC02" data-plan="pro"
-              aria-label="Comprar plan Pro 19,99 euros/mes">Elegir Pro</a>
-          </div>
+      </button>
+      <div class="faq-answer" role="region" aria-labelledby="faq_q_4" id="faq_4">
+        <p>Conservas el acceso hasta el final del período pagado.</p>
+      </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false" aria-controls="faq_5" id="faq_q_5">
+          <span>¿El Pago único incluye futuras mejoras?</span><span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region" aria-labelledby="faq_q_5" id="faq_5">
+          <p>Incluye funciones principales y mantenimiento/seguridad.</p>
         </div>
-      </section>
-
-      <!-- BENEFICIOS -->
-      <section class="panel" aria-labelledby="benefits-title">
-        <h2 id="benefits-title" class="panel-title reveal">Todo lo que necesitas</h2>
-        <ul class="benefits-list">
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">📊</span>
-            <div>
-              <h4>Panel intuitivo</h4>
-              <p>Ve ingresos, gastos y saldo mensual de un vistazo.</p>
-            </div>
-          </li>
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🔄</span>
-            <div>
-              <h4>Sincronización multidispositivo</h4>
-              <p>Accede desde móvil, tablet y ordenador — siempre actualizado.</p>
-            </div>
-          </li>
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🏷️</span>
-            <div>
-              <h4>Categorías personalizadas</h4>
-              <p>Crea tus categorías para un análisis más detallado.</p>
-            </div>
-          </li>
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">🔒</span>
-            <div>
-              <h4>Privacidad y seguridad</h4>
-              <p>Datos cifrados en servidores europeos. Cumplimiento RGPD.</p>
-            </div>
-          </li>
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">📈</span>
-            <div>
-              <h4>Informes avanzados</h4>
-              <p>Comprende tus hábitos de gasto con gráficos sencillos.</p>
-            </div>
-          </li>
-          <li class="benefit-item reveal"><span class="benefit-icon" aria-hidden="true">💡</span>
-            <div>
-              <h4>Soporte dedicado</h4>
-              <p>¿Dudas? Nuestro equipo está para ayudarte.</p>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <!-- FAQ -->
-      <section class="panel" aria-labelledby="faq-title">
-        <h2 id="faq-title" class="panel-title reveal">Preguntas frecuentes</h2>
-        <div class="faq-list">
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_1" id="faq_q_1">
-              <span>¿Necesito tarjeta para la prueba gratuita?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_1" id="faq_1">
-              <p>No se requiere tarjeta para comenzar los 30 días de prueba.</p>
-            </div>
-          </div>
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_2" id="faq_q_2">
-              <span>¿Mis datos están seguros?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_2" id="faq_2">
-              <p>Sí. Cifrado y servidores en la UE, conformes al RGPD.</p>
-            </div>
-          </div>
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_3" id="faq_q_3">
-              <span>¿Puedo usarlo en varios dispositivos?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_3" id="faq_3">
-              <p>Móvil, tablet y ordenador — siempre sincronizado.</p>
-            </div>
-          </div>
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_4" id="faq_q_4">
-              <span>¿Qué pasa si cancelo?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_4" id="faq_4">
-              <p>Conservas el acceso hasta el final del período pagado.</p>
-            </div>
-          </div>
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_5" id="faq_q_5">
-              <span>¿El Pago único incluye futuras mejoras?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_5" id="faq_5">
-              <p>Incluye funciones principales y mantenimiento/seguridad.</p>
-            </div>
-          </div>
-          <div class="faq-item reveal">
-            <button class="faq-question" aria-expanded="false" aria-controls="faq_6" id="faq_q_6">
-              <span>¿Ofrecéis reembolsos?</span><span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-answer" role="region" aria-labelledby="faq_q_6" id="faq_6">
-              <p>Generalmente no — tienes 30 días de prueba para evaluar.</p>
-            </div>
-          </div>
+      </div>
+      <div class="faq-item reveal">
+        <button class="faq-question" aria-expanded="false" aria-controls="faq_6" id="faq_q_6">
+          <span>¿Ofrecéis reembolsos?</span><span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" role="region" aria-labelledby="faq_q_6" id="faq_6">
+          <p>Generalmente no — tienes 30 días de prueba para evaluar.</p>
         </div>
-      </section>
+      </div>
+      </div>
+    </section>
 
-      <!-- TESTIMONIOS -->
-      <section aria-labelledby="testimonials-title">
-        <h2 id="testimonials-title" class="panel-title reveal" style="color:#fff;">Qué dicen los usuarios</h2>
-        <div class="testimonials-grid">
-          <div class="testimonial-card reveal">
-            <blockquote>"Por fin una app sencilla que cumple lo que promete. Me ayudó a ver a dónde va mi dinero cada
-              mes."</blockquote>
-            <footer>— Marcos R.</footer>
-          </div>
-          <div class="testimonial-card reveal">
-            <blockquote>"La uso a diario en el móvil. Añadir un gasto son 5 segundos. ¡Genial!"</blockquote>
-            <footer>— Julia V.</footer>
-          </div>
-          <div class="testimonial-card reveal">
-            <blockquote>"Probé de todo, de hojas de Excel a apps complejas. MyHomesBudget es la solución que buscaba."
-            </blockquote>
-            <footer>— Alejandro M.</footer>
-          </div>
+    <!-- TESTIMONIOS -->
+    <section aria-labelledby="testimonials-title">
+      <h2 id="testimonials-title" class="panel-title reveal" style="color:#fff;">Qué dicen los usuarios</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+          <blockquote>"Por fin una app sencilla que cumple lo que promete. Me ayudó a ver a dónde va mi dinero cada
+            mes."</blockquote>
+          <footer>— Marcos R.</footer>
         </div>
-      </section>
+        <div class="testimonial-card reveal">
+          <blockquote>"La uso a diario en el móvil. Añadir un gasto son 5 segundos. ¡Genial!"</blockquote>
+          <footer>— Julia V.</footer>
+        </div>
+        <div class="testimonial-card reveal">
+          <blockquote>"Probé de todo, de hojas de Excel a apps complejas. MyHomesBudget es la solución que buscaba."
+          </blockquote>
+          <footer>— Alejandro M.</footer>
+        </div>
+      </div>
+    </section>
 
-      <!-- CTA FINAL -->
-      <section class="final-cta reveal" aria-label="Llamada a la acción final">
-        <h2>¿Listo para empezar?</h2>
-        <p>Prueba gratuita de 30 días. Sin tarjeta.</p>
-        <a class="cta" href="/es/signup.html">Empieza gratis – 30 días</a>
-      </section>
-    </main>
+    <!-- CTA FINAL -->
+    <section class="final-cta reveal" aria-label="Llamada a la acción final">
+      <h2>¿Listo para empezar?</h2>
+      <p>Prueba gratuita de 30 días. Sin tarjeta.</p>
+      <a class="cta" href="/es/signup.html">Empieza gratis – 30 días</a>
+    </section>
+  </main>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-      © MyHomesBudget —
-      <a href="/es/pricing.html">Planes y Precios</a> ·
-      <a href="https://www.myhomesbudget.com/es/privacy.html" rel="noopener">Privacidad</a> ·
-      <a href="https://www.myhomesbudget.com/es/terms.html" rel="noopener">Términos</a>
-    </footer>
+  <!-- FOOTER -->
+  <footer class="footer">
+    © MyHomesBudget —
+    <a href="/es/pricing.html">Planes y Precios</a> ·
+    <a href="https://www.myhomesbudget.com/es/privacy.html" rel="noopener">Privacidad</a> ·
+    <a href="https://www.myhomesbudget.com/es/terms.html" rel="noopener">Términos</a>
+  </footer>
   </div>
 
   <script>
