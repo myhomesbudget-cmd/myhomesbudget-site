@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Plans & Pricing · MyHomesBudget</title>
   <meta name="description"
-    content="Choose the plan that suits you best. Control expenses, budget, and goals in just a few minutes a day.">
+    content="Choose the plan that fits you best. Track expenses, budgets and savings goals in just a few minutes a day.">
   <meta name="robots" content="index,follow">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light dark">
   <script>document.documentElement.classList.add('js');</script>
 
-  <!-- CSP (GA4 only) -->
+  <!-- CSP (solo GA4) -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     img-src 'self' https: data:;
@@ -34,590 +34,369 @@
   </script>
 
   <link rel="icon" href="/favicon.ico">
-  <!-- Background image kept as fallback, but CSS overrides it for the animation -->
   <link rel="preload" href="/bg.webp" as="image" imagesrcset="/bg.webp" />
 
   <style>
     :root {
-      /* Palette Web3 Moderno */
-      --bg-deep: #050511;
-      --bg-gradient: radial-gradient(circle at 50% 0%, #2d1b69 0%, #050511 60%);
-      
-      --glass: rgba(255, 255, 255, 0.03);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --glass-highlight: rgba(255, 255, 255, 0.15);
-      
-      --primary: #8b5cf6;
-      --secondary: #06b6d4;
-      --accent: #f472b6;
-      
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      
-      --grad-text: linear-gradient(135deg, #c084fc, #22d3ee);
-      --grad-btn: linear-gradient(90deg, #7c3aed, #0891b2);
-      --grad-btn-hover: linear-gradient(90deg, #6d28d9, #0e7490);
-
-      --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15);
-      --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.5);
-      
-      --radius-lg: 24px;
-      --radius-sm: 12px;
+      --fg: #111;
+      --glass: rgba(255, 255, 255, .62);
+      --card-border: rgba(0, 0, 0, .06);
+      --shadow: 0 10px 30px rgba(0, 0, 0, .10);
+      --radius-lg: 16px;
+      --grad: linear-gradient(135deg, #6c5ce7, #00cec9);
+      --muted: #2a2a2a;
+      --ok: #0ea5e9;
+      --okbg: rgba(14, 165, 233, .12);
     }
 
     * {
-      box-sizing: border-box;
+      box-sizing: border-box
     }
 
     html,
     body {
-      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
-      scroll-behavior: smooth;
+      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif
     }
 
     a:focus-visible,
     button:focus-visible,
     input:focus-visible {
-      outline: 2px solid var(--secondary);
-      outline-offset: 4px;
-      border-radius: 8px;
+      outline: 2px solid #00cec9;
+      outline-offset: 2px;
+      border-radius: 8px
     }
 
     body {
       margin: 0;
-      color: var(--text-main);
-      background-color: var(--bg-deep);
-      /* Fallback statico */
+      color: #fff;
+      background: url("/bg.webp") no-repeat center/cover fixed;
       min-height: 100vh;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      overflow-x: hidden;
-      position: relative;
     }
 
-    /* Sfondo Animato Web3 */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: 
-        radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
-      z-index: -2;
-      animation: pulseGlow 10s ease-in-out infinite alternate;
-    }
-
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    @keyframes pulseGlow {
-      0% { opacity: 0.5; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.1); }
-    }
-
-    /* Container delle stelle (generato via JS) */
-    #star-container {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: -2;
-      pointer-events: none;
-    }
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      opacity: 0;
-      animation: twinkle var(--duration) ease-in-out infinite;
-      animation-delay: var(--delay);
-    }
-    @keyframes twinkle {
-      0% { opacity: 0; transform: scale(0.5); }
-      50% { opacity: var(--opacity); transform: scale(1); box-shadow: 0 0 4px white; }
-      100% { opacity: 0; transform: scale(0.5); }
+      background: rgba(0, 0, 0, .10);
+      z-index: -1
     }
 
     .topbar {
       position: fixed;
-      top: 20px;
+      top: 16px;
       left: 50%;
       transform: translateX(-50%);
       width: min(1100px, calc(100% - 40px));
-      z-index: 50;
+      z-index: 20;
       pointer-events: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 20px;
-      background: rgba(15, 23, 42, 0.3);
-      backdrop-filter: blur(12px);
-      border-radius: 999px;
-      border: 1px solid var(--glass-border);
     }
 
     .logo-link,
     .lang-selector {
-      pointer-events: auto;
+      pointer-events: auto
     }
 
     .logo-link {
       display: flex;
       align-items: center;
-      gap: 12px;
-      text-decoration: none;
+      gap: 8px;
+      text-decoration: none
     }
 
     .logo-image {
-      height: 32px;
-      filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+      height: 32px
     }
 
     .logo-text {
-      font-weight: 700;
+      font-weight: 600;
       color: #fff;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
+      font-size: 1.05rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .35)
     }
 
     .lang-selector {
-      font-size: 20px;
+      font-size: 22px;
       display: flex;
-      gap: 4px;
+      gap: 8px
     }
 
     .lang-selector a {
       color: #fff;
       text-decoration: none;
-      padding: 6px;
-      border-radius: 50%;
-      transition: background 0.2s;
-      opacity: 0.7;
+      padding: 6px 10px;
+      border-radius: 8px
     }
 
     .lang-selector a:hover {
-      background: var(--glass-highlight);
-      opacity: 1;
+      background: rgba(255, 255, 255, .12)
     }
 
     .lang-selector a[aria-current="page"] {
-      background: var(--glass-border);
-      opacity: 1;
-      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, .18);
+      font-weight: 700
     }
 
     .wrap {
       width: min(1100px, calc(100% - 40px));
-      margin: 120px auto 80px auto;
-      position: relative;
-      z-index: 10;
+      margin: 110px auto 64px auto;
     }
 
-    /* Pannello Eroe */
     .hero {
       text-align: center;
-      margin-bottom: 40px;
-      background: transparent; /* Rimosso background per look più pulito */
-      padding: 20px;
+      margin-bottom: 18px;
+      background: var(--glass);
+      color: #111;
+      border-radius: var(--radius-lg);
+      padding: clamp(18px, 4vw, 26px);
+      box-shadow: var(--shadow);
     }
 
     .hero h1 {
-      margin: 0 auto 16px;
-      color: #fff;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
-      line-height: 1.1;
-      font-weight: 800;
-      background: var(--grad-text);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      max-width: 900px;
-      filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.3));
+      margin: 0 0 6px 0;
+      color: #111;
+      font-size: clamp(1.8rem, 4vw, 2.2rem);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .35)
     }
 
     .hero p {
-      margin: 0 auto;
-      color: var(--text-muted);
-      max-width: 600px;
-      font-size: 1.15rem;
-      line-height: 1.6;
+      margin: 6px auto 0;
+      color: #222;
+      max-width: 760px
     }
 
-    /* Switcher */
     .billing {
       display: flex;
-      gap: 16px;
+      gap: 10px;
       align-items: center;
       justify-content: center;
-      margin: 40px 0 20px 0;
-      color: #fff;
-      font-weight: 600;
-      padding: 8px;
-      background: rgba(0,0,0,0.2);
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 999px;
-      border: 1px solid var(--glass-border);
-      backdrop-filter: blur(10px);
+      margin: 16px 0 8px 0;
+      color: #111;
     }
 
     .switch {
-      --w: 60px;
-      --h: 34px;
-      --dot: 26px;
+      --w: 52px;
+      --h: 30px;
+      --dot: 22px;
       position: relative;
       width: var(--w);
       height: var(--h);
       border-radius: 999px;
-      background: #1e293b;
+      background: #ddd;
       cursor: pointer;
-      transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-      border: 1px solid #334155;
+      transition: filter .15s ease;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, .12);
     }
 
     .switch input {
-      display: none;
+      display: none
     }
 
     .knob {
       position: absolute;
       top: 50%;
-      left: 3px;
+      left: 4px;
       transform: translateY(-50%);
       width: var(--dot);
       height: var(--dot);
       border-radius: 50%;
       background: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      transition: left .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .switch:has(input:checked) {
-      background: var(--primary);
-      border-color: var(--primary);
-      box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+      transition: left .18s cubic-bezier(.22, 1, .36, 1);
     }
 
     .switch:has(input:checked) .knob {
-      left: calc(var(--w) - var(--dot) - 3px);
+      left: calc(var(--w) - var(--dot) - 4px);
     }
 
     .save {
       display: inline-block;
-      padding: 4px 12px;
+      margin-left: 8px;
+      padding: 4px 8px;
       border-radius: 999px;
-      background: rgba(14, 165, 233, 0.2);
-      color: #22d3ee;
-      font-size: 0.85rem;
-      font-weight: 700;
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
-      animation: floatBadge 3s ease-in-out infinite;
+      background: var(--okbg);
+      color: #064e66;
+      font-weight: 600
     }
 
-    @keyframes floatBadge {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-
-    /* Griglia */
     .grid {
       display: grid;
-      gap: 24px;
-      margin-top: 20px;
+      gap: 16px;
+      margin-top: 14px;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      perspective: 1000px;
     }
 
     @media (max-width:900px) {
       .grid {
         grid-template-columns: 1fr;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
       }
     }
 
-    /* Cards */
     .card {
       background: var(--glass);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      color: #fff;
+      color: #111;
       border-radius: var(--radius-lg);
-      padding: 32px;
-      box-shadow: var(--shadow-card);
-      border: 1px solid var(--glass-border);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      position: relative;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s, box-shadow 0.3s;
-      overflow: hidden;
-    }
-
-    /* Effetto luce che scorre sulla card */
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-      transition: left 0.5s;
-      pointer-events: none;
-    }
-    .card:hover::before {
-      left: 100%;
-    }
-
-    .card:hover {
-      transform: translateY(-10px) scale(1.02);
-      border-color: rgba(139, 92, 246, 0.3);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), var(--shadow-glow);
-      z-index: 2;
     }
 
     .card.popular {
-      background: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+      outline: 3px solid #6c5ce7;
+      position: relative;
     }
 
     .badge {
       position: absolute;
-      top: 16px;
-      right: 16px;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      background: var(--primary);
+      top: 14px;
+      right: 14px;
+      font-size: .85rem;
+      background: #6c5ce7;
       color: #fff;
       border-radius: 999px;
-      padding: 6px 12px;
-      font-weight: 800;
-      box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-      border: 1px solid rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(108, 92, 231, .35);
     }
 
     .title {
       font-weight: 800;
-      font-size: 1.5rem;
-      margin: 0 0 8px 0;
-      background: #fff;
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .card.popular .title {
-      color: var(--primary); /* Fallback */
-      background: linear-gradient(135deg, #fff 30%, #c084fc 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      font-size: 1.2rem;
+      margin: 0 0 6px 0
     }
 
     .subtitle {
-      margin: 0 0 24px 0;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.4;
+      margin: 0 0 10px 0;
+      color: #333
     }
 
     .price {
       display: flex;
       align-items: baseline;
       gap: 6px;
-      margin: 0 0 24px 0;
+      margin: 6px 0 10px 0
     }
 
     .price .num {
       font-weight: 900;
-      font-size: 3rem;
-      color: #fff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      font-size: 2rem;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
     }
 
     .per {
-      color: var(--text-muted);
-      font-weight: 500;
+      color: #333
     }
 
     .feat {
-      margin: 0 0 32px 0;
+      margin: 10px 0 14px 0;
       padding: 0;
       list-style: none;
-      color: #e2e8f0;
+      color: #111
     }
 
     .feat li {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: flex-start;
-      margin: 12px 0;
-      font-size: 0.95rem;
+      margin: 8px 0
     }
 
     .tick {
       display: inline-grid;
       place-items: center;
-      min-width: 24px;
-      height: 24px;
+      min-width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: rgba(34, 211, 238, 0.15);
-      color: #22d3ee;
-      font-weight: 900;
-      font-size: 0.8rem;
-      box-shadow: 0 0 10px rgba(34, 211, 238, 0.1);
+      background: var(--okbg);
+      color: #0c4a6e;
+      font-weight: 700
     }
 
     .cta {
-      margin-top: auto;
+      margin-top: auto
     }
 
     .btn {
-      position: relative;
       cursor: pointer;
       border: none;
-      border-radius: var(--radius-sm);
-      padding: 16px 20px;
-      background: #334155;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: var(--grad);
       color: #fff;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 1rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .14);
+      transition: transform .15s ease, filter .15s ease;
       width: 100%;
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    /* Pulsante gradiente per Popular/Pro */
-    .card.popular .btn, .card:nth-child(3) .btn {
-      background: var(--grad-btn);
-    }
-
-    .btn::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--grad-btn-hover);
-      opacity: 0;
-      z-index: -1;
-      transition: opacity 0.3s;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
-      letter-spacing: 0.5px;
-    }
-
-    .btn:hover::after {
-      opacity: 1;
+      filter: brightness(1.07);
+      transform: translateY(-1px)
     }
 
     .small {
-      margin-top: 14px;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      text-align: center;
-      opacity: 0.8;
+      margin-top: 10px;
+      color: #333;
+      font-size: .95rem
     }
 
-    /* FAQ */
     .faq {
-      margin-top: 60px;
+      margin-top: 18px;
       background: var(--glass);
-      backdrop-filter: blur(20px);
-      color: #fff;
+      color: #111;
       border-radius: var(--radius-lg);
-      padding: 32px;
-      box-shadow: var(--shadow-card);
-      border: 1px solid var(--glass-border);
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .faq h2 {
-      text-align: center;
-      margin-bottom: 24px;
-      font-size: 1.8rem;
+      padding: 18px;
+      box-shadow: var(--shadow);
     }
 
     details {
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      padding: 16px 20px;
-      background: rgba(255, 255, 255, 0.02);
-      margin: 12px 0;
-      transition: background 0.2s;
-    }
-    
-    details:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    details[open] {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(139, 92, 246, 0.3);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, .84);
+      margin: 8px 0
     }
 
     summary {
       cursor: pointer;
       font-weight: 700;
-      color: #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      list-style: none;
-    }
-    
-    summary::after {
-      content: "+";
-      font-size: 1.5rem;
-      color: var(--primary);
-      font-weight: 300;
-      line-height: 0;
-    }
-    
-    details[open] summary::after {
-      content: "-";
+      color: #111
     }
 
     details p {
-      margin: 12px 0 0 0;
-      color: var(--text-muted);
-      line-height: 1.6;
+      margin: 8px 0 0 0;
+      color: #2b2b2b
     }
 
     .footnotes {
-      color: var(--text-muted);
+      color: #222;
       text-align: center;
-      margin-top: 40px;
-      opacity: 0.6;
+      margin-top: 10px
     }
 
     .footnotes small {
       display: block;
-      margin: 6px 0;
+      margin: 4px 0
     }
   </style>
 </head>
 
 <body>
-  <!-- Container per le stelle animate -->
-  <div id="star-container"></div>
-
   <nav class="topbar" aria-label="Top bar">
     <a href="/en/" class="logo-link" title="MyHomesBudget">
-      <img src="/homes.png" alt="MyHomesBudget Logo" class="logo-image" loading="lazy">
+      <img src="/homes.png" alt="MyHomesBudget logo" class="logo-image" loading="lazy">
       <span class="logo-text">MyHomesBudget</span>
     </a>
     <span class="lang-selector" aria-label="Language selector">
@@ -630,11 +409,11 @@
   <main class="wrap">
     <section class="hero">
       <h1>Keep your budget under control in just a few minutes a day</h1>
-      <p>Simple tools to manage expenses, budgets, and savings goals. Pick a plan and start now — you can change your mind anytime.</p>
+      <p>Simple tools to manage expenses, budgets and savings goals. Choose your plan and get started — you can change your mind anytime.</p>
 
-      <div class="billing" role="group" aria-label="Select billing">
+      <div class="billing" role="group" aria-label="Select billing period">
         <span>Monthly</span>
-        <label class="switch" title="Enable yearly billing (save money)">
+        <label class="switch" title="Activate yearly billing (save money)">
           <input id="billToggle" type="checkbox" aria-label="Yearly billing">
           <span class="knob"></span>
         </label>
@@ -647,13 +426,13 @@
       <!-- Starter -->
       <article class="card">
         <h2 class="title">Starter</h2>
-        <p class="subtitle">To start worry-free</p>
+        <p class="subtitle">To get started with no stress</p>
         <div class="price">
           <span class="num" data-month="€0" data-year="€0">€0</span>
           <span class="per">/ month</span>
         </div>
         <ul class="feat">
-          <li><span class="tick">✓</span> Personal budget and goals</li>
+          <li><span class="tick">✓</span> Personal budgets and goals</li>
           <li><span class="tick">✓</span> Custom categories and subcategories</li>
           <li><span class="tick">✓</span> Basic monthly reports</li>
         </ul>
@@ -665,9 +444,9 @@
 
       <!-- Plus (popular) -->
       <article class="card popular">
-        <div class="badge">Most Popular</div>
+        <div class="badge">Most popular</div>
         <h2 class="title">Plus</h2>
-        <p class="subtitle">For complete and consistent management</p>
+        <p class="subtitle">For complete and consistent money management</p>
         <div class="price">
           <span class="num" data-month="€2.99" data-year="€29.90" data-save="2 months free">€2.99</span>
           <span class="per">/ month</span>
@@ -693,18 +472,18 @@
         </div>
         <ul class="feat">
           <li><span class="tick">✓</span> Everything in Plus</li>
-          <li><span class="tick">✓</span> Multiple goals and custom period monitoring</li>
+          <li><span class="tick">✓</span> Multiple goals and custom time ranges</li>
           <li><span class="tick">✓</span> Unlimited multi-device access</li>
         </ul>
         <div class="cta">
-          <a class="btn" href="#" data-plan="pro">Get Pro</a>
+          <a class="btn" href="#" data-plan="pro">Go Pro</a>
           <p class="small">Flexible billing</p>
         </div>
       </article>
     </section>
 
-    <section class="faq" aria-label="Frequently Asked Questions">
-      <h2 style="margin:0 0 24px 0">Frequently Asked Questions</h2>
+    <section class="faq" aria-label="Frequently asked questions">
+      <h2 style="margin:0 0 8px 0">Frequently asked questions</h2>
 
       <details>
         <summary>Can I cancel anytime?</summary>
@@ -712,19 +491,19 @@
       </details>
 
       <details>
-        <summary>What's the difference between Monthly and Yearly?</summary>
-        <p>With yearly you save the equivalent of 2 months compared to monthly. Access remains the same.</p>
+        <summary>What’s the difference between Monthly and Yearly?</summary>
+        <p>With the yearly plan you save the equivalent of 2 months compared to monthly billing. Access and features remain exactly the same.</p>
       </details>
 
       <details>
-        <summary>Is a card required for the Starter plan?</summary>
+        <summary>Do I need a card for the Starter plan?</summary>
         <p>No. You can start for free and upgrade to Plus/Pro at any time.</p>
       </details>
     </section>
 
     <div class="footnotes">
       <small>VAT included where applicable. Prices in EUR.</small>
-      <small>Features listed may evolve: we constantly update the product.</small>
+      <small>Features may evolve over time: we continuously improve the product.</small>
     </div>
   </main>
 
@@ -732,38 +511,7 @@
     // GA4
     gtag('event', 'pricing_viewed', { lang: 'en' });
 
-    // Web3 Sparkle Effect Script
-    (function createSparkles() {
-      const container = document.getElementById('star-container');
-      const starCount = 30; // Numero di stelle
-      
-      for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-        
-        // Posizione casuale
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        // Dimensione casuale (piccole per eleganza)
-        const size = Math.random() * 3 + 1; 
-        // Durata e ritardo casuali per asincronia
-        const duration = Math.random() * 3 + 2; // 2-5s
-        const delay = Math.random() * 5;
-        const opacity = Math.random() * 0.7 + 0.3;
-
-        star.style.left = `${x}%`;
-        star.style.top = `${y}%`;
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.setProperty('--duration', `${duration}s`);
-        star.style.setProperty('--delay', `${delay}s`);
-        star.style.setProperty('--opacity', `${opacity}`);
-        
-        container.appendChild(star);
-      }
-    })();
-
-    // Billing Toggle Logic (Invariata)
+    // Toggle billing
     const toggle = document.getElementById('billToggle');
     const saveBadge = document.getElementById('saveBadge');
     const priceEls = document.querySelectorAll('.price .num');
@@ -787,11 +535,12 @@
         el.textContent = val || '';
       });
       perEls.forEach(el => el.textContent = annual ? '/ year' : '/ month');
-      
+      // save badge (if defined on the plan)
       const anySave = [...priceEls].some(el => (el.dataset.save && toggle.checked));
       saveBadge.style.display = anySave ? 'inline-block' : 'none';
-      if (anySave) saveBadge.textContent = priceEls[1]?.dataset.save || 'Save money';
+      if (anySave) saveBadge.textContent = priceEls[1]?.dataset.save || 'Save';
 
+      // Update links
       document.querySelectorAll('.btn[data-plan]').forEach(btn => {
         const plan = btn.dataset.plan;
         if (LINKS[plan]) {
@@ -804,7 +553,7 @@
     toggle.addEventListener('change', applyBillingMode);
     applyBillingMode();
 
-    // Click Tracking
+    // CTA click tracking
     document.querySelectorAll('.btn[data-plan]').forEach(btn => {
       btn.addEventListener('click', e => {
         const plan = btn.dataset.plan;
@@ -813,7 +562,7 @@
       });
     });
 
-    // FAQ Tracking
+    // FAQ tracking
     document.querySelectorAll('.faq details').forEach(d => {
       d.addEventListener('toggle', () => {
         gtag('event', 'faq_toggle', { q: d.querySelector('summary')?.textContent?.trim(), open: d.open, lang: 'en' });
@@ -821,4 +570,5 @@
     });
   </script>
 </body>
+
 </html>
