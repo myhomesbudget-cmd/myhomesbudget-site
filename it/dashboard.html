@@ -1214,15 +1214,25 @@
           .or(`created_by.eq.${user.id},created_by.is.null`);
         if (cError) throw cError;
 
-        // 3) Filtro: preferisco gli ID, se ci sono
-        let filtered;
+        // 3) Filtro e Fallback Sicuro (FIX)
+        let filtered = [];
+
+        // A. Se abbiamo IDs salvati (nuovo metodo), usiamoli
         if (selectedIds.length > 0) {
           filtered = (allUserCategories || []).filter(cat => selectedIds.includes(cat.id));
-        } else {
+        } 
+        // B. Altrimenti se abbiamo nomi salvati (vecchio metodo), usiamoli
+        else if (selectedNames.length > 0) {
           filtered = (allUserCategories || []).filter(cat => selectedNames.includes(cat.name));
         }
 
-        allCategories = filtered;
+        // C. FIX CRITICO: Se 'filtered' è vuoto (nessuna corrispondenza o primo avvio),
+        // usa 'allUserCategories' invece di lasciare la lista vuota.
+        if (filtered.length > 0) {
+            allCategories = filtered;
+        } else {
+            allCategories = allUserCategories || [];
+        }
 
         // 4) Recupero le sottocategorie
         if (allCategories.length > 0) {
